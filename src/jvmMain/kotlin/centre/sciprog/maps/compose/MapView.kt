@@ -1,18 +1,21 @@
 package centre.sciprog.maps.compose
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.input.pointer.pointerInput
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.get
@@ -24,6 +27,8 @@ import kotlinx.coroutines.async
 import mu.KotlinLogging
 import org.jetbrains.skia.Image
 import java.net.URL
+import java.nio.file.Path
+import kotlin.io.path.*
 import kotlin.math.*
 
 
@@ -36,26 +41,48 @@ private data class OsMapTileId(
     val j: Int,
 )
 
-private fun OsMapTileId.osmUrl() = URL("https://tile.openstreetmap.org/${zoom.toInt()}/${i}/${j}.png")
-
 private data class OsMapTile(
     val id: OsMapTileId,
     val image: ImageBitmap,
 )
 
-private class OsMapCache(val scope: CoroutineScope, val client: HttpClient) {
+private class OsMapCache(val scope: CoroutineScope, val client: HttpClient, private val cacheDirectory: Path? = null) {
     private val cache = HashMap<OsMapTileId, Deferred<ImageBitmap>>()
+
+    private fun OsMapTileId.osmUrl() = URL("https://tile.openstreetmap.org/${zoom}/${i}/${j}.png")
+
+    private fun OsMapTileId.cacheFilePath() = cacheDirectory?.resolve("${zoom}/${i}/${j}.png")
+
+    private fun CoroutineScope.downloadImageAsync(id: OsMapTileId) = scope.async(Dispatchers.IO) {
+        id.cacheFilePath()?.let { path ->
+            if (path.exists()) {
+                try {
+                    return@async Image.makeFromEncoded(path.readBytes()).toComposeImageBitmap()
+                } catch (ex: Exception) {
+                    logger.debug { "Failed to load image from $path" }
+                    path.deleteIfExists()
+                }
+            }
+        }
+
+        val url = id.osmUrl()
+        val byteArray = client.get(url).readBytes()
+
+        logger.debug { "Finished downloading map tile with id $id from $url" }
+
+        id.cacheFilePath()?.let { path ->
+            logger.debug { "Caching map tile $id to $path" }
+
+            path.parent.createDirectories()
+            path.writeBytes(byteArray)
+        }
+
+        Image.makeFromEncoded(byteArray).toComposeImageBitmap()
+    }
 
     public suspend fun loadTile(id: OsMapTileId): OsMapTile {
         val image = cache.getOrPut(id) {
-            scope.async(Dispatchers.IO) {
-                val url = id.osmUrl()
-                val byteArray = client.get(url).readBytes()
-
-                logger.debug { "Finished downloading map tile with id $id from $url" }
-
-                Image.makeFromEncoded(byteArray).toComposeImageBitmap()
-            }
+            scope.downloadImageAsync(id)
         }.await()
 
         return OsMapTile(id, image)
@@ -71,16 +98,15 @@ fun MapView(
     initialRectangle: MapRectangle,
     modifier: Modifier,
     client: HttpClient = remember { HttpClient(CIO) },
+    cacheDirectory: Path? = null,
     initialZoom: Double? = null,
 ) {
-    val mapRectangle by remember { mutableStateOf(initialRectangle) }
-
     val scope = rememberCoroutineScope()
-    val mapCache = remember { OsMapCache(scope, client) }
+    val mapCache = remember { OsMapCache(scope, client, cacheDirectory) }
+    val mapTiles = remember {  mutableStateListOf<OsMapTile>()}
 
-    val mapTiles = mutableStateListOf<OsMapTile>()
-
-    var canvasSize by remember { mutableStateOf(Size(512f,512f)) }
+    var mapRectangle by remember { mutableStateOf(initialRectangle) }
+    var canvasSize by remember { mutableStateOf(Size(512f, 512f)) }
 
     //TODO provide override for tiling
     val numTilesHorizontal by derivedStateOf {
@@ -107,11 +133,11 @@ fun MapView(
         )
     }
 
-    //val scaleFactor = WebMercatorProjection.scaleFactor(computedZoom)
+    val scaleFactor by derivedStateOf { WebMercatorProjection.scaleFactor(zoom) }
 
     val topLeft by derivedStateOf { with(WebMercatorProjection) { mapRectangle.topLeft.toMercator(zoom) } }
 
-    LaunchedEffect(canvasSize, zoom) {
+    LaunchedEffect(mapRectangle, canvasSize, zoom) {
 
         val startIndexHorizontal = (topLeft.x / TILE_SIZE).toInt()
         val startIndexVertical = (topLeft.y / TILE_SIZE).toInt()
@@ -142,37 +168,33 @@ fun MapView(
         }
     }.onPointerEvent(PointerEventType.Press) {
         println(coordinates)
+    }.pointerInput(Unit) {
+        detectDragGestures { change: PointerInputChange, dragAmount: Offset ->
+            mapRectangle = mapRectangle.move(dragAmount.y / scaleFactor, -dragAmount.x / scaleFactor)
+        }
     }.fillMaxSize()
-//        .pointerInput(Unit) {
-//        forEachGesture {
-//            awaitPointerEventScope {
-//                val down = awaitFirstDown()
-//                drag(down.id) {
-//                    println(currentEvent.mouseEvent?.button)
-//                }
-//            }
-//        }
-//    }
+
 
     Column {
         //Text(coordinates.toString())
         Canvas(canvasModifier) {
-            if(canvasSize!= size) {
+            if (canvasSize != size) {
                 canvasSize = size
                 logger.debug { "Redraw canvas. Size: $size" }
             }
-
-            mapTiles.forEach { (id, image) ->
-                //converting back from tile index to screen offset
-                logger.debug { "Drawing tile $id" }
-                val offset = Offset(
-                    id.i.toFloat() * TILE_SIZE - topLeft.x.toFloat(),
-                    id.j.toFloat() * TILE_SIZE - topLeft.y.toFloat()
-                )
-                drawImage(
-                    image = image,
-                    topLeft = offset
-                )
+            clipRect {
+                mapTiles.forEach { (id, image) ->
+                    //converting back from tile index to screen offset
+                    logger.debug { "Drawing tile $id" }
+                    val offset = Offset(
+                        id.i.toFloat() * TILE_SIZE - topLeft.x.toFloat(),
+                        id.j.toFloat() * TILE_SIZE - topLeft.y.toFloat()
+                    )
+                    drawImage(
+                        image = image,
+                        topLeft = offset
+                    )
+                }
             }
         }
     }

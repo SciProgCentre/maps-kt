@@ -11,16 +11,17 @@ import androidx.compose.ui.window.application
 import centre.sciprog.maps.compose.GeodeticMapCoordinates
 import centre.sciprog.maps.compose.MapRectangle
 import centre.sciprog.maps.compose.MapView
+import java.nio.file.Path
 
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
-        val map = MapRectangle(
+        val map = MapRectangle.of(
             GeodeticMapCoordinates.ofDegrees(66.513260, 0.0),
             GeodeticMapCoordinates.ofDegrees(40.979897, 44.999999),
         )
-        MapView(map, modifier = Modifier.fillMaxSize())
+        MapView(map,  modifier = Modifier.fillMaxSize(), initialZoom = 4.0, cacheDirectory = Path.of("mapCache"))
     }
 }
 
