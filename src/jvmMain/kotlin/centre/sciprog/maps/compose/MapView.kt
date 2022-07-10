@@ -9,12 +9,10 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.onPointerEvent
@@ -28,7 +26,9 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import mu.KotlinLogging
+import org.jetbrains.skia.Font
 import org.jetbrains.skia.Image
+import org.jetbrains.skia.Paint
 import java.net.URL
 import java.nio.file.Path
 import kotlin.io.path.*
@@ -93,13 +93,10 @@ private class OsMapCache(val scope: CoroutineScope, val client: HttpClient, priv
     }
 }
 
-private fun Color.toPaint(): org.jetbrains.skia.Paint = org.jetbrains.skia.Paint().setARGB(
-    (alpha * 256).toInt(),
-    (red * 256).toInt(),
-    (green * 256).toInt(),
-    (blue * 256).toInt()
-)
-
+private fun Color.toPaint(): Paint = Paint().apply {
+    isAntiAlias = true
+    color = toArgb()
+}
 
 private fun Double.toIndex(): Int = floor(this / TILE_SIZE).toInt()
 private fun Int.toCoordinate(): Double = (this * TILE_SIZE).toDouble()
@@ -142,7 +139,7 @@ fun MapView(
 
         for (j in verticalIndices) {
             for (i in horizontalIndices) {
-                if(z == viewPoint.zoom.toInt() && i in indexRange && j in indexRange) {
+                if (z == viewPoint.zoom.toInt() && i in indexRange && j in indexRange) {
                     val tileId = OsMapTileId(z, i, j)
                     val tile = mapCache.loadTile(tileId)
                     mapTiles.add(tile)
@@ -211,10 +208,24 @@ fun MapView(
                             center = feature.center.toOffset()
                         )
                         is MapLineFeature -> drawLine(feature.color, feature.a.toOffset(), feature.b.toOffset())
-                        is MapImageFeature -> drawImage(feature.image, feature.position.toOffset())
-                        is MapTextFeature -> drawIntoCanvas {
+                        is MapBitmapImageFeature -> drawImage(feature.image, feature.position.toOffset())
+                        is MapVectorImageFeature -> {
                             val offset = feature.position.toOffset()
-                            it.nativeCanvas.drawString(feature.text, offset.x, offset.y, null, feature.color.toPaint())
+                            translate(offset.x - feature.size.width/2, offset.y - feature.size.height/2) {
+                                with(feature.painter) {
+                                    draw(feature.size)
+                                }
+                            }
+                        }
+                        is MapTextFeature -> drawIntoCanvas { canvas ->
+                            val offset = feature.position.toOffset()
+                            canvas.nativeCanvas.drawString(
+                                feature.text,
+                                offset.x + 5,
+                                offset.y - 5,
+                                Font().apply { size = 16f },
+                                feature.color.toPaint()
+                            )
                         }
 
                     }

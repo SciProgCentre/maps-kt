@@ -1,14 +1,20 @@
 package centre.sciprog.maps.compose
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.VectorPainter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.unit.IntSize
 
 //TODO replace zoom range with zoom-based representation change
 sealed class MapFeature(val zoomRange: ClosedFloatingPointRange<Double>)
 
 private val defaultZoomRange = 1.0..18.0
 
-private fun Pair<Double, Double>.toCoordinates() = GeodeticMapCoordinates.ofDegrees(first, second)
+internal fun Pair<Double, Double>.toCoordinates() = GeodeticMapCoordinates.ofDegrees(first, second)
 
 class MapCircleFeature(
     val center: GeodeticMapCoordinates,
@@ -48,11 +54,30 @@ class MapTextFeature(
     val text: String,
     zoomRange: ClosedFloatingPointRange<Double> = defaultZoomRange,
     val color: Color = Color.Red,
-): MapFeature(zoomRange)
+) : MapFeature(zoomRange)
 
-class MapImageFeature(
+class MapBitmapImageFeature(
     val position: GeodeticMapCoordinates,
     val image: ImageBitmap,
+    val size: IntSize = IntSize(15, 15),
     zoomRange: ClosedFloatingPointRange<Double> = defaultZoomRange,
     val color: Color = Color.Red,
-): MapFeature(zoomRange)
+) : MapFeature(zoomRange)
+
+
+class MapVectorImageFeature internal constructor(
+    val position: GeodeticMapCoordinates,
+    val painter: VectorPainter,
+    val size: Size,
+    zoomRange: ClosedFloatingPointRange<Double> = defaultZoomRange,
+    val color: Color = Color.Red,
+) : MapFeature(zoomRange)
+
+@Composable
+fun MapVectorImageFeature(
+    position: GeodeticMapCoordinates,
+    image: ImageVector,
+    size: Size = Size(20f,20f),
+    zoomRange: ClosedFloatingPointRange<Double> = defaultZoomRange,
+    color: Color = Color.Red,
+): MapVectorImageFeature = MapVectorImageFeature(position, rememberVectorPainter(image), size, zoomRange, color)
