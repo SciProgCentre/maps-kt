@@ -1,6 +1,5 @@
 package centre.sciprog.maps.compose
 
-import kotlinx.coroutines.flow.Flow
 import kotlin.math.PI
 
 /**
@@ -44,17 +43,18 @@ public class GeodeticMapCoordinates private constructor(public val latitude: Dou
     }
 }
 
-public interface GeoToScreenConversion {
-    public fun getScreenX(gmc: GeodeticMapCoordinates): Double
-    public fun getScreenY(gmc: GeodeticMapCoordinates): Double
 
-    public fun invalidationFlow(): Flow<Unit>
-}
-
-public interface ScreenMapCoordinates {
-    public val gmc: GeodeticMapCoordinates
-    public val converter: GeoToScreenConversion
-
-    public val x: Double get() = converter.getScreenX(gmc)
-    public val y: Double get() = converter.getScreenX(gmc)
-}
+//public interface GeoToScreenConversion {
+//    public fun getScreenX(gmc: GeodeticMapCoordinates): Double
+//    public fun getScreenY(gmc: GeodeticMapCoordinates): Double
+//
+//    public fun invalidationFlow(): Flow<Unit>
+//}
+//
+//public interface ScreenMapCoordinates {
+//    public val gmc: GeodeticMapCoordinates
+//    public val converter: GeoToScreenConversion
+//
+//    public val x: Double get() = converter.getScreenX(gmc)
+//    public val y: Double get() = converter.getScreenX(gmc)
+//}

@@ -7,7 +7,7 @@ package centre.sciprog.maps.compose
 
 import kotlin.math.*
 
-public data class TileWebMercatorCoordinates(val zoom: Double, val x: Double, val y: Double)
+public data class WebMercatorCoordinates(val zoom: Double, val x: Double, val y: Double)
 
 public object WebMercatorProjection  {
 
@@ -16,7 +16,7 @@ public object WebMercatorProjection  {
      */
     public fun scaleFactor(zoom: Double) = 256.0 / 2 / PI * 2.0.pow(zoom)
 
-    public fun toGeodetic(mercator: TileWebMercatorCoordinates): GeodeticMapCoordinates {
+    public fun toGeodetic(mercator: WebMercatorCoordinates): GeodeticMapCoordinates {
         val scaleFactor = scaleFactor(mercator.zoom)
         val longitude = mercator.x / scaleFactor - PI
         val latitude = (atan(exp(PI - mercator.y / scaleFactor)) - PI / 4) * 2
@@ -26,11 +26,11 @@ public object WebMercatorProjection  {
     /**
      * https://en.wikipedia.org/wiki/Web_Mercator_projection#Formulas
      */
-    public fun toMercator(gmc: GeodeticMapCoordinates, zoom: Double): TileWebMercatorCoordinates {
+    public fun toMercator(gmc: GeodeticMapCoordinates, zoom: Double): WebMercatorCoordinates {
         require(abs(gmc.latitude) <= MercatorProjection.MAXIMUM_LATITUDE) { "Latitude exceeds the maximum latitude for mercator coordinates" }
 
         val scaleFactor = scaleFactor(zoom)
-        return TileWebMercatorCoordinates(
+        return WebMercatorCoordinates(
             zoom = zoom,
             x = scaleFactor * (gmc.longitude + PI),
             y = scaleFactor * (PI - ln(tan(PI / 4 + gmc.latitude / 2)))

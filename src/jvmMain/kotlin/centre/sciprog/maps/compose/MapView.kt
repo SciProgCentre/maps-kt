@@ -92,13 +92,13 @@ private class OsMapCache(val scope: CoroutineScope, val client: HttpClient, priv
 private fun Double.toIndex(): Int = floor(this / TILE_SIZE).toInt()
 private fun Int.toCoordinate(): Double = (this * TILE_SIZE).toDouble()
 
-
 private val logger = KotlinLogging.logger("MapView")
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MapView(
     initialViewPoint: MapViewPoint,
+    features: Collection<MapFeature> = emptyList(),
     modifier: Modifier = Modifier.fillMaxSize(),
     client: HttpClient = remember { HttpClient(CIO) },
     cacheDirectory: Path? = null,
@@ -117,7 +117,6 @@ fun MapView(
     LaunchedEffect(viewPoint, canvasSize) {
         val left = centerCoordinates.x - canvasSize.width / 2
         val right = centerCoordinates.x + canvasSize.width / 2
-
         val horizontalIndices = left.toIndex()..right.toIndex()
 
         val top = (centerCoordinates.y + canvasSize.height / 2)
@@ -136,24 +135,32 @@ fun MapView(
 
     }
 
+    fun Offset.toMercator(): WebMercatorCoordinates = WebMercatorCoordinates(
+        viewPoint.zoom,
+        x + centerCoordinates.x - canvasSize.width / 2,
+        y + centerCoordinates.y - canvasSize.height / 2,
+    )
+
+    fun Offset.toGeodetic() = WebMercatorProjection.toGeodetic(toMercator())
+
+    fun WebMercatorCoordinates.toOffset(): Offset = Offset(
+        (canvasSize.width / 2 - centerCoordinates.x + x).toFloat(),
+        (canvasSize.height / 2 - centerCoordinates.y + y).toFloat()
+    )
+
+    fun GeodeticMapCoordinates.toOffset(): Offset = WebMercatorProjection.toMercator(this, viewPoint.zoom).toOffset()
+
     var coordinates by remember { mutableStateOf<GeodeticMapCoordinates?>(null) }
 
     val canvasModifier = modifier.onPointerEvent(PointerEventType.Move) {
         val position = it.changes.first().position
-        val screenCoordinates = TileWebMercatorCoordinates(
-            viewPoint.zoom,
-            position.x + centerCoordinates.x - canvasSize.width / 2,
-            position.y + centerCoordinates.y - canvasSize.height / 2,
-        )
-        coordinates = with(WebMercatorProjection) {
-            toGeodetic(screenCoordinates)
-        }
+        coordinates = position.toGeodetic()
     }.onPointerEvent(PointerEventType.Press) {
         println(coordinates)
     }.onPointerEvent(PointerEventType.Scroll) {
         viewPoint = viewPoint.zoom(-it.changes.first().scrollDelta.y.toDouble())
     }.pointerInput(Unit) {
-        detectDragGestures { change: PointerInputChange, dragAmount: Offset ->
+        detectDragGestures { _: PointerInputChange, dragAmount: Offset ->
             viewPoint = viewPoint.move(-dragAmount.x, +dragAmount.y)
         }
     }.fillMaxSize()
@@ -178,6 +185,12 @@ fun MapView(
                         image = image,
                         topLeft = offset
                     )
+                }
+                features.filter { viewPoint.zoom in it.zoomRange }.forEach {
+                    when (it) {
+                        is MapCircleFeature -> drawCircle(it.color, it.size, center = it.center.toOffset())
+                        is MapLineFeature -> drawLine(it.color, it.a.toOffset(), it.b.toOffset())
+                    }
                 }
             }
         }
