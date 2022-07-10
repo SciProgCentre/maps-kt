@@ -29,7 +29,7 @@ import org.jetbrains.skia.Image
 import java.net.URL
 import java.nio.file.Path
 import kotlin.io.path.*
-import kotlin.math.*
+import kotlin.math.floor
 
 
 private const val TILE_SIZE = 256
@@ -89,64 +89,46 @@ private class OsMapCache(val scope: CoroutineScope, val client: HttpClient, priv
     }
 }
 
+private fun Double.toIndex(): Int = floor(this / TILE_SIZE).toInt()
+private fun Int.toCoordinate(): Double = (this * TILE_SIZE).toDouble()
+
 
 private val logger = KotlinLogging.logger("MapView")
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MapView(
-    initialRectangle: MapRectangle,
-    modifier: Modifier,
+    initialViewPoint: MapViewPoint,
+    modifier: Modifier = Modifier.fillMaxSize(),
     client: HttpClient = remember { HttpClient(CIO) },
     cacheDirectory: Path? = null,
-    initialZoom: Double? = null,
 ) {
+    var viewPoint by remember { mutableStateOf(initialViewPoint) }
+
     val scope = rememberCoroutineScope()
     val mapCache = remember { OsMapCache(scope, client, cacheDirectory) }
-    val mapTiles = remember {  mutableStateListOf<OsMapTile>()}
+    val mapTiles = remember { mutableStateListOf<OsMapTile>() }
 
-    var mapRectangle by remember { mutableStateOf(initialRectangle) }
+    //var mapRectangle by remember { mutableStateOf(initialRectangle) }
     var canvasSize by remember { mutableStateOf(Size(512f, 512f)) }
 
-    //TODO provide override for tiling
-    val numTilesHorizontal by derivedStateOf {
-        ceil(canvasSize.width / TILE_SIZE).toInt()
+    val centerCoordinates by derivedStateOf { viewPoint.toMercator() }
 
-    }
-    val numTilesVertical by derivedStateOf {
-        ceil(canvasSize.height / TILE_SIZE).toInt()
-    }
+    LaunchedEffect(viewPoint, canvasSize) {
+        val left = centerCoordinates.x - canvasSize.width / 2
+        val right = centerCoordinates.x + canvasSize.width / 2
 
-    val zoom by derivedStateOf {
-        val xOffsetUnscaled = mapRectangle.bottomRight.longitude - mapRectangle.topLeft.longitude
-        val yOffsetUnscaled = ln(
-            tan(PI / 4 + mapRectangle.topLeft.latitude / 2) / tan(PI / 4 + mapRectangle.bottomRight.latitude / 2)
-        )
+        val horizontalIndices = left.toIndex()..right.toIndex()
 
-        initialZoom ?: ceil(
-            log2(
-                PI / max(
-                    abs(xOffsetUnscaled / numTilesHorizontal),
-                    abs(yOffsetUnscaled / numTilesVertical)
-                )
-            )
-        )
-    }
-
-    val scaleFactor by derivedStateOf { WebMercatorProjection.scaleFactor(zoom) }
-
-    val topLeft by derivedStateOf { with(WebMercatorProjection) { mapRectangle.topLeft.toMercator(zoom) } }
-
-    LaunchedEffect(mapRectangle, canvasSize, zoom) {
-
-        val startIndexHorizontal = (topLeft.x / TILE_SIZE).toInt()
-        val startIndexVertical = (topLeft.y / TILE_SIZE).toInt()
+        val top = (centerCoordinates.y + canvasSize.height / 2)
+        val bottom = (centerCoordinates.y - canvasSize.height / 2)
+        val verticalIndices = bottom.toIndex()..top.toIndex()
 
         mapTiles.clear()
 
-        for (j in 0 until numTilesVertical) {
-            for (i in 0 until numTilesHorizontal) {
-                val tileId = OsMapTileId(zoom.toInt(), startIndexHorizontal + i, startIndexVertical + j)
+        for (j in verticalIndices) {
+            for (i in horizontalIndices) {
+                val tileId = OsMapTileId(viewPoint.zoom.toInt(), i, j)
                 val tile = mapCache.loadTile(tileId)
                 mapTiles.add(tile)
             }
@@ -159,18 +141,20 @@ fun MapView(
     val canvasModifier = modifier.onPointerEvent(PointerEventType.Move) {
         val position = it.changes.first().position
         val screenCoordinates = TileWebMercatorCoordinates(
-            zoom,
-            position.x.toDouble() + topLeft.x,
-            position.y.toDouble() + topLeft.y
+            viewPoint.zoom,
+            position.x + centerCoordinates.x - canvasSize.width / 2,
+            position.y + centerCoordinates.y - canvasSize.height / 2,
         )
         coordinates = with(WebMercatorProjection) {
-            screenCoordinates.toGeodetic()
+            toGeodetic(screenCoordinates)
         }
     }.onPointerEvent(PointerEventType.Press) {
         println(coordinates)
+    }.onPointerEvent(PointerEventType.Scroll) {
+        viewPoint = viewPoint.zoom(-it.changes.first().scrollDelta.y.toDouble())
     }.pointerInput(Unit) {
         detectDragGestures { change: PointerInputChange, dragAmount: Offset ->
-            mapRectangle = mapRectangle.move(dragAmount.y / scaleFactor, -dragAmount.x / scaleFactor)
+            viewPoint = viewPoint.move(-dragAmount.x, +dragAmount.y)
         }
     }.fillMaxSize()
 
@@ -187,8 +171,8 @@ fun MapView(
                     //converting back from tile index to screen offset
                     logger.debug { "Drawing tile $id" }
                     val offset = Offset(
-                        id.i.toFloat() * TILE_SIZE - topLeft.x.toFloat(),
-                        id.j.toFloat() * TILE_SIZE - topLeft.y.toFloat()
+                        (canvasSize.width / 2 - centerCoordinates.x + id.i.toCoordinate()).toFloat(),
+                        (canvasSize.height / 2 - centerCoordinates.y + id.j.toCoordinate()).toFloat()
                     )
                     drawImage(
                         image = image,
