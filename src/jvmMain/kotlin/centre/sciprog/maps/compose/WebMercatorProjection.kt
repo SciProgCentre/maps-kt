@@ -7,14 +7,14 @@ package centre.sciprog.maps.compose
 
 import kotlin.math.*
 
-public data class WebMercatorCoordinates(val zoom: Double, val x: Double, val y: Double)
+public data class WebMercatorCoordinates(val zoom: Int, val x: Double, val y: Double)
 
 public object WebMercatorProjection  {
 
     /**
      * Compute radians to projection coordinates ratio for given [zoom] factor
      */
-    public fun scaleFactor(zoom: Double) = 256.0 / 2 / PI * 2.0.pow(zoom)
+    public fun scaleFactor(zoom: Int) = 256.0 / 2 / PI * 2.0.pow(zoom)
 
     public fun toGeodetic(mercator: WebMercatorCoordinates): GeodeticMapCoordinates {
         val scaleFactor = scaleFactor(mercator.zoom)
@@ -26,7 +26,7 @@ public object WebMercatorProjection  {
     /**
      * https://en.wikipedia.org/wiki/Web_Mercator_projection#Formulas
      */
-    public fun toMercator(gmc: GeodeticMapCoordinates, zoom: Double): WebMercatorCoordinates {
+    public fun toMercator(gmc: GeodeticMapCoordinates, zoom: Int): WebMercatorCoordinates {
         require(abs(gmc.latitude) <= MercatorProjection.MAXIMUM_LATITUDE) { "Latitude exceeds the maximum latitude for mercator coordinates" }
 
         val scaleFactor = scaleFactor(zoom)

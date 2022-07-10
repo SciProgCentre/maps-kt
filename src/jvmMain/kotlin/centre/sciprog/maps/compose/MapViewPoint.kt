@@ -1,13 +1,15 @@
 package centre.sciprog.maps.compose
 
+import kotlin.math.roundToInt
+
 /**
- * Observable position on the map
+ * Observable position on the map. Includes observation coordinate and [zoom] factor
  */
 data class MapViewPoint(
     val focus: GeodeticMapCoordinates,
     val zoom: Double,
 ) {
-    val scaleFactor by lazy { WebMercatorProjection.scaleFactor(zoom) }
+    val scaleFactor by lazy { WebMercatorProjection.scaleFactor(zoom.roundToInt()) }
 }
 
 fun MapViewPoint.move(deltaX: Float, deltaY: Float): MapViewPoint {
@@ -32,8 +34,4 @@ fun MapViewPoint.move(delta: GeodeticMapCoordinates): MapViewPoint {
     return MapViewPoint(newCoordinates, zoom)
 }
 
-fun MapViewPoint.zoom(zoomDelta: Double): MapViewPoint {
-    return copy(zoom = (zoom + zoomDelta).coerceIn(2.0, 18.0))
-}
-
-fun MapViewPoint.toMercator() = WebMercatorProjection.toMercator(focus, zoom)
+fun MapViewPoint.zoom(zoomDelta: Double): MapViewPoint = copy(zoom = (zoom + zoomDelta).coerceIn(2.0, 18.0))

@@ -1,12 +1,16 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import centre.sciprog.maps.compose.*
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
 import java.nio.file.Path
 
 @Composable
@@ -26,7 +30,18 @@ fun App() {
             add(MapTextFeature(pointOne.toCoordinates(), "Home"))
             add(MapVectorImageFeature(pointOne.toCoordinates(), Icons.Filled.Home))
         }
-        MapView(viewPoint, features = features, cacheDirectory = Path.of("mapCache"))
+
+        val scope = rememberCoroutineScope()
+        val mapTileProvider = remember { OpenStreetMapTileProvider(scope, HttpClient(CIO), Path.of("mapCache")) }
+
+        var coordinates by remember { mutableStateOf<GeodeticMapCoordinates?>(null) }
+
+        Column {
+            Text(coordinates?.toString() ?: "")
+            MapView(viewPoint, mapTileProvider, features = features) {
+                coordinates = it
+            }
+        }
     }
 }
 

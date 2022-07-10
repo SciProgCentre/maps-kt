@@ -20,16 +20,16 @@ public open class MercatorProjection(
     private val correctedRadius: ((GeodeticMapCoordinates) -> Double)? = null,
 ) {
 
-    public fun MercatorCoordinates.toGeodetic(): GeodeticMapCoordinates {
+    public fun toGeodetic(mc: MercatorCoordinates): GeodeticMapCoordinates {
         val res = GeodeticMapCoordinates.ofRadians(
-            atan(sinh(y / radius)),
-            baseLongitude + x / radius,
+            atan(sinh(mc.y / radius)),
+            baseLongitude + mc.x / radius,
         )
         return if (correctedRadius != null) {
             val r = correctedRadius.invoke(res)
             GeodeticMapCoordinates.ofRadians(
-                atan(sinh(y / r)),
-                baseLongitude + x / r,
+                atan(sinh(mc.y / r)),
+                baseLongitude + mc.x / r,
             )
         } else {
             res
@@ -39,12 +39,12 @@ public open class MercatorProjection(
     /**
      * https://en.wikipedia.org/wiki/Web_Mercator_projection#Formulas
      */
-    public fun GeodeticMapCoordinates.toMercator(): MercatorCoordinates {
-        require(abs(latitude) <= MAXIMUM_LATITUDE) { "Latitude exceeds the maximum latitude for mercator coordinates" }
-        val r = correctedRadius?.invoke(this) ?: radius
+    public fun toMercator(gmc: GeodeticMapCoordinates): MercatorCoordinates {
+        require(abs(gmc.latitude) <= MAXIMUM_LATITUDE) { "Latitude exceeds the maximum latitude for mercator coordinates" }
+        val r = correctedRadius?.invoke(gmc) ?: radius
         return MercatorCoordinates(
-            x = r * (longitude - baseLongitude),
-            y = r * ln(tan(PI / 4 + latitude / 2))
+            x = r * (gmc.longitude - baseLongitude),
+            y = r * ln(tan(PI / 4 + gmc.latitude / 2))
         )
     }
 
