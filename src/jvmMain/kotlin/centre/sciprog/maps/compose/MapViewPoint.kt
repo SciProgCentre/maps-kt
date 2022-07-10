@@ -33,7 +33,7 @@ fun MapViewPoint.move(delta: GeodeticMapCoordinates): MapViewPoint {
 }
 
 fun MapViewPoint.zoom(zoomDelta: Double): MapViewPoint {
-    return copy(zoom = (zoom + zoomDelta).coerceIn(1.0, 18.0))
+    return copy(zoom = (zoom + zoomDelta).coerceIn(2.0, 18.0))
 }
 
 fun MapViewPoint.toMercator() = WebMercatorProjection.toMercator(focus, zoom)

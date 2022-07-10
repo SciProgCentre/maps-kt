@@ -9,8 +9,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -30,6 +33,7 @@ import java.net.URL
 import java.nio.file.Path
 import kotlin.io.path.*
 import kotlin.math.floor
+import kotlin.math.pow
 
 
 private const val TILE_SIZE = 256
@@ -89,6 +93,14 @@ private class OsMapCache(val scope: CoroutineScope, val client: HttpClient, priv
     }
 }
 
+private fun Color.toPaint(): org.jetbrains.skia.Paint = org.jetbrains.skia.Paint().setARGB(
+    (alpha * 256).toInt(),
+    (red * 256).toInt(),
+    (green * 256).toInt(),
+    (blue * 256).toInt()
+)
+
+
 private fun Double.toIndex(): Int = floor(this / TILE_SIZE).toInt()
 private fun Int.toCoordinate(): Double = (this * TILE_SIZE).toDouble()
 
@@ -115,6 +127,7 @@ fun MapView(
     val centerCoordinates by derivedStateOf { viewPoint.toMercator() }
 
     LaunchedEffect(viewPoint, canvasSize) {
+        val z = viewPoint.zoom.toInt()
         val left = centerCoordinates.x - canvasSize.width / 2
         val right = centerCoordinates.x + canvasSize.width / 2
         val horizontalIndices = left.toIndex()..right.toIndex()
@@ -125,11 +138,15 @@ fun MapView(
 
         mapTiles.clear()
 
+        val indexRange = 0 until 2.0.pow(z).toInt()
+
         for (j in verticalIndices) {
             for (i in horizontalIndices) {
-                val tileId = OsMapTileId(viewPoint.zoom.toInt(), i, j)
-                val tile = mapCache.loadTile(tileId)
-                mapTiles.add(tile)
+                if(z == viewPoint.zoom.toInt() && i in indexRange && j in indexRange) {
+                    val tileId = OsMapTileId(z, i, j)
+                    val tile = mapCache.loadTile(tileId)
+                    mapTiles.add(tile)
+                }
             }
         }
 
@@ -186,10 +203,20 @@ fun MapView(
                         topLeft = offset
                     )
                 }
-                features.filter { viewPoint.zoom in it.zoomRange }.forEach {
-                    when (it) {
-                        is MapCircleFeature -> drawCircle(it.color, it.size, center = it.center.toOffset())
-                        is MapLineFeature -> drawLine(it.color, it.a.toOffset(), it.b.toOffset())
+                features.filter { viewPoint.zoom in it.zoomRange }.forEach { feature ->
+                    when (feature) {
+                        is MapCircleFeature -> drawCircle(
+                            feature.color,
+                            feature.size,
+                            center = feature.center.toOffset()
+                        )
+                        is MapLineFeature -> drawLine(feature.color, feature.a.toOffset(), feature.b.toOffset())
+                        is MapImageFeature -> drawImage(feature.image, feature.position.toOffset())
+                        is MapTextFeature -> drawIntoCanvas {
+                            val offset = feature.position.toOffset()
+                            it.nativeCanvas.drawString(feature.text, offset.x, offset.y, null, feature.color.toPaint())
+                        }
+
                     }
                 }
             }
