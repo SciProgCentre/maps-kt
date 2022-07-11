@@ -36,7 +36,6 @@ private val logger = KotlinLogging.logger("MapView")
 /**
  * A component that renders map and provides basic map manipulation capabilities
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 actual fun MapView(
     initialViewPoint: MapViewPoint,
@@ -58,8 +57,6 @@ actual fun MapView(
 
     // Load tiles asynchronously
     LaunchedEffect(viewPoint, canvasSize) {
-        //remember zoom state to avoid races
-        val z = zoom
         val left = centerCoordinates.x - canvasSize.width / 2
         val right = centerCoordinates.x + canvasSize.width / 2
         val horizontalIndices = mapTileProvider.toIndex(left)..mapTileProvider.toIndex(right)
@@ -70,14 +67,18 @@ actual fun MapView(
 
         mapTiles.clear()
 
-        val indexRange = 0 until 2.0.pow(z).toInt()
+        val indexRange = 0 until 2.0.pow(zoom).toInt()
 
         for (j in verticalIndices) {
             for (i in horizontalIndices) {
-                if (z == zoom && i in indexRange && j in indexRange) {
-                    val tileId = TileId(z, i, j)
-                    val tile = mapTileProvider.loadTile(tileId)
-                    mapTiles.add(tile)
+                if (i in indexRange && j in indexRange) {
+                    val tileId = TileId(zoom, i, j)
+                    try {
+                        val tile = mapTileProvider.loadTile(tileId)
+                        mapTiles.add(tile)
+                    } catch (ex: Exception) {
+                        logger.error(ex) { "Failed to load tile $tileId" }
+                    }
                 }
             }
         }
@@ -99,6 +100,7 @@ actual fun MapView(
 
     fun GeodeticMapCoordinates.toOffset(): Offset = WebMercatorProjection.toMercator(this, zoom).toOffset()
 
+    @OptIn(ExperimentalComposeUiApi::class)
     val canvasModifier = modifier.onPointerEvent(PointerEventType.Press) {
         onClick(it.changes.first().position.toGeodetic())
     }.onPointerEvent(PointerEventType.Scroll) {

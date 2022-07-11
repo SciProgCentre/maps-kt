@@ -13,25 +13,50 @@ import centre.sciprog.maps.MapViewPoint
 import centre.sciprog.maps.compose.*
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import kotlinx.coroutines.delay
 import java.nio.file.Path
+import kotlin.random.Random
+
+/**
+ *  initial set of features
+ */
+@Composable
+private fun initialFeatures() = buildList {
+    val pointOne = 55.568548 to 37.568604
+    val pointTwo = 55.929444 to 37.518434
+    add(MapVectorImageFeature(pointOne.toCoordinates(), Icons.Filled.Home))
+//            add(MapCircleFeature(pointOne))
+    add(MapCircleFeature(pointTwo))
+    add(MapLineFeature(pointOne, pointTwo))
+    add(MapTextFeature(pointOne.toCoordinates(), "Home"))
+}
+
 
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
-        val viewPoint = MapViewPoint(
-            GeodeticMapCoordinates.ofDegrees(55.7558, 37.6173),
-            6.0
-        )
-        val pointOne = 55.568548 to 37.568604
-        val pointTwo = 55.929444 to 37.518434
-        val features = buildList<MapFeature> {
-//            add(MapCircleFeature(pointOne))
-            add(MapCircleFeature(pointTwo))
-            add(MapLineFeature(pointOne, pointTwo))
-            add(MapTextFeature(pointOne.toCoordinates(), "Home"))
-            add(MapVectorImageFeature(pointOne.toCoordinates(), Icons.Filled.Home))
+        //create a view point
+        val viewPoint = remember {
+            MapViewPoint(
+                GeodeticMapCoordinates.ofDegrees(55.7558, 37.6173),
+                6.0
+            )
         }
+
+        // observable list of features
+        val features = mutableStateListOf<MapFeature>().apply {
+            addAll(initialFeatures())
+        }
+
+//        // test dynamic rendering
+//        LaunchedEffect(features) {
+//            repeat(10000) {
+//                delay(10)
+//                val randomPoint = Random.nextDouble(55.568548, 55.929444) to Random.nextDouble(37.518434, 37.568604)
+//                features.add(MapCircleFeature(randomPoint))
+//            }
+//        }
 
         val scope = rememberCoroutineScope()
         val mapTileProvider = remember { OpenStreetMapTileProvider(scope, HttpClient(CIO), Path.of("mapCache")) }
@@ -39,6 +64,7 @@ fun App() {
         var coordinates by remember { mutableStateOf<GeodeticMapCoordinates?>(null) }
 
         Column {
+            //display click coordinates
             Text(coordinates?.toString() ?: "")
             MapView(viewPoint, mapTileProvider, features = features) {
                 coordinates = it

@@ -14,8 +14,6 @@ data class MapTile(
     val image: ImageBitmap,
 )
 
-
-
 interface MapTileProvider {
     suspend fun loadTile(id: TileId): MapTile
     fun toIndex(d: Double): Int = floor(d / DEFAULT_TILE_SIZE).toInt()

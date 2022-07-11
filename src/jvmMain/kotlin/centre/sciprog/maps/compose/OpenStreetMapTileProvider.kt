@@ -5,15 +5,13 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.readBytes
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import mu.KotlinLogging
 import org.jetbrains.skia.Image
 import java.net.URL
 import java.nio.file.Path
 import kotlin.io.path.*
+import kotlin.math.pow
 
 /**
  * A [MapTileProvider] based on Open Street Map API. With in-memory and file cache
@@ -25,6 +23,9 @@ public class OpenStreetMapTileProvider(private val scope: CoroutineScope, privat
 
     private fun TileId.cacheFilePath() = cacheDirectory.resolve("${zoom}/${i}/${j}.png")
 
+    /**
+     * Download and cache the tile image
+     */
     private fun downloadImageAsync(id: TileId) = scope.async(Dispatchers.IO) {
         id.cacheFilePath()?.let { path ->
             if (path.exists()) {
@@ -53,6 +54,11 @@ public class OpenStreetMapTileProvider(private val scope: CoroutineScope, privat
     }
 
     override suspend fun loadTile(id: TileId): MapTile {
+        val indexRange = indexRange(id.zoom)
+        if(id.i !in indexRange || id.j !in indexRange){
+            error("Indices (${id.i}, ${id.j}) are not in index range $indexRange for zoom ${id.zoom}")
+        }
+
         val image = cache.getOrPut(id) {
             downloadImageAsync(id)
         }.await()
@@ -62,5 +68,6 @@ public class OpenStreetMapTileProvider(private val scope: CoroutineScope, privat
 
     companion object{
         private val logger = KotlinLogging.logger("OpenStreetMapCache")
+        private fun indexRange(zoom: Int): IntRange = 0 until 2.0.pow(zoom).toInt()
     }
 }
