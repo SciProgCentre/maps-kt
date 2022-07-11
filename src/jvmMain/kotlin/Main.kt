@@ -8,6 +8,8 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.*
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import centre.sciprog.maps.GeodeticMapCoordinates
+import centre.sciprog.maps.MapViewPoint
 import centre.sciprog.maps.compose.*
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO

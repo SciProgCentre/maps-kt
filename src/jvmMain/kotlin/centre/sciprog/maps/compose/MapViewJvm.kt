@@ -18,11 +18,11 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
+import centre.sciprog.maps.*
 import mu.KotlinLogging
 import org.jetbrains.skia.Font
 import org.jetbrains.skia.Paint
 import kotlin.math.pow
-import kotlin.math.round
 import kotlin.math.roundToInt
 
 
@@ -38,12 +38,12 @@ private val logger = KotlinLogging.logger("MapView")
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun MapView(
+actual fun MapView(
     initialViewPoint: MapViewPoint,
     mapTileProvider: MapTileProvider,
-    features: Collection<MapFeature> = emptyList(),
-    modifier: Modifier = Modifier.fillMaxSize(),
-    onClick: (GeodeticMapCoordinates) -> Unit = {},
+    features: Collection<MapFeature>,
+    modifier: Modifier,
+    onClick: (GeodeticMapCoordinates) -> Unit,
 ) {
     var viewPoint by remember { mutableStateOf(initialViewPoint) }
 

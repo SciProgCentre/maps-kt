@@ -1,4 +1,4 @@
-package centre.sciprog.maps.compose
+package centre.sciprog.maps
 
 import kotlin.math.roundToInt
 

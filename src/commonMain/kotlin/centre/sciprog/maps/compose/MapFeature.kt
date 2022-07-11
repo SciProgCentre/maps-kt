@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.IntSize
+import centre.sciprog.maps.GeodeticMapCoordinates
 
 //TODO replace zoom range with zoom-based representation change
 sealed class MapFeature(val zoomRange: IntRange)
