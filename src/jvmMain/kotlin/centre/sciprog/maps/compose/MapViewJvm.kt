@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -41,9 +42,9 @@ private val logger = KotlinLogging.logger("MapView")
 actual fun MapView(
     initialViewPoint: MapViewPoint,
     mapTileProvider: MapTileProvider,
-    features: Collection<MapFeature>,
-    modifier: Modifier,
+    features: SnapshotStateMap<FeatureId, MapFeature>,
     onClick: (GeodeticMapCoordinates) -> Unit,
+    modifier: Modifier,
 ) {
     var viewPoint by remember { mutableStateOf(initialViewPoint) }
 
@@ -112,7 +113,7 @@ actual fun MapView(
         }
     }.fillMaxSize()
 
-    fun DrawScope.drawFeature(zoom: Int, feature: MapFeature){
+    fun DrawScope.drawFeature(zoom: Int, feature: MapFeature) {
         when (feature) {
             is MapFeatureSelector -> drawFeature(zoom, feature.selector(zoom))
             is MapCircleFeature -> drawCircle(
@@ -162,8 +163,8 @@ actual fun MapView(
                     topLeft = offset
                 )
             }
-            features.filter { zoom in it.zoomRange }.forEach { feature ->
-                drawFeature(zoom,feature)
+            features.values.filter { zoom in it.zoomRange }.forEach { feature ->
+                drawFeature(zoom, feature)
             }
         }
     }

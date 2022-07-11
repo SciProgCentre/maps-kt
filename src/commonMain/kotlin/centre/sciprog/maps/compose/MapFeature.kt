@@ -15,7 +15,7 @@ sealed class MapFeature(val zoomRange: IntRange)
 
 internal fun Pair<Double, Double>.toCoordinates() = GeodeticMapCoordinates.ofDegrees(first, second)
 
-private val defaultZoomRange = 1..18
+internal val defaultZoomRange = 1..18
 
 /**
  * A feature that decides what to show depending on the zoom value (it could change size of shape)
@@ -29,31 +29,12 @@ class MapCircleFeature(
     val color: Color = Color.Red,
 ) : MapFeature(zoomRange)
 
-fun MapCircleFeature(
-    centerCoordinates: Pair<Double, Double>,
-    zoomRange: IntRange = defaultZoomRange,
-    size: Float = 5f,
-    color: Color = Color.Red,
-) = MapCircleFeature(
-    centerCoordinates.toCoordinates(),
-    zoomRange,
-    size,
-    color
-)
-
 class MapLineFeature(
     val a: GeodeticMapCoordinates,
     val b: GeodeticMapCoordinates,
     zoomRange: IntRange = defaultZoomRange,
     val color: Color = Color.Red,
 ) : MapFeature(zoomRange)
-
-fun MapLineFeature(
-    aCoordinates: Pair<Double, Double>,
-    bCoordinates: Pair<Double, Double>,
-    zoomRange: IntRange = defaultZoomRange,
-    color: Color = Color.Red,
-) = MapLineFeature(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), zoomRange, color)
 
 class MapTextFeature(
     val position: GeodeticMapCoordinates,
