@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
@@ -111,6 +112,38 @@ actual fun MapView(
         }
     }.fillMaxSize()
 
+    fun DrawScope.drawFeature(zoom: Int, feature: MapFeature){
+        when (feature) {
+            is MapFeatureSelector -> drawFeature(zoom, feature.selector(zoom))
+            is MapCircleFeature -> drawCircle(
+                feature.color,
+                feature.size,
+                center = feature.center.toOffset()
+            )
+            is MapLineFeature -> drawLine(feature.color, feature.a.toOffset(), feature.b.toOffset())
+            is MapBitmapImageFeature -> drawImage(feature.image, feature.position.toOffset())
+            is MapVectorImageFeature -> {
+                val offset = feature.position.toOffset()
+                translate(offset.x - feature.size.width / 2, offset.y - feature.size.height / 2) {
+                    with(feature.painter) {
+                        draw(feature.size)
+                    }
+                }
+            }
+            is MapTextFeature -> drawIntoCanvas { canvas ->
+                val offset = feature.position.toOffset()
+                canvas.nativeCanvas.drawString(
+                    feature.text,
+                    offset.x + 5,
+                    offset.y - 5,
+                    Font().apply { size = 16f },
+                    feature.color.toPaint()
+                )
+            }
+
+        }
+    }
+
 
     Canvas(canvasModifier) {
         if (canvasSize != size) {
@@ -130,34 +163,7 @@ actual fun MapView(
                 )
             }
             features.filter { zoom in it.zoomRange }.forEach { feature ->
-                when (feature) {
-                    is MapCircleFeature -> drawCircle(
-                        feature.color,
-                        feature.size,
-                        center = feature.center.toOffset()
-                    )
-                    is MapLineFeature -> drawLine(feature.color, feature.a.toOffset(), feature.b.toOffset())
-                    is MapBitmapImageFeature -> drawImage(feature.image, feature.position.toOffset())
-                    is MapVectorImageFeature -> {
-                        val offset = feature.position.toOffset()
-                        translate(offset.x - feature.size.width / 2, offset.y - feature.size.height / 2) {
-                            with(feature.painter) {
-                                draw(feature.size)
-                            }
-                        }
-                    }
-                    is MapTextFeature -> drawIntoCanvas { canvas ->
-                        val offset = feature.position.toOffset()
-                        canvas.nativeCanvas.drawString(
-                            feature.text,
-                            offset.x + 5,
-                            offset.y - 5,
-                            Font().apply { size = 16f },
-                            feature.color.toPaint()
-                        )
-                    }
-
-                }
+                drawFeature(zoom,feature)
             }
         }
     }

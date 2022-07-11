@@ -13,9 +13,14 @@ import centre.sciprog.maps.GeodeticMapCoordinates
 //TODO replace zoom range with zoom-based representation change
 sealed class MapFeature(val zoomRange: IntRange)
 
+internal fun Pair<Double, Double>.toCoordinates() = GeodeticMapCoordinates.ofDegrees(first, second)
+
 private val defaultZoomRange = 1..18
 
-internal fun Pair<Double, Double>.toCoordinates() = GeodeticMapCoordinates.ofDegrees(first, second)
+/**
+ * A feature that decides what to show depending on the zoom value (it could change size of shape)
+ */
+class MapFeatureSelector(val selector: (zoom: Int) -> MapFeature) : MapFeature(defaultZoomRange)
 
 class MapCircleFeature(
     val center: GeodeticMapCoordinates,
@@ -62,7 +67,6 @@ class MapBitmapImageFeature(
     val image: ImageBitmap,
     val size: IntSize = IntSize(15, 15),
     zoomRange: IntRange = defaultZoomRange,
-    val color: Color = Color.Red,
 ) : MapFeature(zoomRange)
 
 
@@ -71,14 +75,12 @@ class MapVectorImageFeature internal constructor(
     val painter: VectorPainter,
     val size: Size,
     zoomRange: IntRange = defaultZoomRange,
-    val color: Color = Color.Red,
 ) : MapFeature(zoomRange)
 
 @Composable
 fun MapVectorImageFeature(
     position: GeodeticMapCoordinates,
     image: ImageVector,
-    size: Size = Size(20f,20f),
+    size: Size = Size(20f, 20f),
     zoomRange: IntRange = defaultZoomRange,
-    color: Color = Color.Red,
-): MapVectorImageFeature = MapVectorImageFeature(position, rememberVectorPainter(image), size, zoomRange, color)
+): MapVectorImageFeature = MapVectorImageFeature(position, rememberVectorPainter(image), size, zoomRange)

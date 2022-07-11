@@ -1,10 +1,10 @@
 import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
+    `maven-publish`
 }
 
 group = "center.sciptog"
@@ -31,15 +31,15 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
-                implementation("io.ktor:ktor-client-core:$ktorVersion")
+                api("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-cio:$ktorVersion")
                 implementation("io.github.microutils:kotlin-logging:2.1.23")
-                implementation("ch.qos.logback:logback-classic:1.2.11")
             }
         }
         val jvmMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
+                implementation("ch.qos.logback:logback-classic:1.2.11")
             }
         }
         val jvmTest by getting
