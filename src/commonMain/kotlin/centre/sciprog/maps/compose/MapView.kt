@@ -2,8 +2,6 @@ package centre.sciprog.maps.compose
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Modifier
 import centre.sciprog.maps.GeodeticMapCoordinates
 import centre.sciprog.maps.MapViewPoint
@@ -12,7 +10,7 @@ import centre.sciprog.maps.MapViewPoint
 expect fun MapView(
     initialViewPoint: MapViewPoint,
     mapTileProvider: MapTileProvider,
-    features: SnapshotStateMap<FeatureId, MapFeature> = mutableStateMapOf(),
+    features: Map<FeatureId, MapFeature>,
     onClick: (GeodeticMapCoordinates) -> Unit = {},
     modifier: Modifier = Modifier.fillMaxSize(),
 )
@@ -21,9 +19,9 @@ expect fun MapView(
 fun MapView(
     initialViewPoint: MapViewPoint,
     mapTileProvider: MapTileProvider,
-    modifier: Modifier = Modifier.fillMaxSize(),
     onClick: (GeodeticMapCoordinates) -> Unit = {},
-    addFeatures: @Composable FeatureBuilder.() -> Unit,
+    modifier: Modifier = Modifier.fillMaxSize(),
+    addFeatures: @Composable() (FeatureBuilder.() -> Unit) = {},
 ) {
     val featuresBuilder = MapFeatureBuilder()
     featuresBuilder.addFeatures()

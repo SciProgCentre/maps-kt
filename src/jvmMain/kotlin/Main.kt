@@ -43,27 +43,22 @@ fun App() {
             MapView(viewPoint, mapTileProvider, onClick = { gmc: GeodeticMapCoordinates -> coordinates = gmc }) {
                 val pointOne = 55.568548 to 37.568604
                 val pointTwo = 55.929444 to 37.518434
+
                 image(pointOne, Icons.Filled.Home)
+
+                //remember feature Id
                 val circleId: FeatureId = circle(pointTwo)
+
                 line(pointOne, pointTwo)
                 text(pointOne, "Home")
 
                 scope.launch {
                     while (isActive){
                         delay(200)
+                        //Overwrite a feature with new color
                         circle(pointTwo, id = circleId, color = Color(Random.nextFloat(), Random.nextFloat(), Random.nextFloat()))
                     }
                 }
-
-//                // test dynamic rendering
-//                scope.launch{
-//                    repeat(10000) {
-//                        delay(10)
-//                        val randomPoint =
-//                            Random.nextDouble(55.568548, 55.929444) to Random.nextDouble(37.518434, 37.568604)
-//                        circle(randomPoint)
-//                    }
-//                }
             }
         }
     }
