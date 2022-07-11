@@ -16,10 +16,14 @@ data class MapTile(
 
 interface MapTileProvider {
     suspend fun loadTile(id: TileId): MapTile
-    fun toIndex(d: Double): Int = floor(d / DEFAULT_TILE_SIZE).toInt()
-    fun toCoordinate(i: Int): Double = (i * DEFAULT_TILE_SIZE).toDouble()
 
-    companion object{
+    val tileSize: Int get() = DEFAULT_TILE_SIZE
+
+    fun toIndex(d: Double): Int = floor(d / tileSize).toInt()
+
+    fun toCoordinate(i: Int): Double = (i * tileSize).toDouble()
+
+    companion object {
         const val DEFAULT_TILE_SIZE = 256
     }
 }
