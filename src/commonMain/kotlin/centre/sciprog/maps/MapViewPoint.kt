@@ -1,6 +1,8 @@
 package centre.sciprog.maps
 
+import kotlin.math.pow
 import kotlin.math.roundToInt
+import kotlin.math.sign
 
 /**
  * Observable position on the map. Includes observation coordinate and [zoom] factor
@@ -35,3 +37,12 @@ fun MapViewPoint.move(delta: GeodeticMapCoordinates): MapViewPoint {
 }
 
 fun MapViewPoint.zoom(zoomDelta: Double): MapViewPoint = copy(zoom = (zoom + zoomDelta).coerceIn(2.0, 18.0))
+
+fun MapViewPoint.zoom(zoomDelta: Double, at: GeodeticMapCoordinates): MapViewPoint {
+    val difScale = 2.0.pow(-zoomDelta)
+    val newCenter = GeodeticMapCoordinates.ofRadians(
+        focus.latitude + (at.latitude - focus.latitude) * difScale,
+        focus.longitude + (at.longitude - focus.longitude) * difScale
+    )
+    return MapViewPoint(newCenter, (zoom + zoomDelta).coerceIn(2.0, 18.0))
+}

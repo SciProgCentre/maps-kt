@@ -70,7 +70,11 @@ actual fun MapView(
         val (xPos, yPos) = it.changes.first().position
         onClick(DpOffset(xPos.toDp(), yPos.toDp()).toGeodetic())
     }.onPointerEvent(PointerEventType.Scroll) {
-        viewPoint = viewPoint.zoom(-it.changes.first().scrollDelta.y.toDouble())
+        val change = it.changes.first()
+        val (xPos, yPos) = change.position
+        //compute invariant point of translation
+        val at = DpOffset(xPos.toDp(), yPos.toDp()).toGeodetic()
+        viewPoint = viewPoint.zoom(-change.scrollDelta.y.toDouble(), at)
     }.pointerInput(Unit) {
         detectDragGestures { _: PointerInputChange, dragAmount: Offset ->
             viewPoint = viewPoint.move(-dragAmount.x, +dragAmount.y)
