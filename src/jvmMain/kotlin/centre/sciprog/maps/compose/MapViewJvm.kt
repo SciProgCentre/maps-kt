@@ -23,6 +23,7 @@ import centre.sciprog.maps.*
 import mu.KotlinLogging
 import org.jetbrains.skia.Font
 import org.jetbrains.skia.Paint
+import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -169,8 +170,8 @@ actual fun MapView(
         }
         clipRect {
             val tileSize = IntSize(
-                (mapTileProvider.tileSize.dp * tileScale.toFloat()).roundToPx(),
-                (mapTileProvider.tileSize.dp * tileScale.toFloat()).roundToPx()
+                ceil((mapTileProvider.tileSize.dp * tileScale.toFloat()).toPx()).toInt(),
+                ceil((mapTileProvider.tileSize.dp * tileScale.toFloat()).toPx()).toInt()
             )
             mapTiles.forEach { (id, image) ->
                 //converting back from tile index to screen offset
