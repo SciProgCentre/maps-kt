@@ -10,10 +10,13 @@ data class MapViewPoint(
     val focus: GeodeticMapCoordinates,
     val zoom: Double,
 ) {
-    val scaleFactor by lazy { WebMercatorProjection.scaleFactor(zoom.roundToInt()) }
+    val scaleFactor by lazy { WebMercatorProjection.scaleFactor(zoom) }
 }
 
-fun MapViewPoint.move(deltaX: Double, deltaY: Double): MapViewPoint {
+/**
+ *
+ */
+internal fun MapViewPoint.move(deltaX: Double, deltaY: Double): MapViewPoint {
     val newCoordinates = GeodeticMapCoordinates.ofRadians(
         (focus.latitude + deltaY / scaleFactor).coerceIn(
             -MercatorProjection.MAXIMUM_LATITUDE,
