@@ -43,12 +43,15 @@ actual fun MapView(
     mapTileProvider: MapTileProvider,
     features: Map<FeatureId, MapFeature>,
     onClick: (GeodeticMapCoordinates) -> Unit,
+    config: MapViewConfig,
     modifier: Modifier,
 ) {
 
     var viewPoint by remember { mutableStateOf(initialViewPoint) }
 
     val zoom: Int by derivedStateOf { viewPoint.zoom.roundToInt() }
+
+    val tileScale: Double by derivedStateOf { 2.0.pow(viewPoint.zoom - zoom) }
 
     val mapTiles = remember { mutableStateListOf<MapTile>() }
 
@@ -59,10 +62,13 @@ actual fun MapView(
 
     fun DpOffset.toMercator(): WebMercatorCoordinates = WebMercatorCoordinates(
         zoom,
-        (x - canvasSize.width / 2).value + centerCoordinates.x,
-        (y - canvasSize.height / 2).value + centerCoordinates.y,
+        (x - canvasSize.width / 2).value / tileScale + centerCoordinates.x,
+        (y - canvasSize.height / 2).value / tileScale + centerCoordinates.y,
     )
 
+    /*
+     * Convert screen independent offset to GMC, adjusting for fractional zoom
+     */
     fun DpOffset.toGeodetic() = WebMercatorProjection.toGeodetic(toMercator())
 
     @OptIn(ExperimentalComposeUiApi::class)
@@ -73,23 +79,23 @@ actual fun MapView(
         val change = it.changes.first()
         val (xPos, yPos) = change.position
         //compute invariant point of translation
-        val at = DpOffset(xPos.toDp(), yPos.toDp()).toGeodetic()
-        viewPoint = viewPoint.zoom(-change.scrollDelta.y.toDouble(), at)
+        val invariant = DpOffset(xPos.toDp(), yPos.toDp()).toGeodetic()
+        viewPoint = viewPoint.zoom(-change.scrollDelta.y.toDouble() * config.zoomSpeed, invariant)
     }.pointerInput(Unit) {
         detectDragGestures { _: PointerInputChange, dragAmount: Offset ->
-            viewPoint = viewPoint.move(-dragAmount.x, +dragAmount.y)
+            viewPoint = viewPoint.move(-dragAmount.x.toDp().value / tileScale, +dragAmount.y.toDp().value / tileScale)
         }
     }.fillMaxSize()
 
 
     // Load tiles asynchronously
     LaunchedEffect(viewPoint, canvasSize) {
-        val left = centerCoordinates.x - canvasSize.width.value / 2
-        val right = centerCoordinates.x + canvasSize.width.value / 2
+        val left = centerCoordinates.x - canvasSize.width.value / 2 / tileScale
+        val right = centerCoordinates.x + canvasSize.width.value / 2 / tileScale
         val horizontalIndices = mapTileProvider.toIndex(left)..mapTileProvider.toIndex(right)
 
-        val top = (centerCoordinates.y + canvasSize.height.value / 2)
-        val bottom = (centerCoordinates.y - canvasSize.height.value / 2)
+        val top = (centerCoordinates.y + canvasSize.height.value / 2 / tileScale)
+        val bottom = (centerCoordinates.y - canvasSize.height.value / 2 / tileScale)
         val verticalIndices = mapTileProvider.toIndex(bottom)..mapTileProvider.toIndex(top)
 
         mapTiles.clear()
@@ -112,14 +118,15 @@ actual fun MapView(
 
     }
 
-
+    // d
     Canvas(canvasModifier) {
 
         fun WebMercatorCoordinates.toOffset(): Offset = Offset(
-            (canvasSize.width / 2 - centerCoordinates.x.dp + x.dp).toPx(),
-            (canvasSize.height / 2 - centerCoordinates.y.dp + y.dp).toPx()
+            (canvasSize.width / 2 + (x.dp - centerCoordinates.x.dp) * tileScale.toFloat()).toPx(),
+            (canvasSize.height / 2 + (y.dp - centerCoordinates.y.dp) * tileScale.toFloat()).toPx()
         )
 
+        //Convert GMC to offset in pixels (not DP), adjusting for zoom
         fun GeodeticMapCoordinates.toOffset(): Offset = WebMercatorProjection.toMercator(this, zoom).toOffset()
 
 
@@ -160,12 +167,15 @@ actual fun MapView(
             logger.debug { "Recalculate canvas. Size: $size" }
         }
         clipRect {
-            val tileSize = IntSize(mapTileProvider.tileSize.dp.roundToPx(), mapTileProvider.tileSize.dp.roundToPx())
+            val tileSize = IntSize(
+                (mapTileProvider.tileSize.dp * tileScale.toFloat()).roundToPx(),
+                (mapTileProvider.tileSize.dp * tileScale.toFloat()).roundToPx()
+            )
             mapTiles.forEach { (id, image) ->
                 //converting back from tile index to screen offset
                 val offset = IntOffset(
-                    (canvasSize.width / 2 - centerCoordinates.x.dp + mapTileProvider.toCoordinate(id.i).dp).roundToPx(),
-                    (canvasSize.height / 2 - centerCoordinates.y.dp + mapTileProvider.toCoordinate(id.j).dp).roundToPx()
+                    (canvasSize.width / 2 + (mapTileProvider.toCoordinate(id.i).dp - centerCoordinates.x.dp) * tileScale.toFloat()).roundToPx(),
+                    (canvasSize.height / 2 + (mapTileProvider.toCoordinate(id.j).dp - centerCoordinates.y.dp) * tileScale.toFloat()).roundToPx()
                 )
                 drawImage(
                     image = image,

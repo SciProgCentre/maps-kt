@@ -2,7 +2,6 @@ package centre.sciprog.maps
 
 import kotlin.math.pow
 import kotlin.math.roundToInt
-import kotlin.math.sign
 
 /**
  * Observable position on the map. Includes observation coordinate and [zoom] factor
@@ -14,7 +13,7 @@ data class MapViewPoint(
     val scaleFactor by lazy { WebMercatorProjection.scaleFactor(zoom.roundToInt()) }
 }
 
-fun MapViewPoint.move(deltaX: Float, deltaY: Float): MapViewPoint {
+fun MapViewPoint.move(deltaX: Double, deltaY: Double): MapViewPoint {
     val newCoordinates = GeodeticMapCoordinates.ofRadians(
         (focus.latitude + deltaY / scaleFactor).coerceIn(
             -MercatorProjection.MAXIMUM_LATITUDE,
@@ -38,11 +37,11 @@ fun MapViewPoint.move(delta: GeodeticMapCoordinates): MapViewPoint {
 
 fun MapViewPoint.zoom(zoomDelta: Double): MapViewPoint = copy(zoom = (zoom + zoomDelta).coerceIn(2.0, 18.0))
 
-fun MapViewPoint.zoom(zoomDelta: Double, at: GeodeticMapCoordinates): MapViewPoint {
+fun MapViewPoint.zoom(zoomDelta: Double, invariant: GeodeticMapCoordinates): MapViewPoint {
     val difScale = 2.0.pow(-zoomDelta)
     val newCenter = GeodeticMapCoordinates.ofRadians(
-        focus.latitude + (at.latitude - focus.latitude) * difScale,
-        focus.longitude + (at.longitude - focus.longitude) * difScale
+        focus.latitude + (invariant.latitude - focus.latitude) * difScale,
+        focus.longitude + (invariant.longitude - focus.longitude) * difScale
     )
     return MapViewPoint(newCenter, (zoom + zoomDelta).coerceIn(2.0, 18.0))
 }
