@@ -23,6 +23,7 @@ import centre.sciprog.maps.*
 import mu.KotlinLogging
 import org.jetbrains.skia.Font
 import org.jetbrains.skia.Paint
+import kotlin.math.floor
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
@@ -49,7 +50,7 @@ actual fun MapView(
 
     var viewPoint by remember { mutableStateOf(initialViewPoint) }
 
-    val zoom: Int by derivedStateOf { viewPoint.zoom.roundToInt() }
+    val zoom: Int by derivedStateOf { floor(viewPoint.zoom).toInt() }
 
     val tileScale: Double by derivedStateOf { 2.0.pow(viewPoint.zoom - zoom) }
 
