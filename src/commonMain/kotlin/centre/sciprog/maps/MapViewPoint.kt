@@ -35,13 +35,16 @@ fun MapViewPoint.move(delta: GeodeticMapCoordinates): MapViewPoint {
     return MapViewPoint(newCoordinates, zoom)
 }
 
-fun MapViewPoint.zoom(zoomDelta: Double): MapViewPoint = copy(zoom = (zoom + zoomDelta).coerceIn(2.0, 18.0))
-
-fun MapViewPoint.zoom(zoomDelta: Double, invariant: GeodeticMapCoordinates): MapViewPoint {
-    val difScale = 2.0.pow(-zoomDelta)
+fun MapViewPoint.zoom(
+    zoomDelta: Double,
+    invariant: GeodeticMapCoordinates = focus,
+): MapViewPoint = if (invariant == focus) {
+    copy(zoom = (zoom + zoomDelta).coerceIn(2.0, 18.0))
+} else {
+    val difScale = (1 - 2.0.pow(-zoomDelta))
     val newCenter = GeodeticMapCoordinates.ofRadians(
         focus.latitude + (invariant.latitude - focus.latitude) * difScale,
         focus.longitude + (invariant.longitude - focus.longitude) * difScale
     )
-    return MapViewPoint(newCenter, (zoom + zoomDelta).coerceIn(2.0, 18.0))
+    MapViewPoint(newCenter, (zoom + zoomDelta).coerceIn(2.0, 18.0))
 }
