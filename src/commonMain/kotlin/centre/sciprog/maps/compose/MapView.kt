@@ -12,6 +12,7 @@ import kotlin.math.min
 
 data class MapViewConfig(
     val zoomSpeed: Double = 1.0 / 3.0,
+    val inferViewBoxFromFeatures: Boolean = false
 )
 
 @Composable
@@ -62,27 +63,4 @@ fun MapView(
         MapViewPoint(box.center, zoom)
     }
     MapView(mapTileProvider, computeViewPoint, featuresBuilder.build(), onClick, config, modifier)
-}
-
-/**
- * Create a MapView with initial [MapViewPoint] inferred from features
- *
- * @param defaultZoom the zoom, for which the bounding box is computed
- */
-@Composable
-fun MapViewWithFeatures(
-    mapTileProvider: MapTileProvider,
-    features: Map<FeatureId, MapFeature> = emptyMap(),
-    onClick: (GeodeticMapCoordinates) -> Unit = {},
-    config: MapViewConfig = MapViewConfig(),
-    defaultZoom: Int = 1,
-    modifier: Modifier = Modifier.fillMaxSize(),
-    buildFeatures: @Composable (FeatureBuilder.() -> Unit),
-) {
-    val featuresBuilder = MapFeatureBuilder(features)
-    featuresBuilder.buildFeatures()
-    val featureSet = featuresBuilder.build()
-    if(featureSet.isEmpty()) error("Can't create `MapViewWithFeatures` from empty feature set")
-    val box: GmcBox = featureSet.values.map { it.getBoundingBox(defaultZoom) }.wrapAll()
-    MapView(mapTileProvider, box, features, onClick, config, modifier, buildFeatures)
 }

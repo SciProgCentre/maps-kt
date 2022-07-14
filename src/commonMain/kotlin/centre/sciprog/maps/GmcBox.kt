@@ -1,8 +1,8 @@
 package centre.sciprog.maps
 
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
+import androidx.compose.ui.unit.DpSize
+import centre.sciprog.maps.compose.MapFeature
+import kotlin.math.*
 
 class GmcBox(val a: GeodeticMapCoordinates, val b: GeodeticMapCoordinates)
 
@@ -28,9 +28,10 @@ val GmcBox.width get() = abs(a.longitude - b.longitude)
 val GmcBox.height get() = abs(a.latitude - b.latitude)
 
 /**
- * Compute a minimal bounding box including all given boxes
+ * Compute a minimal bounding box including all given boxes. Return null if collection is empty
  */
-fun Iterable<GmcBox>.wrapAll(): GmcBox {
+fun Collection<GmcBox>.wrapAll(): GmcBox? {
+    if (isEmpty()) return null
     //TODO optimize computation
     val minLat = minOf { it.bottom }
     val maxLat = maxOf { it.top }

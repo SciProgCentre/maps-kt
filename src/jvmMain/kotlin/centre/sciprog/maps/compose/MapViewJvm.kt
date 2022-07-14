@@ -20,10 +20,7 @@ import centre.sciprog.maps.*
 import mu.KotlinLogging
 import org.jetbrains.skia.Font
 import org.jetbrains.skia.Paint
-import kotlin.math.ceil
-import kotlin.math.floor
-import kotlin.math.log2
-import kotlin.math.pow
+import kotlin.math.*
 
 
 private fun Color.toPaint(): Paint = Paint().apply {
@@ -48,7 +45,21 @@ actual fun MapView(
 ) {
     var canvasSize by remember { mutableStateOf(DpSize(512.dp, 512.dp)) }
 
-    var viewPointOverride by remember { mutableStateOf<MapViewPoint?>(null) }
+    var viewPointOverride by remember { mutableStateOf<MapViewPoint?>(
+        if(config.inferViewBoxFromFeatures){
+            features.values.computeBoundingBox(1)?.let { box ->
+                val zoom = log2(
+                    min(
+                        canvasSize.width.value / box.width,
+                        canvasSize.height.value / box.height
+                    ) * PI / mapTileProvider.tileSize
+                )
+                MapViewPoint(box.center, zoom)
+            }
+        } else {
+            null
+        }
+    ) }
 
     val viewPoint by derivedStateOf { viewPointOverride ?: computeViewPoint(canvasSize) }
 

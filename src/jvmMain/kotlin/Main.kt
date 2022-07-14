@@ -10,7 +10,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import centre.sciprog.maps.GeodeticMapCoordinates
-import centre.sciprog.maps.GmcBox
 import centre.sciprog.maps.MapViewPoint
 import centre.sciprog.maps.compose.*
 import io.ktor.client.HttpClient
@@ -41,7 +40,12 @@ fun App() {
         Column {
             //display click coordinates
             Text(coordinates?.toString() ?: "")
-            MapViewWithFeatures(mapTileProvider, onClick = { gmc: GeodeticMapCoordinates -> coordinates = gmc }) {
+            MapView(
+                mapTileProvider,
+                viewPoint,
+                onClick = { gmc -> coordinates = gmc },
+                config = MapViewConfig(inferViewBoxFromFeatures = true)
+            ) {
                 val pointOne = 55.568548 to 37.568604
                 val pointTwo = 55.929444 to 37.518434
 

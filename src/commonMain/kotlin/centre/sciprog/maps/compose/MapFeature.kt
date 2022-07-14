@@ -17,7 +17,7 @@ sealed class MapFeature(val zoomRange: IntRange) {
     abstract fun getBoundingBox(zoom: Int): GmcBox
 }
 
-fun Iterable<MapFeature>.computeBoundingBox(zoom: Int): GmcBox = map { it.getBoundingBox(zoom) }.wrapAll()
+fun Iterable<MapFeature>.computeBoundingBox(zoom: Int): GmcBox? = map { it.getBoundingBox(zoom) }.wrapAll()
 
 internal fun Pair<Double, Double>.toCoordinates() = GeodeticMapCoordinates.ofDegrees(first, second)
 
