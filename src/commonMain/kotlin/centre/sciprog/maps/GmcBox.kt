@@ -1,5 +1,6 @@
 package centre.sciprog.maps
 
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
@@ -22,6 +23,10 @@ val GmcBox.right get() = max(a.longitude, b.longitude)
 val GmcBox.top get() = max(a.latitude, b.latitude)
 val GmcBox.bottom get() = min(a.latitude, b.latitude)
 
+//TODO take curvature into account
+val GmcBox.width get() = abs(a.longitude - b.longitude)
+val GmcBox.height get() = abs(a.latitude - b.latitude)
+
 /**
  * Compute a minimal bounding box including all given boxes
  */
@@ -31,5 +36,5 @@ fun Iterable<GmcBox>.wrapAll(): GmcBox {
     val maxLat = maxOf { it.top }
     val minLong = minOf { it.left }
     val maxLong = maxOf { it.right }
-    return GmcBox(maxLat..maxLat, minLong..maxLong)
+    return GmcBox(minLat..maxLat, minLong..maxLong)
 }

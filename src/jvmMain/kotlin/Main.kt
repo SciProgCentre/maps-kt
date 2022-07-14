@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import centre.sciprog.maps.GeodeticMapCoordinates
+import centre.sciprog.maps.GmcBox
 import centre.sciprog.maps.MapViewPoint
 import centre.sciprog.maps.compose.*
 import io.ktor.client.HttpClient
@@ -40,7 +41,7 @@ fun App() {
         Column {
             //display click coordinates
             Text(coordinates?.toString() ?: "")
-            MapView(viewPoint, mapTileProvider, onClick = { gmc: GeodeticMapCoordinates -> coordinates = gmc }) {
+            MapViewWithFeatures(mapTileProvider, onClick = { gmc: GeodeticMapCoordinates -> coordinates = gmc }) {
                 val pointOne = 55.568548 to 37.568604
                 val pointTwo = 55.929444 to 37.518434
 
@@ -53,10 +54,14 @@ fun App() {
                 text(pointOne, "Home")
 
                 scope.launch {
-                    while (isActive){
+                    while (isActive) {
                         delay(200)
                         //Overwrite a feature with new color
-                        circle(pointTwo, id = circleId, color = Color(Random.nextFloat(), Random.nextFloat(), Random.nextFloat()))
+                        circle(
+                            pointTwo,
+                            id = circleId,
+                            color = Color(Random.nextFloat(), Random.nextFloat(), Random.nextFloat())
+                        )
                     }
                 }
             }

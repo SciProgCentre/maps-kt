@@ -15,7 +15,11 @@ interface FeatureBuilder {
     fun build(): SnapshotStateMap<FeatureId, MapFeature>
 }
 
-internal class MapFeatureBuilder(private val content: SnapshotStateMap<FeatureId, MapFeature> = mutableStateMapOf()) : FeatureBuilder {
+internal class MapFeatureBuilder(initialFeatures: Map<FeatureId,MapFeature>) : FeatureBuilder {
+
+    private val content: SnapshotStateMap<FeatureId, MapFeature> = mutableStateMapOf<FeatureId, MapFeature>().apply {
+        putAll(initialFeatures)
+    }
     private fun generateID(feature: MapFeature): FeatureId = "@feature[${feature.hashCode().toUInt()}]"
 
     override fun addFeature(id: FeatureId?, feature: MapFeature): FeatureId {
