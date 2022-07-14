@@ -5,7 +5,10 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.readBytes
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import mu.KotlinLogging
 import org.jetbrains.skia.Image
 import java.net.URL
@@ -16,7 +19,11 @@ import kotlin.math.pow
 /**
  * A [MapTileProvider] based on Open Street Map API. With in-memory and file cache
  */
-public class OpenStreetMapTileProvider(private val scope: CoroutineScope, private val client: HttpClient, private val cacheDirectory: Path): MapTileProvider {
+public class OpenStreetMapTileProvider(
+    private val scope: CoroutineScope,
+    private val client: HttpClient,
+    private val cacheDirectory: Path,
+) : MapTileProvider {
     private val cache = HashMap<TileId, Deferred<ImageBitmap>>()
 
     private fun TileId.osmUrl() = URL("https://tile.openstreetmap.org/${zoom}/${i}/${j}.png")
@@ -53,20 +60,22 @@ public class OpenStreetMapTileProvider(private val scope: CoroutineScope, privat
         Image.makeFromEncoded(byteArray).toComposeImageBitmap()
     }
 
-    override suspend fun loadTile(id: TileId): MapTile {
+    override fun loadTileAsync(id: TileId): Deferred<MapTile> {
         val indexRange = indexRange(id.zoom)
-        if(id.i !in indexRange || id.j !in indexRange){
+        if (id.i !in indexRange || id.j !in indexRange) {
             error("Indices (${id.i}, ${id.j}) are not in index range $indexRange for zoom ${id.zoom}")
         }
 
         val image = cache.getOrPut(id) {
             downloadImageAsync(id)
-        }.await()
+        }
 
-        return MapTile(id, image)
+        return scope.async {
+            MapTile(id, image.await())
+        }
     }
 
-    companion object{
+    companion object {
         private val logger = KotlinLogging.logger("OpenStreetMapCache")
         private fun indexRange(zoom: Int): IntRange = 0 until 2.0.pow(zoom).toInt()
     }
