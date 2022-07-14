@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.IntSize
 import centre.sciprog.maps.GeodeticMapCoordinates
@@ -51,9 +51,9 @@ class MapBitmapImageFeature(
 ) : MapFeature(zoomRange)
 
 
-class MapVectorImageFeature internal constructor(
+class MapVectorImageFeature (
     val position: GeodeticMapCoordinates,
-    val painter: VectorPainter,
+    val painter: Painter,
     val size: Size,
     zoomRange: IntRange = defaultZoomRange,
 ) : MapFeature(zoomRange)
