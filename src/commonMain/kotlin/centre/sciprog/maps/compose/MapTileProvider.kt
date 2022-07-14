@@ -1,6 +1,7 @@
 package centre.sciprog.maps.compose
 
 import androidx.compose.ui.graphics.ImageBitmap
+import kotlinx.coroutines.Deferred
 import kotlin.math.floor
 
 data class TileId(
@@ -15,7 +16,7 @@ data class MapTile(
 )
 
 interface MapTileProvider {
-    suspend fun loadTile(id: TileId): MapTile
+    fun loadTileAsync(id: TileId): Deferred<MapTile>
 
     val tileSize: Int get() = DEFAULT_TILE_SIZE
 
@@ -27,3 +28,5 @@ interface MapTileProvider {
         const val DEFAULT_TILE_SIZE = 256
     }
 }
+
+suspend fun MapTileProvider.loadTile(id: TileId): MapTile = loadTileAsync(id).await()

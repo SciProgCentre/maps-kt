@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.*
 import centre.sciprog.maps.*
+import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import org.jetbrains.skia.Font
 import org.jetbrains.skia.Paint
@@ -149,8 +150,10 @@ actual fun MapView(
                 if (i in indexRange && j in indexRange) {
                     val tileId = TileId(zoom, i, j)
                     try {
-                        val tile = mapTileProvider.loadTile(tileId)
-                        mapTiles.add(tile)
+                        launch {
+                            val tile = mapTileProvider.loadTileAsync(tileId)
+                            mapTiles.add(tile.await())
+                        }
                     } catch (ex: Exception) {
                         logger.error(ex) { "Failed to load tile $tileId" }
                     }
