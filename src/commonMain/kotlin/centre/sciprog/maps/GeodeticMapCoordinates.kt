@@ -43,6 +43,8 @@ public class GeodeticMapCoordinates private constructor(public val latitude: Dou
     }
 }
 
+internal typealias Gmc = GeodeticMapCoordinates
+
 
 //public interface GeoToScreenConversion {
 //    public fun getScreenX(gmc: GeodeticMapCoordinates): Double
