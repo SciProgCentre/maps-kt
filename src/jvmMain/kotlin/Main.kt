@@ -40,7 +40,12 @@ fun App() {
         Column {
             //display click coordinates
             Text(coordinates?.toString() ?: "")
-            MapView(viewPoint, mapTileProvider, onClick = { gmc: GeodeticMapCoordinates -> coordinates = gmc }) {
+            MapView(
+                mapTileProvider,
+                viewPoint,
+                onClick = { gmc -> coordinates = gmc },
+                config = MapViewConfig(inferViewBoxFromFeatures = true)
+            ) {
                 val pointOne = 55.568548 to 37.568604
                 val pointTwo = 55.929444 to 37.518434
 
@@ -53,10 +58,14 @@ fun App() {
                 text(pointOne, "Home")
 
                 scope.launch {
-                    while (isActive){
+                    while (isActive) {
                         delay(200)
                         //Overwrite a feature with new color
-                        circle(pointTwo, id = circleId, color = Color(Random.nextFloat(), Random.nextFloat(), Random.nextFloat()))
+                        circle(
+                            pointTwo,
+                            id = circleId,
+                            color = Color(Random.nextFloat(), Random.nextFloat(), Random.nextFloat())
+                        )
                     }
                 }
             }
