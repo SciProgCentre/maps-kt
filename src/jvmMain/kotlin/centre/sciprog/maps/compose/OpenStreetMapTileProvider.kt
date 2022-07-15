@@ -2,29 +2,32 @@ package centre.sciprog.maps.compose
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
-import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.statement.readBytes
+import centre.sciprog.maps.LruCache
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.sync.Semaphore
 import mu.KotlinLogging
 import org.jetbrains.skia.Image
 import java.net.URL
 import java.nio.file.Path
 import kotlin.io.path.*
-import kotlin.math.pow
 
 /**
  * A [MapTileProvider] based on Open Street Map API. With in-memory and file cache
  */
-public class OpenStreetMapTileProvider(
-    private val scope: CoroutineScope,
+class OpenStreetMapTileProvider(
     private val client: HttpClient,
     private val cacheDirectory: Path,
+    parallelism: Int = 1,
+    cacheCapacity: Int = 200,
 ) : MapTileProvider {
-    private val cache = HashMap<TileId, Deferred<ImageBitmap>>()
+    private val semaphore = Semaphore(parallelism)
+    private val cache = LruCache<TileId, Deferred<ImageBitmap>>(cacheCapacity)
 
     private fun TileId.osmUrl() = URL("https://tile.openstreetmap.org/${zoom}/${i}/${j}.png")
 
@@ -33,7 +36,7 @@ public class OpenStreetMapTileProvider(
     /**
      * Download and cache the tile image
      */
-    private fun downloadImageAsync(id: TileId) = scope.async(Dispatchers.IO) {
+    private fun CoroutineScope.downloadImageAsync(id: TileId) = async(Dispatchers.IO) {
         id.cacheFilePath()?.let { path ->
             if (path.exists()) {
                 try {
@@ -60,23 +63,20 @@ public class OpenStreetMapTileProvider(
         Image.makeFromEncoded(byteArray).toComposeImageBitmap()
     }
 
-    override fun loadTileAsync(id: TileId): Deferred<MapTile> {
-        val indexRange = indexRange(id.zoom)
-        if (id.i !in indexRange || id.j !in indexRange) {
-            error("Indices (${id.i}, ${id.j}) are not in index range $indexRange for zoom ${id.zoom}")
-        }
-
-        val image = cache.getOrPut(id) {
-            downloadImageAsync(id)
-        }
-
-        return scope.async {
+    override suspend fun loadTileAsync(id: TileId, scope: CoroutineScope) = scope.async {
+        semaphore.acquire()
+        try {
+            val image = cache.getOrPut(id) { downloadImageAsync(id) }
             MapTile(id, image.await())
+        } catch (e: Exception) {
+            cache.remove(id)
+            throw e
+        } finally {
+            semaphore.release()
         }
     }
 
     companion object {
         private val logger = KotlinLogging.logger("OpenStreetMapCache")
-        private fun indexRange(zoom: Int): IntRange = 0 until 2.0.pow(zoom).toInt()
     }
 }

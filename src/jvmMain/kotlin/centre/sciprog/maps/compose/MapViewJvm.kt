@@ -99,10 +99,10 @@ actual fun MapView(
                                 selectRect?.let { rect ->
                                     val offset = dragChange.position
                                     selectRect = Rect(
-                                        kotlin.math.min(offset.x, rect.left),
-                                        kotlin.math.min(offset.y, rect.top),
-                                        kotlin.math.max(offset.x, rect.right),
-                                        kotlin.math.max(offset.y, rect.bottom)
+                                        min(offset.x, rect.left),
+                                        min(offset.y, rect.top),
+                                        max(offset.x, rect.right),
+                                        max(offset.y, rect.bottom)
                                     )
                                 }
                             }
@@ -116,7 +116,7 @@ actual fun MapView(
 
                                 viewPointOverride = MapViewPoint(
                                     centerGmc,
-                                    viewPoint.zoom + kotlin.math.min(verticalZoom, horizontalZoom)
+                                    viewPoint.zoom + min(verticalZoom, horizontalZoom)
                                 )
                                 selectRect = null
                             }
@@ -147,33 +147,37 @@ actual fun MapView(
 
     // Load tiles asynchronously
     LaunchedEffect(viewPoint, canvasSize) {
+        val indexRange = 0 until 2.0.pow(zoom).toInt()
+
         val left = centerCoordinates.x - canvasSize.width.value / 2 / tileScale
         val right = centerCoordinates.x + canvasSize.width.value / 2 / tileScale
-        val horizontalIndices = mapTileProvider.toIndex(left)..mapTileProvider.toIndex(right)
+        val horizontalIndices = mapTileProvider.toIndex(left)
+            .rangeTo(mapTileProvider.toIndex(right))
+            .intersect(indexRange)
 
         val top = (centerCoordinates.y + canvasSize.height.value / 2 / tileScale)
         val bottom = (centerCoordinates.y - canvasSize.height.value / 2 / tileScale)
-        val verticalIndices = mapTileProvider.toIndex(bottom)..mapTileProvider.toIndex(top)
+        val verticalIndices = mapTileProvider.toIndex(bottom)
+            .rangeTo(mapTileProvider.toIndex(top))
+            .intersect(indexRange)
 
         mapTiles.clear()
 
-        val indexRange = 0 until 2.0.pow(zoom).toInt()
-
-        for (j in verticalIndices) {
-            for (i in horizontalIndices) {
-                if (i in indexRange && j in indexRange) {
-                    val tileId = TileId(zoom, i, j)
-                    try {
-                        launch {
-                            val tile = mapTileProvider.loadTileAsync(tileId)
-                            mapTiles.add(tile.await())
-                        }
-                    } catch (ex: Exception) {
-                        logger.error(ex) { "Failed to load tile $tileId" }
+        verticalIndices
+            .flatMap { j ->
+                horizontalIndices
+                    .asSequence()
+                    .map { TileId(zoom, it, j) }
+            }
+            .forEach {
+                try {
+                    launch {
+                        mapTiles += mapTileProvider.loadTileAsync(it, this).await()
                     }
+                } catch (ex: Exception) {
+                    logger.error(ex) { "Failed to load tile $it" }
                 }
             }
-        }
 
     }
 
