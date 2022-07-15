@@ -6,10 +6,7 @@ import centre.sciprog.maps.LruCache
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Semaphore
 import mu.KotlinLogging
 import org.jetbrains.skia.Image
@@ -63,17 +60,31 @@ class OpenStreetMapTileProvider(
         Image.makeFromEncoded(byteArray).toComposeImageBitmap()
     }
 
-    override suspend fun loadTileAsync(id: TileId, scope: CoroutineScope) = scope.async {
-        semaphore.acquire()
-        try {
-            val image = cache.getOrPut(id) { downloadImageAsync(id) }
-            MapTile(id, image.await())
-        } catch (e: Exception) {
-            cache.remove(id)
-            throw e
-        } finally {
-            semaphore.release()
-        }
+    override suspend fun loadTileAsync(
+        tileIds: List<TileId>,
+        scope: CoroutineScope,
+        onTileLoad: (mapTile: MapTile) -> Unit,
+    ) {
+        tileIds
+            .forEach { id ->
+                try {
+                    scope.launch {
+                        semaphore.acquire()
+                        try {
+                            val image = cache.getOrPut(id) { downloadImageAsync(id) }
+                            val result = MapTile(id, image.await())
+                            onTileLoad(result)
+                        } catch (e: Exception) {
+                            cache.remove(id)
+                            throw e
+                        } finally {
+                            semaphore.release()
+                        }
+                    }
+                } catch (ex: Exception) {
+                    logger.error(ex) { "Failed to load tile $id" }
+                }
+            }
     }
 
     companion object {

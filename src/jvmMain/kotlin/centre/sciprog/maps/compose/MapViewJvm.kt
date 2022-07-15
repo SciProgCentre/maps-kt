@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.*
 import centre.sciprog.maps.*
-import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import org.jetbrains.skia.Font
 import org.jetbrains.skia.Paint
@@ -46,21 +45,23 @@ actual fun MapView(
 ) {
     var canvasSize by remember { mutableStateOf(DpSize(512.dp, 512.dp)) }
 
-    var viewPointOverride by remember { mutableStateOf<MapViewPoint?>(
-        if(config.inferViewBoxFromFeatures){
-            features.values.computeBoundingBox(1)?.let { box ->
-                val zoom = log2(
-                    min(
-                        canvasSize.width.value / box.width,
-                        canvasSize.height.value / box.height
-                    ) * PI / mapTileProvider.tileSize
-                )
-                MapViewPoint(box.center, zoom)
+    var viewPointOverride by remember {
+        mutableStateOf<MapViewPoint?>(
+            if (config.inferViewBoxFromFeatures) {
+                features.values.computeBoundingBox(1)?.let { box ->
+                    val zoom = log2(
+                        min(
+                            canvasSize.width.value / box.width,
+                            canvasSize.height.value / box.height
+                        ) * PI / mapTileProvider.tileSize
+                    )
+                    MapViewPoint(box.center, zoom)
+                }
+            } else {
+                null
             }
-        } else {
-            null
-        }
-    ) }
+        )
+    }
 
     val viewPoint by derivedStateOf { viewPointOverride ?: computeViewPoint(canvasSize) }
 
@@ -163,21 +164,17 @@ actual fun MapView(
 
         mapTiles.clear()
 
-        verticalIndices
+        val tileIds = verticalIndices
             .flatMap { j ->
                 horizontalIndices
                     .asSequence()
                     .map { TileId(zoom, it, j) }
             }
-            .forEach {
-                try {
-                    launch {
-                        mapTiles += mapTileProvider.loadTileAsync(it, this).await()
-                    }
-                } catch (ex: Exception) {
-                    logger.error(ex) { "Failed to load tile $it" }
-                }
-            }
+
+        mapTileProvider.loadTileAsync(
+            tileIds = tileIds,
+            scope = this
+        ) { mapTiles += it }
 
     }
 
