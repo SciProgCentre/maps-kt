@@ -6,15 +6,10 @@ import kotlin.jvm.Synchronized
 class LruCache<K, V>(
     private var capacity: Int,
 ) {
-
-    private val cache = mutableMapOf<K, V>()
-    private val order = mutableListOf<K>()
+    private val cache = linkedMapOf<K, V>()
 
     @Synchronized
     fun getCache() = cache.toMap()
-
-    @Synchronized
-    fun getOrder() = order.toList()
 
     @Synchronized
     fun put(key: K, value: V) = internalPut(key, value)
@@ -25,7 +20,6 @@ class LruCache<K, V>(
     @Synchronized
     fun remove(key: K) {
         cache.remove(key)
-        order.remove(key)
     }
 
     @Synchronized
@@ -37,25 +31,23 @@ class LruCache<K, V>(
     @Synchronized
     fun clear(newCapacity: Int? = null) {
         cache.clear()
-        order.clear()
         capacity = newCapacity ?: capacity
     }
 
     private fun internalGet(key: K): V? {
         val value = cache[key]
         if (value != null) {
-            order.remove(key)
-            order.add(key)
+            cache.remove(key)
+            cache[key] = value
         }
         return value
     }
 
     private fun internalPut(key: K, value: V) {
         if (cache.size >= capacity) {
-            cache.remove(order.removeAt(0))
+            cache.remove(cache.iterator().next().key)
         }
         cache[key] = value
-        order.add(key)
     }
 
 }
