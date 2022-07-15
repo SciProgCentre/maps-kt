@@ -21,10 +21,7 @@ import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import org.jetbrains.skia.Font
 import org.jetbrains.skia.Paint
-import kotlin.math.ceil
-import kotlin.math.floor
-import kotlin.math.log2
-import kotlin.math.pow
+import kotlin.math.*
 
 
 private fun Color.toPaint(): Paint = Paint().apply {
@@ -40,24 +37,38 @@ private val logger = KotlinLogging.logger("MapView")
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 actual fun MapView(
-    initialViewPoint: MapViewPoint,
     mapTileProvider: MapTileProvider,
+    computeViewPoint: (canvasSize: DpSize) -> MapViewPoint,
     features: Map<FeatureId, MapFeature>,
     onClick: (GeodeticMapCoordinates) -> Unit,
     config: MapViewConfig,
     modifier: Modifier,
 ) {
+    var canvasSize by remember { mutableStateOf(DpSize(512.dp, 512.dp)) }
 
-    var viewPoint by remember { mutableStateOf(initialViewPoint) }
+    var viewPointOverride by remember { mutableStateOf<MapViewPoint?>(
+        if(config.inferViewBoxFromFeatures){
+            features.values.computeBoundingBox(1)?.let { box ->
+                val zoom = log2(
+                    min(
+                        canvasSize.width.value / box.width,
+                        canvasSize.height.value / box.height
+                    ) * PI / mapTileProvider.tileSize
+                )
+                MapViewPoint(box.center, zoom)
+            }
+        } else {
+            null
+        }
+    ) }
+
+    val viewPoint by derivedStateOf { viewPointOverride ?: computeViewPoint(canvasSize) }
 
     val zoom: Int by derivedStateOf { floor(viewPoint.zoom).toInt() }
 
     val tileScale: Double by derivedStateOf { 2.0.pow(viewPoint.zoom - zoom) }
 
     val mapTiles = remember { mutableStateListOf<MapTile>() }
-
-    //var mapRectangle by remember { mutableStateOf(initialRectangle) }
-    var canvasSize by remember { mutableStateOf(DpSize(512.dp, 512.dp)) }
 
     val centerCoordinates by derivedStateOf { WebMercatorProjection.toMercator(viewPoint.focus, zoom) }
 
@@ -103,7 +114,10 @@ actual fun MapView(
                                 val verticalZoom: Float = log2(canvasSize.height.toPx() / rect.height)
 
 
-                                viewPoint = MapViewPoint(centerGmc, viewPoint.zoom + kotlin.math.min(verticalZoom, horizontalZoom))
+                                viewPointOverride = MapViewPoint(
+                                    centerGmc,
+                                    viewPoint.zoom + kotlin.math.min(verticalZoom, horizontalZoom)
+                                )
                                 selectRect = null
                             }
                         } else {
@@ -112,7 +126,7 @@ actual fun MapView(
                             onClick(dpPos.toGeodetic())
                             drag(change.id) { dragChange ->
                                 val dragAmount = dragChange.position - dragChange.previousPosition
-                                viewPoint = viewPoint.move(
+                                viewPointOverride = viewPoint.move(
                                     -dragAmount.x.toDp().value / tileScale,
                                     +dragAmount.y.toDp().value / tileScale
                                 )
@@ -127,7 +141,7 @@ actual fun MapView(
         val (xPos, yPos) = change.position
         //compute invariant point of translation
         val invariant = DpOffset(xPos.toDp(), yPos.toDp()).toGeodetic()
-        viewPoint = viewPoint.zoom(-change.scrollDelta.y.toDouble() * config.zoomSpeed, invariant)
+        viewPointOverride = viewPoint.zoom(-change.scrollDelta.y.toDouble() * config.zoomSpeed, invariant)
     }.fillMaxSize()
 
 
