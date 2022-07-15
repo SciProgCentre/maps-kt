@@ -48,7 +48,7 @@ fun App() {
             MapView(
                 mapTileProvider = mapTileProvider,
                 initialViewPoint = viewPoint,
-                onClick = { gmc -> coordinates = gmc },
+                onClick = { coordinates = focus },
                 config = MapViewConfig(inferViewBoxFromFeatures = true)
             ) {
                 val pointOne = 55.568548 to 37.568604

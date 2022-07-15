@@ -39,14 +39,14 @@ actual fun MapView(
     mapTileProvider: MapTileProvider,
     computeViewPoint: (canvasSize: DpSize) -> MapViewPoint,
     features: Map<FeatureId, MapFeature>,
-    onClick: (GeodeticMapCoordinates) -> Unit,
+    onClick: MapViewPoint.() -> Unit,
     config: MapViewConfig,
     modifier: Modifier,
 ) {
     var canvasSize by remember { mutableStateOf(DpSize(512.dp, 512.dp)) }
 
-    var viewPointOverride by remember {
-        mutableStateOf<MapViewPoint?>(
+    var viewPointOverride: MapViewPoint? by remember {
+        mutableStateOf(
             if (config.inferViewBoxFromFeatures) {
                 features.values.computeBoundingBox(1)?.let { box ->
                     val zoom = log2(
@@ -124,7 +124,7 @@ actual fun MapView(
                         } else {
                             val dragStart = change.position
                             val dpPos = DpOffset(dragStart.x.toDp(), dragStart.y.toDp())
-                            onClick(dpPos.toGeodetic())
+                            onClick(MapViewPoint(dpPos.toGeodetic(), viewPoint.zoom))
                             drag(change.id) { dragChange ->
                                 val dragAmount = dragChange.position - dragChange.previousPosition
                                 viewPointOverride = viewPoint.move(
