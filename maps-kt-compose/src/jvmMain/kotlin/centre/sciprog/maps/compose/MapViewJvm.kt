@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.*
 import centre.sciprog.maps.*
+import io.ktor.utils.io.CancellationException
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import org.jetbrains.skia.Font
@@ -185,8 +186,10 @@ actual fun MapView(
                         try {
                             mapTiles += deferred.await()
                         } catch (ex: Exception) {
-                            //displaying the error is maps responsibility
-                            logger.error(ex) { "Failed to load tile with id=$id" }
+                            if (ex !is CancellationException) {
+                                //displaying the error is maps responsibility
+                                logger.error(ex) { "Failed to load tile with id=$id" }
+                            }
                         }
                     }
                 }
