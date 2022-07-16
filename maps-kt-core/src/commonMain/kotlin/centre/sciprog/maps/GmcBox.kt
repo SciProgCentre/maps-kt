@@ -1,14 +1,12 @@
 package centre.sciprog.maps
 
-import androidx.compose.ui.unit.DpSize
-import centre.sciprog.maps.compose.MapFeature
 import kotlin.math.*
 
 class GmcBox(val a: GeodeticMapCoordinates, val b: GeodeticMapCoordinates)
 
 fun GmcBox(latitudes: ClosedFloatingPointRange<Double>, longitudes: ClosedFloatingPointRange<Double>) = GmcBox(
-    Gmc.ofRadians(latitudes.start, longitudes.start),
-    Gmc.ofRadians(latitudes.endInclusive, longitudes.endInclusive)
+    GeodeticMapCoordinates.ofRadians(latitudes.start, longitudes.start),
+    GeodeticMapCoordinates.ofRadians(latitudes.endInclusive, longitudes.endInclusive)
 )
 
 val GmcBox.center
