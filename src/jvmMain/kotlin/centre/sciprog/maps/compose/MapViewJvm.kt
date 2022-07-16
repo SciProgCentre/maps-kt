@@ -41,7 +41,6 @@ actual fun MapView(
     computeViewPoint: (canvasSize: DpSize) -> MapViewPoint,
     features: Map<FeatureId, MapFeature>,
     onClick: MapViewPoint.() -> Unit,
-    onFeatureClick: (FeatureId) -> Unit,
     config: MapViewConfig,
     modifier: Modifier,
 ) {
