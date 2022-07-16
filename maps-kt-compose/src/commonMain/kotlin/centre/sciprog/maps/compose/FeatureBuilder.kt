@@ -3,9 +3,12 @@ package centre.sciprog.maps.compose
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
+import centre.sciprog.maps.GmcBox
 
 typealias FeatureId = String
 
@@ -15,7 +18,7 @@ interface FeatureBuilder {
     fun build(): SnapshotStateMap<FeatureId, MapFeature>
 }
 
-internal class MapFeatureBuilder(initialFeatures: Map<FeatureId,MapFeature>) : FeatureBuilder {
+internal class MapFeatureBuilder(initialFeatures: Map<FeatureId, MapFeature>) : FeatureBuilder {
 
     private val content: SnapshotStateMap<FeatureId, MapFeature> = mutableStateMapOf<FeatureId, MapFeature>().apply {
         putAll(initialFeatures)
@@ -40,6 +43,21 @@ fun FeatureBuilder.circle(
 ) = addFeature(
     id, MapCircleFeature(centerCoordinates.toCoordinates(), zoomRange, size, color)
 )
+
+fun FeatureBuilder.custom(
+    position: Pair<Double, Double>,
+    id: FeatureId? = null,
+    customFeatureBuilder: DrawScope.(Offset) -> Unit,
+) = addFeature(id, object : MapCustomFeature(position = position.toCoordinates()) {
+    override fun drawFeature(drawScope: DrawScope, offset: Offset) {
+        customFeatureBuilder(drawScope, offset)
+    }
+
+    override fun getBoundingBox(zoom: Int): GmcBox {
+        return GmcBox(position.toCoordinates(), position.toCoordinates())
+    }
+
+})
 
 fun FeatureBuilder.line(
     aCoordinates: Pair<Double, Double>,
