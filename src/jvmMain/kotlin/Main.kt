@@ -45,9 +45,6 @@ fun App() {
                 mapTileProvider,
                 viewPoint,
                 onClick = { coordinates = focus },
-                onFeatureClick = {
-
-                },
                 config = MapViewConfig(inferViewBoxFromFeatures = true)
             ) {
                 val pointOne = 55.568548 to 37.568604
@@ -57,14 +54,17 @@ fun App() {
                 image(pointOne, Icons.Filled.Home)
 
                 //remember feature Id
-                val circleId: FeatureId = custom(position = pointThree) {
+                val circleId: FeatureId = circle(
+                    centerCoordinates = pointTwo,
+                )
+
+                custom(position = pointThree) {
                     drawRect(
                         color = Color.Red,
                         topLeft = it,
                         size = Size(20f, 20f)
                     )
                 }
-
                 line(pointOne, pointTwo)
                 text(pointOne, "Home")
 
