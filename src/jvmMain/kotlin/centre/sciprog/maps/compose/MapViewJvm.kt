@@ -41,6 +41,7 @@ actual fun MapView(
     computeViewPoint: (canvasSize: DpSize) -> MapViewPoint,
     features: Map<FeatureId, MapFeature>,
     onClick: MapViewPoint.() -> Unit,
+    onFeatureClick: (FeatureId) -> Unit,
     config: MapViewConfig,
     modifier: Modifier,
 ) {
@@ -219,7 +220,10 @@ actual fun MapView(
                         feature.color.toPaint()
                     )
                 }
-
+                is MapCustomFeature -> drawIntoCanvas { canvas ->
+                    val offset = feature.position.toOffset()
+                    feature.drawFeature(this, offset)
+                }
             }
         }
 

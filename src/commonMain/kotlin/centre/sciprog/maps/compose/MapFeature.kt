@@ -1,9 +1,11 @@
 package centre.sciprog.maps.compose
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -29,6 +31,13 @@ internal val defaultZoomRange = 1..18
 class MapFeatureSelector(val selector: (zoom: Int) -> MapFeature) : MapFeature(defaultZoomRange) {
     override fun getBoundingBox(zoom: Int): GmcBox = selector(zoom).getBoundingBox(zoom)
 
+}
+
+abstract class MapCustomFeature(
+    zoomRange: IntRange = defaultZoomRange,
+    val position: GeodeticMapCoordinates
+) : MapFeature(zoomRange) {
+    abstract fun drawFeature(drawScope: DrawScope, offset: Offset)
 }
 
 class MapCircleFeature(
@@ -68,7 +77,7 @@ class MapBitmapImageFeature(
 }
 
 
-class MapVectorImageFeature (
+class MapVectorImageFeature(
     val position: GeodeticMapCoordinates,
     val painter: Painter,
     val size: Size,

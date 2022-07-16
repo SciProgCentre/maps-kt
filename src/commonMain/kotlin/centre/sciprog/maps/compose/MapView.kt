@@ -21,6 +21,7 @@ expect fun MapView(
     computeViewPoint: (canvasSize: DpSize) -> MapViewPoint,
     features: Map<FeatureId, MapFeature>,
     onClick: MapViewPoint.() -> Unit = {},
+    onFeatureClick: (FeatureId) -> Unit = {},
     //TODO consider replacing by modifier
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
@@ -32,13 +33,14 @@ fun MapView(
     initialViewPoint: MapViewPoint,
     features: Map<FeatureId, MapFeature> = emptyMap(),
     onClick: MapViewPoint.() -> Unit = {},
+    onFeatureClick: (FeatureId) -> Unit = {},
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
     buildFeatures: @Composable (FeatureBuilder.() -> Unit) = {},
 ) {
     val featuresBuilder = MapFeatureBuilder(features)
     featuresBuilder.buildFeatures()
-    MapView(mapTileProvider, { initialViewPoint }, featuresBuilder.build(), onClick, config, modifier)
+    MapView(mapTileProvider, { initialViewPoint }, featuresBuilder.build(), onClick, onFeatureClick, config, modifier)
 }
 
 @Composable
@@ -47,6 +49,7 @@ fun MapView(
     box: GmcBox,
     features: Map<FeatureId, MapFeature> = emptyMap(),
     onClick: MapViewPoint.() -> Unit = {},
+    onFeatureClick: (FeatureId) -> Unit = {},
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
     buildFeatures: @Composable (FeatureBuilder.() -> Unit) = {},
@@ -62,5 +65,5 @@ fun MapView(
         )
         MapViewPoint(box.center, zoom)
     }
-    MapView(mapTileProvider, computeViewPoint, featuresBuilder.build(), onClick, config, modifier)
+    MapView(mapTileProvider, computeViewPoint, featuresBuilder.build(), onClick, onFeatureClick, config, modifier)
 }
