@@ -29,6 +29,8 @@ private fun Color.toPaint(): Paint = Paint().apply {
     color = toArgb()
 }
 
+private fun IntRange.intersect(other: IntRange) = max(first, other.first)..min(last, other.last)
+
 private val logger = KotlinLogging.logger("MapView")
 
 /**
@@ -101,10 +103,10 @@ actual fun MapView(
                                 selectRect?.let { rect ->
                                     val offset = dragChange.position
                                     selectRect = Rect(
-                                        kotlin.math.min(offset.x, rect.left),
-                                        kotlin.math.min(offset.y, rect.top),
-                                        kotlin.math.max(offset.x, rect.right),
-                                        kotlin.math.max(offset.y, rect.bottom)
+                                        min(offset.x, rect.left),
+                                        min(offset.y, rect.top),
+                                        max(offset.x, rect.right),
+                                        max(offset.y, rect.bottom)
                                     )
                                 }
                             }
@@ -118,7 +120,7 @@ actual fun MapView(
 
                                 viewPointOverride = MapViewPoint(
                                     centerGmc,
-                                    viewPoint.zoom + kotlin.math.min(verticalZoom, horizontalZoom)
+                                    viewPoint.zoom + min(verticalZoom, horizontalZoom)
                                 )
                                 selectRect = null
                             }
@@ -149,39 +151,40 @@ actual fun MapView(
 
     // Load tiles asynchronously
     LaunchedEffect(viewPoint, canvasSize) {
-        val left = centerCoordinates.x - canvasSize.width.value / 2 / tileScale
-        val right = centerCoordinates.x + canvasSize.width.value / 2 / tileScale
-        val horizontalIndices = mapTileProvider.toIndex(left)..mapTileProvider.toIndex(right)
+        with(mapTileProvider) {
+            val indexRange = 0 until 2.0.pow(zoom).toInt()
 
-        val top = (centerCoordinates.y + canvasSize.height.value / 2 / tileScale)
-        val bottom = (centerCoordinates.y - canvasSize.height.value / 2 / tileScale)
-        val verticalIndices = mapTileProvider.toIndex(bottom)..mapTileProvider.toIndex(top)
+            val left = centerCoordinates.x - canvasSize.width.value / 2 / tileScale
+            val right = centerCoordinates.x + canvasSize.width.value / 2 / tileScale
+            val horizontalIndices: IntRange = (toIndex(left)..toIndex(right)).intersect(indexRange)
 
-        mapTiles.clear()
+            val top = (centerCoordinates.y + canvasSize.height.value / 2 / tileScale)
+            val bottom = (centerCoordinates.y - canvasSize.height.value / 2 / tileScale)
+            val verticalIndices: IntRange = (toIndex(bottom)..toIndex(top)).intersect(indexRange)
 
-        val indexRange = 0 until 2.0.pow(zoom).toInt()
+            mapTiles.clear()
 
-        for (j in verticalIndices) {
-            for (i in horizontalIndices) {
-                if (i in indexRange && j in indexRange) {
-                    val tileId = TileId(zoom, i, j)
-                    try {
-                        launch {
-                            val tile = mapTileProvider.loadTileAsync(tileId)
-                            mapTiles.add(tile.await())
+            for (j in verticalIndices) {
+                for (i in horizontalIndices) {
+                    val id = TileId(zoom, i, j)
+                    //start all
+                    val deferred = loadTileAsync(id)
+                    //wait asynchronously for it to finish
+                    launch {
+                        try {
+                            mapTiles += deferred.await()
+                        } catch (ex: Exception) {
+                            //displaying the error is maps responsibility
+                            logger.error(ex) { "Failed to load tile with id=$id" }
                         }
-                    } catch (ex: Exception) {
-                        logger.error(ex) { "Failed to load tile $tileId" }
                     }
                 }
             }
         }
-
     }
 
-    // d
-    Canvas(canvasModifier) {
 
+    Canvas(canvasModifier) {
         fun WebMercatorCoordinates.toOffset(): Offset = Offset(
             (canvasSize.width / 2 + (x.dp - centerCoordinates.x.dp) * tileScale.toFloat()).toPx(),
             (canvasSize.height / 2 + (y.dp - centerCoordinates.y.dp) * tileScale.toFloat()).toPx()

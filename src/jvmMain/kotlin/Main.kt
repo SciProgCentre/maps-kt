@@ -12,8 +12,8 @@ import androidx.compose.ui.window.application
 import centre.sciprog.maps.GeodeticMapCoordinates
 import centre.sciprog.maps.MapViewPoint
 import centre.sciprog.maps.compose.*
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -33,7 +33,12 @@ fun App() {
         }
 
         val scope = rememberCoroutineScope()
-        val mapTileProvider = remember { OpenStreetMapTileProvider(scope, HttpClient(CIO), Path.of("mapCache")) }
+        val mapTileProvider = remember {
+            OpenStreetMapTileProvider(
+                client = HttpClient(CIO),
+                cacheDirectory = Path.of("mapCache")
+            )
+        }
 
         var coordinates by remember { mutableStateOf<GeodeticMapCoordinates?>(null) }
 
@@ -41,8 +46,8 @@ fun App() {
             //display click coordinates
             Text(coordinates?.toString() ?: "")
             MapView(
-                mapTileProvider,
-                viewPoint,
+                mapTileProvider = mapTileProvider,
+                initialViewPoint = viewPoint,
                 onClick = { coordinates = focus },
                 config = MapViewConfig(inferViewBoxFromFeatures = true)
             ) {
