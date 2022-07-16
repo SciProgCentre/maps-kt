@@ -13,5 +13,5 @@ pluginManagement {
     }
 }
 
-rootProject.name = "maps-kt-compose"
+rootProject.name = "maps-kt"
 

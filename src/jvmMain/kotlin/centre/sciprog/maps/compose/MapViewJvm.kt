@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.*
 import centre.sciprog.maps.*
+import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import org.jetbrains.skia.Font
 import org.jetbrains.skia.Paint
@@ -27,6 +28,8 @@ private fun Color.toPaint(): Paint = Paint().apply {
     isAntiAlias = true
     color = toArgb()
 }
+
+private fun IntRange.intersect(other: IntRange) = max(first, other.first)..min(last, other.last)
 
 private val logger = KotlinLogging.logger("MapView")
 
@@ -148,39 +151,40 @@ actual fun MapView(
 
     // Load tiles asynchronously
     LaunchedEffect(viewPoint, canvasSize) {
-        val indexRange = 0 until 2.0.pow(zoom).toInt()
+        with(mapTileProvider) {
+            val indexRange = 0 until 2.0.pow(zoom).toInt()
 
-        val left = centerCoordinates.x - canvasSize.width.value / 2 / tileScale
-        val right = centerCoordinates.x + canvasSize.width.value / 2 / tileScale
-        val horizontalIndices = mapTileProvider.toIndex(left)
-            .rangeTo(mapTileProvider.toIndex(right))
-            .intersect(indexRange)
+            val left = centerCoordinates.x - canvasSize.width.value / 2 / tileScale
+            val right = centerCoordinates.x + canvasSize.width.value / 2 / tileScale
+            val horizontalIndices: IntRange = (toIndex(left)..toIndex(right)).intersect(indexRange)
 
-        val top = (centerCoordinates.y + canvasSize.height.value / 2 / tileScale)
-        val bottom = (centerCoordinates.y - canvasSize.height.value / 2 / tileScale)
-        val verticalIndices = mapTileProvider.toIndex(bottom)
-            .rangeTo(mapTileProvider.toIndex(top))
-            .intersect(indexRange)
+            val top = (centerCoordinates.y + canvasSize.height.value / 2 / tileScale)
+            val bottom = (centerCoordinates.y - canvasSize.height.value / 2 / tileScale)
+            val verticalIndices: IntRange = (toIndex(bottom)..toIndex(top)).intersect(indexRange)
 
-        mapTiles.clear()
+            mapTiles.clear()
 
-        val tileIds = verticalIndices
-            .flatMap { j ->
-                horizontalIndices
-                    .asSequence()
-                    .map { TileId(zoom, it, j) }
+            for (j in verticalIndices) {
+                for (i in horizontalIndices) {
+                    val id = TileId(zoom, i, j)
+                    //start all
+                    val deferred = loadTileAsync(id)
+                    //wait asynchronously for it to finish
+                    launch {
+                        try {
+                            mapTiles += deferred.await()
+                        } catch (ex: Exception) {
+                            //displaying the error is maps responsibility
+                            logger.error(ex) { "Failed to load tile with id=$id" }
+                        }
+                    }
+                }
             }
-
-        mapTileProvider.loadTileAsync(
-            tileIds = tileIds,
-            scope = this
-        ) { mapTiles += it }
-
+        }
     }
 
-    // d
-    Canvas(canvasModifier) {
 
+    Canvas(canvasModifier) {
         fun WebMercatorCoordinates.toOffset(): Offset = Offset(
             (canvasSize.width / 2 + (x.dp - centerCoordinates.x.dp) * tileScale.toFloat()).toPx(),
             (canvasSize.height / 2 + (y.dp - centerCoordinates.y.dp) * tileScale.toFloat()).toPx()

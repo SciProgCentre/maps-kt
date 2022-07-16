@@ -2,12 +2,15 @@ package centre.sciprog.maps.compose
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
-import centre.sciprog.maps.LruCache
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import kotlinx.coroutines.*
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.statement.readBytes
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import mu.KotlinLogging
 import org.jetbrains.skia.Image
 import java.net.URL
@@ -45,47 +48,42 @@ class OpenStreetMapTileProvider(
             }
         }
 
-        val url = id.osmUrl()
-        val byteArray = client.get(url).readBytes()
+        try {
+            //semaphore works only for actual download
+            semaphore.withPermit {
+                val url = id.osmUrl()
+                val byteArray = client.get(url).readBytes()
 
-        logger.debug { "Finished downloading map tile with id $id from $url" }
+                logger.debug { "Finished downloading map tile with id $id from $url" }
 
-        id.cacheFilePath()?.let { path ->
-            logger.debug { "Caching map tile $id to $path" }
+                id.cacheFilePath()?.let { path ->
+                    logger.debug { "Caching map tile $id to $path" }
 
-            path.parent.createDirectories()
-            path.writeBytes(byteArray)
+                    path.parent.createDirectories()
+                    path.writeBytes(byteArray)
+                }
+
+                Image.makeFromEncoded(byteArray).toComposeImageBitmap()
+            }
+        } catch (ex: Exception){
+            //if loading is failed for some reason, clear the cache
+            cache.remove(id)
+            throw ex
+        }
+    }
+
+    override fun CoroutineScope.loadTileAsync(
+        tileId: TileId,
+    ): Deferred<MapTile> {
+        //start image download
+        val image = cache.getOrPut(tileId) {
+            downloadImageAsync(tileId)
         }
 
-        Image.makeFromEncoded(byteArray).toComposeImageBitmap()
+        //collect the result asynchronously
+        return async { MapTile(tileId, image.await()) }
     }
 
-    override suspend fun loadTileAsync(
-        tileIds: List<TileId>,
-        scope: CoroutineScope,
-        onTileLoad: (mapTile: MapTile) -> Unit,
-    ) {
-        tileIds
-            .forEach { id ->
-                try {
-                    scope.launch {
-                        semaphore.acquire()
-                        try {
-                            val image = cache.getOrPut(id) { downloadImageAsync(id) }
-                            val result = MapTile(id, image.await())
-                            onTileLoad(result)
-                        } catch (e: Exception) {
-                            cache.remove(id)
-                            throw e
-                        } finally {
-                            semaphore.release()
-                        }
-                    }
-                } catch (ex: Exception) {
-                    logger.error(ex) { "Failed to load tile $id" }
-                }
-            }
-    }
 
     companion object {
         private val logger = KotlinLogging.logger("OpenStreetMapCache")
