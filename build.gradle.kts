@@ -4,6 +4,17 @@ plugins {
 
 val ktorVersion by extra("2.0.3")
 
+tasks.create("version") {
+    group = "publishing"
+    val versionFile = project.buildDir.resolve("project-version.txt")
+    outputs.file(versionFile)
+    doLast {
+        versionFile.createNewFile()
+        versionFile.writeText(project.version.toString())
+        println(project.version)
+    }
+}
+
 subprojects {
     group = "center.sciprog"
     version = "0.1.0-SNAPSHOT"
