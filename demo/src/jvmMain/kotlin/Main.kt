@@ -54,13 +54,24 @@ fun App() {
             ) {
                 val pointOne = 55.568548 to 37.568604
                 val pointTwo = 55.929444 to 37.518434
-                val pointThree = 60.929444 to 37.518434
+                val pointThree = 55.742465 to 37.615812
 
                 image(pointOne, Icons.Filled.Home)
 
                 //remember feature Id
                 val circleId: FeatureId = circle(
                     centerCoordinates = pointTwo,
+                )
+
+                route(
+                    route = listOf(
+                        55.742465 to 37.615812,
+                        55.742713 to 37.616370,
+                        55.742815 to 37.616659,
+                        55.742320 to 37.617132,
+                        55.742086 to 37.616566,
+                        55.741715 to 37.616716
+                    )
                 )
 
                 custom(position = pointThree) {

@@ -8,6 +8,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
+import centre.sciprog.maps.GeodeticMapCoordinates
 import centre.sciprog.maps.GmcBox
 
 typealias FeatureId = String
@@ -23,6 +24,7 @@ internal class MapFeatureBuilder(initialFeatures: Map<FeatureId, MapFeature>) : 
     private val content: SnapshotStateMap<FeatureId, MapFeature> = mutableStateMapOf<FeatureId, MapFeature>().apply {
         putAll(initialFeatures)
     }
+
     private fun generateID(feature: MapFeature): FeatureId = "@feature[${feature.hashCode().toUInt()}]"
 
     override fun addFeature(id: FeatureId?, feature: MapFeature): FeatureId {
@@ -33,6 +35,14 @@ internal class MapFeatureBuilder(initialFeatures: Map<FeatureId, MapFeature>) : 
 
     override fun build(): SnapshotStateMap<FeatureId, MapFeature> = content
 }
+
+fun FeatureBuilder.route(
+    route: List<Pair<Double, Double>>,
+    zoomRange: IntRange = defaultZoomRange,
+    stroke: Float = 2f,
+    color: Color = Color.Red,
+    id: FeatureId? = null
+) = addFeature(id, MapRouteFeature(route.map { it.toCoordinates() }, zoomRange, stroke, color))
 
 fun FeatureBuilder.circle(
     centerCoordinates: Pair<Double, Double>,

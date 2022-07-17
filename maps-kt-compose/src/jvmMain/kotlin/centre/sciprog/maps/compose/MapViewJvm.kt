@@ -9,11 +9,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.*
 import centre.sciprog.maps.*
@@ -236,9 +233,18 @@ actual fun MapView(
                         feature.color.toPaint()
                     )
                 }
-                is MapCustomFeature -> drawIntoCanvas { canvas ->
+                is MapCustomFeature -> {
                     val offset = feature.position.toOffset()
                     feature.drawFeature(this, offset)
+                }
+                is MapRouteFeature -> {
+                    val points = feature.route.map { it.toOffset() }
+                    drawPoints(
+                        points = points,
+                        color = feature.color,
+                        pointMode = PointMode.Polygon,
+                        strokeWidth = feature.stroke
+                    )
                 }
             }
         }

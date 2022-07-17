@@ -40,6 +40,18 @@ abstract class MapCustomFeature(
     abstract fun drawFeature(drawScope: DrawScope, offset: Offset)
 }
 
+class MapRouteFeature(
+    val route: List<GeodeticMapCoordinates>,
+    zoomRange: IntRange = defaultZoomRange,
+    val stroke: Float = 2f,
+    val color: Color = Color.Red
+) : MapFeature(zoomRange) {
+    override fun getBoundingBox(zoom: Int): GmcBox {
+        return GmcBox(route.first(), route.last())
+    }
+
+}
+
 class MapCircleFeature(
     val center: GeodeticMapCoordinates,
     zoomRange: IntRange = defaultZoomRange,
