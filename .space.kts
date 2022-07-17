@@ -22,10 +22,16 @@ job("Publish") {
             //read version from build file
             val version = java.nio.file.Path.of("build/project-version.txt").readText()
 
+            val revisionSuffix = if (version.endsWith("SNAPSHOT")) {
+                "-" + api.gitRevision().take(7)
+            } else {
+                ""
+            }
+
             api.space().projects.automation.deployments.start(
                 project = api.projectIdentifier(),
                 targetIdentifier = TargetIdentifier.Key("maps-kt"),
-                version = version,
+                version = version+revisionSuffix,
                 // automatically update deployment status based on a status of a job
                 syncWithAutomationJob = true
             )
