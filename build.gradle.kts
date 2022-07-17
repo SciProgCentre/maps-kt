@@ -4,6 +4,11 @@ plugins {
 
 val ktorVersion by extra("2.0.3")
 
+allprojects {
+    group = "center.sciprog"
+    version = "0.1.0-SNAPSHOT"
+}
+
 tasks.create("version") {
     group = "publishing"
     val versionFile = project.buildDir.resolve("project-version.txt")
@@ -16,9 +21,6 @@ tasks.create("version") {
 }
 
 subprojects {
-    group = "center.sciprog"
-    version = "0.1.0-SNAPSHOT"
-
     repositories {
         google()
         mavenCentral()
