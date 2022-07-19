@@ -9,7 +9,9 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import centre.sciprog.maps.GeodeticMapCoordinates
 import centre.sciprog.maps.GmcBox
 import centre.sciprog.maps.wrapAll
@@ -83,7 +85,7 @@ class MapBitmapImageFeature(
 class MapVectorImageFeature(
     val position: GeodeticMapCoordinates,
     val painter: Painter,
-    val size: Size,
+    val size: DpSize,
     zoomRange: IntRange = defaultZoomRange,
 ) : MapFeature(zoomRange) {
     override fun getBoundingBox(zoom: Int): GmcBox = GmcBox(position, position)
@@ -93,7 +95,7 @@ class MapVectorImageFeature(
 fun MapVectorImageFeature(
     position: GeodeticMapCoordinates,
     image: ImageVector,
-    size: Size = Size(20f, 20f),
+    size: DpSize = DpSize(20.dp, 20.dp),
     zoomRange: IntRange = defaultZoomRange,
 ): MapVectorImageFeature = MapVectorImageFeature(position, rememberVectorPainter(image), size, zoomRange)
 

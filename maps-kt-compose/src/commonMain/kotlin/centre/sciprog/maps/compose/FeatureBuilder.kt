@@ -3,11 +3,11 @@ package centre.sciprog.maps.compose
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 
 typealias FeatureId = String
 
@@ -71,7 +71,7 @@ fun FeatureBuilder.text(
 fun FeatureBuilder.image(
     position: Pair<Double, Double>,
     image: ImageVector,
-    size: Size = Size(20f, 20f),
+    size: DpSize = DpSize(20.dp, 20.dp),
     zoomRange: IntRange = defaultZoomRange,
     id: FeatureId? = null,
 ) = addFeature(id, MapVectorImageFeature(position.toCoordinates(), image, size, zoomRange))

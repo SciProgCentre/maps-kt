@@ -9,6 +9,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.*
@@ -221,9 +222,10 @@ actual fun MapView(
                 is MapBitmapImageFeature -> drawImage(feature.image, feature.position.toOffset())
                 is MapVectorImageFeature -> {
                     val offset = feature.position.toOffset()
-                    translate(offset.x - feature.size.width / 2, offset.y - feature.size.height / 2) {
+                    val size = feature.size.toSize()
+                    translate(offset.x - size.width / 2, offset.y - size.height / 2) {
                         with(feature.painter) {
-                            draw(feature.size)
+                            draw(size)
                         }
                     }
                 }
