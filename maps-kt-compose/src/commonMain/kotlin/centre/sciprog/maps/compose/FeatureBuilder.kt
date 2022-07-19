@@ -48,7 +48,7 @@ fun FeatureBuilder.custom(
     position: Pair<Double, Double>,
     zoomRange: IntRange = defaultZoomRange,
     id: FeatureId? = null,
-    drawFeature: DrawScope.(Offset) -> Unit,
+    drawFeature: DrawScope.() -> Unit,
 ) = addFeature(id, MapDrawFeature(position.toCoordinates(), zoomRange, drawFeature))
 
 fun FeatureBuilder.line(

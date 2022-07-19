@@ -6,6 +6,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.*
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.Window
@@ -66,7 +67,7 @@ fun App() {
                 custom(position = pointThree) {
                     drawRect(
                         color = Color.Red,
-                        topLeft = it,
+                        topLeft = Offset(-10f, -10f),
                         size = Size(20f, 20f)
                     )
                 }

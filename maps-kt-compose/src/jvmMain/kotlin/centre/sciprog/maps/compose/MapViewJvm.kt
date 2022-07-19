@@ -239,7 +239,9 @@ actual fun MapView(
                 }
                 is MapDrawFeature -> {
                     val offset = feature.position.toOffset()
-                    feature.drawFeature(this, offset)
+                    translate (offset.x, offset.y) {
+                        feature.drawFeature(this)
+                    }
                 }
                 is MapFeatureGroup -> {
                     feature.children.values.forEach {

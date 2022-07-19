@@ -36,7 +36,7 @@ class MapFeatureSelector(val selector: (zoom: Int) -> MapFeature) : MapFeature(d
 class MapDrawFeature(
     val position: GeodeticMapCoordinates,
     zoomRange: IntRange = defaultZoomRange,
-    val drawFeature: DrawScope.(Offset) -> Unit,
+    val drawFeature: DrawScope.() -> Unit,
 ) : MapFeature(zoomRange) {
     override fun getBoundingBox(zoom: Int): GmcBox {
         //TODO add box computation
