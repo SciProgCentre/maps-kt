@@ -8,7 +8,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
-import centre.sciprog.maps.GmcBox
 
 typealias FeatureId = String
 
@@ -23,6 +22,7 @@ internal class MapFeatureBuilder(initialFeatures: Map<FeatureId, MapFeature>) : 
     private val content: SnapshotStateMap<FeatureId, MapFeature> = mutableStateMapOf<FeatureId, MapFeature>().apply {
         putAll(initialFeatures)
     }
+
     private fun generateID(feature: MapFeature): FeatureId = "@feature[${feature.hashCode().toUInt()}]"
 
     override fun addFeature(id: FeatureId?, feature: MapFeature): FeatureId {
@@ -46,18 +46,10 @@ fun FeatureBuilder.circle(
 
 fun FeatureBuilder.custom(
     position: Pair<Double, Double>,
+    zoomRange: IntRange = defaultZoomRange,
     id: FeatureId? = null,
-    customFeatureBuilder: DrawScope.(Offset) -> Unit,
-) = addFeature(id, object : MapCustomFeature(position = position.toCoordinates()) {
-    override fun drawFeature(drawScope: DrawScope, offset: Offset) {
-        customFeatureBuilder(drawScope, offset)
-    }
-
-    override fun getBoundingBox(zoom: Int): GmcBox {
-        return GmcBox(position.toCoordinates(), position.toCoordinates())
-    }
-
-})
+    drawFeature: DrawScope.(Offset) -> Unit,
+) = addFeature(id, MapDrawFeature(position.toCoordinates(), zoomRange, drawFeature))
 
 fun FeatureBuilder.line(
     aCoordinates: Pair<Double, Double>,

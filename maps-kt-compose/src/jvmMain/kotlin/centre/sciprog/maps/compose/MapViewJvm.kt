@@ -236,7 +236,7 @@ actual fun MapView(
                         feature.color.toPaint()
                     )
                 }
-                is MapCustomFeature -> drawIntoCanvas { canvas ->
+                is MapDrawFeature -> {
                     val offset = feature.position.toOffset()
                     feature.drawFeature(this, offset)
                 }
