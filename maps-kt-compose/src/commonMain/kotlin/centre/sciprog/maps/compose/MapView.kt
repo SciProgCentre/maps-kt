@@ -10,9 +10,14 @@ import kotlin.math.log2
 import kotlin.math.min
 
 
+//TODO consider replacing by modifier
 data class MapViewConfig(
     val zoomSpeed: Double = 1.0 / 3.0,
-    val inferViewBoxFromFeatures: Boolean = false
+    val inferViewBoxFromFeatures: Boolean = false,
+    val onClick: MapViewPoint.() -> Unit = {},
+    val onViewChange: MapViewPoint.() -> Unit = {},
+    val onSelect: (GmcBox) -> Unit = {},
+    val zoomOnSelect: Boolean = true
 )
 
 @Composable
@@ -20,8 +25,6 @@ expect fun MapView(
     mapTileProvider: MapTileProvider,
     computeViewPoint: (canvasSize: DpSize) -> MapViewPoint,
     features: Map<FeatureId, MapFeature>,
-    onClick: MapViewPoint.() -> Unit = {},
-    //TODO consider replacing by modifier
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
 )
@@ -31,14 +34,29 @@ fun MapView(
     mapTileProvider: MapTileProvider,
     initialViewPoint: MapViewPoint,
     features: Map<FeatureId, MapFeature> = emptyMap(),
-    onClick: MapViewPoint.() -> Unit = {},
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
     buildFeatures: @Composable (FeatureBuilder.() -> Unit) = {},
 ) {
     val featuresBuilder = MapFeatureBuilder(features)
     featuresBuilder.buildFeatures()
-    MapView(mapTileProvider, { initialViewPoint }, featuresBuilder.build(), onClick, config, modifier)
+    MapView(
+        mapTileProvider,
+        { initialViewPoint },
+        featuresBuilder.build(),
+        config,
+        modifier
+    )
+}
+
+internal fun GmcBox.getComputeViewPoint(mapTileProvider: MapTileProvider): (canvasSize: DpSize) -> MapViewPoint = { canvasSize ->
+    val zoom = log2(
+        min(
+            canvasSize.width.value / width,
+            canvasSize.height.value / height
+        ) * PI / mapTileProvider.tileSize
+    )
+    MapViewPoint(center, zoom)
 }
 
 @Composable
@@ -46,21 +64,17 @@ fun MapView(
     mapTileProvider: MapTileProvider,
     box: GmcBox,
     features: Map<FeatureId, MapFeature> = emptyMap(),
-    onClick: MapViewPoint.() -> Unit = {},
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
     buildFeatures: @Composable (FeatureBuilder.() -> Unit) = {},
 ) {
     val featuresBuilder = MapFeatureBuilder(features)
     featuresBuilder.buildFeatures()
-    val computeViewPoint: (canvasSize: DpSize) -> MapViewPoint = { canvasSize ->
-        val zoom = log2(
-            min(
-                canvasSize.width.value / box.width,
-                canvasSize.height.value / box.height
-            ) * PI / mapTileProvider.tileSize
-        )
-        MapViewPoint(box.center, zoom)
-    }
-    MapView(mapTileProvider, computeViewPoint, featuresBuilder.build(), onClick, config, modifier)
+    MapView(
+        mapTileProvider,
+        box.getComputeViewPoint(mapTileProvider),
+        featuresBuilder.build(),
+        config,
+        modifier
+    )
 }

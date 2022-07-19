@@ -9,7 +9,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.*
@@ -55,7 +54,6 @@ actual fun MapView(
     mapTileProvider: MapTileProvider,
     computeViewPoint: (canvasSize: DpSize) -> MapViewPoint,
     features: Map<FeatureId, MapFeature>,
-    onClick: MapViewPoint.() -> Unit,
     config: MapViewConfig,
     modifier: Modifier,
 ) {
@@ -107,6 +105,8 @@ actual fun MapView(
     val canvasModifier = modifier.pointerInput(Unit) {
         forEachGesture {
             awaitPointerEventScope {
+                fun Offset.toDpOffset() = DpOffset(x.toDp(), y.toDp())
+
                 val event: PointerEvent = awaitPointerEvent()
                 event.changes.forEach { change ->
                     if (event.buttons.isPrimaryPressed) {
@@ -125,29 +125,32 @@ actual fun MapView(
                                 }
                             }
                             selectRect?.let { rect ->
-                                val (centerX, centerY) = rect.center
-                                val centerGmc = DpOffset(centerX.toDp(), centerY.toDp()).toGeodetic()
-
-                                val horizontalZoom: Float = log2(canvasSize.width.toPx() / rect.width)
-                                val verticalZoom: Float = log2(canvasSize.height.toPx() / rect.height)
-
-
-                                viewPointOverride = MapViewPoint(
-                                    centerGmc,
-                                    viewPoint.zoom + min(verticalZoom, horizontalZoom)
+                                //Use selection override if it is defined
+                                val gmcBox = GmcBox(
+                                    rect.topLeft.toDpOffset().toGeodetic(),
+                                    rect.bottomRight.toDpOffset().toGeodetic()
                                 )
+                                config.onSelect(gmcBox)
+                                if(config.zoomOnSelect) {
+                                    val newViewPoint = gmcBox.getComputeViewPoint(mapTileProvider).invoke(canvasSize)
+
+                                    config.onViewChange(newViewPoint)
+                                    viewPointOverride = newViewPoint
+                                }
                                 selectRect = null
                             }
                         } else {
                             val dragStart = change.position
                             val dpPos = DpOffset(dragStart.x.toDp(), dragStart.y.toDp())
-                            onClick(MapViewPoint(dpPos.toGeodetic(), viewPoint.zoom))
+                            config.onClick(MapViewPoint(dpPos.toGeodetic(), viewPoint.zoom))
                             drag(change.id) { dragChange ->
                                 val dragAmount = dragChange.position - dragChange.previousPosition
-                                viewPointOverride = viewPoint.move(
+                                val newViewPoint = viewPoint.move(
                                     -dragAmount.x.toDp().value / tileScale,
                                     +dragAmount.y.toDp().value / tileScale
                                 )
+                                config.onViewChange(newViewPoint)
+                                viewPointOverride = newViewPoint
                             }
                         }
                     }
@@ -159,7 +162,9 @@ actual fun MapView(
         val (xPos, yPos) = change.position
         //compute invariant point of translation
         val invariant = DpOffset(xPos.toDp(), yPos.toDp()).toGeodetic()
-        viewPointOverride = viewPoint.zoom(-change.scrollDelta.y.toDouble() * config.zoomSpeed, invariant)
+        val newViewPoint = viewPoint.zoom(-change.scrollDelta.y.toDouble() * config.zoomSpeed, invariant)
+        config.onViewChange(newViewPoint)
+        viewPointOverride = newViewPoint
     }.fillMaxSize()
 
 
@@ -241,7 +246,7 @@ actual fun MapView(
                 }
                 is MapDrawFeature -> {
                     val offset = feature.position.toOffset()
-                    translate (offset.x, offset.y) {
+                    translate(offset.x, offset.y) {
                         feature.drawFeature(this)
                     }
                 }

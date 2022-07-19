@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import centre.sciprog.maps.GeodeticMapCoordinates
 
 typealias FeatureId = String
 
@@ -35,6 +36,16 @@ internal class MapFeatureBuilder(initialFeatures: Map<FeatureId, MapFeature>) : 
 }
 
 fun FeatureBuilder.circle(
+    center: GeodeticMapCoordinates,
+    zoomRange: IntRange = defaultZoomRange,
+    size: Float = 5f,
+    color: Color = Color.Red,
+    id: FeatureId? = null,
+) = addFeature(
+    id, MapCircleFeature(center, zoomRange, size, color)
+)
+
+fun FeatureBuilder.circle(
     centerCoordinates: Pair<Double, Double>,
     zoomRange: IntRange = defaultZoomRange,
     size: Float = 5f,
@@ -58,6 +69,14 @@ fun FeatureBuilder.line(
     color: Color = Color.Red,
     id: FeatureId? = null,
 ) = addFeature(id, MapLineFeature(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), zoomRange, color))
+
+fun FeatureBuilder.text(
+    position: GeodeticMapCoordinates,
+    text: String,
+    zoomRange: IntRange = defaultZoomRange,
+    color: Color = Color.Red,
+    id: FeatureId? = null,
+) = addFeature(id, MapTextFeature(position, text, zoomRange, color))
 
 fun FeatureBuilder.text(
     position: Pair<Double, Double>,
