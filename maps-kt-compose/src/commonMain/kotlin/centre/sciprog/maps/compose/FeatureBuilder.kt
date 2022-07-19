@@ -75,3 +75,13 @@ fun FeatureBuilder.image(
     zoomRange: IntRange = defaultZoomRange,
     id: FeatureId? = null,
 ) = addFeature(id, MapVectorImageFeature(position.toCoordinates(), image, size, zoomRange))
+
+fun FeatureBuilder.group(
+    zoomRange: IntRange = defaultZoomRange,
+    id: FeatureId? = null,
+    builder: FeatureBuilder.() -> Unit,
+): FeatureId {
+    val map = MapFeatureBuilder(emptyMap()).apply(builder).build()
+    val feature = MapFeatureGroup(map, zoomRange)
+    return addFeature(id, feature)
+}

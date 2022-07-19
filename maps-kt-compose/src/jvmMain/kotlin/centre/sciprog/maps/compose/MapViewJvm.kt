@@ -48,7 +48,7 @@ private val logger = KotlinLogging.logger("MapView")
 /**
  * A component that renders map and provides basic map manipulation capabilities
  */
-@OptIn(ExperimentalComposeUiApi::class)
+
 @Composable
 actual fun MapView(
     mapTileProvider: MapTileProvider,
@@ -102,6 +102,7 @@ actual fun MapView(
     // Selection rectangle. If null - no selection
     var selectRect by remember { mutableStateOf<Rect?>(null) }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     val canvasModifier = modifier.pointerInput(Unit) {
         forEachGesture {
             awaitPointerEventScope {
@@ -239,6 +240,11 @@ actual fun MapView(
                 is MapDrawFeature -> {
                     val offset = feature.position.toOffset()
                     feature.drawFeature(this, offset)
+                }
+                is MapFeatureGroup -> {
+                    feature.children.values.forEach {
+                        drawFeature(zoom, it)
+                    }
                 }
             }
         }

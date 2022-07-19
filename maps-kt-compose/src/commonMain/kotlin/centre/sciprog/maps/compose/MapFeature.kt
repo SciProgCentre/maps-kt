@@ -16,10 +16,11 @@ import centre.sciprog.maps.wrapAll
 
 //TODO replace zoom range with zoom-based representation change
 sealed class MapFeature(val zoomRange: IntRange) {
-    abstract fun getBoundingBox(zoom: Int): GmcBox
+    abstract fun getBoundingBox(zoom: Int): GmcBox?
 }
 
-fun Iterable<MapFeature>.computeBoundingBox(zoom: Int): GmcBox? = map { it.getBoundingBox(zoom) }.wrapAll()
+fun Iterable<MapFeature>.computeBoundingBox(zoom: Int): GmcBox? =
+    mapNotNull { it.getBoundingBox(zoom) }.wrapAll()
 
 internal fun Pair<Double, Double>.toCoordinates() = GeodeticMapCoordinates.ofDegrees(first, second)
 
@@ -29,7 +30,7 @@ internal val defaultZoomRange = 1..18
  * A feature that decides what to show depending on the zoom value (it could change size of shape)
  */
 class MapFeatureSelector(val selector: (zoom: Int) -> MapFeature) : MapFeature(defaultZoomRange) {
-    override fun getBoundingBox(zoom: Int): GmcBox = selector(zoom).getBoundingBox(zoom)
+    override fun getBoundingBox(zoom: Int): GmcBox? = selector(zoom).getBoundingBox(zoom)
 }
 
 class MapDrawFeature(
@@ -79,7 +80,6 @@ class MapBitmapImageFeature(
     override fun getBoundingBox(zoom: Int): GmcBox = GmcBox(position, position)
 }
 
-
 class MapVectorImageFeature(
     val position: GeodeticMapCoordinates,
     val painter: Painter,
@@ -96,3 +96,13 @@ fun MapVectorImageFeature(
     size: Size = Size(20f, 20f),
     zoomRange: IntRange = defaultZoomRange,
 ): MapVectorImageFeature = MapVectorImageFeature(position, rememberVectorPainter(image), size, zoomRange)
+
+/**
+ * A group of other features
+ */
+class MapFeatureGroup(
+    val children: Map<FeatureId, MapFeature>,
+    zoomRange: IntRange = defaultZoomRange,
+) : MapFeature(zoomRange) {
+    override fun getBoundingBox(zoom: Int): GmcBox? = children.values.mapNotNull { it.getBoundingBox(zoom) }.wrapAll()
+}
