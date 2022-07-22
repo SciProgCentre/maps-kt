@@ -12,6 +12,7 @@ import androidx.compose.ui.window.application
 import centre.sciprog.maps.GeodeticMapCoordinates
 import centre.sciprog.maps.MapViewPoint
 import centre.sciprog.maps.compose.*
+import centre.sciprog.maps.toDegrees
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import kotlinx.coroutines.delay
@@ -47,18 +48,27 @@ fun App() {
 
         var centerCoordinates by remember { mutableStateOf<GeodeticMapCoordinates?>(null) }
 
+        val pointOne = 55.568548 to 37.568604
+        var pointTwo by remember { mutableStateOf(55.929444 to 37.518434) }
+        val pointThree = 60.929444 to 37.518434
 
         MapView(
             mapTileProvider = mapTileProvider,
             initialViewPoint = viewPoint,
             config = MapViewConfig(
                 inferViewBoxFromFeatures = true,
-                onViewChange = { centerCoordinates = focus }
+                onViewChange = { centerCoordinates = focus },
+                onDrag = { start, end ->
+                    if (start.focus.latitude.toDegrees() in (pointTwo.first - 0.05)..(pointTwo.first + 0.05) &&
+                        start.focus.longitude.toDegrees() in (pointTwo.second - 0.05)..(pointTwo.second + 0.05)
+                    ) {
+                        pointTwo = pointTwo.first + (end.focus.latitude - start.focus.latitude).toDegrees() to
+                                pointTwo.second + (end.focus.longitude - start.focus.longitude).toDegrees()
+                        false
+                    } else true
+                }
             )
         ) {
-            val pointOne = 55.568548 to 37.568604
-            val pointTwo = 55.929444 to 37.518434
-            val pointThree = 60.929444 to 37.518434
 
             image(pointOne, Icons.Filled.Home)
 
@@ -75,7 +85,7 @@ fun App() {
                 )
             }
 
-            line(pointOne, pointTwo)
+            line(pointOne, pointTwo, id = "Line")
             text(pointOne, "Home")
 
             centerCoordinates?.let {

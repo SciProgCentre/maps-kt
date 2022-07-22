@@ -131,7 +131,7 @@ actual fun MapView(
                                     rect.bottomRight.toDpOffset().toGeodetic()
                                 )
                                 config.onSelect(gmcBox)
-                                if(config.zoomOnSelect) {
+                                if (config.zoomOnSelect) {
                                     val newViewPoint = gmcBox.getComputeViewPoint(mapTileProvider).invoke(canvasSize)
 
                                     config.onViewChange(newViewPoint)
@@ -144,6 +144,14 @@ actual fun MapView(
                             val dpPos = DpOffset(dragStart.x.toDp(), dragStart.y.toDp())
                             config.onClick(MapViewPoint(dpPos.toGeodetic(), viewPoint.zoom))
                             drag(change.id) { dragChange ->
+                                val dpStartPos =
+                                    DpOffset(dragChange.previousPosition.x.toDp(), dragChange.previousPosition.y.toDp())
+                                val dpEndPos = DpOffset(dragChange.position.x.toDp(), dragChange.position.y.toDp())
+                                if (!config.onDrag(
+                                        MapViewPoint(dpStartPos.toGeodetic(), viewPoint.zoom),
+                                        MapViewPoint(dpEndPos.toGeodetic(), viewPoint.zoom)
+                                    )
+                                ) return@drag
                                 val dragAmount = dragChange.position - dragChange.previousPosition
                                 val newViewPoint = viewPoint.move(
                                     -dragAmount.x.toDp().value / tileScale,

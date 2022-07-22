@@ -17,6 +17,7 @@ data class MapViewConfig(
     val onClick: MapViewPoint.() -> Unit = {},
     val onViewChange: MapViewPoint.() -> Unit = {},
     val onSelect: (GmcBox) -> Unit = {},
+    val onDrag: (MapViewPoint, MapViewPoint) -> Boolean = { _, _ -> true },
     val zoomOnSelect: Boolean = true
 )
 
@@ -49,15 +50,16 @@ fun MapView(
     )
 }
 
-internal fun GmcBox.getComputeViewPoint(mapTileProvider: MapTileProvider): (canvasSize: DpSize) -> MapViewPoint = { canvasSize ->
-    val zoom = log2(
-        min(
-            canvasSize.width.value / width,
-            canvasSize.height.value / height
-        ) * PI / mapTileProvider.tileSize
-    )
-    MapViewPoint(center, zoom)
-}
+internal fun GmcBox.getComputeViewPoint(mapTileProvider: MapTileProvider): (canvasSize: DpSize) -> MapViewPoint =
+    { canvasSize ->
+        val zoom = log2(
+            min(
+                canvasSize.width.value / width,
+                canvasSize.height.value / height
+            ) * PI / mapTileProvider.tileSize
+        )
+        MapViewPoint(center, zoom)
+    }
 
 @Composable
 fun MapView(
