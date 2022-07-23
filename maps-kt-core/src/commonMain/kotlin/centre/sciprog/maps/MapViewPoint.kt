@@ -5,14 +5,14 @@ import kotlin.math.pow
 /**
  * Observable position on the map. Includes observation coordinate and [zoom] factor
  */
-data class MapViewPoint(
+public data class MapViewPoint(
     val focus: GeodeticMapCoordinates,
     val zoom: Double,
 ) {
-    val scaleFactor by lazy { WebMercatorProjection.scaleFactor(zoom) }
+    val scaleFactor: Double by lazy { WebMercatorProjection.scaleFactor(zoom) }
 }
 
-fun MapViewPoint.move(delta: GeodeticMapCoordinates): MapViewPoint {
+public fun MapViewPoint.move(delta: GeodeticMapCoordinates): MapViewPoint {
     val newCoordinates = GeodeticMapCoordinates.ofRadians(
         (focus.latitude + delta.latitude).coerceIn(
             -MercatorProjection.MAXIMUM_LATITUDE,
@@ -23,7 +23,7 @@ fun MapViewPoint.move(delta: GeodeticMapCoordinates): MapViewPoint {
     return MapViewPoint(newCoordinates, zoom)
 }
 
-fun MapViewPoint.zoom(
+public fun MapViewPoint.zoom(
     zoomDelta: Double,
     invariant: GeodeticMapCoordinates = focus,
 ): MapViewPoint = if (invariant == focus) {

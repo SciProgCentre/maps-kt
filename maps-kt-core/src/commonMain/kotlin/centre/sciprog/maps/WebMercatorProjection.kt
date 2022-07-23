@@ -14,7 +14,7 @@ public object WebMercatorProjection  {
     /**
      * Compute radians to projection coordinates ratio for given [zoom] factor
      */
-    public fun scaleFactor(zoom: Double) = 256.0 / 2 / PI * 2.0.pow(zoom)
+    public fun scaleFactor(zoom: Double): Double = 256.0 / 2 / PI * 2.0.pow(zoom)
 
     public fun toGeodetic(mercator: WebMercatorCoordinates): GeodeticMapCoordinates {
         val scaleFactor = scaleFactor(mercator.zoom.toDouble())
