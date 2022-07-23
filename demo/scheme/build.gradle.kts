@@ -18,9 +18,8 @@ kotlin {
     sourceSets {
         val jvmMain by getting {
             dependencies {
-                implementation(projects.mapsKtCompose)
+                implementation(projects.schemeKt)
                 implementation(compose.desktop.currentOs)
-                implementation("io.ktor:ktor-client-cio:$ktorVersion")
                 implementation("ch.qos.logback:logback-classic:1.2.11")
             }
         }
@@ -33,7 +32,7 @@ compose.desktop {
         mainClass = "MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "maps-kt-compose"
+            packageName = "scheme-compose-demo"
             packageVersion = "1.0.0"
         }
     }

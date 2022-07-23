@@ -23,6 +23,8 @@ pluginManagement {
 include(
     ":maps-kt-core",
     ":maps-kt-compose",
-    ":demo"
+    ":demo:maps",
+    ":scheme-kt",
+    ":demo:scheme"
 )
 
