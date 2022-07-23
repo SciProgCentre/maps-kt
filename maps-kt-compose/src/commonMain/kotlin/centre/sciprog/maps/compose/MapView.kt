@@ -49,7 +49,7 @@ fun MapView(
     )
 }
 
-internal fun GmcBox.getComputeViewPoint(mapTileProvider: MapTileProvider): (canvasSize: DpSize) -> MapViewPoint = { canvasSize ->
+internal fun GmcBox.computeViewPoint(mapTileProvider: MapTileProvider): (canvasSize: DpSize) -> MapViewPoint = { canvasSize ->
     val zoom = log2(
         min(
             canvasSize.width.value / width,
@@ -72,7 +72,7 @@ fun MapView(
     featuresBuilder.buildFeatures()
     MapView(
         mapTileProvider,
-        box.getComputeViewPoint(mapTileProvider),
+        box.computeViewPoint(mapTileProvider),
         featuresBuilder.build(),
         config,
         modifier
