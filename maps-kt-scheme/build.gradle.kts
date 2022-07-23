@@ -25,7 +25,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api(projects.mapsKtCoordinates)
+                api(projects.mapsKtCore)
                 api("io.github.microutils:kotlin-logging:2.1.23")
                 api(compose.foundation)
             }

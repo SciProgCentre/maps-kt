@@ -18,7 +18,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api(projects.mapsKtCoordinates)
+                api(projects.mapsKtCore)
                 api(compose.foundation)
                 api("io.ktor:ktor-client-core:$ktorVersion")
                 api("io.github.microutils:kotlin-logging:2.1.23")
