@@ -1,4 +1,4 @@
-package centre.sciprog.maps.compose
+package center.sciprog.maps.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
@@ -12,9 +12,9 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import centre.sciprog.maps.GeodeticMapCoordinates
-import centre.sciprog.maps.GmcBox
-import centre.sciprog.maps.wrapAll
+import center.sciprog.maps.GeodeticMapCoordinates
+import center.sciprog.maps.GmcBox
+import center.sciprog.maps.wrapAll
 
 //TODO replace zoom range with zoom-based representation change
 sealed class MapFeature(val zoomRange: IntRange) {

@@ -1,10 +1,10 @@
-package centre.sciprog.maps.compose
+package center.sciprog.maps.compose
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
-import centre.sciprog.maps.*
+import center.sciprog.maps.*
 import kotlin.math.PI
 import kotlin.math.log2
 import kotlin.math.min

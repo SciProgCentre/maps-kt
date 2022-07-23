@@ -1,4 +1,4 @@
-package centre.sciprog.maps.compose
+package center.sciprog.maps.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import centre.sciprog.maps.GeodeticMapCoordinates
+import center.sciprog.maps.GeodeticMapCoordinates
 
 typealias FeatureId = String
 

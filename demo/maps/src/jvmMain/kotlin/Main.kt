@@ -9,9 +9,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import centre.sciprog.maps.GeodeticMapCoordinates
-import centre.sciprog.maps.MapViewPoint
-import centre.sciprog.maps.compose.*
+import center.sciprog.maps.compose.*
+import center.sciprog.maps.GeodeticMapCoordinates
+import center.sciprog.maps.MapViewPoint
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import kotlinx.coroutines.delay

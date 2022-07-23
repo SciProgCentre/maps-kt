@@ -1,4 +1,4 @@
-package centre.sciprog.maps
+package center.sciprog.maps
 
 import kotlin.math.pow
 

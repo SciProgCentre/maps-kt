@@ -1,4 +1,4 @@
-package centre.sciprog.maps.compose
+package center.sciprog.maps.compose
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap

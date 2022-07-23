@@ -1,4 +1,4 @@
-package center.sciprog.compose.scheme
+package center.sciprog.scheme
 
 import kotlin.math.pow
 
