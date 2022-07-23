@@ -1,6 +1,5 @@
 import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
@@ -24,8 +23,9 @@ kotlin {
         withJava()
     }
     sourceSets {
-        commonMain{
-            dependencies{
+        commonMain {
+            dependencies {
+                api(projects.mapsKtCoordinates)
                 api("io.github.microutils:kotlin-logging:2.1.23")
                 api(compose.foundation)
             }

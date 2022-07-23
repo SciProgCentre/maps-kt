@@ -1,12 +1,17 @@
-package center.sciprog.scheme
+package center.sciprog.maps.scheme
 
+import center.sciprog.maps.coordinates.CoordinateBox
+import center.sciprog.maps.coordinates.Coordinates2D
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
-data class SchemeCoordinates(val x: Float, val y: Float)
+data class SchemeCoordinates(val x: Float, val y: Float) : Coordinates2D
 
-data class SchemeCoordinateBox(val a: SchemeCoordinates, val b: SchemeCoordinates)
+data class SchemeCoordinateBox(
+    override val a: SchemeCoordinates,
+    override val b: SchemeCoordinates,
+) : CoordinateBox<SchemeCoordinates>
 
 val SchemeCoordinateBox.top get() = max(a.y, b.y)
 val SchemeCoordinateBox.bottom get() = min(a.y, b.y)

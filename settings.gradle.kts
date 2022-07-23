@@ -21,10 +21,10 @@ pluginManagement {
 
 
 include(
-    ":maps-kt-core",
+    ":maps-kt-coordinates",
     ":maps-kt-compose",
     ":demo:maps",
-    ":scheme-kt",
+    ":maps-kt-scheme",
     ":demo:scheme"
 )
 

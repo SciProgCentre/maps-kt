@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import center.sciprog.maps.GeodeticMapCoordinates
+import center.sciprog.maps.coordinates.GeodeticMapCoordinates
 
 typealias FeatureId = String
 

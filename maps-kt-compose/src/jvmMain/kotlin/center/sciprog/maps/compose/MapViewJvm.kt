@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.*
-import center.sciprog.maps.*
+import center.sciprog.maps.coordinates.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
@@ -33,7 +33,7 @@ private fun Color.toPaint(): Paint = Paint().apply {
 private fun IntRange.intersect(other: IntRange) = max(first, other.first)..min(last, other.last)
 
 internal fun MapViewPoint.move(deltaX: Double, deltaY: Double): MapViewPoint {
-    val newCoordinates = center.sciprog.maps.GeodeticMapCoordinates.ofRadians(
+    val newCoordinates = center.sciprog.maps.coordinates.GeodeticMapCoordinates.ofRadians(
         (focus.latitude + deltaY / scaleFactor).coerceIn(
             -MercatorProjection.MAXIMUM_LATITUDE,
             MercatorProjection.MAXIMUM_LATITUDE

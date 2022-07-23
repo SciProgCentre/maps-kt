@@ -18,7 +18,7 @@ kotlin {
     sourceSets {
         val jvmMain by getting {
             dependencies {
-                implementation(projects.schemeKt)
+                implementation(projects.mapsKtScheme)
                 implementation(compose.desktop.currentOs)
                 implementation("ch.qos.logback:logback-classic:1.2.11")
             }

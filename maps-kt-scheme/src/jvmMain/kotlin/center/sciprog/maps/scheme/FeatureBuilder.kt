@@ -1,4 +1,4 @@
-package center.sciprog.scheme
+package center.sciprog.maps.scheme
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import center.sciprog.scheme.SchemeFeature.Companion.defaultScaleRange
+import center.sciprog.maps.scheme.SchemeFeature.Companion.defaultScaleRange
 
 typealias FeatureId = String
 

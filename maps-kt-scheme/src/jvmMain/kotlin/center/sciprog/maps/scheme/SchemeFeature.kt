@@ -1,4 +1,4 @@
-package center.sciprog.scheme
+package center.sciprog.maps.scheme
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import center.sciprog.scheme.SchemeFeature.Companion.defaultScaleRange
+import center.sciprog.maps.scheme.SchemeFeature.Companion.defaultScaleRange
 
 internal typealias FloatRange = ClosedFloatingPointRange<Float>
 
@@ -19,8 +19,6 @@ sealed class SchemeFeature(val scaleRange: FloatRange) {
 
     companion object {
         val defaultScaleRange = 0f..Float.MAX_VALUE
-        const val DEFAULT_RENDERING_ORDER = 0
-        const val BACKGROUND_RENDERING_ORDER = 1000
     }
 }
 

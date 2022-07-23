@@ -1,4 +1,4 @@
-package center.sciprog.scheme
+package center.sciprog.maps.scheme
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.drag

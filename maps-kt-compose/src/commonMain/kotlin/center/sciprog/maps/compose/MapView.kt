@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
-import center.sciprog.maps.*
+import center.sciprog.maps.coordinates.*
 import kotlin.math.PI
 import kotlin.math.log2
 import kotlin.math.min
@@ -60,7 +60,7 @@ internal fun GmcBox.computeViewPoint(mapTileProvider: MapTileProvider): (canvasS
 }
 
 @Composable
-fun MapView(
+public fun MapView(
     mapTileProvider: MapTileProvider,
     box: GmcBox,
     features: Map<FeatureId, MapFeature> = emptyMap(),

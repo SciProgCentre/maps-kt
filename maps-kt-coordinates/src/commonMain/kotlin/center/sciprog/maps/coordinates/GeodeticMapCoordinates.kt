@@ -1,11 +1,14 @@
-package center.sciprog.maps
+package center.sciprog.maps.coordinates
 
 import kotlin.math.PI
 
 /**
  * Geodetic coordinated
  */
-public class GeodeticMapCoordinates private constructor(public val latitude: Double, public val longitude: Double) {
+public class GeodeticMapCoordinates private constructor(
+    public val latitude: Double,
+    public val longitude: Double,
+): Coordinates2D {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -42,9 +45,6 @@ public class GeodeticMapCoordinates private constructor(public val latitude: Dou
         }
     }
 }
-
-internal typealias Gmc = GeodeticMapCoordinates
-
 
 //public interface GeoToScreenConversion {
 //    public fun getScreenX(gmc: GeodeticMapCoordinates): Double

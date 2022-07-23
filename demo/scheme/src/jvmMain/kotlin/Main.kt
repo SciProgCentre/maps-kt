@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import center.sciprog.scheme.*
+import center.sciprog.maps.scheme.*
 
 @Composable
 @Preview

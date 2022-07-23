@@ -1,10 +1,13 @@
-package center.sciprog.maps
+package center.sciprog.maps.coordinates
 
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
-public class GmcBox(public val a: GeodeticMapCoordinates, public val b: GeodeticMapCoordinates)
+public data class GmcBox(
+    public override val a: GeodeticMapCoordinates,
+    public override val b: GeodeticMapCoordinates,
+) : CoordinateBox<GeodeticMapCoordinates>
 
 public fun GmcBox(
     latitudes: ClosedFloatingPointRange<Double>,
