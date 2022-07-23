@@ -14,8 +14,7 @@ import center.sciprog.maps.coordinates.GeodeticMapCoordinates
 import center.sciprog.maps.coordinates.GmcBox
 import center.sciprog.maps.coordinates.wrapAll
 
-//TODO replace zoom range with zoom-based representation change
-public sealed interface MapFeature {
+public interface MapFeature {
     public val zoomRange: IntRange
     public fun getBoundingBox(zoom: Int): GmcBox?
 }
@@ -42,7 +41,7 @@ public class MapDrawFeature(
     public val position: GeodeticMapCoordinates,
     override val zoomRange: IntRange = defaultZoomRange,
     public val drawFeature: DrawScope.() -> Unit,
-) : MapFeature{
+) : MapFeature {
     override fun getBoundingBox(zoom: Int): GmcBox {
         //TODO add box computation
         return GmcBox(position, position)
@@ -58,6 +57,15 @@ public class MapCircleFeature(
     override fun getBoundingBox(zoom: Int): GmcBox = GmcBox(center, center)
 }
 
+public class MapRectangleFeature(
+    public val center: GeodeticMapCoordinates,
+    override val zoomRange: IntRange = defaultZoomRange,
+    public val size: DpSize = DpSize(5.dp, 5.dp),
+    public val color: Color = Color.Red,
+) : MapFeature {
+    override fun getBoundingBox(zoom: Int): GmcBox = GmcBox(center, center)
+}
+
 public class MapLineFeature(
     public val a: GeodeticMapCoordinates,
     public val b: GeodeticMapCoordinates,
@@ -67,13 +75,14 @@ public class MapLineFeature(
     override fun getBoundingBox(zoom: Int): GmcBox = GmcBox(a, b)
 }
 
-public class MapTextFeature(
-    public val position: GeodeticMapCoordinates,
-    public val text: String,
+public class MapArcFeature(
+    public val oval: GmcBox,
+    public val startAngle: Float,
+    public val endAngle: Float,
     override val zoomRange: IntRange = defaultZoomRange,
     public val color: Color = Color.Red,
 ) : MapFeature {
-    override fun getBoundingBox(zoom: Int): GmcBox = GmcBox(position, position)
+    override fun getBoundingBox(zoom: Int): GmcBox = oval
 }
 
 public class MapBitmapImageFeature(
@@ -81,7 +90,7 @@ public class MapBitmapImageFeature(
     public val image: ImageBitmap,
     public val size: IntSize = IntSize(15, 15),
     override val zoomRange: IntRange = defaultZoomRange,
-) : MapFeature{
+) : MapFeature {
     override fun getBoundingBox(zoom: Int): GmcBox = GmcBox(position, position)
 }
 
@@ -108,6 +117,6 @@ public fun MapVectorImageFeature(
 public class MapFeatureGroup(
     public val children: Map<FeatureId, MapFeature>,
     override val zoomRange: IntRange = defaultZoomRange,
-) : MapFeature{
+) : MapFeature {
     override fun getBoundingBox(zoom: Int): GmcBox? = children.values.mapNotNull { it.getBoundingBox(zoom) }.wrapAll()
 }

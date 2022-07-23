@@ -8,7 +8,9 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import center.sciprog.maps.coordinates.Distance
 import center.sciprog.maps.coordinates.GeodeticMapCoordinates
+import center.sciprog.maps.coordinates.GmcBox
 
 public typealias FeatureId = String
 
@@ -55,7 +57,17 @@ public fun MapFeatureBuilder.circle(
     id, MapCircleFeature(centerCoordinates.toCoordinates(), zoomRange, size, color)
 )
 
-public fun MapFeatureBuilder.custom(
+public fun MapFeatureBuilder.rectangle(
+    centerCoordinates: Pair<Double, Double>,
+    zoomRange: IntRange = defaultZoomRange,
+    size: DpSize = DpSize(5.dp, 5.dp),
+    color: Color = Color.Red,
+    id: FeatureId? = null,
+): FeatureId = addFeature(
+    id, MapRectangleFeature(centerCoordinates.toCoordinates(), zoomRange, size, color)
+)
+
+public fun MapFeatureBuilder.draw(
     position: Pair<Double, Double>,
     zoomRange: IntRange = defaultZoomRange,
     id: FeatureId? = null,
@@ -68,23 +80,41 @@ public fun MapFeatureBuilder.line(
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
     id: FeatureId? = null,
-): FeatureId = addFeature(id, MapLineFeature(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), zoomRange, color))
+): FeatureId = addFeature(
+    id,
+    MapLineFeature(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), zoomRange, color)
+)
 
-public fun MapFeatureBuilder.text(
-    position: GeodeticMapCoordinates,
-    text: String,
+public fun MapFeatureBuilder.arc(
+    oval: GmcBox,
+    startAngle: Number,
+    endAngle: Number,
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
     id: FeatureId? = null,
-): FeatureId = addFeature(id, MapTextFeature(position, text, zoomRange, color))
+): FeatureId = addFeature(
+    id,
+    MapArcFeature(oval, startAngle.toFloat(), endAngle.toFloat(), zoomRange, color)
+)
 
-public fun MapFeatureBuilder.text(
-    position: Pair<Double, Double>,
-    text: String,
+public fun MapFeatureBuilder.arc(
+    center: Pair<Double, Double>,
+    radius: Distance,
+    startAngle: Number,
+    endAngle: Number,
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
     id: FeatureId? = null,
-): FeatureId = addFeature(id, MapTextFeature(position.toCoordinates(), text, zoomRange, color))
+): FeatureId = addFeature(
+    id,
+    MapArcFeature(
+        GmcBox.withCenter(center.toCoordinates(), radius, radius),
+        startAngle.toFloat(),
+        endAngle.toFloat(),
+        zoomRange,
+        color
+    )
+)
 
 @Composable
 public fun MapFeatureBuilder.image(

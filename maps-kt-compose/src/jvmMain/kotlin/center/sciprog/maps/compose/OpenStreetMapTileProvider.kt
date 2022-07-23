@@ -21,7 +21,7 @@ import kotlin.io.path.*
 /**
  * A [MapTileProvider] based on Open Street Map API. With in-memory and file cache
  */
-class OpenStreetMapTileProvider(
+public class OpenStreetMapTileProvider(
     private val client: HttpClient,
     private val cacheDirectory: Path,
     parallelism: Int = 1,
@@ -93,7 +93,7 @@ class OpenStreetMapTileProvider(
     }
 
 
-    companion object {
+    public companion object {
         private val logger = KotlinLogging.logger("OpenStreetMapCache")
     }
 }

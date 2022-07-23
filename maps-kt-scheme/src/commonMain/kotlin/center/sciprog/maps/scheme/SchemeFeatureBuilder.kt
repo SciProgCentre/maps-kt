@@ -82,7 +82,7 @@ fun SchemeFeatureBuilder.circle(
     id, SchemeCircleFeature(centerCoordinates.toCoordinates(), scaleRange, size, color)
 )
 
-fun SchemeFeatureBuilder.custom(
+fun SchemeFeatureBuilder.draw(
     position: Pair<Number, Number>,
     scaleRange: FloatRange = defaultScaleRange,
     id: FeatureId? = null,

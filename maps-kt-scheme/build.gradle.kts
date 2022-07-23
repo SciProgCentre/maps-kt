@@ -1,18 +1,9 @@
 import org.jetbrains.compose.compose
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+
 
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
-}
-
-group = "center.sciprog"
-version = "1.0-SNAPSHOT"
-
-repositories {
-    google()
-    mavenCentral()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 }
 
 kotlin {
@@ -32,20 +23,8 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 api(compose.desktop.currentOs)
-                implementation("ch.qos.logback:logback-classic:1.2.11")
             }
         }
         val jvmTest by getting
-    }
-}
-
-compose.desktop {
-    application {
-        mainClass = "MainKt"
-        nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "compose-scheme"
-            packageVersion = "1.0.0"
-        }
     }
 }

@@ -17,7 +17,8 @@ public data class MapViewConfig(
     val onClick: MapViewPoint.() -> Unit = {},
     val onViewChange: MapViewPoint.() -> Unit = {},
     val onSelect: (GmcBox) -> Unit = {},
-    val zoomOnSelect: Boolean = true
+    val zoomOnSelect: Boolean = true,
+    val resetViewPoint: Boolean = false
 )
 
 @Composable

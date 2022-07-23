@@ -5,11 +5,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import center.sciprog.maps.compose.*
+import center.sciprog.maps.coordinates.Distance
 import center.sciprog.maps.coordinates.GeodeticMapCoordinates
 import center.sciprog.maps.coordinates.MapViewPoint
 import io.ktor.client.HttpClient
@@ -67,16 +67,15 @@ fun App() {
                 centerCoordinates = pointTwo,
             )
 
-            custom(position = pointThree) {
-                drawRect(
-                    color = Color.Red,
-                    topLeft = Offset(-10f, -10f),
-                    size = Size(20f, 20f)
-                )
+            draw(position = pointThree) {
+                drawLine(start = Offset(-10f, -10f), end = Offset(10f, 10f), color = Color.Red)
+                drawLine(start = Offset(-10f, 10f), end = Offset(10f, -10f), color = Color.Red)
             }
 
+            arc(pointOne, Distance(10.0), 0f, PI)
+
             line(pointOne, pointTwo)
-            text(pointOne, "Home")
+            text(pointOne, "Home", font = { size = 32f })
 
             centerCoordinates?.let {
                 group(id = "center") {

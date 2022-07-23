@@ -9,11 +9,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.*
 import center.sciprog.maps.coordinates.*
@@ -61,6 +58,10 @@ public actual fun MapView(
 
     var viewPointInternal: MapViewPoint? by remember {
         mutableStateOf(null)
+    }
+
+    if (config.resetViewPoint) {
+        viewPointInternal = null
     }
 
     val viewPoint: MapViewPoint by derivedStateOf {
@@ -223,7 +224,26 @@ public actual fun MapView(
                     feature.size,
                     center = feature.center.toOffset()
                 )
+                is MapRectangleFeature -> drawRect(
+                    feature.color,
+                    topLeft = feature.center.toOffset() - Offset(
+                        feature.size.width.toPx() / 2,
+                        feature.size.height.toPx() / 2
+                    ),
+                    size = feature.size.toSize()
+                )
                 is MapLineFeature -> drawLine(feature.color, feature.a.toOffset(), feature.b.toOffset())
+                is MapArcFeature -> {
+                    val topLeft = feature.oval.topLeft.toOffset()
+                    val bottomRight = feature.oval.bottomRight.toOffset()
+
+                    val path = Path().apply {
+                        addArcRad(Rect(topLeft, bottomRight), feature.startAngle, feature.endAngle - feature.startAngle)
+                    }
+
+                    drawPath(path, color = feature.color, style = Stroke())
+
+                }
                 is MapBitmapImageFeature -> drawImage(feature.image, feature.position.toOffset())
                 is MapVectorImageFeature -> {
                     val offset = feature.position.toOffset()
@@ -240,7 +260,7 @@ public actual fun MapView(
                         feature.text,
                         offset.x + 5,
                         offset.y - 5,
-                        Font().apply { size = 16f },
+                        Font().apply(feature.fontConfig),
                         feature.color.toPaint()
                     )
                 }
@@ -254,6 +274,9 @@ public actual fun MapView(
                     feature.children.values.forEach {
                         drawFeature(zoom, it)
                     }
+                }
+                else -> {
+                    logger.error { "Unrecognized feature type: ${feature::class}" }
                 }
             }
         }
