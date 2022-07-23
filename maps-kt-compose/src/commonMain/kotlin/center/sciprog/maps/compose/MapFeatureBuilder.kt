@@ -10,15 +10,15 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import center.sciprog.maps.coordinates.GeodeticMapCoordinates
 
-typealias FeatureId = String
+public typealias FeatureId = String
 
-interface FeatureBuilder {
-    fun addFeature(id: FeatureId?, feature: MapFeature): FeatureId
+public interface MapFeatureBuilder {
+    public fun addFeature(id: FeatureId?, feature: MapFeature): FeatureId
 
-    fun build(): SnapshotStateMap<FeatureId, MapFeature>
+    public fun build(): SnapshotStateMap<FeatureId, MapFeature>
 }
 
-internal class MapFeatureBuilder(initialFeatures: Map<FeatureId, MapFeature>) : FeatureBuilder {
+internal class MapFeatureBuilderImpl(initialFeatures: Map<FeatureId, MapFeature>) : MapFeatureBuilder {
 
     private val content: SnapshotStateMap<FeatureId, MapFeature> = mutableStateMapOf<FeatureId, MapFeature>().apply {
         putAll(initialFeatures)
@@ -35,72 +35,72 @@ internal class MapFeatureBuilder(initialFeatures: Map<FeatureId, MapFeature>) : 
     override fun build(): SnapshotStateMap<FeatureId, MapFeature> = content
 }
 
-fun FeatureBuilder.circle(
+public fun MapFeatureBuilder.circle(
     center: GeodeticMapCoordinates,
     zoomRange: IntRange = defaultZoomRange,
     size: Float = 5f,
     color: Color = Color.Red,
     id: FeatureId? = null,
-) = addFeature(
+): FeatureId = addFeature(
     id, MapCircleFeature(center, zoomRange, size, color)
 )
 
-fun FeatureBuilder.circle(
+public fun MapFeatureBuilder.circle(
     centerCoordinates: Pair<Double, Double>,
     zoomRange: IntRange = defaultZoomRange,
     size: Float = 5f,
     color: Color = Color.Red,
     id: FeatureId? = null,
-) = addFeature(
+): FeatureId = addFeature(
     id, MapCircleFeature(centerCoordinates.toCoordinates(), zoomRange, size, color)
 )
 
-fun FeatureBuilder.custom(
+public fun MapFeatureBuilder.custom(
     position: Pair<Double, Double>,
     zoomRange: IntRange = defaultZoomRange,
     id: FeatureId? = null,
     drawFeature: DrawScope.() -> Unit,
-) = addFeature(id, MapDrawFeature(position.toCoordinates(), zoomRange, drawFeature))
+): FeatureId = addFeature(id, MapDrawFeature(position.toCoordinates(), zoomRange, drawFeature))
 
-fun FeatureBuilder.line(
+public fun MapFeatureBuilder.line(
     aCoordinates: Pair<Double, Double>,
     bCoordinates: Pair<Double, Double>,
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
     id: FeatureId? = null,
-) = addFeature(id, MapLineFeature(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), zoomRange, color))
+): FeatureId = addFeature(id, MapLineFeature(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), zoomRange, color))
 
-fun FeatureBuilder.text(
+public fun MapFeatureBuilder.text(
     position: GeodeticMapCoordinates,
     text: String,
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
     id: FeatureId? = null,
-) = addFeature(id, MapTextFeature(position, text, zoomRange, color))
+): FeatureId = addFeature(id, MapTextFeature(position, text, zoomRange, color))
 
-fun FeatureBuilder.text(
+public fun MapFeatureBuilder.text(
     position: Pair<Double, Double>,
     text: String,
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
     id: FeatureId? = null,
-) = addFeature(id, MapTextFeature(position.toCoordinates(), text, zoomRange, color))
+): FeatureId = addFeature(id, MapTextFeature(position.toCoordinates(), text, zoomRange, color))
 
 @Composable
-fun FeatureBuilder.image(
+public fun MapFeatureBuilder.image(
     position: Pair<Double, Double>,
     image: ImageVector,
     size: DpSize = DpSize(20.dp, 20.dp),
     zoomRange: IntRange = defaultZoomRange,
     id: FeatureId? = null,
-) = addFeature(id, MapVectorImageFeature(position.toCoordinates(), image, size, zoomRange))
+): FeatureId = addFeature(id, MapVectorImageFeature(position.toCoordinates(), image, size, zoomRange))
 
-fun FeatureBuilder.group(
+public fun MapFeatureBuilder.group(
     zoomRange: IntRange = defaultZoomRange,
     id: FeatureId? = null,
-    builder: FeatureBuilder.() -> Unit,
+    builder: MapFeatureBuilder.() -> Unit,
 ): FeatureId {
-    val map = MapFeatureBuilder(emptyMap()).apply(builder).build()
+    val map = MapFeatureBuilderImpl(emptyMap()).apply(builder).build()
     val feature = MapFeatureGroup(map, zoomRange)
     return addFeature(id, feature)
 }

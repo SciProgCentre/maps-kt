@@ -11,7 +11,7 @@ import kotlin.math.min
 
 
 //TODO consider replacing by modifier
-data class MapViewConfig(
+public data class MapViewConfig(
     val zoomSpeed: Double = 1.0 / 3.0,
     val inferViewBoxFromFeatures: Boolean = false,
     val onClick: MapViewPoint.() -> Unit = {},
@@ -21,7 +21,7 @@ data class MapViewConfig(
 )
 
 @Composable
-expect fun MapView(
+public expect fun MapView(
     mapTileProvider: MapTileProvider,
     computeViewPoint: (canvasSize: DpSize) -> MapViewPoint,
     features: Map<FeatureId, MapFeature>,
@@ -30,15 +30,15 @@ expect fun MapView(
 )
 
 @Composable
-fun MapView(
+public fun MapView(
     mapTileProvider: MapTileProvider,
     initialViewPoint: MapViewPoint,
     features: Map<FeatureId, MapFeature> = emptyMap(),
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
-    buildFeatures: @Composable (FeatureBuilder.() -> Unit) = {},
+    buildFeatures: @Composable (MapFeatureBuilder.() -> Unit) = {},
 ) {
-    val featuresBuilder = MapFeatureBuilder(features)
+    val featuresBuilder = MapFeatureBuilderImpl(features)
     featuresBuilder.buildFeatures()
     MapView(
         mapTileProvider,
@@ -66,9 +66,9 @@ public fun MapView(
     features: Map<FeatureId, MapFeature> = emptyMap(),
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
-    buildFeatures: @Composable (FeatureBuilder.() -> Unit) = {},
+    buildFeatures: @Composable (MapFeatureBuilder.() -> Unit) = {},
 ) {
-    val featuresBuilder = MapFeatureBuilder(features)
+    val featuresBuilder = MapFeatureBuilderImpl(features)
     featuresBuilder.buildFeatures()
     MapView(
         mapTileProvider,

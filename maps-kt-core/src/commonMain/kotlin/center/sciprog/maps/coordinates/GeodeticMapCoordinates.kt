@@ -8,7 +8,7 @@ import kotlin.math.PI
 public class GeodeticMapCoordinates private constructor(
     public val latitude: Double,
     public val longitude: Double,
-): Coordinates2D {
+){
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

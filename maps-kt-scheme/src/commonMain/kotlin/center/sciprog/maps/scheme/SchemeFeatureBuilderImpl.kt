@@ -14,13 +14,15 @@ import center.sciprog.maps.scheme.SchemeFeature.Companion.defaultScaleRange
 
 typealias FeatureId = String
 
-interface FeatureBuilder {
+interface SchemeFeatureBuilder {
     fun addFeature(id: FeatureId?, feature: SchemeFeature): FeatureId
 
     fun build(): SnapshotStateMap<FeatureId, SchemeFeature>
 }
 
-internal class SchemeFeatureBuilder(initialFeatures: Map<FeatureId, SchemeFeature>) : FeatureBuilder {
+internal class SchemeFeatureBuilderImpl(
+    initialFeatures: Map<FeatureId, SchemeFeature>,
+) : SchemeFeatureBuilder {
 
     private val content: SnapshotStateMap<FeatureId, SchemeFeature> =
         mutableStateMapOf<FeatureId, SchemeFeature>().apply {
@@ -38,7 +40,7 @@ internal class SchemeFeatureBuilder(initialFeatures: Map<FeatureId, SchemeFeatur
     override fun build(): SnapshotStateMap<FeatureId, SchemeFeature> = content
 }
 
-fun FeatureBuilder.background(
+fun SchemeFeatureBuilder.background(
     painter: Painter,
     box: SchemeCoordinateBox,
     id: FeatureId? = null,
@@ -47,7 +49,7 @@ fun FeatureBuilder.background(
     SchemeBackgroundFeature(box, painter)
 )
 
-fun FeatureBuilder.background(
+fun SchemeFeatureBuilder.background(
     painter: Painter,
     size: Size = painter.intrinsicSize,
     offset: SchemeCoordinates = SchemeCoordinates(0f, 0f),
@@ -60,7 +62,7 @@ fun FeatureBuilder.background(
     return background(painter, box, id)
 }
 
-fun FeatureBuilder.circle(
+fun SchemeFeatureBuilder.circle(
     center: SchemeCoordinates,
     scaleRange: FloatRange = defaultScaleRange,
     size: Float = 5f,
@@ -70,7 +72,7 @@ fun FeatureBuilder.circle(
     id, SchemeCircleFeature(center, scaleRange, size, color)
 )
 
-fun FeatureBuilder.circle(
+fun SchemeFeatureBuilder.circle(
     centerCoordinates: Pair<Number, Number>,
     scaleRange: FloatRange = defaultScaleRange,
     size: Float = 5f,
@@ -80,14 +82,14 @@ fun FeatureBuilder.circle(
     id, SchemeCircleFeature(centerCoordinates.toCoordinates(), scaleRange, size, color)
 )
 
-fun FeatureBuilder.custom(
+fun SchemeFeatureBuilder.custom(
     position: Pair<Number, Number>,
     scaleRange: FloatRange = defaultScaleRange,
     id: FeatureId? = null,
     drawFeature: DrawScope.() -> Unit,
 ) = addFeature(id, SchemeDrawFeature(position.toCoordinates(), scaleRange, drawFeature))
 
-fun FeatureBuilder.line(
+fun SchemeFeatureBuilder.line(
     aCoordinates: Pair<Number, Number>,
     bCoordinates: Pair<Number, Number>,
     scaleRange: FloatRange = defaultScaleRange,
@@ -95,7 +97,7 @@ fun FeatureBuilder.line(
     id: FeatureId? = null,
 ) = addFeature(id, SchemeLineFeature(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), scaleRange, color))
 
-fun FeatureBuilder.text(
+fun SchemeFeatureBuilder.text(
     position: SchemeCoordinates,
     text: String,
     scaleRange: FloatRange = defaultScaleRange,
@@ -103,7 +105,7 @@ fun FeatureBuilder.text(
     id: FeatureId? = null,
 ) = addFeature(id, SchemeTextFeature(position, text, scaleRange, color))
 
-fun FeatureBuilder.text(
+fun SchemeFeatureBuilder.text(
     position: Pair<Number, Number>,
     text: String,
     scaleRange: FloatRange = defaultScaleRange,
@@ -112,7 +114,7 @@ fun FeatureBuilder.text(
 ) = addFeature(id, SchemeTextFeature(position.toCoordinates(), text, scaleRange, color))
 
 @Composable
-fun FeatureBuilder.image(
+fun SchemeFeatureBuilder.image(
     position: Pair<Number, Number>,
     image: ImageVector,
     size: DpSize = DpSize(20.dp, 20.dp),
@@ -120,12 +122,12 @@ fun FeatureBuilder.image(
     id: FeatureId? = null,
 ) = addFeature(id, SchemeVectorImageFeature(position.toCoordinates(), image, size, scaleRange))
 
-fun FeatureBuilder.group(
+fun SchemeFeatureBuilder.group(
     scaleRange: FloatRange = defaultScaleRange,
     id: FeatureId? = null,
-    builder: FeatureBuilder.() -> Unit,
+    builder: SchemeFeatureBuilder.() -> Unit,
 ): FeatureId {
-    val map = SchemeFeatureBuilder(emptyMap()).apply(builder).build()
+    val map = SchemeFeatureBuilderImpl(emptyMap()).apply(builder).build()
     val feature = SchemeFeatureGroup(map, scaleRange)
     return addFeature(id, feature)
 }

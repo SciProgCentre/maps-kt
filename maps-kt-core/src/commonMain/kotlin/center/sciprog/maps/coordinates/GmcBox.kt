@@ -5,9 +5,9 @@ import kotlin.math.max
 import kotlin.math.min
 
 public data class GmcBox(
-    public override val a: GeodeticMapCoordinates,
-    public override val b: GeodeticMapCoordinates,
-) : CoordinateBox<GeodeticMapCoordinates>
+    public val a: GeodeticMapCoordinates,
+    public val b: GeodeticMapCoordinates,
+)
 
 public fun GmcBox(
     latitudes: ClosedFloatingPointRange<Double>,

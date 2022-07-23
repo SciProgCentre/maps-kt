@@ -33,7 +33,7 @@ private fun Color.toPaint(): Paint = Paint().apply {
 private fun IntRange.intersect(other: IntRange) = max(first, other.first)..min(last, other.last)
 
 internal fun MapViewPoint.move(deltaX: Double, deltaY: Double): MapViewPoint {
-    val newCoordinates = center.sciprog.maps.coordinates.GeodeticMapCoordinates.ofRadians(
+    val newCoordinates = GeodeticMapCoordinates.ofRadians(
         (focus.latitude + deltaY / scaleFactor).coerceIn(
             -MercatorProjection.MAXIMUM_LATITUDE,
             MercatorProjection.MAXIMUM_LATITUDE
@@ -50,7 +50,7 @@ private val logger = KotlinLogging.logger("MapView")
  */
 
 @Composable
-actual fun MapView(
+public actual fun MapView(
     mapTileProvider: MapTileProvider,
     computeViewPoint: (canvasSize: DpSize) -> MapViewPoint,
     features: Map<FeatureId, MapFeature>,

@@ -249,9 +249,9 @@ fun SchemeView(
     features: Map<FeatureId, SchemeFeature> = emptyMap(),
     config: SchemeViewConfig = SchemeViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
-    buildFeatures: @Composable (FeatureBuilder.() -> Unit) = {},
+    buildFeatures: @Composable (SchemeFeatureBuilder.() -> Unit) = {},
 ) {
-    val featuresBuilder = SchemeFeatureBuilder(features)
+    val featuresBuilder = SchemeFeatureBuilderImpl(features)
     featuresBuilder.buildFeatures()
     SchemeView(
         { initialViewPoint },

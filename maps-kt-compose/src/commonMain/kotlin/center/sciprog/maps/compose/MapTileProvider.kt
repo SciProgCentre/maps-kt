@@ -5,27 +5,27 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlin.math.floor
 
-data class TileId(
+public data class TileId(
     val zoom: Int,
     val i: Int,
     val j: Int,
 )
 
-data class MapTile(
+public data class MapTile(
     val id: TileId,
     val image: ImageBitmap,
 )
 
-interface MapTileProvider {
-    fun CoroutineScope.loadTileAsync(tileId: TileId): Deferred<MapTile>
+public interface MapTileProvider {
+    public fun CoroutineScope.loadTileAsync(tileId: TileId): Deferred<MapTile>
 
-    val tileSize: Int get() = DEFAULT_TILE_SIZE
+    public val tileSize: Int get() = DEFAULT_TILE_SIZE
 
-    fun toIndex(d: Double): Int = floor(d / tileSize).toInt()
+    public fun toIndex(d: Double): Int = floor(d / tileSize).toInt()
 
-    fun toCoordinate(i: Int): Double = (i * tileSize).toDouble()
+    public fun toCoordinate(i: Int): Double = (i * tileSize).toDouble()
 
-    companion object {
-        const val DEFAULT_TILE_SIZE = 256
+    public companion object {
+        public const val DEFAULT_TILE_SIZE: Int = 256
     }
 }
