@@ -3,6 +3,7 @@ package center.sciprog.maps.compose
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -45,6 +46,18 @@ public class MapDrawFeature(
     override fun getBoundingBox(zoom: Int): GmcBox {
         //TODO add box computation
         return GmcBox(position, position)
+    }
+}
+
+public class MapPointsFeature(
+    public val points: List<GeodeticMapCoordinates>,
+    override val zoomRange: IntRange = defaultZoomRange,
+    public val stroke: Float = 2f,
+    public val color: Color = Color.Red,
+    public val pointMode: PointMode = PointMode.Points
+) : MapFeature {
+    override fun getBoundingBox(zoom: Int): GmcBox {
+        return GmcBox(points.first(), points.last())
     }
 }
 
