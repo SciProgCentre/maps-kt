@@ -275,6 +275,15 @@ public actual fun MapView(
                         drawFeature(zoom, it)
                     }
                 }
+                is MapPointsFeature -> {
+                    val points = feature.points.map { it.toOffset() }
+                    drawPoints(
+                        points = points,
+                        color = feature.color,
+                        strokeWidth = feature.stroke,
+                        pointMode = feature.pointMode
+                    )
+                }
                 else -> {
                     logger.error { "Unrecognized feature type: ${feature::class}" }
                 }
