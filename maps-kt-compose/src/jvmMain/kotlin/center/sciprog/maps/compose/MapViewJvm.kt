@@ -146,6 +146,14 @@ public actual fun MapView(
                             config.onClick(MapViewPoint(dpPos.toGeodetic(), viewPoint.zoom))
                             drag(change.id) { dragChange ->
                                 val dragAmount = dragChange.position - dragChange.previousPosition
+                                val dpStart =
+                                    DpOffset(dragChange.previousPosition.x.toDp(), dragChange.previousPosition.y.toDp())
+                                val dpEnd = DpOffset(dragChange.position.x.toDp(), dragChange.position.y.toDp())
+                                if (!config.onDrag(
+                                        MapViewPoint(dpStart.toGeodetic(), viewPoint.zoom),
+                                        MapViewPoint(dpEnd.toGeodetic(), viewPoint.zoom)
+                                    )
+                                ) return@drag
                                 val newViewPoint = viewPoint.move(
                                     -dragAmount.x.toDp().value / tileScale,
                                     +dragAmount.y.toDp().value / tileScale

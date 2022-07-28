@@ -11,10 +11,15 @@ import kotlin.math.min
 
 
 //TODO consider replacing by modifier
+/**
+ * @param onDrag - returns true if you want to drag a map and false, if you want to make map stationary.
+ *          start - is a point where drag begins, end is a point where drag ends
+ */
 public data class MapViewConfig(
     val zoomSpeed: Double = 1.0 / 3.0,
     val inferViewBoxFromFeatures: Boolean = false,
     val onClick: MapViewPoint.() -> Unit = {},
+    val onDrag: (start: MapViewPoint, end: MapViewPoint) -> Boolean = { _, _ -> true },
     val onViewChange: MapViewPoint.() -> Unit = {},
     val onSelect: (GmcBox) -> Unit = {},
     val zoomOnSelect: Boolean = true,
