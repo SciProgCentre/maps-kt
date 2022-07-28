@@ -71,8 +71,9 @@ public fun MapFeatureBuilder.draw(
     position: Pair<Double, Double>,
     zoomRange: IntRange = defaultZoomRange,
     id: FeatureId? = null,
+    getBoundingBox: (Int) -> GmcBox,
     drawFeature: DrawScope.() -> Unit,
-): FeatureId = addFeature(id, MapDrawFeature(position.toCoordinates(), zoomRange, drawFeature))
+): FeatureId = addFeature(id, MapDrawFeature(position.toCoordinates(), zoomRange, getBoundingBox, drawFeature))
 
 public fun MapFeatureBuilder.line(
     aCoordinates: Pair<Double, Double>,
@@ -134,3 +135,13 @@ public fun MapFeatureBuilder.group(
     val feature = MapFeatureGroup(map, zoomRange)
     return addFeature(id, feature)
 }
+
+public fun MapFeatureBuilder.featureSelector(
+    id: FeatureId? = null,
+    onSelect: MapFeatureBuilder.(zoom: Int) -> MapFeature
+): FeatureId = addFeature(
+    id = id,
+    feature = MapFeatureSelector(
+        selector = { onSelect(this, it) }
+    )
+)

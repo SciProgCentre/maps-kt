@@ -5,12 +5,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import center.sciprog.maps.compose.*
 import center.sciprog.maps.coordinates.Distance
 import center.sciprog.maps.coordinates.GeodeticMapCoordinates
+import center.sciprog.maps.coordinates.GmcBox
 import center.sciprog.maps.coordinates.MapViewPoint
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -47,6 +49,27 @@ fun App() {
 
         var centerCoordinates by remember { mutableStateOf<GeodeticMapCoordinates?>(null) }
 
+        val markers = (1..1_000_000).map {
+            val position = GeodeticMapCoordinates.ofDegrees(
+                latitude = Random.nextDouble(-90.0, 90.0),
+                longitude = Random.nextDouble(0.0, 180.0)
+            )
+            MapDrawFeature(
+                position = position,
+                getBoundingBox = {
+                    GmcBox.withCenter(
+                        center = position,
+                        width = Distance(0.001),
+                        height = Distance(0.001)
+                    )
+                }
+            ) {
+                drawRoundRect(
+                    color = Color.Yellow,
+                    size = Size(10f, 10f)
+                )
+            }
+        }
 
         MapView(
             mapTileProvider = mapTileProvider,
@@ -67,9 +90,25 @@ fun App() {
                 centerCoordinates = pointTwo,
             )
 
-            draw(position = pointThree) {
+            draw(
+                position = pointThree,
+                getBoundingBox = {
+                    GmcBox.withCenter(
+                        center = GeodeticMapCoordinates.ofDegrees(
+                            pointThree.first,
+                            pointThree.second
+                        ),
+                        height = Distance(0.001),
+                        width = Distance(0.001)
+                    )
+                }
+            ) {
                 drawLine(start = Offset(-10f, -10f), end = Offset(10f, 10f), color = Color.Red)
                 drawLine(start = Offset(-10f, 10f), end = Offset(10f, -10f), color = Color.Red)
+            }
+
+            featureSelector { zoom ->
+                markers.groupBy {  }
             }
 
             arc(pointOne, Distance(10.0), 0f, PI)
