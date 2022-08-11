@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import center.sciprog.maps.compose.*
@@ -49,40 +50,41 @@ fun App() {
 
         var centerCoordinates by remember { mutableStateOf<GeodeticMapCoordinates?>(null) }
 
-//        val markers = (1..1_000_000).map {
-//            val position = GeodeticMapCoordinates.ofDegrees(
-//                latitude = Random.nextDouble(-90.0, 90.0),
-//                longitude = Random.nextDouble(0.0, 180.0)
-//            )
-//            MapDrawFeature(
-//                position = position,
-//                computeBoundingBox = {
-//                    GmcBox.withCenter(
-//                        center = position,
-//                        width = Distance(0.001),
-//                        height = Distance(0.001)
-//                    )
-//                }
-//            ) {
-//                drawRoundRect(
-//                    color = Color.Yellow,
-//                    size = Size(1f, 1f)
-//                )
-//            }
-//        }
+
+        val pointOne = 55.568548 to 37.568604
+        var pointTwo by remember { mutableStateOf(55.929444 to 37.518434) }
+        val pointThree = 60.929444 to 37.518434
         val state = MapViewState(
             mapTileProvider = mapTileProvider,
-            computeViewPoint = { viewPoint },
+            initialViewPoint = viewPoint,
             config = MapViewConfig(
                 inferViewBoxFromFeatures = true,
                 onViewChange = { centerCoordinates = focus },
+                onDrag = { start, end ->
+                    if (start.focus.latitude.toDegrees() in (pointTwo.first - 0.05)..(pointTwo.first + 0.05) &&
+                        start.focus.longitude.toDegrees() in (pointTwo.second - 0.05)..(pointTwo.second + 0.05)
+                    ) {
+                        pointTwo = pointTwo.first + (end.focus.latitude - start.focus.latitude).toDegrees() to
+                                pointTwo.second + (end.focus.longitude - start.focus.longitude).toDegrees()
+                        false// returning false, because when we are dragging circle we don't want to drag map
+                    } else true
+                }
             )
         ) {
-            val pointOne = 55.568548 to 37.568604
-            val pointTwo = 55.929444 to 37.518434
-            val pointThree = 60.929444 to 37.518434
 
             image(pointOne, Icons.Filled.Home)
+
+            points(
+                points = listOf(
+                    55.742465 to 37.615812,
+                    55.742713 to 37.616370,
+                    55.742815 to 37.616659,
+                    55.742320 to 37.617132,
+                    55.742086 to 37.616566,
+                    55.741715 to 37.616716
+                ),
+                pointMode = PointMode.Polygon
+            )
 
             //remember feature Id
             val circleId: FeatureId = circle(
@@ -106,15 +108,9 @@ fun App() {
                 drawLine(start = Offset(-10f, 10f), end = Offset(10f, -10f), color = Color.Red)
             }
 
-//            markers.forEach { feature ->
-//                featureSelector {
-//                    feature
-//                }
-//            }
-
             arc(pointOne, Distance(10.0), 0f, PI)
 
-            line(pointOne, pointTwo)
+            line(pointOne, pointTwo, id = "line")
             text(pointOne, "Home", font = { size = 32f })
 
             centerCoordinates?.let {

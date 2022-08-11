@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.DpSize
@@ -116,6 +117,15 @@ public fun MapFeatureBuilder.arc(
         color
     )
 )
+
+public fun MapFeatureBuilder.points(
+    points: List<Pair<Double, Double>>,
+    zoomRange: IntRange = defaultZoomRange,
+    stroke: Float = 2f,
+    color: Color = Color.Red,
+    pointMode: PointMode = PointMode.Points,
+    id: FeatureId? = null
+): FeatureId = addFeature(id, MapPointsFeature(points.map { it.toCoordinates() }, zoomRange, stroke, color, pointMode))
 
 @Composable
 public fun MapFeatureBuilder.image(
