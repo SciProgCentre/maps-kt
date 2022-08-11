@@ -5,16 +5,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import center.sciprog.maps.compose.*
-import center.sciprog.maps.coordinates.Distance
-import center.sciprog.maps.coordinates.GeodeticMapCoordinates
-import center.sciprog.maps.coordinates.GmcBox
-import center.sciprog.maps.coordinates.MapViewPoint
+import center.sciprog.maps.coordinates.*
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import kotlinx.coroutines.delay
@@ -54,24 +50,11 @@ fun App() {
         val pointOne = 55.568548 to 37.568604
         var pointTwo by remember { mutableStateOf(55.929444 to 37.518434) }
         val pointThree = 60.929444 to 37.518434
+
         val state = MapViewState(
             mapTileProvider = mapTileProvider,
-            initialViewPoint = viewPoint,
-            config = MapViewConfig(
-                inferViewBoxFromFeatures = true,
-                onViewChange = { centerCoordinates = focus },
-                onDrag = { start, end ->
-                    if (start.focus.latitude.toDegrees() in (pointTwo.first - 0.05)..(pointTwo.first + 0.05) &&
-                        start.focus.longitude.toDegrees() in (pointTwo.second - 0.05)..(pointTwo.second + 0.05)
-                    ) {
-                        pointTwo = pointTwo.first + (end.focus.latitude - start.focus.latitude).toDegrees() to
-                                pointTwo.second + (end.focus.longitude - start.focus.longitude).toDegrees()
-                        false// returning false, because when we are dragging circle we don't want to drag map
-                    } else true
-                }
-            )
+            initialViewPoint = { viewPoint },
         ) {
-
             image(pointOne, Icons.Filled.Home)
 
             points(
@@ -132,8 +115,28 @@ fun App() {
                 }
             }
         }
+
+        val config = MapViewConfig(
+            onViewChange = { centerCoordinates = focus },
+            onDrag = { start, end ->
+                val markerRadius = 5f
+                val startPosition = with(state) { start.focus.toOffset(this@MapViewConfig) }
+                val markerLocation = with(state) {
+                    GeodeticMapCoordinates.ofDegrees(pointTwo.first, pointTwo.second).toOffset(this@MapViewConfig)
+                }
+                if (startPosition.x in (markerLocation.x - markerRadius)..(markerLocation.x + markerRadius) &&
+                    startPosition.y in (markerLocation.y - markerRadius)..(markerLocation.y + markerRadius)
+                ) {
+                    pointTwo = pointTwo.first + (end.focus.latitude - start.focus.latitude).toDegrees() to
+                            pointTwo.second + (end.focus.longitude - start.focus.longitude).toDegrees()
+                    false// returning false, because when we are dragging circle we don't want to drag map
+                } else true
+            }
+        )
+
         MapView(
-            mapViewState = state
+            mapViewState = state,
+            mapViewConfig = config
         )
     }
 }

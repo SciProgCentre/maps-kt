@@ -15,37 +15,37 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import center.sciprog.maps.coordinates.*
-import center.sciprog.maps.coordinates.MercatorProjection.Companion.toMercator
+import mu.KotlinLogging
 import kotlin.math.*
 
 @Composable
 public fun MapViewState(
-    computeViewPoint: (canvasSize: DpSize) -> MapViewPoint,
+    initialViewPoint: (canvasSize: DpSize) -> MapViewPoint,
     mapTileProvider: MapTileProvider,
-    config: MapViewConfig = MapViewConfig(),
     features: Map<FeatureId, MapFeature> = emptyMap(),
+    inferViewBoxFromFeatures: Boolean = false,
     buildFeatures: @Composable (MapFeatureBuilder.() -> Unit) = {},
 ): MapViewState {
     val featuresBuilder = MapFeatureBuilderImpl(features)
     featuresBuilder.buildFeatures()
     return MapViewState(
-        computeViewPoint = computeViewPoint,
+        initialViewPoint = initialViewPoint,
         mapTileProvider = mapTileProvider,
-        config = config,
-        features = featuresBuilder.build()
+        features = featuresBuilder.build(),
+        inferViewBoxFromFeatures = inferViewBoxFromFeatures
     )
 }
 
 public class MapViewState(
-    public val computeViewPoint: (canvasSize: DpSize) -> MapViewPoint,
+    public val initialViewPoint: (canvasSize: DpSize) -> MapViewPoint,
     public val mapTileProvider: MapTileProvider,
-    public val config: MapViewConfig = MapViewConfig(),
     public val features: Map<FeatureId, MapFeature> = emptyMap(),
+    inferViewBoxFromFeatures: Boolean = false,
 ) {
     public var canvasSize: DpSize by mutableStateOf(DpSize(512.dp, 512.dp))
     public var viewPointInternal: MapViewPoint? by mutableStateOf(null)
     public val viewPoint: MapViewPoint by derivedStateOf {
-        viewPointInternal ?: if (config.inferViewBoxFromFeatures) {
+        viewPointInternal ?: if (inferViewBoxFromFeatures) {
             features.values.computeBoundingBox(1)?.let { box ->
                 val zoom = log2(
                     min(
@@ -54,9 +54,9 @@ public class MapViewState(
                     ) * PI / mapTileProvider.tileSize
                 )
                 MapViewPoint(box.center, zoom)
-            } ?: computeViewPoint(canvasSize)
+            } ?: initialViewPoint(canvasSize)
         } else {
-            computeViewPoint(canvasSize)
+            initialViewPoint(canvasSize)
         }
     }
     public val zoom: Int by derivedStateOf { floor(viewPoint.zoom).toInt() }
@@ -100,6 +100,8 @@ public class MapViewState(
     //Convert GMC to offset in pixels (not DP), adjusting for zoom
     public fun GeodeticMapCoordinates.toOffset(density: Density): Offset =
         WebMercatorProjection.toMercator(this, zoom).toOffset(density)
+
+    private val logger = KotlinLogging.logger("MapViewState")
 
     public fun DrawScope.drawFeature(zoom: Int, feature: MapFeature) {
         when (feature) {
@@ -147,17 +149,17 @@ public class MapViewState(
                 }
             }
             is MapTextFeature -> drawIntoCanvas { canvas ->
-                val offset = toOffset(feature.position, mapViewState)
+                val offset = feature.position.toOffset(this@drawFeature)
                 canvas.nativeCanvas.drawString(
                     feature.text,
                     offset.x + 5,
                     offset.y - 5,
                     Font().apply(feature.fontConfig),
-                    feature.color.toPaint()
+                    feature.color
                 )
             }
             is MapDrawFeature -> {
-                val offset = toOffset(feature.position, mapViewState)
+                val offset = feature.position.toOffset(this)
                 translate(offset.x, offset.y) {
                     feature.drawFeature(this)
                 }

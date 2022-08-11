@@ -3,6 +3,7 @@ package center.sciprog.maps.compose
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import center.sciprog.maps.coordinates.*
 import kotlin.math.PI
@@ -17,9 +18,8 @@ import kotlin.math.min
  */
 public data class MapViewConfig(
     val zoomSpeed: Double = 1.0 / 3.0,
-    val inferViewBoxFromFeatures: Boolean = false,
     val onClick: MapViewPoint.() -> Unit = {},
-    val onDrag: (start: MapViewPoint, end: MapViewPoint) -> Boolean = { _, _ -> true },
+    val onDrag: Density.(start: MapViewPoint, end: MapViewPoint) -> Boolean = { _, _ -> true },
     val onViewChange: MapViewPoint.() -> Unit = {},
     val onSelect: (GmcBox) -> Unit = {},
     val zoomOnSelect: Boolean = true,
@@ -28,8 +28,9 @@ public data class MapViewConfig(
 
 @Composable
 public expect fun MapView(
-    mapViewState: MapViewState,
     modifier: Modifier = Modifier,
+    mapViewState: MapViewState,
+    mapViewConfig: MapViewConfig,
 )
 
 @Composable
@@ -46,10 +47,10 @@ public fun MapView(
     MapView(
         mapViewState = MapViewState(
             mapTileProvider = mapTileProvider,
-            computeViewPoint = { initialViewPoint },
+            initialViewPoint = { initialViewPoint },
             features = featuresBuilder.build(),
-            config = config,
         ),
+        mapViewConfig = config,
         modifier = modifier
     )
 }
@@ -78,11 +79,11 @@ public fun MapView(
     featuresBuilder.buildFeatures()
     MapView(
         mapViewState = MapViewState(
-            config = config,
             mapTileProvider = mapTileProvider,
             features = featuresBuilder.build(),
-            computeViewPoint = box.computeViewPoint(mapTileProvider),
+            initialViewPoint = box.computeViewPoint(mapTileProvider),
         ),
-        modifier
+        modifier = modifier,
+        mapViewConfig = config,
     )
 }

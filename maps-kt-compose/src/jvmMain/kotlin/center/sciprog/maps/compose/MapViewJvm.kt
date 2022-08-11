@@ -17,15 +17,10 @@ import center.sciprog.maps.coordinates.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
-import org.jetbrains.skia.Font
-import org.jetbrains.skia.Paint
 import kotlin.math.*
 
 
-private fun Color.toPaint(): Paint = Paint().apply {
-    isAntiAlias = true
-    color = toArgb()
-}
+
 
 private fun IntRange.intersect(other: IntRange) = max(first, other.first)..min(last, other.last)
 
@@ -48,8 +43,9 @@ private val logger = KotlinLogging.logger("MapView")
 
 @Composable
 public actual fun MapView(
-    mapViewState: MapViewState,
     modifier: Modifier,
+    mapViewState: MapViewState,
+    mapViewConfig: MapViewConfig,
 ) {
     with(mapViewState) {
         @OptIn(ExperimentalComposeUiApi::class)
@@ -82,11 +78,11 @@ public actual fun MapView(
                                             rect.bottomRight.toDpOffset().toGeodetic()
                                         )
 
-                                    config.onSelect(gmcBox)
-                                    if (config.zoomOnSelect) {
+                                    mapViewConfig.onSelect(gmcBox)
+                                    if (mapViewConfig.zoomOnSelect) {
                                         val newViewPoint = gmcBox.computeViewPoint(mapTileProvider).invoke(canvasSize)
 
-                                        config.onViewChange(newViewPoint)
+                                        mapViewConfig.onViewChange(newViewPoint)
                                         viewPointInternal = newViewPoint
                                     }
                                     selectRect = null
@@ -94,7 +90,7 @@ public actual fun MapView(
                             } else {
                                 val dragStart = change.position
                                 val dpPos = DpOffset(dragStart.x.toDp(), dragStart.y.toDp())
-                                config.onClick(
+                                mapViewConfig.onClick(
                                     MapViewPoint(
                                          dpPos.toGeodetic() ,
                                         viewPoint.zoom
@@ -108,7 +104,8 @@ public actual fun MapView(
                                             dragChange.previousPosition.y.toDp()
                                         )
                                     val dpEnd = DpOffset(dragChange.position.x.toDp(), dragChange.position.y.toDp())
-                                    if (!config.onDrag(
+                                    if (!mapViewConfig.onDrag(
+                                            this,
                                             MapViewPoint(dpStart.toGeodetic(), viewPoint.zoom),
                                             MapViewPoint(dpEnd.toGeodetic(), viewPoint.zoom)
                                         )
@@ -117,7 +114,7 @@ public actual fun MapView(
                                         -dragAmount.x.toDp().value / tileScale,
                                         +dragAmount.y.toDp().value / tileScale
                                     )
-                                    config.onViewChange(newViewPoint)
+                                    mapViewConfig.onViewChange(newViewPoint)
                                     viewPointInternal = newViewPoint
                                 }
                             }
@@ -130,8 +127,8 @@ public actual fun MapView(
             val (xPos, yPos) = change.position
             //compute invariant point of translation
             val invariant = DpOffset(xPos.toDp(), yPos.toDp()).toGeodetic()
-            val newViewPoint = viewPoint.zoom(-change.scrollDelta.y.toDouble() * config.zoomSpeed, invariant)
-            config.onViewChange(newViewPoint)
+            val newViewPoint = viewPoint.zoom(-change.scrollDelta.y.toDouble() * mapViewConfig.zoomSpeed, invariant)
+            mapViewConfig.onViewChange(newViewPoint)
             viewPointInternal = newViewPoint
         }.fillMaxSize()
 

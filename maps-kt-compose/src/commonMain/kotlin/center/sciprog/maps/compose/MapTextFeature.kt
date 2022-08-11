@@ -1,10 +1,15 @@
 package center.sciprog.maps.compose
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.NativeCanvas
 import center.sciprog.maps.coordinates.GeodeticMapCoordinates
 import center.sciprog.maps.coordinates.GmcBox
-import org.jetbrains.skia.Font
 
+public expect class Font constructor() {
+    public var size: Float
+}
+
+public expect fun NativeCanvas.drawString(text: String, x: Float, y: Float, font: Font, color: Color)
 
 public class MapTextFeature(
     public val position: GeodeticMapCoordinates,
