@@ -40,10 +40,10 @@ public class MapFeatureSelector(
 public class MapDrawFeature(
     public val position: GeodeticMapCoordinates,
     override val zoomRange: IntRange = defaultZoomRange,
-    private val getBoundingBox: (zoom: Int) -> GmcBox,
+    private val computeBoundingBox: (zoom: Int) -> GmcBox,
     public val drawFeature: DrawScope.() -> Unit,
 ) : MapFeature {
-    override fun getBoundingBox(zoom: Int): GmcBox = getBoundingBox(zoom)
+    override fun getBoundingBox(zoom: Int): GmcBox = computeBoundingBox(zoom)
 }
 
 public class MapCircleFeature(

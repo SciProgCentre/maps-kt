@@ -48,60 +48,9 @@ private val logger = KotlinLogging.logger("MapView")
 
 @Composable
 public actual fun MapView(
-    mapTileProvider: MapTileProvider,
-    computeViewPoint: (canvasSize: DpSize) -> MapViewPoint,
-    features: Map<FeatureId, MapFeature>,
-    config: MapViewConfig,
+    mapViewState: MapViewState,
     modifier: Modifier,
 ) {
-    var canvasSize by remember { mutableStateOf(DpSize(512.dp, 512.dp)) }
-
-    var viewPointInternal: MapViewPoint? by remember {
-        mutableStateOf(null)
-    }
-
-    if (config.resetViewPoint) {
-        viewPointInternal = null
-    }
-
-    val viewPoint: MapViewPoint by derivedStateOf {
-        viewPointInternal ?: if (config.inferViewBoxFromFeatures) {
-            features.values.computeBoundingBox(1)?.let { box ->
-                val zoom = log2(
-                    min(
-                        canvasSize.width.value / box.width,
-                        canvasSize.height.value / box.height
-                    ) * PI / mapTileProvider.tileSize
-                )
-                MapViewPoint(box.center, zoom)
-            } ?: computeViewPoint(canvasSize)
-        } else {
-            computeViewPoint(canvasSize)
-        }
-    }
-
-    val zoom: Int by derivedStateOf { floor(viewPoint.zoom).toInt() }
-
-    val tileScale: Double by derivedStateOf { 2.0.pow(viewPoint.zoom - zoom) }
-
-    val mapTiles = remember { mutableStateListOf<MapTile>() }
-
-    val centerCoordinates by derivedStateOf { WebMercatorProjection.toMercator(viewPoint.focus, zoom) }
-
-    fun DpOffset.toMercator(): WebMercatorCoordinates = WebMercatorCoordinates(
-        zoom,
-        (x - canvasSize.width / 2).value / tileScale + centerCoordinates.x,
-        (y - canvasSize.height / 2).value / tileScale + centerCoordinates.y,
-    )
-
-    /*
-     * Convert screen independent offset to GMC, adjusting for fractional zoom
-     */
-    fun DpOffset.toGeodetic() = WebMercatorProjection.toGeodetic(toMercator())
-
-    // Selection rectangle. If null - no selection
-    var selectRect by remember { mutableStateOf<Rect?>(null) }
-
     @OptIn(ExperimentalComposeUiApi::class)
     val canvasModifier = modifier.pointerInput(Unit) {
         forEachGesture {
@@ -113,11 +62,11 @@ public actual fun MapView(
                     if (event.buttons.isPrimaryPressed) {
                         //Evaluating selection frame
                         if (event.keyboardModifiers.isShiftPressed) {
-                            selectRect = Rect(change.position, change.position)
+                            mapViewState.selectRect = Rect(change.position, change.position)
                             drag(change.id) { dragChange ->
-                                selectRect?.let { rect ->
+                                mapViewState.selectRect?.let { rect ->
                                     val offset = dragChange.position
-                                    selectRect = Rect(
+                                    mapViewState.selectRect = Rect(
                                         min(offset.x, rect.left),
                                         min(offset.y, rect.top),
                                         max(offset.x, rect.right),
@@ -125,33 +74,41 @@ public actual fun MapView(
                                     )
                                 }
                             }
-                            selectRect?.let { rect ->
+                            mapViewState.selectRect?.let { rect ->
                                 //Use selection override if it is defined
-                                val gmcBox = GmcBox(
-                                    rect.topLeft.toDpOffset().toGeodetic(),
-                                    rect.bottomRight.toDpOffset().toGeodetic()
-                                )
-                                config.onSelect(gmcBox)
-                                if (config.zoomOnSelect) {
-                                    val newViewPoint = gmcBox.computeViewPoint(mapTileProvider).invoke(canvasSize)
-
-                                    config.onViewChange(newViewPoint)
-                                    viewPointInternal = newViewPoint
+                                val gmcBox = with(mapViewState) {
+                                    GmcBox(
+                                        rect.topLeft.toDpOffset().toGeodetic(),
+                                        rect.bottomRight.toDpOffset().toGeodetic()
+                                    )
                                 }
-                                selectRect = null
+                                mapViewState.config.onSelect(gmcBox)
+                                if (mapViewState.config.zoomOnSelect) {
+                                    val newViewPoint = gmcBox.computeViewPoint(mapViewState.mapTileProvider)
+                                        .invoke(mapViewState.canvasSize)
+
+                                    mapViewState.config.onViewChange(newViewPoint)
+                                    mapViewState.viewPointInternal = newViewPoint
+                                }
+                                mapViewState.selectRect = null
                             }
                         } else {
                             val dragStart = change.position
                             val dpPos = DpOffset(dragStart.x.toDp(), dragStart.y.toDp())
-                            config.onClick(MapViewPoint(dpPos.toGeodetic(), viewPoint.zoom))
+                            mapViewState.config.onClick(
+                                MapViewPoint(
+                                    with(mapViewState) { dpPos.toGeodetic() },
+                                    mapViewState.viewPoint.zoom
+                                )
+                            )
                             drag(change.id) { dragChange ->
                                 val dragAmount = dragChange.position - dragChange.previousPosition
-                                val newViewPoint = viewPoint.move(
-                                    -dragAmount.x.toDp().value / tileScale,
-                                    +dragAmount.y.toDp().value / tileScale
+                                val newViewPoint = mapViewState.viewPoint.move(
+                                    -dragAmount.x.toDp().value / mapViewState.tileScale,
+                                    +dragAmount.y.toDp().value / mapViewState.tileScale
                                 )
-                                config.onViewChange(newViewPoint)
-                                viewPointInternal = newViewPoint
+                                mapViewState.config.onViewChange(newViewPoint)
+                                mapViewState.viewPointInternal = newViewPoint
                             }
                         }
                     }
@@ -162,37 +119,42 @@ public actual fun MapView(
         val change = it.changes.first()
         val (xPos, yPos) = change.position
         //compute invariant point of translation
-        val invariant = DpOffset(xPos.toDp(), yPos.toDp()).toGeodetic()
-        val newViewPoint = viewPoint.zoom(-change.scrollDelta.y.toDouble() * config.zoomSpeed, invariant)
-        config.onViewChange(newViewPoint)
-        viewPointInternal = newViewPoint
+        val invariant = with(mapViewState) { DpOffset(xPos.toDp(), yPos.toDp()).toGeodetic() }
+        val newViewPoint =
+            mapViewState.viewPoint.zoom(-change.scrollDelta.y.toDouble() * mapViewState.config.zoomSpeed, invariant)
+        mapViewState.config.onViewChange(newViewPoint)
+        mapViewState.viewPointInternal = newViewPoint
     }.fillMaxSize()
 
 
     // Load tiles asynchronously
-    LaunchedEffect(viewPoint, canvasSize) {
-        with(mapTileProvider) {
-            val indexRange = 0 until 2.0.pow(zoom).toInt()
+    LaunchedEffect(mapViewState.viewPoint, mapViewState.canvasSize) {
+        with(mapViewState.mapTileProvider) {
+            val indexRange = 0 until 2.0.pow(mapViewState.zoom).toInt()
 
-            val left = centerCoordinates.x - canvasSize.width.value / 2 / tileScale
-            val right = centerCoordinates.x + canvasSize.width.value / 2 / tileScale
+            val left =
+                mapViewState.centerCoordinates.x - mapViewState.canvasSize.width.value / 2 / mapViewState.tileScale
+            val right =
+                mapViewState.centerCoordinates.x + mapViewState.canvasSize.width.value / 2 / mapViewState.tileScale
             val horizontalIndices: IntRange = (toIndex(left)..toIndex(right)).intersect(indexRange)
 
-            val top = (centerCoordinates.y + canvasSize.height.value / 2 / tileScale)
-            val bottom = (centerCoordinates.y - canvasSize.height.value / 2 / tileScale)
+            val top =
+                (mapViewState.centerCoordinates.y + mapViewState.canvasSize.height.value / 2 / mapViewState.tileScale)
+            val bottom =
+                (mapViewState.centerCoordinates.y - mapViewState.canvasSize.height.value / 2 / mapViewState.tileScale)
             val verticalIndices: IntRange = (toIndex(bottom)..toIndex(top)).intersect(indexRange)
 
-            mapTiles.clear()
+            mapViewState.mapTiles.clear()
 
             for (j in verticalIndices) {
                 for (i in horizontalIndices) {
-                    val id = TileId(zoom, i, j)
+                    val id = TileId(mapViewState.zoom, i, j)
                     //start all
                     val deferred = loadTileAsync(id)
                     //wait asynchronously for it to finish
                     launch {
                         try {
-                            mapTiles += deferred.await()
+                            mapViewState.mapTiles += deferred.await()
                         } catch (ex: Exception) {
                             if (ex !is CancellationException) {
                                 //displaying the error is maps responsibility
@@ -207,94 +169,20 @@ public actual fun MapView(
 
 
     Canvas(canvasModifier) {
-        fun WebMercatorCoordinates.toOffset(): Offset = Offset(
-            (canvasSize.width / 2 + (x.dp - centerCoordinates.x.dp) * tileScale.toFloat()).toPx(),
-            (canvasSize.height / 2 + (y.dp - centerCoordinates.y.dp) * tileScale.toFloat()).toPx()
-        )
-
-        //Convert GMC to offset in pixels (not DP), adjusting for zoom
-        fun GeodeticMapCoordinates.toOffset(): Offset = WebMercatorProjection.toMercator(this, zoom).toOffset()
-
-
-        fun DrawScope.drawFeature(zoom: Int, feature: MapFeature) {
-            when (feature) {
-                is MapFeatureSelector -> drawFeature(zoom, feature.selector(zoom))
-                is MapCircleFeature -> drawCircle(
-                    feature.color,
-                    feature.size,
-                    center = feature.center.toOffset()
-                )
-                is MapRectangleFeature -> drawRect(
-                    feature.color,
-                    topLeft = feature.center.toOffset() - Offset(
-                        feature.size.width.toPx() / 2,
-                        feature.size.height.toPx() / 2
-                    ),
-                    size = feature.size.toSize()
-                )
-                is MapLineFeature -> drawLine(feature.color, feature.a.toOffset(), feature.b.toOffset())
-                is MapArcFeature -> {
-                    val topLeft = feature.oval.topLeft.toOffset()
-                    val bottomRight = feature.oval.bottomRight.toOffset()
-
-                    val path = Path().apply {
-                        addArcRad(Rect(topLeft, bottomRight), feature.startAngle, feature.endAngle - feature.startAngle)
-                    }
-
-                    drawPath(path, color = feature.color, style = Stroke())
-
-                }
-                is MapBitmapImageFeature -> drawImage(feature.image, feature.position.toOffset())
-                is MapVectorImageFeature -> {
-                    val offset = feature.position.toOffset()
-                    val size = feature.size.toSize()
-                    translate(offset.x - size.width / 2, offset.y - size.height / 2) {
-                        with(feature.painter) {
-                            draw(size)
-                        }
-                    }
-                }
-                is MapTextFeature -> drawIntoCanvas { canvas ->
-                    val offset = feature.position.toOffset()
-                    canvas.nativeCanvas.drawString(
-                        feature.text,
-                        offset.x + 5,
-                        offset.y - 5,
-                        Font().apply(feature.fontConfig),
-                        feature.color.toPaint()
-                    )
-                }
-                is MapDrawFeature -> {
-                    val offset = feature.position.toOffset()
-                    translate(offset.x, offset.y) {
-                        feature.drawFeature(this)
-                    }
-                }
-                is MapFeatureGroup -> {
-                    feature.children.values.forEach {
-                        drawFeature(zoom, it)
-                    }
-                }
-                else -> {
-                    logger.error { "Unrecognized feature type: ${feature::class}" }
-                }
-            }
-        }
-
-        if (canvasSize != size.toDpSize()) {
-            canvasSize = size.toDpSize()
+        if (mapViewState.canvasSize != size.toDpSize()) {
+            mapViewState.canvasSize = size.toDpSize()
             logger.debug { "Recalculate canvas. Size: $size" }
         }
         clipRect {
             val tileSize = IntSize(
-                ceil((mapTileProvider.tileSize.dp * tileScale.toFloat()).toPx()).toInt(),
-                ceil((mapTileProvider.tileSize.dp * tileScale.toFloat()).toPx()).toInt()
+                ceil((mapViewState.mapTileProvider.tileSize.dp * mapViewState.tileScale.toFloat()).toPx()).toInt(),
+                ceil((mapViewState.mapTileProvider.tileSize.dp * mapViewState.tileScale.toFloat()).toPx()).toInt()
             )
-            mapTiles.forEach { (id, image) ->
+            mapViewState.mapTiles.forEach { (id, image) ->
                 //converting back from tile index to screen offset
                 val offset = IntOffset(
-                    (canvasSize.width / 2 + (mapTileProvider.toCoordinate(id.i).dp - centerCoordinates.x.dp) * tileScale.toFloat()).roundToPx(),
-                    (canvasSize.height / 2 + (mapTileProvider.toCoordinate(id.j).dp - centerCoordinates.y.dp) * tileScale.toFloat()).roundToPx()
+                    (mapViewState.canvasSize.width / 2 + (mapViewState.mapTileProvider.toCoordinate(id.i).dp - mapViewState.centerCoordinates.x.dp) * mapViewState.tileScale.toFloat()).roundToPx(),
+                    (mapViewState.canvasSize.height / 2 + (mapViewState.mapTileProvider.toCoordinate(id.j).dp - mapViewState.centerCoordinates.y.dp) * mapViewState.tileScale.toFloat()).roundToPx()
                 )
                 drawImage(
                     image = image,
@@ -302,11 +190,11 @@ public actual fun MapView(
                     dstSize = tileSize
                 )
             }
-            features.values.filter { zoom in it.zoomRange }.forEach { feature ->
-                drawFeature(zoom, feature)
+            mapViewState.features.values.filter { mapViewState.zoom in it.zoomRange }.forEach { feature ->
+                drawFeature(mapViewState.zoom, feature)
             }
         }
-        selectRect?.let { rect ->
+        mapViewState.selectRect?.let { rect ->
             drawRect(
                 color = Color.Blue,
                 topLeft = rect.topLeft,

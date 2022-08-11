@@ -49,34 +49,33 @@ fun App() {
 
         var centerCoordinates by remember { mutableStateOf<GeodeticMapCoordinates?>(null) }
 
-        val markers = (1..1_000_000).map {
-            val position = GeodeticMapCoordinates.ofDegrees(
-                latitude = Random.nextDouble(-90.0, 90.0),
-                longitude = Random.nextDouble(0.0, 180.0)
-            )
-            MapDrawFeature(
-                position = position,
-                getBoundingBox = {
-                    GmcBox.withCenter(
-                        center = position,
-                        width = Distance(0.001),
-                        height = Distance(0.001)
-                    )
-                }
-            ) {
-                drawRoundRect(
-                    color = Color.Yellow,
-                    size = Size(10f, 10f)
-                )
-            }
-        }
-
-        MapView(
+//        val markers = (1..1_000_000).map {
+//            val position = GeodeticMapCoordinates.ofDegrees(
+//                latitude = Random.nextDouble(-90.0, 90.0),
+//                longitude = Random.nextDouble(0.0, 180.0)
+//            )
+//            MapDrawFeature(
+//                position = position,
+//                computeBoundingBox = {
+//                    GmcBox.withCenter(
+//                        center = position,
+//                        width = Distance(0.001),
+//                        height = Distance(0.001)
+//                    )
+//                }
+//            ) {
+//                drawRoundRect(
+//                    color = Color.Yellow,
+//                    size = Size(1f, 1f)
+//                )
+//            }
+//        }
+        val state = MapViewState(
             mapTileProvider = mapTileProvider,
-            initialViewPoint = viewPoint,
+            computeViewPoint = { viewPoint },
             config = MapViewConfig(
                 inferViewBoxFromFeatures = true,
-                onViewChange = { centerCoordinates = focus }
+                onViewChange = { centerCoordinates = focus },
             )
         ) {
             val pointOne = 55.568548 to 37.568604
@@ -107,9 +106,11 @@ fun App() {
                 drawLine(start = Offset(-10f, 10f), end = Offset(10f, -10f), color = Color.Red)
             }
 
-            featureSelector { zoom ->
-                markers.groupBy {  }
-            }
+//            markers.forEach { feature ->
+//                featureSelector {
+//                    feature
+//                }
+//            }
 
             arc(pointOne, Distance(10.0), 0f, PI)
 
@@ -135,6 +136,9 @@ fun App() {
                 }
             }
         }
+        MapView(
+            mapViewState = state
+        )
     }
 }
 

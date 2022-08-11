@@ -23,11 +23,8 @@ public data class MapViewConfig(
 
 @Composable
 public expect fun MapView(
-    mapTileProvider: MapTileProvider,
-    computeViewPoint: (canvasSize: DpSize) -> MapViewPoint,
-    features: Map<FeatureId, MapFeature>,
-    config: MapViewConfig = MapViewConfig(),
-    modifier: Modifier = Modifier.fillMaxSize(),
+    mapViewState: MapViewState,
+    modifier: Modifier = Modifier,
 )
 
 @Composable
@@ -42,23 +39,26 @@ public fun MapView(
     val featuresBuilder = MapFeatureBuilderImpl(features)
     featuresBuilder.buildFeatures()
     MapView(
-        mapTileProvider,
-        { initialViewPoint },
-        featuresBuilder.build(),
-        config,
-        modifier
+        mapViewState = MapViewState(
+            mapTileProvider = mapTileProvider,
+            computeViewPoint = { initialViewPoint },
+            features = featuresBuilder.build(),
+            config = config,
+        ),
+        modifier = modifier
     )
 }
 
-internal fun GmcBox.computeViewPoint(mapTileProvider: MapTileProvider): (canvasSize: DpSize) -> MapViewPoint = { canvasSize ->
-    val zoom = log2(
-        min(
-            canvasSize.width.value / width,
-            canvasSize.height.value / height
-        ) * PI / mapTileProvider.tileSize
-    )
-    MapViewPoint(center, zoom)
-}
+internal fun GmcBox.computeViewPoint(mapTileProvider: MapTileProvider): (canvasSize: DpSize) -> MapViewPoint =
+    { canvasSize ->
+        val zoom = log2(
+            min(
+                canvasSize.width.value / width,
+                canvasSize.height.value / height
+            ) * PI / mapTileProvider.tileSize
+        )
+        MapViewPoint(center, zoom)
+    }
 
 @Composable
 public fun MapView(
@@ -72,10 +72,12 @@ public fun MapView(
     val featuresBuilder = MapFeatureBuilderImpl(features)
     featuresBuilder.buildFeatures()
     MapView(
-        mapTileProvider,
-        box.computeViewPoint(mapTileProvider),
-        featuresBuilder.build(),
-        config,
+        mapViewState = MapViewState(
+            config = config,
+            mapTileProvider = mapTileProvider,
+            features = featuresBuilder.build(),
+            computeViewPoint = box.computeViewPoint(mapTileProvider),
+        ),
         modifier
     )
 }
