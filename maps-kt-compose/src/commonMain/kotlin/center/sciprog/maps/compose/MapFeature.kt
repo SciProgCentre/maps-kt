@@ -133,3 +133,13 @@ public class MapFeatureGroup(
 ) : MapFeature {
     override fun getBoundingBox(zoom: Int): GmcBox? = children.values.mapNotNull { it.getBoundingBox(zoom) }.wrapAll()
 }
+
+public class MapTextFeature(
+    public val position: GeodeticMapCoordinates,
+    public val text: String,
+    override val zoomRange: IntRange = defaultZoomRange,
+    public val color: Color,
+    public val fontConfig: MapTextFeatureFont.() -> Unit,
+) : MapFeature {
+    override fun getBoundingBox(zoom: Int): GmcBox = GmcBox(position, position)
+}

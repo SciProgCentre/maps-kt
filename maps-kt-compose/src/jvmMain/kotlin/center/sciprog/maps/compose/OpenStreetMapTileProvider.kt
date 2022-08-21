@@ -2,10 +2,11 @@ package center.sciprog.maps.compose
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
-import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.statement.readBytes
-import io.ktor.utils.io.CancellationException
+import io.ktor.client.*
+import io.ktor.client.network.sockets.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +29,7 @@ public class OpenStreetMapTileProvider(
     cacheCapacity: Int = 200,
 ) : MapTileProvider {
     private val semaphore = Semaphore(parallelism)
-    private val cache = LruCache<TileId, Deferred<ImageBitmap>>(cacheCapacity)
+    private val cache = LruCache<TileId, Deferred<ImageBitmap?>>(cacheCapacity)
 
     private fun TileId.osmUrl() = URL("https://tile.openstreetmap.org/${zoom}/${i}/${j}.png")
 
@@ -37,7 +38,7 @@ public class OpenStreetMapTileProvider(
     /**
      * Download and cache the tile image
      */
-    private fun CoroutineScope.downloadImageAsync(id: TileId) = async(Dispatchers.IO) {
+    private fun CoroutineScope.downloadImageAsync(id: TileId): Deferred<ImageBitmap?> = async(Dispatchers.IO) {
 
         id.cacheFilePath()?.let { path ->
             if (path.exists()) {
@@ -52,19 +53,22 @@ public class OpenStreetMapTileProvider(
 
         //semaphore works only for actual download
         semaphore.withPermit {
-            val url = id.osmUrl()
-            val byteArray = client.get(url).readBytes()
+            try {
+                val url = id.osmUrl()
+                val byteArray = client.get(url).readBytes()
+                logger.debug { "Finished downloading map tile with id $id from $url" }
+                id.cacheFilePath()?.let { path ->
+                    logger.debug { "Caching map tile $id to $path" }
 
-            logger.debug { "Finished downloading map tile with id $id from $url" }
+                    path.parent.createDirectories()
+                    path.writeBytes(byteArray)
+                }
 
-            id.cacheFilePath()?.let { path ->
-                logger.debug { "Caching map tile $id to $path" }
-
-                path.parent.createDirectories()
-                path.writeBytes(byteArray)
+                Image.makeFromEncoded(byteArray).toComposeImageBitmap()
+            } catch (e: ConnectTimeoutException) {
+                logger.error(e) { e.localizedMessage }
+                null
             }
-
-            Image.makeFromEncoded(byteArray).toComposeImageBitmap()
         }
     }
 
@@ -83,7 +87,7 @@ public class OpenStreetMapTileProvider(
                 imageDeferred.await()
             } catch (ex: Exception) {
                 cache.remove(tileId)
-                if(ex !is CancellationException) {
+                if (ex !is CancellationException) {
                     logger.error(ex) { "Failed to load tile image with id=$tileId" }
                 }
                 throw ex

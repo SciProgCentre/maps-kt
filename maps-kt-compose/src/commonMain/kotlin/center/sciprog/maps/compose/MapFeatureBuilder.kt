@@ -144,3 +144,21 @@ public fun MapFeatureBuilder.group(
     val feature = MapFeatureGroup(map, zoomRange)
     return addFeature(id, feature)
 }
+
+public fun MapFeatureBuilder.text(
+    position: GeodeticMapCoordinates,
+    text: String,
+    zoomRange: IntRange = defaultZoomRange,
+    color: Color = Color.Red,
+    font: MapTextFeatureFont.() -> Unit = { size = 16f },
+    id: FeatureId? = null,
+): FeatureId = addFeature(id, MapTextFeature(position, text, zoomRange, color, font))
+
+public fun MapFeatureBuilder.text(
+    position: Pair<Double, Double>,
+    text: String,
+    zoomRange: IntRange = defaultZoomRange,
+    color: Color = Color.Red,
+    font: MapTextFeatureFont.() -> Unit = { size = 16f },
+    id: FeatureId? = null,
+): FeatureId = addFeature(id, MapTextFeature(position.toCoordinates(), text, zoomRange, color, font))

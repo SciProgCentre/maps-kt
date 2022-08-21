@@ -13,7 +13,7 @@ public data class TileId(
 
 public data class MapTile(
     val id: TileId,
-    val image: ImageBitmap,
+    val image: ImageBitmap?,
 )
 
 public interface MapTileProvider {

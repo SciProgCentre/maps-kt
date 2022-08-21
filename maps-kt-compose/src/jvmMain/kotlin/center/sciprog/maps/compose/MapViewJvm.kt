@@ -313,11 +313,13 @@ public actual fun MapView(
                     (canvasSize.width / 2 + (mapTileProvider.toCoordinate(id.i).dp - centerCoordinates.x.dp) * tileScale.toFloat()).roundToPx(),
                     (canvasSize.height / 2 + (mapTileProvider.toCoordinate(id.j).dp - centerCoordinates.y.dp) * tileScale.toFloat()).roundToPx()
                 )
-                drawImage(
-                    image = image,
-                    dstOffset = offset,
-                    dstSize = tileSize
-                )
+                image?.let {
+                    drawImage(
+                        image = it,
+                        dstOffset = offset,
+                        dstSize = tileSize
+                    )
+                }
             }
             features.values.filter { zoom in it.zoomRange }.forEach { feature ->
                 drawFeature(zoom, feature)
