@@ -195,20 +195,21 @@ public actual fun MapView(
             for (j in verticalIndices) {
                 for (i in horizontalIndices) {
                     val id = TileId(zoom, i, j)
-                    //start all
-                    val deferred = loadTileAsync(id)
-                    //wait asynchronously for it to finish
-                    launch {
-                        try {
+                    try {
+                        //start all
+                        val deferred = loadTileAsync(id)
+                        //wait asynchronously for it to finish
+                        launch {
                             mapTiles += deferred.await()
-                        } catch (ex: Exception) {
-                            if (ex !is CancellationException) {
-                                //displaying the error is maps responsibility
-                                logger.error(ex) { "Failed to load tile with id=$id" }
-                            }
+                        }
+                    } catch (ex: Exception) {
+                        if (ex !is CancellationException) {
+                            //displaying the error is maps responsibility
+                            logger.error(ex) { "Failed to load tile with id=$id" }
                         }
                     }
                 }
+
             }
         }
     }
@@ -232,6 +233,7 @@ public actual fun MapView(
                     feature.size,
                     center = feature.center.toOffset()
                 )
+
                 is MapRectangleFeature -> drawRect(
                     feature.color,
                     topLeft = feature.center.toOffset() - Offset(
@@ -240,6 +242,7 @@ public actual fun MapView(
                     ),
                     size = feature.size.toSize()
                 )
+
                 is MapLineFeature -> drawLine(feature.color, feature.a.toOffset(), feature.b.toOffset())
                 is MapArcFeature -> {
                     val topLeft = feature.oval.topLeft.toOffset()
@@ -252,6 +255,7 @@ public actual fun MapView(
                     drawPath(path, color = feature.color, style = Stroke())
 
                 }
+
                 is MapBitmapImageFeature -> drawImage(feature.image, feature.position.toOffset())
                 is MapVectorImageFeature -> {
                     val offset = feature.position.toOffset()
@@ -262,6 +266,7 @@ public actual fun MapView(
                         }
                     }
                 }
+
                 is MapTextFeature -> drawIntoCanvas { canvas ->
                     val offset = feature.position.toOffset()
                     canvas.nativeCanvas.drawString(
@@ -272,17 +277,20 @@ public actual fun MapView(
                         feature.color.toPaint()
                     )
                 }
+
                 is MapDrawFeature -> {
                     val offset = feature.position.toOffset()
                     translate(offset.x, offset.y) {
                         feature.drawFeature(this)
                     }
                 }
+
                 is MapFeatureGroup -> {
                     feature.children.values.forEach {
                         drawFeature(zoom, it)
                     }
                 }
+
                 is MapPointsFeature -> {
                     val points = feature.points.map { it.toOffset() }
                     drawPoints(
@@ -292,6 +300,7 @@ public actual fun MapView(
                         pointMode = feature.pointMode
                     )
                 }
+
                 else -> {
                     logger.error { "Unrecognized feature type: ${feature::class}" }
                 }
@@ -313,13 +322,11 @@ public actual fun MapView(
                     (canvasSize.width / 2 + (mapTileProvider.toCoordinate(id.i).dp - centerCoordinates.x.dp) * tileScale.toFloat()).roundToPx(),
                     (canvasSize.height / 2 + (mapTileProvider.toCoordinate(id.j).dp - centerCoordinates.y.dp) * tileScale.toFloat()).roundToPx()
                 )
-                image?.let {
-                    drawImage(
-                        image = it,
-                        dstOffset = offset,
-                        dstSize = tileSize
-                    )
-                }
+                drawImage(
+                    image = image,
+                    dstOffset = offset,
+                    dstSize = tileSize
+                )
             }
             features.values.filter { zoom in it.zoomRange }.forEach { feature ->
                 drawFeature(zoom, feature)
