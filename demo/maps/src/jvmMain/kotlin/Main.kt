@@ -66,6 +66,12 @@ fun App() {
                                 pointTwo.second + (end.focus.longitude - start.focus.longitude).toDegrees()
                         false// returning false, because when we are dragging circle we don't want to drag map
                     } else true
+                },
+                onRelease = {
+                    println("On drag ended $this")
+                },
+                onClick = {
+                    println("On CLick $this")
                 }
             )
         ) {

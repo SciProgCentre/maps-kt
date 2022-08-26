@@ -141,9 +141,6 @@ public actual fun MapView(
                                 selectRect = null
                             }
                         } else {
-                            val dragStart = change.position
-                            val dpPos = DpOffset(dragStart.x.toDp(), dragStart.y.toDp())
-                            config.onClick(MapViewPoint(dpPos.toGeodetic(), viewPoint.zoom))
                             drag(change.id) { dragChange ->
                                 val dragAmount = dragChange.position - dragChange.previousPosition
                                 val dpStart =
@@ -174,6 +171,15 @@ public actual fun MapView(
         val newViewPoint = viewPoint.zoom(-change.scrollDelta.y.toDouble() * config.zoomSpeed, invariant)
         config.onViewChange(newViewPoint)
         viewPointInternal = newViewPoint
+    }.onPointerEvent(PointerEventType.Release) {
+        val change = it.changes.first()
+        val (xPos, yPos) = change.position
+        val dpOffset = DpOffset(xPos.toDp(), yPos.toDp())
+        config.onRelease(MapViewPoint(dpOffset.toGeodetic(), viewPoint.zoom))
+    }.onPointerEvent(PointerEventType.Press) {
+        val dragStart = it.changes.first().position
+        val dpPos = DpOffset(dragStart.x.toDp(), dragStart.y.toDp())
+        config.onClick(MapViewPoint(dpPos.toGeodetic(), viewPoint.zoom))
     }.fillMaxSize()
 
 
