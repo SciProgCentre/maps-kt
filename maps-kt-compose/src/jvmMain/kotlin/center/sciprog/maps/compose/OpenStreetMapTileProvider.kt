@@ -24,7 +24,7 @@ import kotlin.io.path.*
 public class OpenStreetMapTileProvider(
     private val client: HttpClient,
     private val cacheDirectory: Path,
-    parallelism: Int = 1,
+    parallelism: Int = 4,
     cacheCapacity: Int = 200,
 ) : MapTileProvider {
     private val semaphore = Semaphore(parallelism)
@@ -37,7 +37,7 @@ public class OpenStreetMapTileProvider(
     /**
      * Download and cache the tile image
      */
-    private fun CoroutineScope.downloadImageAsync(id: TileId) = async(Dispatchers.IO) {
+    private fun CoroutineScope.downloadImageAsync(id: TileId): Deferred<ImageBitmap> = async(Dispatchers.IO) {
 
         id.cacheFilePath()?.let { path ->
             if (path.exists()) {
@@ -54,9 +54,7 @@ public class OpenStreetMapTileProvider(
         semaphore.withPermit {
             val url = id.osmUrl()
             val byteArray = client.get(url).readBytes()
-
             logger.debug { "Finished downloading map tile with id $id from $url" }
-
             id.cacheFilePath()?.let { path ->
                 logger.debug { "Caching map tile $id to $path" }
 
@@ -79,11 +77,11 @@ public class OpenStreetMapTileProvider(
 
         //collect the result asynchronously
         return async {
-            val image = try {
+            val image: ImageBitmap = try {
                 imageDeferred.await()
             } catch (ex: Exception) {
                 cache.remove(tileId)
-                if(ex !is CancellationException) {
+                if (ex !is CancellationException) {
                     logger.error(ex) { "Failed to load tile image with id=$tileId" }
                 }
                 throw ex
