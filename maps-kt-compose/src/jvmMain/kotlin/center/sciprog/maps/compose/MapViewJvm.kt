@@ -30,12 +30,12 @@ private fun Color.toPaint(): Paint = Paint().apply {
 private fun IntRange.intersect(other: IntRange) = max(first, other.first)..min(last, other.last)
 
 internal fun MapViewPoint.move(deltaX: Double, deltaY: Double): MapViewPoint {
-    val newCoordinates = GeodeticMapCoordinates.ofRadians(
-        (focus.latitude + deltaY / scaleFactor).coerceIn(
+    val newCoordinates = GeodeticMapCoordinates(
+        (focus.latitude + (deltaY / scaleFactor).radians).coerceIn(
             -MercatorProjection.MAXIMUM_LATITUDE,
             MercatorProjection.MAXIMUM_LATITUDE
         ),
-        focus.longitude + deltaX / scaleFactor
+        focus.longitude + (deltaX / scaleFactor).radians
     )
     return MapViewPoint(newCoordinates, zoom)
 }
@@ -69,8 +69,8 @@ public actual fun MapView(
             features.values.computeBoundingBox(1)?.let { box ->
                 val zoom = log2(
                     min(
-                        canvasSize.width.value / box.width,
-                        canvasSize.height.value / box.height
+                        canvasSize.width.value / box.longitudeDelta.radians.value,
+                        canvasSize.height.value / box.latitudeDelta.radians.value
                     ) * PI / mapTileProvider.tileSize
                 )
                 MapViewPoint(box.center, zoom)
@@ -127,7 +127,7 @@ public actual fun MapView(
                             }
                             selectRect?.let { rect ->
                                 //Use selection override if it is defined
-                                val gmcBox = GmcBox(
+                                val gmcBox = GmcRectangle(
                                     rect.topLeft.toDpOffset().toGeodetic(),
                                     rect.bottomRight.toDpOffset().toGeodetic()
                                 )
@@ -146,8 +146,10 @@ public actual fun MapView(
                             config.onClick(MapViewPoint(dpPos.toGeodetic(), viewPoint.zoom))
                             drag(change.id) { dragChange ->
                                 val dragAmount = dragChange.position - dragChange.previousPosition
-                                val dpStart =
-                                    DpOffset(dragChange.previousPosition.x.toDp(), dragChange.previousPosition.y.toDp())
+                                val dpStart = DpOffset(
+                                    dragChange.previousPosition.x.toDp(),
+                                    dragChange.previousPosition.y.toDp()
+                                )
                                 val dpEnd = DpOffset(dragChange.position.x.toDp(), dragChange.position.y.toDp())
                                 if (!config.onDrag(
                                         MapViewPoint(dpStart.toGeodetic(), viewPoint.zoom),
@@ -232,6 +234,7 @@ public actual fun MapView(
                     feature.size,
                     center = feature.center.toOffset()
                 )
+
                 is MapRectangleFeature -> drawRect(
                     feature.color,
                     topLeft = feature.center.toOffset() - Offset(
@@ -240,6 +243,7 @@ public actual fun MapView(
                     ),
                     size = feature.size.toSize()
                 )
+
                 is MapLineFeature -> drawLine(feature.color, feature.a.toOffset(), feature.b.toOffset())
                 is MapArcFeature -> {
                     val topLeft = feature.oval.topLeft.toOffset()
@@ -252,6 +256,7 @@ public actual fun MapView(
                     drawPath(path, color = feature.color, style = Stroke())
 
                 }
+
                 is MapBitmapImageFeature -> drawImage(feature.image, feature.position.toOffset())
                 is MapVectorImageFeature -> {
                     val offset = feature.position.toOffset()
@@ -262,6 +267,7 @@ public actual fun MapView(
                         }
                     }
                 }
+
                 is MapTextFeature -> drawIntoCanvas { canvas ->
                     val offset = feature.position.toOffset()
                     canvas.nativeCanvas.drawString(
@@ -272,17 +278,20 @@ public actual fun MapView(
                         feature.color.toPaint()
                     )
                 }
+
                 is MapDrawFeature -> {
                     val offset = feature.position.toOffset()
                     translate(offset.x, offset.y) {
                         feature.drawFeature(this)
                     }
                 }
+
                 is MapFeatureGroup -> {
                     feature.children.values.forEach {
                         drawFeature(zoom, it)
                     }
                 }
+
                 is MapPointsFeature -> {
                     val points = feature.points.map { it.toOffset() }
                     drawPoints(
@@ -292,6 +301,7 @@ public actual fun MapView(
                         pointMode = feature.pointMode
                     )
                 }
+
                 else -> {
                     logger.error { "Unrecognized feature type: ${feature::class}" }
                 }

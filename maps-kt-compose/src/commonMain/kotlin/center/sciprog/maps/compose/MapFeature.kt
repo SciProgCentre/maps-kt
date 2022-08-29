@@ -12,15 +12,15 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import center.sciprog.maps.coordinates.GeodeticMapCoordinates
-import center.sciprog.maps.coordinates.GmcBox
+import center.sciprog.maps.coordinates.GmcRectangle
 import center.sciprog.maps.coordinates.wrapAll
 
 public interface MapFeature {
     public val zoomRange: IntRange
-    public fun getBoundingBox(zoom: Int): GmcBox?
+    public fun getBoundingBox(zoom: Int): GmcRectangle?
 }
 
-public fun Iterable<MapFeature>.computeBoundingBox(zoom: Int): GmcBox? =
+public fun Iterable<MapFeature>.computeBoundingBox(zoom: Int): GmcRectangle? =
     mapNotNull { it.getBoundingBox(zoom) }.wrapAll()
 
 internal fun Pair<Double, Double>.toCoordinates() = GeodeticMapCoordinates.ofDegrees(first, second)
@@ -35,7 +35,7 @@ public class MapFeatureSelector(
 ) : MapFeature {
     override val zoomRange: IntRange get() = defaultZoomRange
 
-    override fun getBoundingBox(zoom: Int): GmcBox? = selector(zoom).getBoundingBox(zoom)
+    override fun getBoundingBox(zoom: Int): GmcRectangle? = selector(zoom).getBoundingBox(zoom)
 }
 
 public class MapDrawFeature(
@@ -43,9 +43,9 @@ public class MapDrawFeature(
     override val zoomRange: IntRange = defaultZoomRange,
     public val drawFeature: DrawScope.() -> Unit,
 ) : MapFeature {
-    override fun getBoundingBox(zoom: Int): GmcBox {
+    override fun getBoundingBox(zoom: Int): GmcRectangle {
         //TODO add box computation
-        return GmcBox(position, position)
+        return GmcRectangle(position, position)
     }
 }
 
@@ -56,8 +56,8 @@ public class MapPointsFeature(
     public val color: Color = Color.Red,
     public val pointMode: PointMode = PointMode.Points
 ) : MapFeature {
-    override fun getBoundingBox(zoom: Int): GmcBox {
-        return GmcBox(points.first(), points.last())
+    override fun getBoundingBox(zoom: Int): GmcRectangle {
+        return GmcRectangle(points.first(), points.last())
     }
 }
 
@@ -67,7 +67,7 @@ public class MapCircleFeature(
     public val size: Float = 5f,
     public val color: Color = Color.Red,
 ) : MapFeature {
-    override fun getBoundingBox(zoom: Int): GmcBox = GmcBox(center, center)
+    override fun getBoundingBox(zoom: Int): GmcRectangle = GmcRectangle(center, center)
 }
 
 public class MapRectangleFeature(
@@ -76,7 +76,7 @@ public class MapRectangleFeature(
     public val size: DpSize = DpSize(5.dp, 5.dp),
     public val color: Color = Color.Red,
 ) : MapFeature {
-    override fun getBoundingBox(zoom: Int): GmcBox = GmcBox(center, center)
+    override fun getBoundingBox(zoom: Int): GmcRectangle = GmcRectangle(center, center)
 }
 
 public class MapLineFeature(
@@ -85,17 +85,17 @@ public class MapLineFeature(
     override val zoomRange: IntRange = defaultZoomRange,
     public val color: Color = Color.Red,
 ) : MapFeature {
-    override fun getBoundingBox(zoom: Int): GmcBox = GmcBox(a, b)
+    override fun getBoundingBox(zoom: Int): GmcRectangle = GmcRectangle(a, b)
 }
 
 public class MapArcFeature(
-    public val oval: GmcBox,
+    public val oval: GmcRectangle,
     public val startAngle: Float,
     public val endAngle: Float,
     override val zoomRange: IntRange = defaultZoomRange,
     public val color: Color = Color.Red,
 ) : MapFeature {
-    override fun getBoundingBox(zoom: Int): GmcBox = oval
+    override fun getBoundingBox(zoom: Int): GmcRectangle = oval
 }
 
 public class MapBitmapImageFeature(
@@ -104,7 +104,7 @@ public class MapBitmapImageFeature(
     public val size: IntSize = IntSize(15, 15),
     override val zoomRange: IntRange = defaultZoomRange,
 ) : MapFeature {
-    override fun getBoundingBox(zoom: Int): GmcBox = GmcBox(position, position)
+    override fun getBoundingBox(zoom: Int): GmcRectangle = GmcRectangle(position, position)
 }
 
 public class MapVectorImageFeature(
@@ -113,7 +113,7 @@ public class MapVectorImageFeature(
     public val size: DpSize,
     override val zoomRange: IntRange = defaultZoomRange,
 ) : MapFeature {
-    override fun getBoundingBox(zoom: Int): GmcBox = GmcBox(position, position)
+    override fun getBoundingBox(zoom: Int): GmcRectangle = GmcRectangle(position, position)
 }
 
 @Composable
@@ -131,5 +131,5 @@ public class MapFeatureGroup(
     public val children: Map<FeatureId, MapFeature>,
     override val zoomRange: IntRange = defaultZoomRange,
 ) : MapFeature {
-    override fun getBoundingBox(zoom: Int): GmcBox? = children.values.mapNotNull { it.getBoundingBox(zoom) }.wrapAll()
+    override fun getBoundingBox(zoom: Int): GmcRectangle? = children.values.mapNotNull { it.getBoundingBox(zoom) }.wrapAll()
 }

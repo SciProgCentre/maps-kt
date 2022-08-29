@@ -5,10 +5,15 @@ import kotlin.math.PI
 /**
  * Geodetic coordinated
  */
-public class GeodeticMapCoordinates private constructor(
-    public val latitude: Double,
-    public val longitude: Double,
-){
+public class GeodeticMapCoordinates(
+    public val latitude: Angle,
+    longitude: Angle,
+) {
+    public val longitude: Radians = longitude.radians.value.rem(PI / 2).radians
+
+    init {
+        require(latitude.radians.value in (-PI / 2)..(PI / 2)) { "Latitude $latitude is not in (-PI/2)..(PI/2)" }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -29,22 +34,23 @@ public class GeodeticMapCoordinates private constructor(
     }
 
     override fun toString(): String {
-        return "GeodeticCoordinates(latitude=${latitude / PI * 180} deg, longitude=${longitude / PI * 180} deg)"
+        return "GMC(latitude=${latitude.degrees.value} deg, longitude=${longitude.degrees.value} deg)"
     }
 
 
     public companion object {
-        public fun ofRadians(latitude: Double, longitude: Double): GeodeticMapCoordinates {
-            require(latitude in (-PI/2)..(PI/2)) { "Latitude $latitude is not in (-PI/2)..(PI/2)" }
-            return GeodeticMapCoordinates(latitude, longitude.rem(PI / 2))
-        }
+        public fun ofRadians(latitude: Double, longitude: Double): GeodeticMapCoordinates =
+            GeodeticMapCoordinates(latitude.radians, longitude.radians)
 
-        public fun ofDegrees(latitude: Double, longitude: Double): GeodeticMapCoordinates {
-            require(latitude in (-90.0)..(90.0)) { "Latitude $latitude is not in -90..90" }
-            return GeodeticMapCoordinates(latitude * PI / 180, (longitude.rem(180) * PI / 180))
-        }
+        public fun ofDegrees(latitude: Double, longitude: Double): GeodeticMapCoordinates =
+            GeodeticMapCoordinates(latitude.degrees.radians, longitude.degrees.radians)
     }
 }
+
+/**
+ * Short name for GeodeticMapCoordinates
+ */
+public typealias GMC = GeodeticMapCoordinates
 
 //public interface GeoToScreenConversion {
 //    public fun getScreenX(gmc: GeodeticMapCoordinates): Double

@@ -9,7 +9,7 @@ import kotlin.math.*
 
 public data class WebMercatorCoordinates(val zoom: Int, val x: Double, val y: Double)
 
-public object WebMercatorProjection  {
+public object WebMercatorProjection {
 
     /**
      * Compute radians to projection coordinates ratio for given [zoom] factor
@@ -32,8 +32,8 @@ public object WebMercatorProjection  {
         val scaleFactor = scaleFactor(zoom.toDouble())
         return WebMercatorCoordinates(
             zoom = zoom,
-            x = scaleFactor * (gmc.longitude + PI),
-            y = scaleFactor * (PI - ln(tan(PI / 4 + gmc.latitude / 2)))
+            x = scaleFactor * (gmc.longitude.radians.value + PI),
+            y = scaleFactor * (PI - ln(tan(PI / 4 + gmc.latitude.radians.value / 2)))
         )
     }
 

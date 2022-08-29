@@ -21,9 +21,9 @@ public data class MapViewConfig(
     val onClick: MapViewPoint.() -> Unit = {},
     val onDrag: (start: MapViewPoint, end: MapViewPoint) -> Boolean = { _, _ -> true },
     val onViewChange: MapViewPoint.() -> Unit = {},
-    val onSelect: (GmcBox) -> Unit = {},
+    val onSelect: (GmcRectangle) -> Unit = {},
     val zoomOnSelect: Boolean = true,
-    val resetViewPoint: Boolean = false
+    val resetViewPoint: Boolean = false,
 )
 
 @Composable
@@ -55,20 +55,21 @@ public fun MapView(
     )
 }
 
-internal fun GmcBox.computeViewPoint(mapTileProvider: MapTileProvider): (canvasSize: DpSize) -> MapViewPoint = { canvasSize ->
-    val zoom = log2(
-        min(
-            canvasSize.width.value / width,
-            canvasSize.height.value / height
-        ) * PI / mapTileProvider.tileSize
-    )
-    MapViewPoint(center, zoom)
-}
+internal fun GmcRectangle.computeViewPoint(mapTileProvider: MapTileProvider): (canvasSize: DpSize) -> MapViewPoint =
+    { canvasSize ->
+        val zoom = log2(
+            min(
+                canvasSize.width.value / longitudeDelta.radians.value,
+                canvasSize.height.value / latitudeDelta.radians.value
+            ) * PI / mapTileProvider.tileSize
+        )
+        MapViewPoint(center, zoom)
+    }
 
 @Composable
 public fun MapView(
     mapTileProvider: MapTileProvider,
-    box: GmcBox,
+    box: GmcRectangle,
     features: Map<FeatureId, MapFeature> = emptyMap(),
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),

@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import center.sciprog.maps.coordinates.Distance
 import center.sciprog.maps.coordinates.GeodeticMapCoordinates
-import center.sciprog.maps.coordinates.GmcBox
+import center.sciprog.maps.coordinates.GmcRectangle
 
 public typealias FeatureId = String
 
@@ -87,7 +87,7 @@ public fun MapFeatureBuilder.line(
 )
 
 public fun MapFeatureBuilder.arc(
-    oval: GmcBox,
+    oval: GmcRectangle,
     startAngle: Number,
     endAngle: Number,
     zoomRange: IntRange = defaultZoomRange,
@@ -109,7 +109,7 @@ public fun MapFeatureBuilder.arc(
 ): FeatureId = addFeature(
     id,
     MapArcFeature(
-        GmcBox.withCenter(center.toCoordinates(), radius, radius),
+        GmcRectangle.square(center.toCoordinates(), radius, radius),
         startAngle.toFloat(),
         endAngle.toFloat(),
         zoomRange,

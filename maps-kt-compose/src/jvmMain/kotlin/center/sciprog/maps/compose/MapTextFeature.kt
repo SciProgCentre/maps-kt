@@ -2,7 +2,7 @@ package center.sciprog.maps.compose
 
 import androidx.compose.ui.graphics.Color
 import center.sciprog.maps.coordinates.GeodeticMapCoordinates
-import center.sciprog.maps.coordinates.GmcBox
+import center.sciprog.maps.coordinates.GmcRectangle
 import org.jetbrains.skia.Font
 
 
@@ -13,7 +13,7 @@ public class MapTextFeature(
     public val color: Color,
     public val fontConfig: Font.() -> Unit,
 ) : MapFeature {
-    override fun getBoundingBox(zoom: Int): GmcBox = GmcBox(position, position)
+    override fun getBoundingBox(zoom: Int): GmcRectangle = GmcRectangle(position, position)
 }
 
 public fun MapFeatureBuilder.text(

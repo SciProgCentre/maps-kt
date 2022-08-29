@@ -5,9 +5,12 @@
 
 package center.sciprog.maps.coordinates
 
-import kotlin.math.*
+import center.sciprog.maps.coordinates.Angle.Companion.pi
+import kotlin.math.atan
+import kotlin.math.ln
+import kotlin.math.sinh
 
-public data class MercatorCoordinates(val x: Double, val y: Double)
+public data class MercatorCoordinates(val x: Distance, val y: Distance)
 
 /**
  * @param baseLongitude the longitude offset in radians
@@ -15,21 +18,21 @@ public data class MercatorCoordinates(val x: Double, val y: Double)
  * @param correctedRadius optional radius correction to account for ellipsoid model
  */
 public open class MercatorProjection(
-    public val baseLongitude: Double = 0.0,
-    protected val radius: Double = DEFAULT_EARTH_RADIUS,
-    private val correctedRadius: ((GeodeticMapCoordinates) -> Double)? = null,
+    public val baseLongitude: Angle = Angle.zero,
+    protected val radius: Distance = DEFAULT_EARTH_RADIUS,
+    private val correctedRadius: ((GeodeticMapCoordinates) -> Distance)? = null,
 ) {
 
     public fun toGeodetic(mc: MercatorCoordinates): GeodeticMapCoordinates {
         val res = GeodeticMapCoordinates.ofRadians(
             atan(sinh(mc.y / radius)),
-            baseLongitude + mc.x / radius,
+            baseLongitude.radians.value + (mc.x / radius),
         )
         return if (correctedRadius != null) {
             val r = correctedRadius.invoke(res)
             GeodeticMapCoordinates.ofRadians(
                 atan(sinh(mc.y / r)),
-                baseLongitude + mc.x / r,
+                baseLongitude.radians.value + mc.x / r,
             )
         } else {
             res
@@ -41,15 +44,15 @@ public open class MercatorProjection(
      */
     public fun toMercator(gmc: GeodeticMapCoordinates): MercatorCoordinates {
         require(abs(gmc.latitude) <= MAXIMUM_LATITUDE) { "Latitude exceeds the maximum latitude for mercator coordinates" }
-        val r = correctedRadius?.invoke(gmc) ?: radius
+        val r: Distance = correctedRadius?.invoke(gmc) ?: radius
         return MercatorCoordinates(
-            x = r * (gmc.longitude - baseLongitude),
-            y = r * ln(tan(PI / 4 + gmc.latitude / 2))
+            x = r * (gmc.longitude - baseLongitude).radians.value,
+            y = r * ln(tan(pi / 4 + gmc.latitude / 2))
         )
     }
 
-    public companion object : MercatorProjection(0.0, 6378137.0) {
-        public const val MAXIMUM_LATITUDE: Double = 85.05113
-        public val DEFAULT_EARTH_RADIUS: Double = radius
+    public companion object : MercatorProjection(Angle.zero, Distance(6378.137)) {
+        public val MAXIMUM_LATITUDE: Angle = 85.05113.degrees
+        public val DEFAULT_EARTH_RADIUS: Distance = radius
     }
 }

@@ -23,7 +23,7 @@ import kotlin.math.PI
 import kotlin.random.Random
 
 private fun GeodeticMapCoordinates.toShortString(): String =
-    "${(latitude * 180.0 / PI).toString().take(6)}:${(longitude * 180.0 / PI).toString().take(6)}"
+    "${(latitude.degrees.value).toString().take(6)}:${(longitude.degrees.value).toString().take(6)}"
 
 
 @Composable
@@ -50,7 +50,7 @@ fun App() {
 
 
         val pointOne = 55.568548 to 37.568604
-        var pointTwo by remember { mutableStateOf(55.929444 to 37.518434) }
+        var pointTwo: Pair<Double, Double> by remember { mutableStateOf(55.929444 to 37.518434) }
         val pointThree = 60.929444 to 37.518434
         MapView(
             mapTileProvider = mapTileProvider,
@@ -59,11 +59,11 @@ fun App() {
                 inferViewBoxFromFeatures = true,
                 onViewChange = { centerCoordinates = focus },
                 onDrag = { start, end ->
-                    if (start.focus.latitude.toDegrees() in (pointTwo.first - 0.05)..(pointTwo.first + 0.05) &&
-                        start.focus.longitude.toDegrees() in (pointTwo.second - 0.05)..(pointTwo.second + 0.05)
+                    if (start.focus.latitude.degrees.value in (pointTwo.first - 0.05)..(pointTwo.first + 0.05) &&
+                        start.focus.longitude.degrees.value in (pointTwo.second - 0.05)..(pointTwo.second + 0.05)
                     ) {
-                        pointTwo = pointTwo.first + (end.focus.latitude - start.focus.latitude).toDegrees() to
-                                pointTwo.second + (end.focus.longitude - start.focus.longitude).toDegrees()
+                        pointTwo = pointTwo.first + (end.focus.latitude - start.focus.latitude).degrees.value to
+                                pointTwo.second + (end.focus.longitude - start.focus.longitude).degrees.value
                         false// returning false, because when we are dragging circle we don't want to drag map
                     } else true
                 }
