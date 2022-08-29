@@ -27,11 +27,19 @@ internal class DistanceTest {
     }
 
     @Test
-    fun largeDistance() {
+    fun curveBetween() {
         val curve = GeoEllipsoid.WGS84.curveBetween(moscow, spb)
         val distance = curve.distance
 
-        assertEquals(632.035426877, distance.kilometers, 0.1)
+        assertEquals(632.035426877, distance.kilometers, 0.0001)
+    }
 
+    @Test
+    fun curveInDirection() {
+        val curve = GeoEllipsoid.WGS84.curveInDirection(
+            GmcPose(moscow, (-0.6947937116552751).radians), Distance(632.035426877)
+        )
+
+        assertEquals(spb.latitude.radians.value,curve.backward.latitude.radians.value, 0.0001)
     }
 }

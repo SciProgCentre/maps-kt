@@ -88,6 +88,7 @@ public fun GeoEllipsoid.parallelCurve(latitude: Angle, fromLongitude: Angle, toL
  * @param start starting location
  * @return solution to the direct geodetic problem
  */
+@Suppress("SpellCheckingInspection", "LocalVariableName")
 public fun GeoEllipsoid.curveInDirection(
     start: GmcPose,
     distance: Distance,
@@ -210,6 +211,7 @@ public fun GeoEllipsoid.curveInDirection(
  * @param end ending coordinates
  * @return solution to the inverse geodetic problem
  */
+@Suppress("SpellCheckingInspection", "LocalVariableName")
 public fun GeoEllipsoid.curveBetween(start: GMC, end: GMC, precision: Double = 1e-6): GmcCurve {
     //
     // All equation numbers refer back to Vincenty's publication:
