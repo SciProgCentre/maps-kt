@@ -16,17 +16,6 @@ internal class DistanceTest {
     }
 
     @Test
-    @Ignore
-    fun greatCircleDistance() {
-        assertEquals(
-            expected = 632.035,
-            actual = GeoEllipsoid.greatCircleAngleBetween(moscow, spb).value *
-                    GeoEllipsoid.WGS84.equatorRadius.kilometers,
-            absoluteTolerance = 0.1
-        )
-    }
-
-    @Test
     fun curveBetween() {
         val curve = GeoEllipsoid.WGS84.curveBetween(moscow, spb)
         val distance = curve.distance
