@@ -197,20 +197,21 @@ public actual fun MapView(
             for (j in verticalIndices) {
                 for (i in horizontalIndices) {
                     val id = TileId(zoom, i, j)
-                    //start all
-                    val deferred = loadTileAsync(id)
-                    //wait asynchronously for it to finish
-                    launch {
-                        try {
+                    try {
+                        //start all
+                        val deferred = loadTileAsync(id)
+                        //wait asynchronously for it to finish
+                        launch {
                             mapTiles += deferred.await()
-                        } catch (ex: Exception) {
-                            if (ex !is CancellationException) {
-                                //displaying the error is maps responsibility
-                                logger.error(ex) { "Failed to load tile with id=$id" }
-                            }
+                        }
+                    } catch (ex: Exception) {
+                        if (ex !is CancellationException) {
+                            //displaying the error is maps responsibility
+                            logger.error(ex) { "Failed to load tile with id=$id" }
                         }
                     }
                 }
+
             }
         }
     }
