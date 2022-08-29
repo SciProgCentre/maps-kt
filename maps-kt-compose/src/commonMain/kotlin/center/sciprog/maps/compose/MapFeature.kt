@@ -141,5 +141,5 @@ public class MapTextFeature(
     public val color: Color,
     public val fontConfig: MapTextFeatureFont.() -> Unit,
 ) : MapFeature {
-    override fun getBoundingBox(zoom: Int): GmcBox = GmcBox(position, position)
+    override fun getBoundingBox(zoom: Int): GmcRectangle = GmcRectangle(position, position)
 }
