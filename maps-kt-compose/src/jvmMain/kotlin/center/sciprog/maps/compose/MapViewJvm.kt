@@ -80,9 +80,14 @@ public actual fun MapView(
         }
     }
 
-    val zoom: Int by derivedStateOf { floor(viewPoint.zoom).toInt() }
+    val zoom: Int by derivedStateOf {
+        require(viewPoint.zoom in 1.0..18.0) { "Zoom value of ${viewPoint.zoom} is not valid" }
+        floor(viewPoint.zoom).toInt()
+    }
 
-    val tileScale: Double by derivedStateOf { 2.0.pow(viewPoint.zoom - zoom) }
+    val tileScale: Double by derivedStateOf {
+        2.0.pow(viewPoint.zoom - zoom)
+    }
 
     val mapTiles = remember { mutableStateListOf<MapTile>() }
 
@@ -109,61 +114,75 @@ public actual fun MapView(
                 fun Offset.toDpOffset() = DpOffset(x.toDp(), y.toDp())
 
                 val event: PointerEvent = awaitPointerEvent()
-                event.changes.forEach { change ->
-                    if (event.buttons.isPrimaryPressed) {
-                        //Evaluating selection frame
-                        if (event.keyboardModifiers.isShiftPressed) {
-                            selectRect = Rect(change.position, change.position)
-                            drag(change.id) { dragChange ->
-                                selectRect?.let { rect ->
-                                    val offset = dragChange.position
-                                    selectRect = Rect(
-                                        min(offset.x, rect.left),
-                                        min(offset.y, rect.top),
-                                        max(offset.x, rect.right),
-                                        max(offset.y, rect.bottom)
-                                    )
-                                }
-                            }
-                            selectRect?.let { rect ->
-                                //Use selection override if it is defined
-                                val gmcBox = GmcRectangle(
-                                    rect.topLeft.toDpOffset().toGeodetic(),
-                                    rect.bottomRight.toDpOffset().toGeodetic()
-                                )
-                                config.onSelect(gmcBox)
-                                if (config.zoomOnSelect) {
-                                    val newViewPoint = gmcBox.computeViewPoint(mapTileProvider).invoke(canvasSize)
 
-                                    config.onViewChange(newViewPoint)
-                                    viewPointInternal = newViewPoint
-                                }
-                                selectRect = null
-                            }
-                        } else {
-                            val dragStart = change.position
-                            val dpPos = DpOffset(dragStart.x.toDp(), dragStart.y.toDp())
-                            config.onClick(MapViewPoint(dpPos.toGeodetic(), viewPoint.zoom))
-                            drag(change.id) { dragChange ->
-                                val dragAmount = dragChange.position - dragChange.previousPosition
-                                val dpStart = DpOffset(
-                                    dragChange.previousPosition.x.toDp(),
-                                    dragChange.previousPosition.y.toDp()
-                                )
-                                val dpEnd = DpOffset(dragChange.position.x.toDp(), dragChange.position.y.toDp())
-                                if (!config.onDrag(
-                                        MapViewPoint(dpStart.toGeodetic(), viewPoint.zoom),
-                                        MapViewPoint(dpEnd.toGeodetic(), viewPoint.zoom)
-                                    )
-                                ) return@drag
-                                val newViewPoint = viewPoint.move(
-                                    -dragAmount.x.toDp().value / tileScale,
-                                    +dragAmount.y.toDp().value / tileScale
-                                )
-                                config.onViewChange(newViewPoint)
-                                viewPointInternal = newViewPoint
-                            }
+                event.changes.forEach { change ->
+                    val dragStart = change.position
+                    val dpPos = DpOffset(dragStart.x.toDp(), dragStart.y.toDp())
+
+                    //start selection
+                    if (event.buttons.isPrimaryPressed && event.keyboardModifiers.isShiftPressed) {
+                        selectRect = Rect(change.position, change.position)
+                    }
+
+                    drag(change.id) { dragChange ->
+                        val dragAmount = dragChange.position - dragChange.previousPosition
+                        val dpStart = DpOffset(
+                            dragChange.previousPosition.x.toDp(),
+                            dragChange.previousPosition.y.toDp()
+                        )
+                        val dpEnd = DpOffset(dragChange.position.x.toDp(), dragChange.position.y.toDp())
+
+                        if (
+                            !config.dragHandle.drag(
+                                event,
+                                MapViewPoint(dpStart.toGeodetic(), viewPoint.zoom),
+                                MapViewPoint(dpEnd.toGeodetic(), viewPoint.zoom)
+                            )
+                        ) {
+                            //clear selection just in case
+                            selectRect = null
+                            return@drag
                         }
+
+                        if (event.buttons.isPrimaryPressed) {
+                            //Evaluating selection frame
+                            selectRect?.let { rect ->
+                                val offset = dragChange.position
+                                selectRect = Rect(
+                                    min(offset.x, rect.left),
+                                    min(offset.y, rect.top),
+                                    max(offset.x, rect.right),
+                                    max(offset.y, rect.bottom)
+                                )
+                                return@drag
+                            }
+
+                            config.onClick(MapViewPoint(dpPos.toGeodetic(), viewPoint.zoom), event)
+
+                            val newViewPoint = viewPoint.move(
+                                -dragAmount.x.toDp().value / tileScale,
+                                +dragAmount.y.toDp().value / tileScale
+                            )
+                            config.onViewChange(newViewPoint)
+                            viewPointInternal = newViewPoint
+                        }
+                    }
+
+                    // evaluate selection
+                    selectRect?.let { rect ->
+                        //Use selection override if it is defined
+                        val gmcBox = GmcRectangle(
+                            rect.topLeft.toDpOffset().toGeodetic(),
+                            rect.bottomRight.toDpOffset().toGeodetic()
+                        )
+                        config.onSelect(gmcBox)
+                        if (config.zoomOnSelect) {
+                            val newViewPoint = gmcBox.computeViewPoint(mapTileProvider).invoke(canvasSize)
+
+                            config.onViewChange(newViewPoint)
+                            viewPointInternal = newViewPoint
+                        }
+                        selectRect = null
                     }
                 }
             }

@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
+import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import center.sciprog.maps.compose.*
@@ -58,14 +59,18 @@ fun App() {
             config = MapViewConfig(
                 inferViewBoxFromFeatures = true,
                 onViewChange = { centerCoordinates = focus },
-                onDrag = { start, end ->
-                    if (start.focus.latitude.degrees.value in (pointTwo.first - 0.05)..(pointTwo.first + 0.05) &&
+                dragHandle = { event, start, end ->
+                    if (!event.buttons.isPrimaryPressed) {
+                        true
+                    } else if (start.focus.latitude.degrees.value in (pointTwo.first - 0.05)..(pointTwo.first + 0.05) &&
                         start.focus.longitude.degrees.value in (pointTwo.second - 0.05)..(pointTwo.second + 0.05)
                     ) {
                         pointTwo = pointTwo.first + (end.focus.latitude - start.focus.latitude).degrees.value to
                                 pointTwo.second + (end.focus.longitude - start.focus.longitude).degrees.value
                         false// returning false, because when we are dragging circle we don't want to drag map
-                    } else true
+                    } else {
+                        true
+                    }
                 }
             )
         ) {
