@@ -15,27 +15,53 @@ import center.sciprog.maps.coordinates.GmcRectangle
 
 public typealias FeatureId = String
 
+public interface MapFeatureAttributeKey<T>
+
+
+public class MapFeatureAttributeSet(private val map: Map<MapFeatureAttributeKey<*>, *>) {
+    public operator fun <T> get(key: MapFeatureAttributeKey<*>): T? = map[key]?.let {
+        @Suppress("UNCHECKED_CAST")
+        it as T
+    }
+}
+
 public interface MapFeatureBuilder {
     public fun addFeature(id: FeatureId?, feature: MapFeature): FeatureId
 
-    public fun build(): SnapshotStateMap<FeatureId, MapFeature>
+    public fun <T> setAttribute(id: FeatureId, key: MapFeatureAttributeKey<T>, value: T)
+
+    public val features: MutableMap<FeatureId, MapFeature>
+
+    public fun attributes(): Map<FeatureId, MapFeatureAttributeSet>
+
+    //TODO use context receiver for that
+    public fun FeatureId.draggable(enabled: Boolean = true) {
+        setAttribute(this, DraggableAttribute, enabled)
+    }
 }
 
-internal class MapFeatureBuilderImpl(initialFeatures: Map<FeatureId, MapFeature>) : MapFeatureBuilder {
+internal class MapFeatureBuilderImpl(
+    override val features: SnapshotStateMap<FeatureId, MapFeature>,
+) : MapFeatureBuilder {
 
-    private val content: SnapshotStateMap<FeatureId, MapFeature> = mutableStateMapOf<FeatureId, MapFeature>().apply {
-        putAll(initialFeatures)
-    }
+    private val attributes = SnapshotStateMap<FeatureId, SnapshotStateMap<MapFeatureAttributeKey<out Any?>, in Any?>>()
+
 
     private fun generateID(feature: MapFeature): FeatureId = "@feature[${feature.hashCode().toUInt()}]"
 
     override fun addFeature(id: FeatureId?, feature: MapFeature): FeatureId {
         val safeId = id ?: generateID(feature)
-        content[id ?: generateID(feature)] = feature
+        features[id ?: generateID(feature)] = feature
         return safeId
     }
 
-    override fun build(): SnapshotStateMap<FeatureId, MapFeature> = content
+    override fun <T> setAttribute(id: FeatureId, key: MapFeatureAttributeKey<T>, value: T) {
+        attributes.getOrPut(id) { SnapshotStateMap() }[key] = value
+    }
+
+    override fun attributes(): Map<FeatureId, MapFeatureAttributeSet> =
+        attributes.mapValues { MapFeatureAttributeSet(it.value) }
+
 }
 
 public fun MapFeatureBuilder.circle(
@@ -123,7 +149,7 @@ public fun MapFeatureBuilder.points(
     stroke: Float = 2f,
     color: Color = Color.Red,
     pointMode: PointMode = PointMode.Points,
-    id: FeatureId? = null
+    id: FeatureId? = null,
 ): FeatureId = addFeature(id, MapPointsFeature(points.map { it.toCoordinates() }, zoomRange, stroke, color, pointMode))
 
 @Composable
@@ -140,7 +166,7 @@ public fun MapFeatureBuilder.group(
     id: FeatureId? = null,
     builder: MapFeatureBuilder.() -> Unit,
 ): FeatureId {
-    val map = MapFeatureBuilderImpl(emptyMap()).apply(builder).build()
+    val map = MapFeatureBuilderImpl(mutableStateMapOf()).apply(builder).features
     val feature = MapFeatureGroup(map, zoomRange)
     return addFeature(id, feature)
 }

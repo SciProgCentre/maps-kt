@@ -5,6 +5,7 @@ import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -66,7 +67,7 @@ public actual fun MapView(
 
     val viewPoint: MapViewPoint by derivedStateOf {
         viewPointInternal ?: if (config.inferViewBoxFromFeatures) {
-            features.values.computeBoundingBox(1)?.let { box ->
+            features.values.computeBoundingBox(1.0)?.let { box ->
                 val zoom = log2(
                     min(
                         canvasSize.width.value / box.longitudeDelta.radians.value,
@@ -132,8 +133,9 @@ public actual fun MapView(
                         )
                         val dpEnd = DpOffset(dragChange.position.x.toDp(), dragChange.position.y.toDp())
 
+                        //apply drag handle and check if it prohibits the drag even propagation
                         if (
-                            !config.dragHandle.drag(
+                            !config.dragHandle.handle(
                                 event,
                                 MapViewPoint(dpStart.toGeodetic(), viewPoint.zoom),
                                 MapViewPoint(dpEnd.toGeodetic(), viewPoint.zoom)

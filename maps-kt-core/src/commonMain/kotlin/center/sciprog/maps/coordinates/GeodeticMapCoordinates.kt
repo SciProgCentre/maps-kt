@@ -50,7 +50,7 @@ public class GeodeticMapCoordinates(
 /**
  * Short name for GeodeticMapCoordinates
  */
-public typealias GMC = GeodeticMapCoordinates
+public typealias Gmc = GeodeticMapCoordinates
 
 //public interface GeoToScreenConversion {
 //    public fun getScreenX(gmc: GeodeticMapCoordinates): Double

@@ -7,7 +7,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
-import androidx.compose.ui.input.pointer.isPrimaryPressed
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import center.sciprog.maps.compose.*
@@ -51,31 +52,23 @@ fun App() {
 
 
         val pointOne = 55.568548 to 37.568604
-        var pointTwo: Pair<Double, Double> by remember { mutableStateOf(55.929444 to 37.518434) }
+        val pointTwo = 55.929444 to 37.518434
         val pointThree = 60.929444 to 37.518434
+
+        val dragPoint = 55.744 to 37.614
+
         MapView(
             mapTileProvider = mapTileProvider,
             initialViewPoint = viewPoint,
             config = MapViewConfig(
                 inferViewBoxFromFeatures = true,
                 onViewChange = { centerCoordinates = focus },
-                dragHandle = { event, start, end ->
-                    if (!event.buttons.isPrimaryPressed) {
-                        true
-                    } else if (start.focus.latitude.degrees.value in (pointTwo.first - 0.05)..(pointTwo.first + 0.05) &&
-                        start.focus.longitude.degrees.value in (pointTwo.second - 0.05)..(pointTwo.second + 0.05)
-                    ) {
-                        pointTwo = pointTwo.first + (end.focus.latitude - start.focus.latitude).degrees.value to
-                                pointTwo.second + (end.focus.longitude - start.focus.longitude).degrees.value
-                        false// returning false, because when we are dragging circle we don't want to drag map
-                    } else {
-                        true
-                    }
-                }
             )
         ) {
 
             image(pointOne, Icons.Filled.Home)
+
+            rectangle(dragPoint, id = "dragMe", size = DpSize(10.dp, 10.dp)).draggable()
 
             points(
                 points = listOf(
@@ -89,7 +82,7 @@ fun App() {
                 pointMode = PointMode.Polygon
             )
 
-            //remember feature Id
+            //remember feature ID
             val circleId: FeatureId = circle(
                 centerCoordinates = pointTwo,
             )

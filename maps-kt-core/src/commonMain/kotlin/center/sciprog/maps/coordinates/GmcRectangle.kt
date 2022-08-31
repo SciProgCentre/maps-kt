@@ -9,29 +9,39 @@ package center.sciprog.maps.coordinates
 public data class GmcRectangle(
     public val a: GeodeticMapCoordinates,
     public val b: GeodeticMapCoordinates,
-    public val ellipsoid: GeoEllipsoid = GeoEllipsoid.WGS84,
 ) {
     public companion object {
+
+        /**
+         * A quasi-square section.
+         */
+        public fun square(
+            center: GeodeticMapCoordinates,
+            height: Angle,
+            width: Angle,
+        ): GmcRectangle {
+            val a = GeodeticMapCoordinates(
+                center.latitude - (height / 2),
+                center.longitude - (width / 2)
+            )
+            val b = GeodeticMapCoordinates(
+                center.latitude + (height / 2),
+                center.longitude + (width / 2)
+            )
+            return GmcRectangle(a, b)
+        }
 
         /**
          * A quasi-square section. Note that latitudinal distance could be imprecise for large distances
          */
         public fun square(
             center: GeodeticMapCoordinates,
-            width: Distance,
             height: Distance,
+            width: Distance,
             ellipsoid: GeoEllipsoid = GeoEllipsoid.WGS84,
         ): GmcRectangle {
             val reducedRadius = ellipsoid.reducedRadius(center.latitude)
-            val a = GeodeticMapCoordinates(
-                center.latitude - (height / ellipsoid.polarRadius / 2).radians,
-                center.longitude - (width / reducedRadius / 2).radians
-            )
-            val b = GeodeticMapCoordinates(
-                center.latitude + (height / ellipsoid.polarRadius / 2).radians,
-                center.longitude + (width / reducedRadius / 2).radians
-            )
-            return GmcRectangle(a, b, ellipsoid)
+            return square(center, (height / ellipsoid.polarRadius).radians, (width / reducedRadius).radians)
         }
     }
 }
@@ -67,6 +77,30 @@ public val GmcRectangle.latitudeDelta: Angle get() = abs(a.latitude - b.latitude
 
 public val GmcRectangle.topLeft: GeodeticMapCoordinates get() = GeodeticMapCoordinates(top, left)
 public val GmcRectangle.bottomRight: GeodeticMapCoordinates get() = GeodeticMapCoordinates(bottom, right)
+
+//public fun GmcRectangle.enlarge(
+//    top: Distance,
+//    bottom: Distance = top,
+//    left: Distance = top,
+//    right: Distance = left,
+//): GmcRectangle {
+//
+//}
+//
+//public fun GmcRectangle.enlarge(
+//    top: Angle,
+//    bottom: Angle = top,
+//    left: Angle = top,
+//    right: Angle = left,
+//): GmcRectangle {
+//
+//}
+
+/**
+ * Check if coordinate is inside the box
+ */
+public operator fun GmcRectangle.contains(coordinate: Gmc): Boolean =
+    coordinate.latitude in (bottom..top) && coordinate.longitude in (left..right)
 
 /**
  * Compute a minimal bounding box including all given boxes. Return null if collection is empty

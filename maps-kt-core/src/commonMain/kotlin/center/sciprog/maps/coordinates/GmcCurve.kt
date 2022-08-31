@@ -57,8 +57,8 @@ public fun GeoEllipsoid.meridianCurve(
     }
 
     return GmcCurve(
-        forward = GmcPose(GMC(fromLatitude, longitude), if (up) zero else pi),
-        backward = GmcPose(GMC(toLatitude, longitude), if (up) pi else zero),
+        forward = GmcPose(Gmc(fromLatitude, longitude), if (up) zero else pi),
+        backward = GmcPose(Gmc(toLatitude, longitude), if (up) pi else zero),
         distance = s
     )
 }
@@ -70,8 +70,8 @@ public fun GeoEllipsoid.parallelCurve(latitude: Angle, fromLongitude: Angle, toL
     require(latitude in (-piDiv2)..(piDiv2)) { "Latitude must be in (-90, 90) degrees range" }
     val right = toLongitude > fromLongitude
     return GmcCurve(
-        forward = GmcPose(GMC(latitude, fromLongitude), if (right) piDiv2.radians else -piDiv2.radians),
-        backward = GmcPose(GMC(latitude, toLongitude), if (right) -piDiv2.radians else piDiv2.radians),
+        forward = GmcPose(Gmc(latitude, fromLongitude), if (right) piDiv2.radians else -piDiv2.radians),
+        backward = GmcPose(Gmc(latitude, toLongitude), if (right) -piDiv2.radians else piDiv2.radians),
         distance = reducedRadius(latitude) * abs((fromLongitude - toLongitude).radians.value)
     )
 }
@@ -186,7 +186,7 @@ public fun GeoEllipsoid.curveInDirection(
     val L = lambda - (1 - C) * f * sinAlpha *
             (sigma.value + C * sinSigma * (cosSigmaM2 + C * cosSigma * (-1 + 2 * cos2SigmaM2)))
 
-    val endPoint = GMC(phi2, L.radians)
+    val endPoint = Gmc(phi2, L.radians)
 
     // eq. 12
 
@@ -212,7 +212,7 @@ public fun GeoEllipsoid.curveInDirection(
  * @return solution to the inverse geodetic problem
  */
 @Suppress("SpellCheckingInspection", "LocalVariableName")
-public fun GeoEllipsoid.curveBetween(start: GMC, end: GMC, precision: Double = 1e-6): GmcCurve {
+public fun GeoEllipsoid.curveBetween(start: Gmc, end: Gmc, precision: Double = 1e-6): GmcCurve {
     //
     // All equation numbers refer back to Vincenty's publication:
     // See http://www.ngs.noaa.gov/PUBS_LIB/inverse.pdf
