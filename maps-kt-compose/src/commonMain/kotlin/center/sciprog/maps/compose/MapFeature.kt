@@ -17,7 +17,7 @@ import kotlin.math.floor
 public interface MapFeature {
     public val zoomRange: IntRange
     public fun getBoundingBox(zoom: Double): GmcRectangle?
-
+    public val layer: Int
 }
 
 public interface DraggableMapFeature : MapFeature {
@@ -36,6 +36,7 @@ internal val defaultZoomRange = 1..18
  */
 public class MapFeatureSelector(
     public val selector: (zoom: Int) -> MapFeature,
+    override val layer: Int
 ) : MapFeature {
     override val zoomRange: IntRange get() = defaultZoomRange
 
@@ -46,6 +47,7 @@ public class MapDrawFeature(
     public val position: GeodeticMapCoordinates,
     override val zoomRange: IntRange = defaultZoomRange,
     public val drawFeature: DrawScope.() -> Unit,
+    override val layer: Int
 ) : DraggableMapFeature {
     override fun getBoundingBox(zoom: Double): GmcRectangle {
         //TODO add box computation
@@ -53,7 +55,7 @@ public class MapDrawFeature(
     }
 
     override fun withCoordinates(newCoordinates: GeodeticMapCoordinates): MapFeature =
-        MapDrawFeature(newCoordinates, zoomRange, drawFeature)
+        MapDrawFeature(newCoordinates, zoomRange, drawFeature, layer)
 }
 
 public class MapPointsFeature(
@@ -62,6 +64,7 @@ public class MapPointsFeature(
     public val stroke: Float = 2f,
     public val color: Color = Color.Red,
     public val pointMode: PointMode = PointMode.Points,
+    override val layer: Int
 ) : MapFeature {
     override fun getBoundingBox(zoom: Double): GmcRectangle {
         return GmcRectangle(points.first(), points.last())
@@ -73,14 +76,15 @@ public class MapCircleFeature(
     override val zoomRange: IntRange = defaultZoomRange,
     public val size: Float = 5f,
     public val color: Color = Color.Red,
+    override val layer: Int
 ) : DraggableMapFeature {
     override fun getBoundingBox(zoom: Double): GmcRectangle {
         val scale = WebMercatorProjection.scaleFactor(zoom)
-        return GmcRectangle.square(center, (size/scale).radians, (size/scale).radians)
+        return GmcRectangle.square(center, (size / scale).radians, (size / scale).radians)
     }
 
     override fun withCoordinates(newCoordinates: GeodeticMapCoordinates): MapFeature =
-        MapCircleFeature(newCoordinates, zoomRange, size, color)
+        MapCircleFeature(newCoordinates, zoomRange, size, color, layer)
 }
 
 public class MapRectangleFeature(
@@ -88,14 +92,15 @@ public class MapRectangleFeature(
     override val zoomRange: IntRange = defaultZoomRange,
     public val size: DpSize = DpSize(5.dp, 5.dp),
     public val color: Color = Color.Red,
+    override val layer: Int
 ) : DraggableMapFeature {
     override fun getBoundingBox(zoom: Double): GmcRectangle {
         val scale = WebMercatorProjection.scaleFactor(zoom)
-        return GmcRectangle.square(center, (size.height.value/scale).radians, (size.width.value/scale).radians)
+        return GmcRectangle.square(center, (size.height.value / scale).radians, (size.width.value / scale).radians)
     }
 
     override fun withCoordinates(newCoordinates: GeodeticMapCoordinates): MapFeature =
-        MapRectangleFeature(newCoordinates, zoomRange, size, color)
+        MapRectangleFeature(newCoordinates, zoomRange, size, color, layer)
 }
 
 public class MapLineFeature(
@@ -103,6 +108,7 @@ public class MapLineFeature(
     public val b: GeodeticMapCoordinates,
     override val zoomRange: IntRange = defaultZoomRange,
     public val color: Color = Color.Red,
+    override val layer: Int
 ) : MapFeature {
     override fun getBoundingBox(zoom: Double): GmcRectangle = GmcRectangle(a, b)
 }
@@ -113,6 +119,7 @@ public class MapArcFeature(
     public val endAngle: Float,
     override val zoomRange: IntRange = defaultZoomRange,
     public val color: Color = Color.Red,
+    override val layer: Int
 ) : MapFeature {
     override fun getBoundingBox(zoom: Double): GmcRectangle = oval
 }
@@ -122,11 +129,12 @@ public class MapBitmapImageFeature(
     public val image: ImageBitmap,
     public val size: IntSize = IntSize(15, 15),
     override val zoomRange: IntRange = defaultZoomRange,
+    override val layer: Int
 ) : DraggableMapFeature {
     override fun getBoundingBox(zoom: Double): GmcRectangle = GmcRectangle(position, position)
 
     override fun withCoordinates(newCoordinates: GeodeticMapCoordinates): MapFeature =
-        MapBitmapImageFeature(newCoordinates, image, size, zoomRange)
+        MapBitmapImageFeature(newCoordinates, image, size, zoomRange, layer)
 }
 
 public class MapVectorImageFeature(
@@ -134,11 +142,12 @@ public class MapVectorImageFeature(
     public val painter: Painter,
     public val size: DpSize,
     override val zoomRange: IntRange = defaultZoomRange,
-) : DraggableMapFeature{
+    override val layer: Int
+) : DraggableMapFeature {
     override fun getBoundingBox(zoom: Double): GmcRectangle = GmcRectangle(position, position)
 
     override fun withCoordinates(newCoordinates: GeodeticMapCoordinates): MapFeature =
-        MapVectorImageFeature(newCoordinates,painter, size, zoomRange)
+        MapVectorImageFeature(newCoordinates, painter, size, zoomRange, layer)
 }
 
 @Composable
@@ -147,7 +156,8 @@ public fun MapVectorImageFeature(
     image: ImageVector,
     size: DpSize = DpSize(20.dp, 20.dp),
     zoomRange: IntRange = defaultZoomRange,
-): MapVectorImageFeature = MapVectorImageFeature(position, rememberVectorPainter(image), size, zoomRange)
+    layer: Int
+): MapVectorImageFeature = MapVectorImageFeature(position, rememberVectorPainter(image), size, zoomRange, layer)
 
 /**
  * A group of other features
@@ -155,6 +165,7 @@ public fun MapVectorImageFeature(
 public class MapFeatureGroup(
     public val children: Map<FeatureId, MapFeature>,
     override val zoomRange: IntRange = defaultZoomRange,
+    override val layer: Int
 ) : MapFeature {
     override fun getBoundingBox(zoom: Double): GmcRectangle? =
         children.values.mapNotNull { it.getBoundingBox(zoom) }.wrapAll()
@@ -166,9 +177,10 @@ public class MapTextFeature(
     override val zoomRange: IntRange = defaultZoomRange,
     public val color: Color,
     public val fontConfig: MapTextFeatureFont.() -> Unit,
-) : DraggableMapFeature{
+    override val layer: Int
+) : DraggableMapFeature {
     override fun getBoundingBox(zoom: Double): GmcRectangle = GmcRectangle(position, position)
 
     override fun withCoordinates(newCoordinates: GeodeticMapCoordinates): MapFeature =
-        MapTextFeature(newCoordinates, text, zoomRange, color, fontConfig)
+        MapTextFeature(newCoordinates, text, zoomRange, color, fontConfig, layer)
 }

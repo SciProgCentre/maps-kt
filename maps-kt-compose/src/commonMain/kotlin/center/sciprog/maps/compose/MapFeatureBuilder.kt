@@ -70,8 +70,9 @@ public fun MapFeatureBuilder.circle(
     size: Float = 5f,
     color: Color = Color.Red,
     id: FeatureId? = null,
+    layer: Int = 0
 ): FeatureId = addFeature(
-    id, MapCircleFeature(center, zoomRange, size, color)
+    id, MapCircleFeature(center, zoomRange, size, color, layer)
 )
 
 public fun MapFeatureBuilder.circle(
@@ -80,8 +81,9 @@ public fun MapFeatureBuilder.circle(
     size: Float = 5f,
     color: Color = Color.Red,
     id: FeatureId? = null,
+    layer: Int = 0
 ): FeatureId = addFeature(
-    id, MapCircleFeature(centerCoordinates.toCoordinates(), zoomRange, size, color)
+    id, MapCircleFeature(centerCoordinates.toCoordinates(), zoomRange, size, color, layer)
 )
 
 public fun MapFeatureBuilder.rectangle(
@@ -90,16 +92,18 @@ public fun MapFeatureBuilder.rectangle(
     size: DpSize = DpSize(5.dp, 5.dp),
     color: Color = Color.Red,
     id: FeatureId? = null,
+    layer: Int = 0
 ): FeatureId = addFeature(
-    id, MapRectangleFeature(centerCoordinates.toCoordinates(), zoomRange, size, color)
+    id, MapRectangleFeature(centerCoordinates.toCoordinates(), zoomRange, size, color, layer)
 )
 
 public fun MapFeatureBuilder.draw(
     position: Pair<Double, Double>,
     zoomRange: IntRange = defaultZoomRange,
     id: FeatureId? = null,
-    drawFeature: DrawScope.() -> Unit,
-): FeatureId = addFeature(id, MapDrawFeature(position.toCoordinates(), zoomRange, drawFeature))
+    layer: Int = 0,
+    drawFeature: DrawScope.() -> Unit
+): FeatureId = addFeature(id, MapDrawFeature(position.toCoordinates(), zoomRange, drawFeature, layer))
 
 public fun MapFeatureBuilder.line(
     aCoordinates: Pair<Double, Double>,
@@ -107,9 +111,10 @@ public fun MapFeatureBuilder.line(
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
     id: FeatureId? = null,
+    layer: Int = 0
 ): FeatureId = addFeature(
     id,
-    MapLineFeature(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), zoomRange, color)
+    MapLineFeature(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), zoomRange, color, layer)
 )
 
 public fun MapFeatureBuilder.arc(
@@ -119,9 +124,10 @@ public fun MapFeatureBuilder.arc(
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
     id: FeatureId? = null,
+    layer: Int = 0
 ): FeatureId = addFeature(
     id,
-    MapArcFeature(oval, startAngle.toFloat(), endAngle.toFloat(), zoomRange, color)
+    MapArcFeature(oval, startAngle.toFloat(), endAngle.toFloat(), zoomRange, color, layer)
 )
 
 public fun MapFeatureBuilder.arc(
@@ -132,6 +138,7 @@ public fun MapFeatureBuilder.arc(
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
     id: FeatureId? = null,
+    layer: Int = 0
 ): FeatureId = addFeature(
     id,
     MapArcFeature(
@@ -139,7 +146,8 @@ public fun MapFeatureBuilder.arc(
         startAngle.toFloat(),
         endAngle.toFloat(),
         zoomRange,
-        color
+        color,
+        layer
     )
 )
 
@@ -150,7 +158,9 @@ public fun MapFeatureBuilder.points(
     color: Color = Color.Red,
     pointMode: PointMode = PointMode.Points,
     id: FeatureId? = null,
-): FeatureId = addFeature(id, MapPointsFeature(points.map { it.toCoordinates() }, zoomRange, stroke, color, pointMode))
+    layer: Int = 0
+): FeatureId =
+    addFeature(id, MapPointsFeature(points.map { it.toCoordinates() }, zoomRange, stroke, color, pointMode, layer))
 
 @Composable
 public fun MapFeatureBuilder.image(
@@ -159,15 +169,17 @@ public fun MapFeatureBuilder.image(
     size: DpSize = DpSize(20.dp, 20.dp),
     zoomRange: IntRange = defaultZoomRange,
     id: FeatureId? = null,
-): FeatureId = addFeature(id, MapVectorImageFeature(position.toCoordinates(), image, size, zoomRange))
+    layer: Int = 0
+): FeatureId = addFeature(id, MapVectorImageFeature(position.toCoordinates(), image, size, zoomRange, layer))
 
 public fun MapFeatureBuilder.group(
     zoomRange: IntRange = defaultZoomRange,
     id: FeatureId? = null,
-    builder: MapFeatureBuilder.() -> Unit,
+    layer: Int = 0,
+    builder: MapFeatureBuilder.() -> Unit
 ): FeatureId {
     val map = MapFeatureBuilderImpl(mutableStateMapOf()).apply(builder).features
-    val feature = MapFeatureGroup(map, zoomRange)
+    val feature = MapFeatureGroup(map, zoomRange, layer)
     return addFeature(id, feature)
 }
 
@@ -178,7 +190,8 @@ public fun MapFeatureBuilder.text(
     color: Color = Color.Red,
     font: MapTextFeatureFont.() -> Unit = { size = 16f },
     id: FeatureId? = null,
-): FeatureId = addFeature(id, MapTextFeature(position, text, zoomRange, color, font))
+    layer: Int = 0
+): FeatureId = addFeature(id, MapTextFeature(position, text, zoomRange, color, font, layer))
 
 public fun MapFeatureBuilder.text(
     position: Pair<Double, Double>,
@@ -187,4 +200,5 @@ public fun MapFeatureBuilder.text(
     color: Color = Color.Red,
     font: MapTextFeatureFont.() -> Unit = { size = 16f },
     id: FeatureId? = null,
-): FeatureId = addFeature(id, MapTextFeature(position.toCoordinates(), text, zoomRange, color, font))
+    layer: Int = 0
+): FeatureId = addFeature(id, MapTextFeature(position.toCoordinates(), text, zoomRange, color, font, layer))

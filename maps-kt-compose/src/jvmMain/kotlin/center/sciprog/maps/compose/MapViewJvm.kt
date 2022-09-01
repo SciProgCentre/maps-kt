@@ -351,7 +351,7 @@ public actual fun MapView(
                     dstSize = tileSize
                 )
             }
-            features.values.filter { zoom in it.zoomRange }.forEach { feature ->
+            features.values.filter { zoom in it.zoomRange }.sortedBy { it.layer }.forEach { feature ->
                 drawFeature(zoom, feature)
             }
         }

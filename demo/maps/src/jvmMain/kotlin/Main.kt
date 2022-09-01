@@ -87,10 +87,13 @@ fun App() {
                 centerCoordinates = pointTwo,
             )
 
+
             draw(position = pointThree) {
                 drawLine(start = Offset(-10f, -10f), end = Offset(10f, 10f), color = Color.Red)
                 drawLine(start = Offset(-10f, 10f), end = Offset(10f, -10f), color = Color.Red)
             }
+
+            circle(pointThree, layer = -1, color = Color.Blue)
 
             arc(pointOne, Distance(10.0), 0f, PI)
 
