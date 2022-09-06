@@ -1,13 +1,12 @@
 package center.sciprog.maps.coordinates
 
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 internal class DistanceTest {
     companion object {
-        val moscow = GMC.ofDegrees(55.76058287719673, 37.60358622841869)
-        val spb = GMC.ofDegrees(59.926686023580444, 30.36038109122013)
+        val moscow = Gmc.ofDegrees(55.76058287719673, 37.60358622841869)
+        val spb = Gmc.ofDegrees(59.926686023580444, 30.36038109122013)
     }
 
     @Test

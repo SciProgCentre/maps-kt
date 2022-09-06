@@ -1,5 +1,9 @@
+import space.kscience.gradle.isInDevelopment
+import space.kscience.gradle.useApache2Licence
+import space.kscience.gradle.useSPCTeam
+
 plugins {
-    base
+    id("space.kscience.gradle.project")
 }
 
 val ktorVersion by extra("2.0.3")
@@ -9,80 +13,28 @@ allprojects {
     version = "0.1.0-SNAPSHOT"
 }
 
-tasks.create("version") {
-    group = "publishing"
-    val versionFile = project.buildDir.resolve("project-version.txt")
-    outputs.file(versionFile)
-    doLast {
-        versionFile.createNewFile()
-        versionFile.writeText(project.version.toString())
-        println(project.version)
+ksciencePublish{
+    pom("https://github.com/SciProgCentre/maps-kt") {
+        useApache2Licence()
+        useSPCTeam()
     }
+    github("maps-kt", "SciProgCentre")
+    space(
+        if (isInDevelopment) {
+            "https://maven.pkg.jetbrains.space/mipt-npm/p/sci/dev"
+        } else {
+            "https://maven.pkg.jetbrains.space/mipt-npm/p/sci/release"
+        }
+    )
+    sonatype()
 }
 
 subprojects {
     repositories {
         google()
         mavenCentral()
+        maven("https://repo.kotlin.link")
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-    }
-
-    plugins.withId("maven-publish") {
-
-        configure<PublishingExtension> {
-            val vcs = "https://github.com/mipt-npm/maps-kt"
-
-            // Process each publication we have in this project
-            publications {
-                withType<MavenPublication> {
-                    pom {
-                        name.set(project.name)
-                        description.set(project.description)
-                        url.set(vcs)
-
-                        licenses {
-                            license {
-                                name.set("The Apache Software License, Version 2.0")
-                                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-                                distribution.set("repo")
-                            }
-                        }
-
-                        developers {
-                            developer {
-                                id.set("SPC")
-                                name.set("Scientific programming centre")
-                                organization.set("MIPT")
-                                organizationUrl.set("https://sciprog.center/")
-                            }
-                        }
-
-                        scm {
-                            url.set(vcs)
-                            tag.set(project.version.toString())
-                        }
-                    }
-                }
-            }
-
-            val spaceRepo = "https://maven.pkg.jetbrains.space/mipt-npm/p/sci/maven"
-            val spaceUser: String? = project.findProperty("publishing.space.user") as? String
-            val spaceToken: String? = project.findProperty("publishing.space.token") as? String
-
-            if (spaceUser != null && spaceToken != null) {
-                project.logger.info("Adding mipt-npm Space publishing to project [${project.name}]")
-
-                repositories.maven {
-                    name = "space"
-                    url = uri(spaceRepo)
-
-                    credentials {
-                        username = spaceUser
-                        password = spaceToken
-                    }
-                }
-            }
-        }
     }
 }
 

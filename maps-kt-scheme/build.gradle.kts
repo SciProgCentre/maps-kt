@@ -11,7 +11,6 @@ kotlin {
         compilations.all {
             kotlinOptions.jvmTarget = "11"
         }
-        withJava()
     }
     sourceSets {
         commonMain {
@@ -25,6 +24,5 @@ kotlin {
                 api(compose.desktop.currentOs)
             }
         }
-        val jvmTest by getting
     }
 }
