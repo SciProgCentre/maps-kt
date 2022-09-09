@@ -1,7 +1,9 @@
 package center.sciprog.maps.compose
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.isPrimaryPressed
@@ -55,7 +57,6 @@ public fun interface DragHandle {
  */
 public data class MapViewConfig(
     val zoomSpeed: Double = 1.0 / 3.0,
-    val inferViewBoxFromFeatures: Boolean = false,
     val onClick: MapViewPoint.(PointerEvent) -> Unit = {},
     val dragHandle: DragHandle = DragHandle.BYPASS,
     val onViewChange: MapViewPoint.() -> Unit = {},
@@ -98,10 +99,23 @@ private fun prepareConfig(initialConfig: MapViewConfig, featureBuilder: MapFeatu
     )
 }
 
+
+internal fun GmcRectangle.computeViewPoint(
+    mapTileProvider: MapTileProvider,
+): (canvasSize: DpSize) -> MapViewPoint = { canvasSize ->
+    val zoom = log2(
+        min(
+            canvasSize.width.value / longitudeDelta.radians.value,
+            canvasSize.height.value / latitudeDelta.radians.value
+        ) * PI / mapTileProvider.tileSize
+    )
+    MapViewPoint(center, zoom)
+}
+
 @Composable
 public fun MapView(
     mapTileProvider: MapTileProvider,
-    initialViewPoint: MapViewPoint,
+    initialViewPoint: MapViewPoint? = null,
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
     buildFeatures: @Composable (MapFeatureBuilder.() -> Unit) = {},
@@ -116,24 +130,23 @@ public fun MapView(
 
     MapView(
         mapTileProvider,
-        { initialViewPoint },
+        { canvasSize ->
+            initialViewPoint ?: features.values.computeBoundingBox(1.0)?.let { box ->
+                val zoom = log2(
+                    min(
+                        canvasSize.width.value / box.longitudeDelta.radians.value,
+                        canvasSize.height.value / box.latitudeDelta.radians.value
+                    ) * PI / mapTileProvider.tileSize
+                )
+                MapViewPoint(box.center, zoom)
+            } ?: MapViewPoint(GeodeticMapCoordinates(0.0.radians, 0.0.radians), 1.0)
+        },
         features,
         newConfig,
         modifier
     )
 }
 
-internal fun GmcRectangle.computeViewPoint(
-    mapTileProvider: MapTileProvider,
-): (canvasSize: DpSize) -> MapViewPoint = { canvasSize ->
-    val zoom = log2(
-        min(
-            canvasSize.width.value / longitudeDelta.radians.value,
-            canvasSize.height.value / latitudeDelta.radians.value
-        ) * PI / mapTileProvider.tileSize
-    )
-    MapViewPoint(center, zoom)
-}
 //
 //@Composable
 //public fun MapView(

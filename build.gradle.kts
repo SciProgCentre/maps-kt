@@ -31,6 +31,7 @@ ksciencePublish{
 
 subprojects {
     repositories {
+        maven("https://maven.pkg.jetbrains.space/mipt-npm/p/sci/dev")
         google()
         mavenCentral()
         maven("https://repo.kotlin.link")

@@ -5,7 +5,6 @@ import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -66,19 +65,7 @@ public actual fun MapView(
     }
 
     val viewPoint: MapViewPoint by derivedStateOf {
-        viewPointInternal ?: if (config.inferViewBoxFromFeatures) {
-            features.values.computeBoundingBox(1.0)?.let { box ->
-                val zoom = log2(
-                    min(
-                        canvasSize.width.value / box.longitudeDelta.radians.value,
-                        canvasSize.height.value / box.latitudeDelta.radians.value
-                    ) * PI / mapTileProvider.tileSize
-                )
-                MapViewPoint(box.center, zoom)
-            } ?: computeViewPoint(canvasSize)
-        } else {
-            computeViewPoint(canvasSize)
-        }
+        viewPointInternal ?: computeViewPoint(canvasSize)
     }
 
     val zoom: Int by derivedStateOf {
