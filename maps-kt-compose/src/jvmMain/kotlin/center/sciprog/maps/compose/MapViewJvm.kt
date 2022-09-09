@@ -56,16 +56,8 @@ public actual fun MapView(
 ) {
     var canvasSize by remember { mutableStateOf(DpSize(512.dp, 512.dp)) }
 
-    var viewPointInternal: MapViewPoint? by remember {
-        mutableStateOf(null)
-    }
-
-    if (config.resetViewPoint) {
-        viewPointInternal = null
-    }
-
-    val viewPoint: MapViewPoint by derivedStateOf {
-        viewPointInternal ?: computeViewPoint(canvasSize)
+    var viewPoint: MapViewPoint by remember {
+        mutableStateOf(computeViewPoint(canvasSize))
     }
 
     val zoom: Int by derivedStateOf {
@@ -153,7 +145,7 @@ public actual fun MapView(
                                 +dragAmount.y.toDp().value / tileScale
                             )
                             config.onViewChange(newViewPoint)
-                            viewPointInternal = newViewPoint
+                            viewPoint = newViewPoint
                         }
                     }
 
@@ -169,7 +161,7 @@ public actual fun MapView(
                             val newViewPoint = gmcBox.computeViewPoint(mapTileProvider).invoke(canvasSize)
 
                             config.onViewChange(newViewPoint)
-                            viewPointInternal = newViewPoint
+                            viewPoint = newViewPoint
                         }
                         selectRect = null
                     }
@@ -183,7 +175,7 @@ public actual fun MapView(
         val invariant = DpOffset(xPos.toDp(), yPos.toDp()).toGeodetic()
         val newViewPoint = viewPoint.zoom(-change.scrollDelta.y.toDouble() * config.zoomSpeed, invariant)
         config.onViewChange(newViewPoint)
-        viewPointInternal = newViewPoint
+        viewPoint = newViewPoint
     }.fillMaxSize()
 
 

@@ -62,7 +62,6 @@ public data class MapViewConfig(
     val onViewChange: MapViewPoint.() -> Unit = {},
     val onSelect: (GmcRectangle) -> Unit = {},
     val zoomOnSelect: Boolean = true,
-    val resetViewPoint: Boolean = false,
 )
 
 @Composable

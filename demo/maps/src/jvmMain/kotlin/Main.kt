@@ -59,7 +59,7 @@ fun App() {
 
         MapView(
             mapTileProvider = mapTileProvider,
-            initialViewPoint = viewPoint,// use null to infer view point from features
+            initialViewPoint = null,// use null to infer view point from features
             config = MapViewConfig(
                 onViewChange = { centerCoordinates = focus },
             )
