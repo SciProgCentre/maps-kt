@@ -1,4 +1,5 @@
 import org.jetbrains.compose.compose
+import space.kscience.gradle.KScienceVersions.JVM_TARGET
 
 
 plugins {
@@ -9,7 +10,7 @@ plugins {
 kotlin {
     jvm {
         compilations.all {
-            kotlinOptions.jvmTarget = "11"
+            kotlinOptions.jvmTarget = JVM_TARGET.toString()
         }
     }
     sourceSets {
@@ -25,4 +26,8 @@ kotlin {
             }
         }
     }
+}
+
+java{
+    targetCompatibility = JVM_TARGET
 }

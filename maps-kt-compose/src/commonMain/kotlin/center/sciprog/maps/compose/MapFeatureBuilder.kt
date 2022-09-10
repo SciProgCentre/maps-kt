@@ -9,9 +9,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import center.sciprog.maps.coordinates.Distance
-import center.sciprog.maps.coordinates.GeodeticMapCoordinates
-import center.sciprog.maps.coordinates.GmcRectangle
+import center.sciprog.maps.coordinates.*
 
 public typealias FeatureId = String
 
@@ -102,6 +100,27 @@ public fun MapFeatureBuilder.draw(
 ): FeatureId = addFeature(id, MapDrawFeature(position.toCoordinates(), zoomRange, drawFeature))
 
 public fun MapFeatureBuilder.line(
+    aCoordinates: Gmc,
+    bCoordinates: Gmc,
+    zoomRange: IntRange = defaultZoomRange,
+    color: Color = Color.Red,
+    id: FeatureId? = null,
+): FeatureId = addFeature(
+    id,
+    MapLineFeature(aCoordinates, bCoordinates, zoomRange, color)
+)
+
+public fun MapFeatureBuilder.line(
+    curve: GmcCurve,
+    zoomRange: IntRange = defaultZoomRange,
+    color: Color = Color.Red,
+    id: FeatureId? = null,
+): FeatureId = addFeature(
+    id,
+    MapLineFeature(curve.forward.coordinates, curve.backward.coordinates, zoomRange, color)
+)
+
+public fun MapFeatureBuilder.line(
     aCoordinates: Pair<Double, Double>,
     bCoordinates: Pair<Double, Double>,
     zoomRange: IntRange = defaultZoomRange,
@@ -114,14 +133,14 @@ public fun MapFeatureBuilder.line(
 
 public fun MapFeatureBuilder.arc(
     oval: GmcRectangle,
-    startAngle: Number,
-    endAngle: Number,
+    startAngle: Angle,
+    endAngle: Angle,
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
     id: FeatureId? = null,
 ): FeatureId = addFeature(
     id,
-    MapArcFeature(oval, startAngle.toFloat(), endAngle.toFloat(), zoomRange, color)
+    MapArcFeature(oval, startAngle, endAngle, zoomRange, color)
 )
 
 public fun MapFeatureBuilder.arc(
@@ -136,21 +155,21 @@ public fun MapFeatureBuilder.arc(
     id,
     MapArcFeature(
         GmcRectangle.square(center.toCoordinates(), radius, radius),
-        startAngle.toFloat(),
-        endAngle.toFloat(),
+        startAngle.degrees,
+        endAngle.degrees,
         zoomRange,
         color
     )
 )
 
 public fun MapFeatureBuilder.points(
-    points: List<Pair<Double, Double>>,
+    points: List<Gmc>,
     zoomRange: IntRange = defaultZoomRange,
     stroke: Float = 2f,
     color: Color = Color.Red,
     pointMode: PointMode = PointMode.Points,
     id: FeatureId? = null,
-): FeatureId = addFeature(id, MapPointsFeature(points.map { it.toCoordinates() }, zoomRange, stroke, color, pointMode))
+): FeatureId = addFeature(id, MapPointsFeature(points, zoomRange, stroke, color, pointMode))
 
 @Composable
 public fun MapFeatureBuilder.image(

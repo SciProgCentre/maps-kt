@@ -109,8 +109,8 @@ public class MapLineFeature(
 
 public class MapArcFeature(
     public val oval: GmcRectangle,
-    public val startAngle: Float,
-    public val endAngle: Float,
+    public val startAngle: Angle,
+    public val endAngle: Angle,
     override val zoomRange: IntRange = defaultZoomRange,
     public val color: Color = Color.Red,
 ) : MapFeature {

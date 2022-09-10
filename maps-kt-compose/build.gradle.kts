@@ -12,7 +12,7 @@ kotlin {
     explicitApi = org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Warning
     jvm {
         compilations.all {
-            kotlinOptions.jvmTarget = "11"
+            kotlinOptions.jvmTarget = space.kscience.gradle.KScienceVersions.JVM_TARGET.toString()
         }
     }
     sourceSets {
@@ -27,4 +27,8 @@ kotlin {
         val jvmMain by getting
         val jvmTest by getting
     }
+}
+
+java{
+    targetCompatibility = space.kscience.gradle.KScienceVersions.JVM_TARGET
 }
