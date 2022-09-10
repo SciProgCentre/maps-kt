@@ -251,7 +251,11 @@ public actual fun MapView(
                     val bottomRight = feature.oval.bottomRight.toOffset()
 
                     val path = Path().apply {
-                        addArcRad(Rect(topLeft, bottomRight), feature.startAngle, feature.endAngle - feature.startAngle)
+                        addArcRad(
+                            Rect(topLeft, bottomRight),
+                            feature.startAngle.radians.value.toFloat(),
+                            (feature.endAngle - feature.startAngle).radians.value.toFloat()
+                        )
                     }
 
                     drawPath(path, color = feature.color, style = Stroke())
