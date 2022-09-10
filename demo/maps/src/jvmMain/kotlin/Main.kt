@@ -1,4 +1,3 @@
-// Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
@@ -23,6 +22,7 @@ import kotlinx.coroutines.launch
 import java.nio.file.Path
 import kotlin.math.PI
 import kotlin.random.Random
+import center.sciprog.maps.coordinates.kilometers
 
 private fun GeodeticMapCoordinates.toShortString(): String =
     "${(latitude.degrees.value).toString().take(6)}:${(longitude.degrees.value).toString().take(6)}"
@@ -91,7 +91,7 @@ fun App() {
                 drawLine(start = Offset(-10f, 10f), end = Offset(10f, -10f), color = Color.Red)
             }
 
-            arc(pointOne, Distance(10.0), 0f, PI)
+            arc(pointOne, 10.0.kilometers, 0f, PI)
 
             line(pointOne, pointTwo, id = "line")
             text(pointOne, "Home", font = { size = 32f })

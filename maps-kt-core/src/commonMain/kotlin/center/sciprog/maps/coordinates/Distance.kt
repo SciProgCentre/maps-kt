@@ -3,9 +3,12 @@ package center.sciprog.maps.coordinates
 import kotlin.jvm.JvmInline
 
 @JvmInline
-public value class Distance(public val kilometers: Double) : Comparable<Distance> {
+public value class Distance internal constructor(public val kilometers: Double) : Comparable<Distance> {
     override fun compareTo(other: Distance): Int = this.kilometers.compareTo(other.kilometers)
 }
+
+public val Number.kilometers: Distance get() = Distance(toDouble())
+public val Number.meters: Distance get() = Distance(toDouble() / 1000)
 
 public operator fun Distance.div(other: Distance): Double = kilometers / other.kilometers
 
