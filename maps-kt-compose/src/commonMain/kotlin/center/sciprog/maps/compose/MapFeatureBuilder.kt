@@ -171,6 +171,16 @@ public fun MapFeatureBuilder.points(
     id: FeatureId? = null,
 ): FeatureId = addFeature(id, MapPointsFeature(points, zoomRange, stroke, color, pointMode))
 
+@JvmName("pointsFromPairs")
+public fun MapFeatureBuilder.points(
+    points: List<Pair<Double, Double>>,
+    zoomRange: IntRange = defaultZoomRange,
+    stroke: Float = 2f,
+    color: Color = Color.Red,
+    pointMode: PointMode = PointMode.Points,
+    id: FeatureId? = null,
+): FeatureId = addFeature(id, MapPointsFeature(points.map { it.toCoordinates() }, zoomRange, stroke, color, pointMode))
+
 @Composable
 public fun MapFeatureBuilder.image(
     position: Pair<Double, Double>,
