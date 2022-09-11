@@ -85,8 +85,8 @@ public val Number.degrees: Degrees get() = Degrees(toDouble())
  * Normalized angle to (0, 2PI) for radians or (0, 360) for degrees.
  */
 public fun Angle.normalized(): Angle = when (this) {
-    is Degrees -> (value + 180.0).rem(360.0).degrees
-    is Radians -> (value + PI).rem(PI * 2).radians
+    is Degrees -> value.mod(360.0).degrees
+    is Radians -> value.mod(PI * 2).radians
 }
 
 public fun abs(angle: Angle): Angle = if (angle < Angle.zero) -angle else angle
