@@ -146,8 +146,8 @@ public fun MapFeatureBuilder.arc(
 public fun MapFeatureBuilder.arc(
     center: Pair<Double, Double>,
     radius: Distance,
-    startAngle: Number,
-    endAngle: Number,
+    startAngle: Angle,
+    endAngle: Angle,
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
     id: FeatureId? = null,
@@ -155,8 +155,8 @@ public fun MapFeatureBuilder.arc(
     id,
     MapArcFeature(
         GmcRectangle.square(center.toCoordinates(), radius, radius),
-        startAngle.degrees,
-        endAngle.degrees,
+        startAngle,
+        endAngle,
         zoomRange,
         color
     )
