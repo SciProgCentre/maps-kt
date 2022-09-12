@@ -134,31 +134,31 @@ public fun MapFeatureBuilder.line(
 public fun MapFeatureBuilder.arc(
     oval: GmcRectangle,
     startAngle: Angle,
-    endAngle: Angle,
+    arcLength: Angle,
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
     id: FeatureId? = null,
 ): FeatureId = addFeature(
     id,
-    MapArcFeature(oval, startAngle, endAngle, zoomRange, color)
+    MapArcFeature(oval, startAngle, arcLength, zoomRange, color)
 )
 
 public fun MapFeatureBuilder.arc(
     center: Pair<Double, Double>,
     radius: Distance,
     startAngle: Angle,
-    endAngle: Angle,
+    arcLength: Angle,
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
     id: FeatureId? = null,
 ): FeatureId = addFeature(
     id,
     MapArcFeature(
-        GmcRectangle.square(center.toCoordinates(), radius, radius),
-        startAngle,
-        endAngle,
-        zoomRange,
-        color
+        oval = GmcRectangle.square(center.toCoordinates(), radius, radius),
+        startAngle = startAngle,
+        arcLength = arcLength,
+        zoomRange = zoomRange,
+        color = color
     )
 )
 

@@ -108,10 +108,14 @@ public class MapLineFeature(
     override fun getBoundingBox(zoom: Double): GmcRectangle = GmcRectangle(a, b)
 }
 
+/**
+ * @param startAngle the angle from parallel downwards for the start of the arc
+ * @param arcLength arc length
+ */
 public class MapArcFeature(
     public val oval: GmcRectangle,
     public val startAngle: Angle,
-    public val endAngle: Angle,
+    public val arcLength: Angle,
     override val zoomRange: IntRange = defaultZoomRange,
     public val color: Color = Color.Red,
 ) : MapFeature {

@@ -24,6 +24,7 @@ import kotlin.math.PI
 import kotlin.random.Random
 import center.sciprog.maps.coordinates.kilometers
 import center.sciprog.maps.coordinates.radians
+import center.sciprog.maps.coordinates.Angle
 
 private fun GeodeticMapCoordinates.toShortString(): String =
     "${(latitude.degrees.value).toString().take(6)}:${(longitude.degrees.value).toString().take(6)}"
@@ -92,7 +93,7 @@ fun App() {
                 drawLine(start = Offset(-10f, 10f), end = Offset(10f, -10f), color = Color.Red)
             }
 
-            arc(pointOne, 10.0.kilometers, 0f.radians, PI.radians)
+            arc(pointOne, 10.0.kilometers, (PI/4).radians, -Angle.pi/2)
 
             line(pointOne, pointTwo, id = "line")
             text(pointOne, "Home", font = { size = 32f })

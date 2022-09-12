@@ -254,7 +254,7 @@ public actual fun MapView(
                         addArcRad(
                             Rect(topLeft, bottomRight),
                             feature.startAngle.radians.value.toFloat(),
-                            (feature.endAngle - feature.startAngle).radians.value.toFloat()
+                            feature.arcLength.radians.value.toFloat()
                         )
                     }
 
