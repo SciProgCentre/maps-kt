@@ -28,21 +28,16 @@ public interface MapFeatureBuilder {
 
     public fun <T> setAttribute(id: FeatureId, key: MapFeatureAttributeKey<T>, value: T)
 
-    public val features: MutableMap<FeatureId, MapFeature>
-
-    public val attributes: Map<FeatureId, MapFeatureAttributeSet>
-
     //TODO use context receiver for that
     public fun FeatureId.draggable(enabled: Boolean = true) {
         setAttribute(this, DraggableAttribute, enabled)
     }
 }
 
-internal class MapFeatureBuilderImpl(
-    override val features: SnapshotStateMap<FeatureId, MapFeature>,
-) : MapFeatureBuilder {
+internal class MapFeatureBuilderImpl: MapFeatureBuilder {
 
-    private val _attributes = SnapshotStateMap<FeatureId, SnapshotStateMap<MapFeatureAttributeKey<out Any?>, in Any?>>()
+    internal val features = mutableStateMapOf<FeatureId, MapFeature>()
+    internal val attributes = SnapshotStateMap<FeatureId, SnapshotStateMap<MapFeatureAttributeKey<out Any?>, in Any?>>()
 
 
     private fun generateID(feature: MapFeature): FeatureId = "@feature[${feature.hashCode().toUInt()}]"
@@ -54,13 +49,12 @@ internal class MapFeatureBuilderImpl(
     }
 
     override fun <T> setAttribute(id: FeatureId, key: MapFeatureAttributeKey<T>, value: T) {
-        _attributes.getOrPut(id) { SnapshotStateMap() }[key] = value
+        attributes.getOrPut(id) { SnapshotStateMap() }[key] = value
     }
 
-    override val attributes: Map<FeatureId, MapFeatureAttributeSet>
-        get() = _attributes.mapValues { MapFeatureAttributeSet(it.value) }
 
 }
+
 
 public fun MapFeatureBuilder.circle(
     center: GeodeticMapCoordinates,
@@ -195,7 +189,7 @@ public fun MapFeatureBuilder.group(
     id: FeatureId? = null,
     builder: MapFeatureBuilder.() -> Unit,
 ): FeatureId {
-    val map = MapFeatureBuilderImpl(mutableStateMapOf()).apply(builder).features
+    val map = MapFeatureBuilderImpl().apply(builder).features
     val feature = MapFeatureGroup(map, zoomRange)
     return addFeature(id, feature)
 }

@@ -2,11 +2,11 @@ package center.sciprog.maps.compose
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import center.sciprog.maps.coordinates.*
 import kotlin.math.PI
 import kotlin.math.log2
@@ -87,6 +87,8 @@ internal fun GmcRectangle.computeViewPoint(
     return MapViewPoint(center, zoom)
 }
 
+private val defaultCanvasSize = DpSize(512.dp, 512.dp)
+
 /**
  * Draw a map using convenient parameters. If neither [initialViewPoint], noe [initialRectangle] is defined,
  * use map features to infer view region.
@@ -102,45 +104,47 @@ public fun MapView(
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
     buildFeatures: @Composable (MapFeatureBuilder.() -> Unit) = {},
-) {
+): Unit = key(buildFeatures) {
 
-    var viewPointOverride by remember(initialViewPoint, initialRectangle) { mutableStateOf(initialViewPoint ?: MapViewPoint.globe) }
+    val featuresBuilder = MapFeatureBuilderImpl().apply { buildFeatures() }
 
-    val featuresBuilder = MapFeatureBuilderImpl(mutableStateMapOf()).apply { buildFeatures() }
+    val features = featuresBuilder.features
+    val attributes = featuresBuilder.attributes
 
-    val features: SnapshotStateMap<FeatureId, MapFeature> = remember(buildFeatures) { featuresBuilder.features }
+    var cachedCanvasSize: DpSize by remember { mutableStateOf(defaultCanvasSize) }
 
-    val attributes = remember(buildFeatures) { featuresBuilder.attributes }
-
-    val featureDrag by derivedStateOf {
-        DragHandle.withPrimaryButton { _, start, end ->
-            val zoom = start.zoom
-            attributes.filterValues {
-                it[DraggableAttribute] ?: false
-            }.keys.forEach { id ->
-                val feature = features[id] as? DraggableMapFeature ?: return@forEach
-                //val border = WebMercatorProjection.scaleFactor(zoom)
-                val boundingBox = feature.getBoundingBox(zoom) ?: return@forEach
-                if (start.focus in boundingBox) {
-                    features[id] = feature.withCoordinates(end.focus)
-                    return@withPrimaryButton false
-                }
-            }
-            return@withPrimaryButton true
-        }
+    val viewPointOverride: MapViewPoint = remember(initialViewPoint, initialRectangle, cachedCanvasSize) {
+        initialViewPoint
+            ?: initialRectangle?.computeViewPoint(mapTileProvider, cachedCanvasSize)
+            ?: features.values.computeBoundingBox(1.0)?.computeViewPoint(mapTileProvider, cachedCanvasSize)
+            ?: MapViewPoint.globe
     }
+
+    val featureDrag = DragHandle.withPrimaryButton { _, start, end ->
+        val zoom = start.zoom
+        attributes.filterValues {
+            it[DraggableAttribute] as? Boolean ?: false
+        }.keys.forEach { id ->
+            val feature = features[id] as? DraggableMapFeature ?: return@forEach
+            //val border = WebMercatorProjection.scaleFactor(zoom)
+            val boundingBox = feature.getBoundingBox(zoom) ?: return@forEach
+            if (start.focus in boundingBox) {
+                features[id] = feature.withCoordinates(end.focus)
+                return@withPrimaryButton false
+            }
+        }
+        return@withPrimaryButton true
+    }
+
 
     val newConfig = config.copy(
         dragHandle = DragHandle.combine(featureDrag, config.dragHandle),
         onCanvasSizeChange = { canvasSize ->
-            viewPointOverride = initialViewPoint
-                ?: initialRectangle?.computeViewPoint(mapTileProvider, canvasSize)
-                        ?: features.values.computeBoundingBox(1.0)?.computeViewPoint(mapTileProvider, canvasSize)
-                        ?: MapViewPoint.globe
-
             config.onCanvasSizeChange(canvasSize)
+            cachedCanvasSize = canvasSize
         }
     )
+
 
     MapView(
         mapTileProvider = mapTileProvider,

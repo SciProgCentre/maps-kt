@@ -53,16 +53,10 @@ public actual fun MapView(
     features: Map<FeatureId, MapFeature>,
     config: MapViewConfig,
     modifier: Modifier,
-) {
+): Unit = key(initialViewPoint) {
     var canvasSize by remember { mutableStateOf(DpSize(512.dp, 512.dp)) }
 
-    var viewPointOverride by remember { mutableStateOf(initialViewPoint) }
     var viewPoint by remember { mutableStateOf(initialViewPoint) }
-
-    if (viewPointOverride != initialViewPoint) {
-        viewPoint = initialViewPoint
-        viewPointOverride = initialViewPoint
-    }
 
     fun setViewPoint(newViewPoint: MapViewPoint) {
         config.onViewChange(newViewPoint)
@@ -78,7 +72,7 @@ public actual fun MapView(
         2.0.pow(viewPoint.zoom - zoom)
     }
 
-    val mapTiles = remember { mutableStateListOf<MapTile>() }
+    val mapTiles = remember(mapTileProvider) { mutableStateListOf<MapTile>() }
 
     val centerCoordinates by derivedStateOf { WebMercatorProjection.toMercator(viewPoint.focus, zoom) }
 
