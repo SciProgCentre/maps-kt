@@ -50,7 +50,7 @@ private val logger = KotlinLogging.logger("MapView")
 public actual fun MapView(
     mapTileProvider: MapTileProvider,
     initialViewPoint: MapViewPoint,
-    features: Map<FeatureId, MapFeature>,
+    features: MapFeaturesState,
     config: MapViewConfig,
     modifier: Modifier,
 ): Unit = key(initialViewPoint) {
@@ -334,7 +334,7 @@ public actual fun MapView(
                     dstSize = tileSize
                 )
             }
-            features.values.filter { zoom in it.zoomRange }.forEach { feature ->
+            features.features().values.filter { zoom in it.zoomRange }.forEach { feature ->
                 drawFeature(zoom, feature)
             }
         }

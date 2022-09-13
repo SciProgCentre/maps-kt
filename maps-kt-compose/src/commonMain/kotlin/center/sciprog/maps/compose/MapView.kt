@@ -68,7 +68,7 @@ public data class MapViewConfig(
 public expect fun MapView(
     mapTileProvider: MapTileProvider,
     initialViewPoint: MapViewPoint,
-    features: Map<FeatureId, MapFeature>,
+    features: MapFeaturesState,
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
 )
@@ -103,13 +103,12 @@ public fun MapView(
     initialRectangle: GmcRectangle? = null,
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
-    buildFeatures: @Composable (MapFeatureBuilder.() -> Unit) = {},
+    buildFeatures: @Composable (MapFeaturesState.() -> Unit) = {},
 ): Unit = key(buildFeatures) {
 
-    val featuresBuilder = MapFeatureBuilderImpl().apply { buildFeatures() }
+    val featureState = rememberMapFeatureState(buildFeatures)
 
-    val features = featuresBuilder.features
-    val attributes = featuresBuilder.attributes
+    val features = featureState.features()
 
     var cachedCanvasSize: DpSize by remember { mutableStateOf(defaultCanvasSize) }
 
@@ -120,36 +119,37 @@ public fun MapView(
             ?: MapViewPoint.globe
     }
 
-    val featureDrag = DragHandle.withPrimaryButton { _, start, end ->
-        val zoom = start.zoom
-        attributes.filterValues {
-            it[DraggableAttribute] as? Boolean ?: false
-        }.keys.forEach { id ->
-            val feature = features[id] as? DraggableMapFeature ?: return@forEach
-            //val border = WebMercatorProjection.scaleFactor(zoom)
-            val boundingBox = feature.getBoundingBox(zoom) ?: return@forEach
-            if (start.focus in boundingBox) {
-                features[id] = feature.withCoordinates(end.focus)
-                return@withPrimaryButton false
+    val featureDrag by derivedStateOf {
+        DragHandle.withPrimaryButton { _, start, end ->
+            val zoom = start.zoom
+            featureState.findAllWithAttribute(DraggableAttribute) { it }.forEach { id ->
+                val feature = features[id] as? DraggableMapFeature ?: return@forEach
+                val boundingBox = feature.getBoundingBox(zoom) ?: return@forEach
+                if (start.focus in boundingBox) {
+                    featureState.addFeature(id, feature.withCoordinates(end.focus))
+                    return@withPrimaryButton false
+                }
             }
+            return@withPrimaryButton true
         }
-        return@withPrimaryButton true
     }
 
 
-    val newConfig = config.copy(
-        dragHandle = DragHandle.combine(featureDrag, config.dragHandle),
-        onCanvasSizeChange = { canvasSize ->
-            config.onCanvasSizeChange(canvasSize)
-            cachedCanvasSize = canvasSize
-        }
-    )
+    val newConfig by derivedStateOf {
+        config.copy(
+            dragHandle = DragHandle.combine(featureDrag, config.dragHandle),
+            onCanvasSizeChange = { canvasSize ->
+                config.onCanvasSizeChange(canvasSize)
+                cachedCanvasSize = canvasSize
+            }
+        )
+    }
 
 
     MapView(
         mapTileProvider = mapTileProvider,
         initialViewPoint = viewPointOverride,
-        features = features,
+        features = featureState,
         config = newConfig,
         modifier = modifier,
     )
