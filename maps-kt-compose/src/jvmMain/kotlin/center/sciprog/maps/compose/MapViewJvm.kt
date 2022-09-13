@@ -158,7 +158,7 @@ public actual fun MapView(
                         )
                         config.onSelect(gmcBox)
                         if (config.zoomOnSelect) {
-                            val newViewPoint = gmcBox.computeViewPoint(mapTileProvider).invoke(canvasSize)
+                            val newViewPoint = gmcBox.computeViewPoint(mapTileProvider, canvasSize)
 
                             config.onViewChange(newViewPoint)
                             viewPoint = newViewPoint

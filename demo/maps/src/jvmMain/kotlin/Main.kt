@@ -35,12 +35,12 @@ private fun GeodeticMapCoordinates.toShortString(): String =
 fun App() {
     MaterialTheme {
         //create a view point
-        val viewPoint = remember {
-            MapViewPoint(
-                GeodeticMapCoordinates.ofDegrees(55.7558, 37.6173),
-                8.0
-            )
-        }
+//        val viewPoint = remember {
+//            MapViewPoint(
+//                GeodeticMapCoordinates.ofDegrees(55.7558, 37.6173),
+//                8.0
+//            )
+//        }
 
         val scope = rememberCoroutineScope()
         val mapTileProvider = remember {

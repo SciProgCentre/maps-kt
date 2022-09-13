@@ -101,20 +101,29 @@ private fun prepareConfig(initialConfig: MapViewConfig, featureBuilder: MapFeatu
 
 internal fun GmcRectangle.computeViewPoint(
     mapTileProvider: MapTileProvider,
-): (canvasSize: DpSize) -> MapViewPoint = { canvasSize ->
+    canvasSize: DpSize,
+): MapViewPoint {
     val zoom = log2(
         min(
             canvasSize.width.value / longitudeDelta.radians.value,
             canvasSize.height.value / latitudeDelta.radians.value
         ) * PI / mapTileProvider.tileSize
     )
-    MapViewPoint(center, zoom)
+    return MapViewPoint(center, zoom)
 }
 
+/**
+ * Draw a map using convenient parameters. If neither [initialViewPoint], noe [initialRectangle] is defined,
+ * use map features to infer view region.
+ * @param initialViewPoint The view point of the map using center and zoom. Is used if provided
+ * @param initialRectangle The rectangle to be used for view point computation. Used if [initialViewPoint] is not defined.
+ * @param buildFeatures - a builder for features
+ */
 @Composable
 public fun MapView(
     mapTileProvider: MapTileProvider,
     initialViewPoint: MapViewPoint? = null,
+    initialRectangle: GmcRectangle? = null,
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
     buildFeatures: @Composable (MapFeatureBuilder.() -> Unit) = {},
@@ -130,15 +139,10 @@ public fun MapView(
     MapView(
         mapTileProvider,
         { canvasSize ->
-            initialViewPoint ?: features.values.computeBoundingBox(1.0)?.let { box ->
-                val zoom = log2(
-                    min(
-                        canvasSize.width.value / box.longitudeDelta.radians.value,
-                        canvasSize.height.value / box.latitudeDelta.radians.value
-                    ) * PI / mapTileProvider.tileSize
-                )
-                MapViewPoint(box.center, zoom)
-            } ?: MapViewPoint(GeodeticMapCoordinates(0.0.radians, 0.0.radians), 1.0)
+            initialViewPoint
+                ?: initialRectangle?.computeViewPoint(mapTileProvider, canvasSize)
+                ?: features.values.computeBoundingBox(1.0)?.computeViewPoint(mapTileProvider, canvasSize)
+                ?: MapViewPoint(GeodeticMapCoordinates(0.0.radians, 0.0.radians), 1.0)
         },
         features,
         newConfig,
