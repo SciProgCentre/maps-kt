@@ -104,15 +104,15 @@ public fun MapView(
     buildFeatures: @Composable (MapFeatureBuilder.() -> Unit) = {},
 ) {
 
-    var viewPointOverride by remember { mutableStateOf(initialViewPoint ?: MapViewPoint.globe) }
+    var viewPointOverride by remember(initialViewPoint, initialRectangle) { mutableStateOf(initialViewPoint ?: MapViewPoint.globe) }
 
     val featuresBuilder = MapFeatureBuilderImpl(mutableStateMapOf()).apply { buildFeatures() }
 
-    val features: SnapshotStateMap<FeatureId, MapFeature> = remember { featuresBuilder.features }
+    val features: SnapshotStateMap<FeatureId, MapFeature> = remember(buildFeatures) { featuresBuilder.features }
 
-    val attributes = remember { featuresBuilder.attributes() }
+    val attributes = remember(buildFeatures) { featuresBuilder.attributes }
 
-    val featureDrag = remember {
+    val featureDrag by derivedStateOf {
         DragHandle.withPrimaryButton { _, start, end ->
             val zoom = start.zoom
             attributes.filterValues {

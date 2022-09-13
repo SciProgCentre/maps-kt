@@ -30,7 +30,7 @@ public interface MapFeatureBuilder {
 
     public val features: MutableMap<FeatureId, MapFeature>
 
-    public fun attributes(): Map<FeatureId, MapFeatureAttributeSet>
+    public val attributes: Map<FeatureId, MapFeatureAttributeSet>
 
     //TODO use context receiver for that
     public fun FeatureId.draggable(enabled: Boolean = true) {
@@ -42,7 +42,7 @@ internal class MapFeatureBuilderImpl(
     override val features: SnapshotStateMap<FeatureId, MapFeature>,
 ) : MapFeatureBuilder {
 
-    private val attributes = SnapshotStateMap<FeatureId, SnapshotStateMap<MapFeatureAttributeKey<out Any?>, in Any?>>()
+    private val _attributes = SnapshotStateMap<FeatureId, SnapshotStateMap<MapFeatureAttributeKey<out Any?>, in Any?>>()
 
 
     private fun generateID(feature: MapFeature): FeatureId = "@feature[${feature.hashCode().toUInt()}]"
@@ -54,11 +54,11 @@ internal class MapFeatureBuilderImpl(
     }
 
     override fun <T> setAttribute(id: FeatureId, key: MapFeatureAttributeKey<T>, value: T) {
-        attributes.getOrPut(id) { SnapshotStateMap() }[key] = value
+        _attributes.getOrPut(id) { SnapshotStateMap() }[key] = value
     }
 
-    override fun attributes(): Map<FeatureId, MapFeatureAttributeSet> =
-        attributes.mapValues { MapFeatureAttributeSet(it.value) }
+    override val attributes: Map<FeatureId, MapFeatureAttributeSet>
+        get() = _attributes.mapValues { MapFeatureAttributeSet(it.value) }
 
 }
 

@@ -96,8 +96,8 @@ fun App() {
 
             centerCoordinates?.let {
                 group(id = "center") {
-                    circle(center = it, color = Color.Blue, size = 1f)
-                    text(position = it, it.toShortString(), color = Color.Blue)
+                    circle(center = it, color = Color.Blue, id = "circle", size = 1f)
+                    text(position = it, it.toShortString(), id = "text", color = Color.Blue)
                 }
             }
 
