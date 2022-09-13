@@ -1,9 +1,8 @@
 package center.sciprog.maps.compose
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.isPrimaryPressed
@@ -62,41 +61,17 @@ public data class MapViewConfig(
     val onViewChange: MapViewPoint.() -> Unit = {},
     val onSelect: (GmcRectangle) -> Unit = {},
     val zoomOnSelect: Boolean = true,
+    val onCanvasSizeChange: (DpSize) -> Unit = {},
 )
 
 @Composable
 public expect fun MapView(
     mapTileProvider: MapTileProvider,
-    computeViewPoint: (canvasSize: DpSize) -> MapViewPoint,
+    initialViewPoint: MapViewPoint,
     features: Map<FeatureId, MapFeature>,
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
 )
-
-private fun prepareConfig(initialConfig: MapViewConfig, featureBuilder: MapFeatureBuilder): MapViewConfig {
-    val draggableFeatureIds: Set<FeatureId> = featureBuilder.attributes().filterValues {
-        it[DraggableAttribute] ?: false
-    }.keys
-
-    val features = featureBuilder.features
-
-    val featureDrag = DragHandle.withPrimaryButton { _, start, end ->
-        val zoom = start.zoom
-        draggableFeatureIds.forEach { id ->
-            val feature = features[id] as? DraggableMapFeature ?: return@forEach
-            //val border = WebMercatorProjection.scaleFactor(zoom)
-            val boundingBox = feature.getBoundingBox(zoom) ?: return@forEach
-            if (start.focus in boundingBox) {
-                features[id] = feature.withCoordinates(end.focus)
-                return@withPrimaryButton false
-            }
-        }
-        return@withPrimaryButton true
-    }
-    return initialConfig.copy(
-        dragHandle = DragHandle.combine(featureDrag, initialConfig.dragHandle),
-    )
-}
 
 
 internal fun GmcRectangle.computeViewPoint(
@@ -128,44 +103,50 @@ public fun MapView(
     modifier: Modifier = Modifier.fillMaxSize(),
     buildFeatures: @Composable (MapFeatureBuilder.() -> Unit) = {},
 ) {
-    val featuresBuilder = MapFeatureBuilderImpl(mutableStateMapOf())
-    featuresBuilder.buildFeatures()
-    val features = remember { featuresBuilder.features }
 
-    val newConfig = remember(features) {
-        prepareConfig(config, featuresBuilder)
+    var viewPointOverride by remember { mutableStateOf(initialViewPoint ?: MapViewPoint.globe) }
+
+    val featuresBuilder = MapFeatureBuilderImpl(mutableStateMapOf()).apply { buildFeatures() }
+
+    val features: SnapshotStateMap<FeatureId, MapFeature> = remember { featuresBuilder.features }
+
+    val attributes = remember { featuresBuilder.attributes() }
+
+    val featureDrag = remember {
+        DragHandle.withPrimaryButton { _, start, end ->
+            val zoom = start.zoom
+            attributes.filterValues {
+                it[DraggableAttribute] ?: false
+            }.keys.forEach { id ->
+                val feature = features[id] as? DraggableMapFeature ?: return@forEach
+                //val border = WebMercatorProjection.scaleFactor(zoom)
+                val boundingBox = feature.getBoundingBox(zoom) ?: return@forEach
+                if (start.focus in boundingBox) {
+                    features[id] = feature.withCoordinates(end.focus)
+                    return@withPrimaryButton false
+                }
+            }
+            return@withPrimaryButton true
+        }
     }
 
-    MapView(
-        mapTileProvider,
-        { canvasSize ->
-            initialViewPoint
+    val newConfig = config.copy(
+        dragHandle = DragHandle.combine(featureDrag, config.dragHandle),
+        onCanvasSizeChange = { canvasSize ->
+            viewPointOverride = initialViewPoint
                 ?: initialRectangle?.computeViewPoint(mapTileProvider, canvasSize)
-                ?: features.values.computeBoundingBox(1.0)?.computeViewPoint(mapTileProvider, canvasSize)
-                ?: MapViewPoint(GeodeticMapCoordinates(0.0.radians, 0.0.radians), 1.0)
-        },
-        features,
-        newConfig,
-        modifier
+                        ?: features.values.computeBoundingBox(1.0)?.computeViewPoint(mapTileProvider, canvasSize)
+                        ?: MapViewPoint.globe
+
+            config.onCanvasSizeChange(canvasSize)
+        }
+    )
+
+    MapView(
+        mapTileProvider = mapTileProvider,
+        initialViewPoint = viewPointOverride,
+        features = features,
+        config = newConfig,
+        modifier = modifier,
     )
 }
-
-//
-//@Composable
-//public fun MapView(
-//    mapTileProvider: MapTileProvider,
-//    box: GmcRectangle,
-//    config: MapViewConfig = MapViewConfig(),
-//    modifier: Modifier = Modifier.fillMaxSize(),
-//    buildFeatures: @Composable (MapFeatureBuilder.() -> Unit) = {},
-//) {
-//    val builder by derivedStateOf { MapFeatureBuilderImpl().apply(buildFeatures) }
-//
-//    MapView(
-//        mapTileProvider,
-//        box.computeViewPoint(mapTileProvider),
-//        builder.features,
-//        prepareConfig(config, builder),
-//        modifier
-//    )
-//}

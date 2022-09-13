@@ -11,9 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import center.sciprog.maps.compose.*
-import center.sciprog.maps.coordinates.Distance
-import center.sciprog.maps.coordinates.GeodeticMapCoordinates
-import center.sciprog.maps.coordinates.MapViewPoint
+import center.sciprog.maps.coordinates.*
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import kotlinx.coroutines.delay
@@ -22,9 +20,6 @@ import kotlinx.coroutines.launch
 import java.nio.file.Path
 import kotlin.math.PI
 import kotlin.random.Random
-import center.sciprog.maps.coordinates.kilometers
-import center.sciprog.maps.coordinates.radians
-import center.sciprog.maps.coordinates.Angle
 
 private fun GeodeticMapCoordinates.toShortString(): String =
     "${(latitude.degrees.value).toString().take(6)}:${(longitude.degrees.value).toString().take(6)}"
@@ -34,13 +29,6 @@ private fun GeodeticMapCoordinates.toShortString(): String =
 @Preview
 fun App() {
     MaterialTheme {
-        //create a view point
-//        val viewPoint = remember {
-//            MapViewPoint(
-//                GeodeticMapCoordinates.ofDegrees(55.7558, 37.6173),
-//                8.0
-//            )
-//        }
 
         val scope = rememberCoroutineScope()
         val mapTileProvider = remember {
@@ -50,7 +38,7 @@ fun App() {
             )
         }
 
-        var centerCoordinates by remember { mutableStateOf<GeodeticMapCoordinates?>(null) }
+        var centerCoordinates by remember { mutableStateOf<Gmc?>(null) }
 
 
         val pointOne = 55.568548 to 37.568604
@@ -61,7 +49,15 @@ fun App() {
 
         MapView(
             mapTileProvider = mapTileProvider,
-            initialViewPoint = null,// use null to infer view point from features
+//            initialViewPoint = MapViewPoint(
+//                GeodeticMapCoordinates.ofDegrees(55.7558, 37.6173),
+//                8.0
+//            ),
+//            initialRectangle = GmcRectangle.square(
+//                GeodeticMapCoordinates.ofDegrees(55.7558, 37.6173),
+//                50.kilometers,
+//                50.kilometers
+//            ),
             config = MapViewConfig(
                 onViewChange = { centerCoordinates = focus },
             )
@@ -93,7 +89,7 @@ fun App() {
                 drawLine(start = Offset(-10f, 10f), end = Offset(10f, -10f), color = Color.Red)
             }
 
-            arc(pointOne, 10.0.kilometers, (PI/4).radians, -Angle.pi/2)
+            arc(pointOne, 10.0.kilometers, (PI / 4).radians, -Angle.pi / 2)
 
             line(pointOne, pointTwo, id = "line")
             text(pointOne, "Home", font = { size = 32f })

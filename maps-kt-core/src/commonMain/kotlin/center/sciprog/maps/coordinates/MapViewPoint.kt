@@ -10,6 +10,10 @@ public data class MapViewPoint(
     val zoom: Double,
 ) {
     val scaleFactor: Double by lazy { WebMercatorProjection.scaleFactor(zoom) }
+
+    public companion object{
+        public val globe: MapViewPoint = MapViewPoint(GeodeticMapCoordinates(0.0.radians, 0.0.radians), 1.0)
+    }
 }
 
 public fun MapViewPoint.move(delta: GeodeticMapCoordinates): MapViewPoint {

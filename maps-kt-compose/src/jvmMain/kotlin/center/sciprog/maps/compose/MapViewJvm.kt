@@ -49,15 +49,24 @@ private val logger = KotlinLogging.logger("MapView")
 @Composable
 public actual fun MapView(
     mapTileProvider: MapTileProvider,
-    computeViewPoint: (canvasSize: DpSize) -> MapViewPoint,
+    initialViewPoint: MapViewPoint,
     features: Map<FeatureId, MapFeature>,
     config: MapViewConfig,
     modifier: Modifier,
 ) {
     var canvasSize by remember { mutableStateOf(DpSize(512.dp, 512.dp)) }
 
-    var viewPoint: MapViewPoint by remember {
-        mutableStateOf(computeViewPoint(canvasSize))
+    var viewPointOverride by remember { mutableStateOf(initialViewPoint) }
+    var viewPoint by remember { mutableStateOf(initialViewPoint) }
+
+    if (viewPointOverride != initialViewPoint) {
+        viewPoint = initialViewPoint
+        viewPointOverride = initialViewPoint
+    }
+
+    fun setViewPoint(newViewPoint: MapViewPoint) {
+        config.onViewChange(newViewPoint)
+        viewPoint = newViewPoint
     }
 
     val zoom: Int by derivedStateOf {
@@ -140,12 +149,12 @@ public actual fun MapView(
 
                             config.onClick(MapViewPoint(dpPos.toGeodetic(), viewPoint.zoom), event)
 
-                            val newViewPoint = viewPoint.move(
-                                -dragAmount.x.toDp().value / tileScale,
-                                +dragAmount.y.toDp().value / tileScale
+                            setViewPoint(
+                                viewPoint.move(
+                                    -dragAmount.x.toDp().value / tileScale,
+                                    +dragAmount.y.toDp().value / tileScale
+                                )
                             )
-                            config.onViewChange(newViewPoint)
-                            viewPoint = newViewPoint
                         }
                     }
 
@@ -158,10 +167,7 @@ public actual fun MapView(
                         )
                         config.onSelect(gmcBox)
                         if (config.zoomOnSelect) {
-                            val newViewPoint = gmcBox.computeViewPoint(mapTileProvider, canvasSize)
-
-                            config.onViewChange(newViewPoint)
-                            viewPoint = newViewPoint
+                            setViewPoint(gmcBox.computeViewPoint(mapTileProvider, canvasSize))
                         }
                         selectRect = null
                     }
@@ -173,9 +179,7 @@ public actual fun MapView(
         val (xPos, yPos) = change.position
         //compute invariant point of translation
         val invariant = DpOffset(xPos.toDp(), yPos.toDp()).toGeodetic()
-        val newViewPoint = viewPoint.zoom(-change.scrollDelta.y.toDouble() * config.zoomSpeed, invariant)
-        config.onViewChange(newViewPoint)
-        viewPoint = newViewPoint
+        setViewPoint(viewPoint.zoom(-change.scrollDelta.y.toDouble() * config.zoomSpeed, invariant))
     }.fillMaxSize()
 
 
@@ -314,9 +318,11 @@ public actual fun MapView(
         }
 
         if (canvasSize != size.toDpSize()) {
-            canvasSize = size.toDpSize()
             logger.debug { "Recalculate canvas. Size: $size" }
+            config.onCanvasSizeChange(canvasSize)
+            canvasSize = size.toDpSize()
         }
+
         clipRect {
             val tileSize = IntSize(
                 ceil((mapTileProvider.tileSize.dp * tileScale.toFloat()).toPx()).toInt(),
