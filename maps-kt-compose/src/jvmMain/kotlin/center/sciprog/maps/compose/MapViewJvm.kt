@@ -49,7 +49,7 @@ private val logger = KotlinLogging.logger("MapView")
 public actual fun MapView(
     mapTileProvider: MapTileProvider,
     initialViewPoint: MapViewPoint,
-    features: MapFeaturesState,
+    featuresState: MapFeaturesState,
     config: MapViewConfig,
     modifier: Modifier,
 ): Unit = key(initialViewPoint) {
@@ -216,8 +216,8 @@ public actual fun MapView(
         }
     }
 
-    val painterCache = features.features().values.filterIsInstance<MapVectorImageFeature>().associateWith { it.painter() }
-
+    val painterCache = featuresState.features().values.filterIsInstance<MapVectorImageFeature>()
+        .associateWith { it.painter() }
 
     Canvas(canvasModifier) {
         fun WebMercatorCoordinates.toOffset(): Offset = Offset(
@@ -338,10 +338,12 @@ public actual fun MapView(
                     dstSize = tileSize
                 )
             }
-            features.features().values.filter { zoom in it.zoomRange }.forEach { feature ->
+
+            featuresState.features().values.filter { zoom in it.zoomRange }.forEach { feature ->
                 drawFeature(zoom, feature)
             }
         }
+
         selectRect?.let { rect ->
             drawRect(
                 color = Color.Blue,

@@ -52,16 +52,29 @@ public class MapFeaturesState internal constructor(
             condition(it[key] as T)
         }.keys
     }
-}
+    public companion object{
 
-@Composable
-public fun rememberMapFeatureState(
-    builder: MapFeaturesState.() -> Unit = {},
-): MapFeaturesState = remember(builder) {
-    MapFeaturesState(
-        mutableStateMapOf(),
-        mutableStateMapOf()
-    ).apply(builder)
+        /**
+         * Build, but do not remember map feature state
+         */
+        public fun build(
+            builder: MapFeaturesState.() -> Unit = {},
+        ): MapFeaturesState = MapFeaturesState(
+            mutableStateMapOf(),
+            mutableStateMapOf()
+        ).apply(builder)
+
+        /**
+         * Build and remember map feature state
+         */
+        @Composable
+        public fun remember(
+            builder: MapFeaturesState.() -> Unit = {},
+        ): MapFeaturesState = remember(builder) {
+            build(builder)
+        }
+
+    }
 }
 
 public fun MapFeaturesState.circle(
