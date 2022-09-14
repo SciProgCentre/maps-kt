@@ -87,7 +87,7 @@ internal fun GmcRectangle.computeViewPoint(
     return MapViewPoint(center, zoom)
 }
 
-private val defaultCanvasSize = DpSize(512.dp, 512.dp)
+internal val defaultCanvasSize = DpSize(512.dp, 512.dp)
 
 /**
  * Draw a map using convenient parameters. If neither [initialViewPoint], noe [initialRectangle] is defined,
@@ -103,46 +103,44 @@ public fun MapView(
     initialRectangle: GmcRectangle? = null,
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
-    buildFeatures: @Composable (MapFeaturesState.() -> Unit) = {},
+    buildFeatures: MapFeaturesState.() -> Unit = {},
 ): Unit = key(buildFeatures) {
 
     val featureState = rememberMapFeatureState(buildFeatures)
 
     val features = featureState.features()
 
-    var cachedCanvasSize: DpSize by remember { mutableStateOf(defaultCanvasSize) }
-
-    val viewPointOverride: MapViewPoint = remember(initialViewPoint, initialRectangle, cachedCanvasSize) {
+    val viewPointOverride: MapViewPoint = remember(initialViewPoint, initialRectangle) {
         initialViewPoint
-            ?: initialRectangle?.computeViewPoint(mapTileProvider, cachedCanvasSize)
-            ?: features.values.computeBoundingBox(1.0)?.computeViewPoint(mapTileProvider, cachedCanvasSize)
+            ?: initialRectangle?.computeViewPoint(mapTileProvider, defaultCanvasSize)
+            ?: features.values.computeBoundingBox(1.0)?.computeViewPoint(mapTileProvider, defaultCanvasSize)
             ?: MapViewPoint.globe
     }
 
-    val featureDrag by derivedStateOf {
-        DragHandle.withPrimaryButton { _, start, end ->
-            val zoom = start.zoom
-            featureState.findAllWithAttribute(DraggableAttribute) { it }.forEach { id ->
-                val feature = features[id] as? DraggableMapFeature ?: return@forEach
-                val boundingBox = feature.getBoundingBox(zoom) ?: return@forEach
-                if (start.focus in boundingBox) {
-                    featureState.addFeature(id, feature.withCoordinates(end.focus))
-                    return@withPrimaryButton false
+    val featureDrag by remember {
+        derivedStateOf {
+            DragHandle.withPrimaryButton { _, start, end ->
+                val zoom = start.zoom
+                featureState.findAllWithAttribute(DraggableAttribute) { it }.forEach { id ->
+                    val feature = features[id] as? DraggableMapFeature ?: return@forEach
+                    val boundingBox = feature.getBoundingBox(zoom) ?: return@forEach
+                    if (start.focus in boundingBox) {
+                        featureState.addFeature(id, feature.withCoordinates(end.focus))
+                        return@withPrimaryButton false
+                    }
                 }
+                return@withPrimaryButton true
             }
-            return@withPrimaryButton true
         }
     }
 
 
-    val newConfig by derivedStateOf {
-        config.copy(
-            dragHandle = DragHandle.combine(featureDrag, config.dragHandle),
-            onCanvasSizeChange = { canvasSize ->
-                config.onCanvasSizeChange(canvasSize)
-                cachedCanvasSize = canvasSize
-            }
-        )
+    val newConfig by remember {
+        derivedStateOf {
+            config.copy(
+                dragHandle = DragHandle.combine(featureDrag, config.dragHandle)
+            )
+        }
     }
 
 

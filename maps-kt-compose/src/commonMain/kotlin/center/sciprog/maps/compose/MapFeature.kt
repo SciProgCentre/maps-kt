@@ -5,8 +5,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
@@ -136,23 +136,18 @@ public class MapBitmapImageFeature(
 
 public class MapVectorImageFeature(
     public val position: GeodeticMapCoordinates,
-    public val painter: Painter,
-    public val size: DpSize,
+    public val image: ImageVector,
+    public val size: DpSize = DpSize(20.dp, 20.dp),
     override val zoomRange: IntRange = defaultZoomRange,
 ) : DraggableMapFeature {
     override fun getBoundingBox(zoom: Double): GmcRectangle = GmcRectangle(position, position)
 
     override fun withCoordinates(newCoordinates: GeodeticMapCoordinates): MapFeature =
-        MapVectorImageFeature(newCoordinates, painter, size, zoomRange)
-}
+        MapVectorImageFeature(newCoordinates, image, size, zoomRange)
 
-@Composable
-public fun MapVectorImageFeature(
-    position: GeodeticMapCoordinates,
-    image: ImageVector,
-    size: DpSize = DpSize(20.dp, 20.dp),
-    zoomRange: IntRange = defaultZoomRange,
-): MapVectorImageFeature = MapVectorImageFeature(position, rememberVectorPainter(image), size, zoomRange)
+    @Composable
+    public fun painter(): VectorPainter = rememberVectorPainter(image)
+}
 
 /**
  * A group of other features

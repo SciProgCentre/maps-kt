@@ -45,7 +45,6 @@ private val logger = KotlinLogging.logger("MapView")
 /**
  * A component that renders map and provides basic map manipulation capabilities
  */
-
 @Composable
 public actual fun MapView(
     mapTileProvider: MapTileProvider,
@@ -54,9 +53,11 @@ public actual fun MapView(
     config: MapViewConfig,
     modifier: Modifier,
 ): Unit = key(initialViewPoint) {
-    var canvasSize by remember { mutableStateOf(DpSize(512.dp, 512.dp)) }
+    var canvasSize by remember { mutableStateOf(defaultCanvasSize) }
 
     var viewPoint by remember { mutableStateOf(initialViewPoint) }
+
+    require(viewPoint.zoom in 1.0..18.0) { "Zoom value of ${viewPoint.zoom} is not valid" }
 
     fun setViewPoint(newViewPoint: MapViewPoint) {
         config.onViewChange(newViewPoint)
@@ -68,9 +69,7 @@ public actual fun MapView(
         floor(viewPoint.zoom).toInt()
     }
 
-    val tileScale: Double by derivedStateOf {
-        2.0.pow(viewPoint.zoom - zoom)
-    }
+    val tileScale: Double by derivedStateOf { 2.0.pow(viewPoint.zoom - zoom) }
 
     val mapTiles = remember(mapTileProvider) { mutableStateListOf<MapTile>() }
 
@@ -103,9 +102,12 @@ public actual fun MapView(
                     val dpPos = DpOffset(dragStart.x.toDp(), dragStart.y.toDp())
 
                     //start selection
-                    if (event.buttons.isPrimaryPressed && event.keyboardModifiers.isShiftPressed) {
-                        selectRect = Rect(change.position, change.position)
-                    }
+                    var selectionStart: Offset? =
+                        if (event.buttons.isPrimaryPressed && event.keyboardModifiers.isShiftPressed) {
+                            change.position
+                        } else {
+                            null
+                        }
 
                     drag(change.id) { dragChange ->
                         val dragAmount = dragChange.position - dragChange.previousPosition
@@ -124,19 +126,19 @@ public actual fun MapView(
                             )
                         ) {
                             //clear selection just in case
-                            selectRect = null
+                            selectionStart = null
                             return@drag
                         }
 
                         if (event.buttons.isPrimaryPressed) {
                             //Evaluating selection frame
-                            selectRect?.let { rect ->
+                            selectionStart?.let { start ->
                                 val offset = dragChange.position
                                 selectRect = Rect(
-                                    min(offset.x, rect.left),
-                                    min(offset.y, rect.top),
-                                    max(offset.x, rect.right),
-                                    max(offset.y, rect.bottom)
+                                    min(offset.x, start.x),
+                                    min(offset.y, start.y),
+                                    max(offset.x, start.x),
+                                    max(offset.y, start.y)
                                 )
                                 return@drag
                             }
@@ -214,6 +216,8 @@ public actual fun MapView(
         }
     }
 
+    val painterCache = features.features().values.filterIsInstance<MapVectorImageFeature>().associateWith { it.painter() }
+
 
     Canvas(canvasModifier) {
         fun WebMercatorCoordinates.toOffset(): Offset = Offset(
@@ -265,7 +269,7 @@ public actual fun MapView(
                     val offset = feature.position.toOffset()
                     val size = feature.size.toSize()
                     translate(offset.x - size.width / 2, offset.y - size.height / 2) {
-                        with(feature.painter) {
+                        with(painterCache[feature]!!) {
                             draw(size)
                         }
                     }

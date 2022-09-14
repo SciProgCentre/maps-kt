@@ -38,16 +38,16 @@ public class MapFeaturesState internal constructor(
         return safeId
     }
 
-    public fun <T> setAttribute(id: FeatureId, key: MapFeaturesState.Attribute<T>, value: T) {
+    public fun <T> setAttribute(id: FeatureId, key: Attribute<T>, value: T) {
         attributes.getOrPut(id) { mutableStateMapOf() }[key] = value
     }
 
     @Suppress("UNCHECKED_CAST")
-    public fun <T> getAttribute(id: FeatureId, key: MapFeaturesState.Attribute<T>): T? =
+    public fun <T> getAttribute(id: FeatureId, key: Attribute<T>): T? =
         attributes[id]?.get(key)?.let { it as T }
 
     @Suppress("UNCHECKED_CAST")
-    public fun <T> findAllWithAttribute(key: MapFeaturesState.Attribute<T>, condition: (T) -> Boolean): Set<FeatureId> {
+    public fun <T> findAllWithAttribute(key: Attribute<T>, condition: (T) -> Boolean): Set<FeatureId> {
         return attributes.filterValues {
             condition(it[key] as T)
         }.keys
@@ -56,13 +56,13 @@ public class MapFeaturesState internal constructor(
 
 @Composable
 public fun rememberMapFeatureState(
-    builder: @Composable MapFeaturesState.() -> Unit = {},
+    builder: MapFeaturesState.() -> Unit = {},
 ): MapFeaturesState = remember(builder) {
     MapFeaturesState(
         mutableStateMapOf(),
         mutableStateMapOf()
-    )
-}.apply { builder() }
+    ).apply(builder)
+}
 
 public fun MapFeaturesState.circle(
     center: GeodeticMapCoordinates,
@@ -183,7 +183,6 @@ public fun MapFeaturesState.points(
     id: FeatureId? = null,
 ): FeatureId = addFeature(id, MapPointsFeature(points.map { it.toCoordinates() }, zoomRange, stroke, color, pointMode))
 
-@Composable
 public fun MapFeaturesState.image(
     position: Pair<Double, Double>,
     image: ImageVector,
@@ -192,13 +191,15 @@ public fun MapFeaturesState.image(
     id: FeatureId? = null,
 ): FeatureId = addFeature(id, MapVectorImageFeature(position.toCoordinates(), image, size, zoomRange))
 
-@Composable
 public fun MapFeaturesState.group(
     zoomRange: IntRange = defaultZoomRange,
     id: FeatureId? = null,
-    builder: @Composable MapFeaturesState.() -> Unit,
+    builder: MapFeaturesState.() -> Unit,
 ): FeatureId {
-    val map = rememberMapFeatureState(builder).features()
+    val map = MapFeaturesState(
+        mutableStateMapOf(),
+        mutableStateMapOf()
+    ).apply(builder).features()
     val feature = MapFeatureGroup(map, zoomRange)
     return addFeature(id, feature)
 }
