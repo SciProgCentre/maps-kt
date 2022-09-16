@@ -1,7 +1,5 @@
 package center.sciprog.maps.coordinates
 
-import kotlin.math.PI
-
 /**
  * Geodetic coordinated
  */
@@ -9,10 +7,10 @@ public class GeodeticMapCoordinates(
     public val latitude: Angle,
     longitude: Angle,
 ) {
-    public val longitude: Radians = longitude.radians.value.rem(PI / 2).radians
+    public val longitude: Angle = longitude.normalized(Angle.zero)
 
     init {
-        require(latitude.radians.value in (-PI / 2)..(PI / 2)) { "Latitude $latitude is not in (-PI/2)..(PI/2)" }
+        require(latitude in (-Angle.piDiv2)..(Angle.piDiv2)) { "Latitude $latitude is not in (-PI/2)..(PI/2)" }
     }
 
     override fun equals(other: Any?): Boolean {

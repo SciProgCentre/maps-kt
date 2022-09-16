@@ -10,11 +10,15 @@ import kotlin.math.*
  * @param forward coordinate of a start point with forward direction
  * @param backward coordinate of an end point with backward direction
  */
-public class GmcCurve internal constructor(
+public class GmcCurve(
     public val forward: GmcPose,
     public val backward: GmcPose,
     public val distance: Distance,
-)
+){
+    override fun toString(): String {
+        return "GmcCurve(from: ${forward.coordinates}, to: ${backward.coordinates})"
+    }
+}
 
 public fun GmcCurve.reversed(): GmcCurve = GmcCurve(backward, forward, distance)
 
@@ -222,6 +226,8 @@ public fun GeoEllipsoid.curveBetween(start: Gmc, end: Gmc, precision: Double = 1
     val a = equatorRadius
     val b = polarRadius
 
+    if(start == end) error("Can't compute a curve because start and end coincide at $start")
+
     // get parameters as radians
     val phi1 = start.latitude
     val lambda1 = start.longitude
@@ -232,7 +238,7 @@ public fun GeoEllipsoid.curveBetween(start: Gmc, end: Gmc, precision: Double = 1
     val a2 = a.kilometers * a.kilometers
     val b2 = b.kilometers * b.kilometers
     val a2b2b2 = (a2 - b2) / b2
-    val omega: Radians = lambda2 - lambda1
+    val omega: Angle = lambda2 - lambda1
     val tanphi1: Double = tan(phi1)
     val tanU1 = (1.0 - f) * tanphi1
     val U1: Double = atan(tanU1)
@@ -256,7 +262,7 @@ public fun GeoEllipsoid.curveBetween(start: Gmc, end: Gmc, precision: Double = 1
 
     var sigma = 0.0
     var deltasigma = 0.0
-    var lambda0: Radians
+    var lambda0: Angle
     var converged = false
     for (i in 0..19) {
         lambda0 = lambda
@@ -326,8 +332,7 @@ public fun GeoEllipsoid.curveBetween(start: Gmc, end: Gmc, precision: Double = 1
             alpha1 = 0.0.radians
             alpha2 = pi.radians
         } else {
-            alpha1 = Double.NaN.radians
-            alpha2 = Double.NaN.radians
+            error("Start and end point coinside.")
         }
     } else {
         // eq. 20

@@ -7,6 +7,7 @@ package center.sciprog.maps.coordinates
 
 import kotlin.jvm.JvmInline
 import kotlin.math.PI
+import kotlin.math.floor
 
 // Taken from KMath dev version, to be used directly in the future
 
@@ -82,11 +83,9 @@ public value class Degrees(public val value: Double) : Angle {
 public val Number.degrees: Degrees get() = Degrees(toDouble())
 
 /**
- * Normalized angle to (0, 2PI) for radians or (0, 360) for degrees.
+ * Normalized angle 2 PI range symmetric around [center]. By default, uses (0, 2PI) range.
  */
-public fun Angle.normalized(): Angle = when (this) {
-    is Degrees -> value.mod(360.0).degrees
-    is Radians -> value.mod(PI * 2).radians
-}
+public fun Angle.normalized(center: Angle = Angle.pi): Angle =
+    this - Angle.piTimes2 * floor((radians.value + PI - center.radians.value) / PI/2)
 
 public fun abs(angle: Angle): Angle = if (angle < Angle.zero) -angle else angle
