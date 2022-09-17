@@ -122,12 +122,23 @@ fun SchemeFeaturesState.draw(
 ) = addFeature(id, SchemeDrawFeature(position.toCoordinates(), scaleRange, drawFeature))
 
 fun SchemeFeaturesState.line(
+    aCoordinates: SchemeCoordinates,
+    bCoordinates: SchemeCoordinates,
+    scaleRange: FloatRange = defaultScaleRange,
+    color: Color = Color.Red,
+    id: FeatureId? = null,
+): FeatureId = addFeature(
+    id,
+    SchemeLineFeature(aCoordinates, bCoordinates, scaleRange, color)
+)
+
+fun SchemeFeaturesState.line(
     aCoordinates: Pair<Number, Number>,
     bCoordinates: Pair<Number, Number>,
     scaleRange: FloatRange = defaultScaleRange,
     color: Color = Color.Red,
     id: FeatureId? = null,
-) = addFeature(id, SchemeLineFeature(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), scaleRange, color))
+) = line(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), scaleRange, color, id)
 
 public fun SchemeFeaturesState.arc(
     oval: SchemeRectangle,
