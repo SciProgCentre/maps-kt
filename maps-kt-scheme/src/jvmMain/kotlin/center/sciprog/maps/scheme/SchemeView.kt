@@ -9,11 +9,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
@@ -36,40 +33,29 @@ private val logger = KotlinLogging.logger("SchemeView")
 
 data class SchemeViewConfig(
     val zoomSpeed: Float = 1f / 3f,
-    val inferViewBoxFromFeatures: Boolean = false,
     val onClick: SchemeViewPoint.() -> Unit = {},
     val onViewChange: SchemeViewPoint.() -> Unit = {},
-    val onSelect: (SchemeCoordinateBox) -> Unit = {},
+    val onSelect: (SchemeRectangle) -> Unit = {},
     val zoomOnSelect: Boolean = true,
 )
 
 @Composable
 public fun SchemeView(
-    computeViewPoint: (canvasSize: DpSize) -> SchemeViewPoint,
-    features: Map<FeatureId, SchemeFeature>,
+    initialViewPoint: SchemeViewPoint,
+    featuresState: SchemeFeaturesState,
     config: SchemeViewConfig = SchemeViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
 ) {
+    var canvasSize by remember { mutableStateOf(defaultCanvasSize) }
 
-    var canvasSize by remember { mutableStateOf(DpSize(512.dp, 512.dp)) }
+    var viewPoint by remember { mutableStateOf(initialViewPoint) }
 
-    var viewPointInternal: SchemeViewPoint? by remember {
-        mutableStateOf(null)
+
+    fun setViewPoint(newViewPoint: SchemeViewPoint) {
+        config.onViewChange(newViewPoint)
+        viewPoint = newViewPoint
     }
 
-    val viewPoint: SchemeViewPoint by derivedStateOf {
-        viewPointInternal ?: if (config.inferViewBoxFromFeatures) {
-            features.values.computeBoundingBox(1f)?.let { box ->
-                val scale = min(
-                    canvasSize.width.value / box.width,
-                    canvasSize.height.value / box.height
-                )
-                SchemeViewPoint(box.center, scale)
-            } ?: computeViewPoint(canvasSize)
-        } else {
-            computeViewPoint(canvasSize)
-        }
-    }
 
     fun DpOffset.toCoordinates(): SchemeCoordinates = SchemeCoordinates(
         (x - canvasSize.width / 2).value / viewPoint.scale + viewPoint.focus.x,
@@ -104,7 +90,7 @@ public fun SchemeView(
                             }
                             selectRect?.let { rect ->
                                 //Use selection override if it is defined
-                                val box = SchemeCoordinateBox(
+                                val box = SchemeRectangle(
                                     rect.topLeft.toDpOffset().toCoordinates(),
                                     rect.bottomRight.toDpOffset().toCoordinates()
                                 )
@@ -117,8 +103,7 @@ public fun SchemeView(
 
                                     val newViewPoint = SchemeViewPoint(box.center, newScale)
 
-                                    config.onViewChange(newViewPoint)
-                                    viewPointInternal = newViewPoint
+                                    setViewPoint(newViewPoint)
                                 }
                                 selectRect = null
                             }
@@ -132,8 +117,7 @@ public fun SchemeView(
                                     -dragAmount.x.toDp().value / viewPoint.scale,
                                     dragAmount.y.toDp().value / viewPoint.scale
                                 )
-                                config.onViewChange(newViewPoint)
-                                viewPointInternal = newViewPoint
+                                setViewPoint(newViewPoint)
                             }
                         }
                     }
@@ -146,9 +130,12 @@ public fun SchemeView(
         //compute invariant point of translation
         val invariant = DpOffset(xPos.toDp(), yPos.toDp()).toCoordinates()
         val newViewPoint = viewPoint.zoom(-change.scrollDelta.y * config.zoomSpeed, invariant)
-        config.onViewChange(newViewPoint)
-        viewPointInternal = newViewPoint
+        setViewPoint(newViewPoint)
     }.fillMaxSize()
+
+    val painterCache = key(featuresState){
+        featuresState.features().values.filterIsInstance<PainterFeature>().associateWith { it.painter() }
+    }
 
     Canvas(canvasModifier) {
         fun SchemeCoordinates.toOffset(): Offset = Offset(
@@ -160,36 +147,55 @@ public fun SchemeView(
         fun DrawScope.drawFeature(scale: Float, feature: SchemeFeature) {
             when (feature) {
                 is SchemeBackgroundFeature -> {
-                    val offset = SchemeCoordinates(feature.position.left, feature.position.top).toOffset()
+                    val offset = SchemeCoordinates(feature.rectangle.left, feature.rectangle.top).toOffset()
 
                     val backgroundSize = DpSize(
-                        (feature.position.width * scale).dp,
-                        (feature.position.height * scale).dp
+                        (feature.rectangle.width * scale).dp,
+                        (feature.rectangle.height * scale).dp
                     ).toSize()
 
                     translate(offset.x, offset.y) {
-                        with(feature.painter) {
+                        with(painterCache[feature]!!) {
                             draw(backgroundSize)
                         }
                     }
                 }
+
                 is SchemeFeatureSelector -> drawFeature(scale, feature.selector(scale))
                 is SchemeCircleFeature -> drawCircle(
                     feature.color,
                     feature.size,
                     center = feature.center.toOffset()
                 )
+
                 is SchemeLineFeature -> drawLine(feature.color, feature.a.toOffset(), feature.b.toOffset())
+                is SchemeArcFeature -> {
+                    val topLeft = feature.oval.topLeft.toOffset()
+                    val bottomRight = feature.oval.bottomRight.toOffset()
+
+                    val path = Path().apply {
+                        addArcRad(
+                            Rect(topLeft, bottomRight),
+                            feature.startAngle,
+                            feature.arcLength
+                        )
+                    }
+
+                    drawPath(path, color = feature.color, style = Stroke())
+
+                }
+
                 is SchemeBitmapFeature -> drawImage(feature.image, feature.position.toOffset())
                 is SchemeImageFeature -> {
                     val offset = feature.position.toOffset()
                     val imageSize = feature.size.toSize()
                     translate(offset.x - imageSize.width / 2, offset.y - imageSize.height / 2) {
-                        with(feature.painter) {
+                        with(painterCache[feature]!!) {
                             draw(imageSize)
                         }
                     }
                 }
+
                 is SchemeTextFeature -> drawIntoCanvas { canvas ->
                     val offset = feature.position.toOffset()
                     canvas.nativeCanvas.drawString(
@@ -200,12 +206,14 @@ public fun SchemeView(
                         feature.color.toPaint()
                     )
                 }
+
                 is SchemeDrawFeature -> {
                     val offset = feature.position.toOffset()
                     translate(offset.x, offset.y) {
                         feature.drawFeature(this)
                     }
                 }
+
                 is SchemeFeatureGroup -> {
                     feature.children.values.forEach {
                         drawFeature(scale, it)
@@ -219,10 +227,10 @@ public fun SchemeView(
             logger.debug { "Recalculate canvas. Size: $size" }
         }
         clipRect {
-            features.values.filterIsInstance<SchemeBackgroundFeature>().forEach { background ->
+            featuresState.features().values.filterIsInstance<SchemeBackgroundFeature>().forEach { background ->
                 drawFeature(viewPoint.scale, background)
             }
-            features.values.filter {
+            featuresState.features().values.filter {
                 it !is SchemeBackgroundFeature && viewPoint.scale in it.scaleRange
             }.forEach { feature ->
                 drawFeature(viewPoint.scale, feature)
@@ -243,20 +251,82 @@ public fun SchemeView(
     }
 }
 
+
+/**
+ * A builder for a Scheme with static features.
+ */
 @Composable
-fun SchemeView(
-    initialViewPoint: SchemeViewPoint,
-    features: Map<FeatureId, SchemeFeature> = emptyMap(),
+public fun SchemeView(
+    initialViewPoint: SchemeViewPoint? = null,
+    initialRectangle: SchemeRectangle? = null,
+    featureMap: Map<FeatureId, SchemeFeature>,
     config: SchemeViewConfig = SchemeViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
-    buildFeatures: @Composable (SchemeFeatureBuilder.() -> Unit) = {},
 ) {
-    val featuresBuilder = SchemeFeatureBuilderImpl(features)
-    featuresBuilder.buildFeatures()
+    val featuresState = key(featureMap) {
+        SchemeFeaturesState.build {
+            featureMap.forEach(::addFeature)
+        }
+    }
+
+    val viewPointOverride: SchemeViewPoint = remember(initialViewPoint, initialRectangle) {
+        initialViewPoint
+            ?: initialRectangle?.computeViewPoint()
+            ?: featureMap.values.computeBoundingBox(1f)?.computeViewPoint()
+            ?: SchemeViewPoint(SchemeCoordinates(0f, 0f))
+    }
+
+    SchemeView(viewPointOverride, featuresState, config, modifier)
+}
+
+/**
+ * Draw a map using convenient parameters. If neither [initialViewPoint], noe [initialRectangle] is defined,
+ * use map features to infer view region.
+ * @param initialViewPoint The view point of the map using center and zoom. Is used if provided
+ * @param initialRectangle The rectangle to be used for view point computation. Used if [initialViewPoint] is not defined.
+ * @param buildFeatures - a builder for features
+ */
+@Composable
+public fun SchemeView(
+    initialViewPoint: SchemeViewPoint? = null,
+    initialRectangle: SchemeRectangle? = null,
+    config: SchemeViewConfig = SchemeViewConfig(),
+    modifier: Modifier = Modifier.fillMaxSize(),
+    buildFeatures: SchemeFeaturesState.() -> Unit = {},
+) {
+    val featureState = SchemeFeaturesState.remember(buildFeatures)
+
+    val features = featureState.features()
+
+    val viewPointOverride: SchemeViewPoint = remember(initialViewPoint, initialRectangle) {
+        initialViewPoint
+            ?: initialRectangle?.computeViewPoint()
+            ?: features.values.computeBoundingBox(1f)?.computeViewPoint()
+            ?: SchemeViewPoint(SchemeCoordinates(0f, 0f))
+    }
+
+//    val featureDrag = DragHandle.withPrimaryButton { _, start, end ->
+//        val zoom = start.zoom
+//        featureState.findAllWithAttribute(DraggableAttribute) { it }.forEach { id ->
+//            val feature = features[id] as? DraggableMapFeature ?: return@forEach
+//            val boundingBox = feature.getBoundingBox(zoom) ?: return@forEach
+//            if (start.focus in boundingBox) {
+//                featureState.addFeature(id, feature.withCoordinates(end.focus))
+//                return@withPrimaryButton false
+//            }
+//        }
+//        return@withPrimaryButton true
+//    }
+//
+//
+//    val newConfig = config.copy(
+//        dragHandle = DragHandle.combine(featureDrag, config.dragHandle)
+//    )
+
     SchemeView(
-        { initialViewPoint },
-        featuresBuilder.build(),
-        config,
-        modifier
+        initialViewPoint = viewPointOverride,
+        featuresState = featureState,
+        config = config,
+        modifier = modifier,
     )
 }

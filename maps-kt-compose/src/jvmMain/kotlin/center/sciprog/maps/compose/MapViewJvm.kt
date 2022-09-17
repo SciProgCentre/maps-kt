@@ -216,8 +216,9 @@ public actual fun MapView(
         }
     }
 
-    val painterCache = featuresState.features().values.filterIsInstance<MapVectorImageFeature>()
-        .associateWith { it.painter() }
+    val painterCache = key(featuresState) {
+        featuresState.features().values.filterIsInstance<MapVectorImageFeature>().associateWith { it.painter() }
+    }
 
     Canvas(canvasModifier) {
         fun WebMercatorCoordinates.toOffset(): Offset = Offset(

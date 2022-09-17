@@ -15,7 +15,7 @@ import center.sciprog.maps.scheme.SchemeFeature.Companion.defaultScaleRange
 internal typealias FloatRange = ClosedFloatingPointRange<Float>
 
 sealed class SchemeFeature(val scaleRange: FloatRange) {
-    abstract fun getBoundingBox(scale: Float): SchemeCoordinateBox?
+    abstract fun getBoundingBox(scale: Float): SchemeRectangle?
 
     companion object {
         val defaultScaleRange = 0f..Float.MAX_VALUE
@@ -23,27 +23,31 @@ sealed class SchemeFeature(val scaleRange: FloatRange) {
 }
 
 
-fun Iterable<SchemeFeature>.computeBoundingBox(scale: Float): SchemeCoordinateBox? =
+fun Iterable<SchemeFeature>.computeBoundingBox(scale: Float): SchemeRectangle? =
     mapNotNull { it.getBoundingBox(scale) }.wrapAll()
 
 
 internal fun Pair<Number, Number>.toCoordinates() = SchemeCoordinates(first.toFloat(), second.toFloat())
 
+interface PainterFeature {
+    val painter: @Composable () -> Painter
+}
+
 /**
  * A background image that is bound to scheme coordinates and is scaled together with them
  *
- * @param position the size of background in scheme size units. The screen units to scheme units ratio equals scale.
+ * @param rectangle the size of background in scheme size units. The screen units to scheme units ratio equals scale.
  */
 class SchemeBackgroundFeature(
-    val position: SchemeCoordinateBox,
-    val painter: Painter,
+    val rectangle: SchemeRectangle,
     scaleRange: FloatRange = defaultScaleRange,
-) : SchemeFeature(scaleRange) {
-    override fun getBoundingBox(scale: Float): SchemeCoordinateBox = position
+    override val painter: @Composable () -> Painter,
+) : SchemeFeature(scaleRange), PainterFeature {
+    override fun getBoundingBox(scale: Float): SchemeRectangle = rectangle
 }
 
 class SchemeFeatureSelector(val selector: (scale: Float) -> SchemeFeature) : SchemeFeature(defaultScaleRange) {
-    override fun getBoundingBox(scale: Float): SchemeCoordinateBox? = selector(scale).getBoundingBox(scale)
+    override fun getBoundingBox(scale: Float): SchemeRectangle? = selector(scale).getBoundingBox(scale)
 }
 
 class SchemeDrawFeature(
@@ -51,7 +55,7 @@ class SchemeDrawFeature(
     scaleRange: FloatRange = defaultScaleRange,
     val drawFeature: DrawScope.() -> Unit,
 ) : SchemeFeature(scaleRange) {
-    override fun getBoundingBox(scale: Float): SchemeCoordinateBox = SchemeCoordinateBox(position, position)
+    override fun getBoundingBox(scale: Float): SchemeRectangle = SchemeRectangle(position, position)
 }
 
 class SchemeCircleFeature(
@@ -60,7 +64,7 @@ class SchemeCircleFeature(
     val size: Float = 5f,
     val color: Color = Color.Red,
 ) : SchemeFeature(scaleRange) {
-    override fun getBoundingBox(scale: Float): SchemeCoordinateBox = SchemeCoordinateBox(center, center)
+    override fun getBoundingBox(scale: Float): SchemeRectangle = SchemeRectangle(center, center)
 }
 
 class SchemeLineFeature(
@@ -69,7 +73,21 @@ class SchemeLineFeature(
     scaleRange: FloatRange = defaultScaleRange,
     val color: Color = Color.Red,
 ) : SchemeFeature(scaleRange) {
-    override fun getBoundingBox(scale: Float): SchemeCoordinateBox = SchemeCoordinateBox(a, b)
+    override fun getBoundingBox(scale: Float): SchemeRectangle = SchemeRectangle(a, b)
+}
+
+/**
+ * @param startAngle the angle in radians from parallel downwards for the start of the arc
+ * @param arcLength arc length in radians
+ */
+public class SchemeArcFeature(
+    public val oval: SchemeRectangle,
+    public val startAngle: Float,
+    public val arcLength: Float,
+    scaleRange: FloatRange = defaultScaleRange,
+    public val color: Color = Color.Red,
+) : SchemeFeature(scaleRange) {
+    override fun getBoundingBox(scale: Float): SchemeRectangle = oval
 }
 
 class SchemeTextFeature(
@@ -78,7 +96,7 @@ class SchemeTextFeature(
     scaleRange: FloatRange = defaultScaleRange,
     val color: Color = Color.Red,
 ) : SchemeFeature(scaleRange) {
-    override fun getBoundingBox(scale: Float): SchemeCoordinateBox = SchemeCoordinateBox(position, position)
+    override fun getBoundingBox(scale: Float): SchemeRectangle = SchemeRectangle(position, position)
 }
 
 class SchemeBitmapFeature(
@@ -87,25 +105,24 @@ class SchemeBitmapFeature(
     val size: IntSize = IntSize(15, 15),
     scaleRange: FloatRange = defaultScaleRange,
 ) : SchemeFeature(scaleRange) {
-    override fun getBoundingBox(scale: Float): SchemeCoordinateBox = SchemeCoordinateBox(position, position)
+    override fun getBoundingBox(scale: Float): SchemeRectangle = SchemeRectangle(position, position)
 }
 
 class SchemeImageFeature(
     val position: SchemeCoordinates,
-    val painter: Painter,
     val size: DpSize,
     scaleRange: FloatRange = defaultScaleRange,
-) : SchemeFeature(scaleRange) {
-    override fun getBoundingBox(scale: Float): SchemeCoordinateBox = SchemeCoordinateBox(position, position)
+    override val painter: @Composable () -> Painter,
+) : SchemeFeature(scaleRange), PainterFeature {
+    override fun getBoundingBox(scale: Float): SchemeRectangle = SchemeRectangle(position, position)
 }
 
-@Composable
-fun SchemeVectorImageFeature(
+fun SchemeImageFeature(
     position: SchemeCoordinates,
     image: ImageVector,
     size: DpSize = DpSize(20.dp, 20.dp),
     scaleRange: FloatRange = defaultScaleRange,
-): SchemeImageFeature = SchemeImageFeature(position, rememberVectorPainter(image), size, scaleRange)
+): SchemeImageFeature = SchemeImageFeature(position, size, scaleRange) { rememberVectorPainter(image) }
 
 /**
  * A group of other features
@@ -114,6 +131,6 @@ class SchemeFeatureGroup(
     val children: Map<FeatureId, SchemeFeature>,
     scaleRange: FloatRange = defaultScaleRange,
 ) : SchemeFeature(scaleRange) {
-    override fun getBoundingBox(scale: Float): SchemeCoordinateBox? =
+    override fun getBoundingBox(scale: Float): SchemeRectangle? =
         children.values.mapNotNull { it.getBoundingBox(scale) }.wrapAll()
 }
