@@ -14,8 +14,8 @@ data class SchemeRectangle(
 ) {
     companion object {
         fun square(center: SchemeCoordinates, height: Float, width: Float): SchemeRectangle = SchemeRectangle(
-            SchemeCoordinates(center.x - width / 2, center.y - height / 2),
-            SchemeCoordinates(center.x + width / 2, center.y + height / 2),
+            SchemeCoordinates(center.x - width / 2, center.y + height / 2),
+            SchemeCoordinates(center.x + width / 2, center.y - height / 2),
         )
     }
 }
@@ -31,8 +31,8 @@ val SchemeRectangle.height get() = abs(a.y - b.y)
 
 val SchemeRectangle.center get() = SchemeCoordinates((a.x + b.x) / 2, (a.y + b.y) / 2)
 
-public val SchemeRectangle.topLeft: SchemeCoordinates get() = SchemeCoordinates(top, left)
-public val SchemeRectangle.bottomRight: SchemeCoordinates get() = SchemeCoordinates(bottom, right)
+public val SchemeRectangle.leftTop: SchemeCoordinates get() = SchemeCoordinates(left, top)
+public val SchemeRectangle.rightBottom: SchemeCoordinates get() = SchemeCoordinates(right, bottom)
 
 fun Collection<SchemeRectangle>.wrapAll(): SchemeRectangle? {
     if (isEmpty()) return null

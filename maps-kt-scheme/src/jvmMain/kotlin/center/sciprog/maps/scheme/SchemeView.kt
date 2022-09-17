@@ -171,8 +171,8 @@ public fun SchemeView(
 
                 is SchemeLineFeature -> drawLine(feature.color, feature.a.toOffset(), feature.b.toOffset())
                 is SchemeArcFeature -> {
-                    val topLeft = feature.oval.topLeft.toOffset()
-                    val bottomRight = feature.oval.bottomRight.toOffset()
+                    val topLeft = feature.oval.leftTop.toOffset()
+                    val bottomRight = feature.oval.rightBottom.toOffset()
 
                     val path = Path().apply {
                         addArcRad(

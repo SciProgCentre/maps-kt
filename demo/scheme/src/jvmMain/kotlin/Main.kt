@@ -11,6 +11,7 @@ import center.sciprog.maps.scheme.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.math.PI
 
 @Composable
 @Preview
@@ -31,6 +32,7 @@ fun App() {
             text(410.52737 to 868.7676, "Shire", color = Color.Blue)
             circle(1132.0881 to 394.99127, color = Color.Red)
             text(1132.0881 to 394.99127, "Ordruin", color = Color.Red)
+            arc(center = 1132.0881 to 394.99127, radius = 10f, startAngle = 0f, 2 * PI.toFloat())
 
             val hobbitId = circle(410.52737 to 868.7676)
 
