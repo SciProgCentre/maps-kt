@@ -45,7 +45,8 @@ public fun SchemeView(
     featuresState: SchemeFeaturesState,
     config: SchemeViewConfig = SchemeViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
-) {
+) = key(initialViewPoint) {
+
     var canvasSize by remember { mutableStateOf(defaultCanvasSize) }
 
     var viewPoint by remember { mutableStateOf(initialViewPoint) }
@@ -133,7 +134,7 @@ public fun SchemeView(
         setViewPoint(newViewPoint)
     }.fillMaxSize()
 
-    val painterCache = key(featuresState){
+    val painterCache = key(featuresState) {
         featuresState.features().values.filterIsInstance<PainterFeature>().associateWith { it.painter() }
     }
 
