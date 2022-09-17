@@ -5,6 +5,7 @@ import space.kscience.gradle.KScienceVersions.JVM_TARGET
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
+    `maven-publish`
 }
 
 kotlin {

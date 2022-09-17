@@ -11,7 +11,14 @@ data class SchemeCoordinates(val x: Float, val y: Float)
 data class SchemeRectangle(
     val a: SchemeCoordinates,
     val b: SchemeCoordinates,
-)
+) {
+    companion object {
+        fun square(center: SchemeCoordinates, height: Float, width: Float): SchemeRectangle = SchemeRectangle(
+            SchemeCoordinates(center.x - width / 2, center.y - height / 2),
+            SchemeCoordinates(center.x + width / 2, center.y + height / 2),
+        )
+    }
+}
 
 val SchemeRectangle.top get() = max(a.y, b.y)
 val SchemeRectangle.bottom get() = min(a.y, b.y)

@@ -129,6 +129,37 @@ fun SchemeFeaturesState.line(
     id: FeatureId? = null,
 ) = addFeature(id, SchemeLineFeature(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), scaleRange, color))
 
+public fun SchemeFeaturesState.arc(
+    oval: SchemeRectangle,
+    startAngle: Float,
+    arcLength: Float,
+    scaleRange: FloatRange = defaultScaleRange,
+    color: Color = Color.Red,
+    id: FeatureId? = null,
+): FeatureId = addFeature(
+    id,
+    SchemeArcFeature(oval, startAngle, arcLength, scaleRange, color)
+)
+
+public fun SchemeFeaturesState.arc(
+    center: Pair<Double, Double>,
+    radius: Float,
+    startAngle: Float,
+    arcLength: Float,
+    scaleRange: FloatRange = defaultScaleRange,
+    color: Color = Color.Red,
+    id: FeatureId? = null,
+): FeatureId = addFeature(
+    id,
+    SchemeArcFeature(
+        oval = SchemeRectangle.square(center.toCoordinates(), radius, radius),
+        startAngle = startAngle,
+        arcLength = arcLength,
+        scaleRange = scaleRange,
+        color = color
+    )
+)
+
 fun SchemeFeaturesState.text(
     position: SchemeCoordinates,
     text: String,
