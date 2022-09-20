@@ -24,11 +24,28 @@ kotlin {
                 api("io.github.microutils:kotlin-logging:2.1.23")
             }
         }
-        val jvmMain by getting
-        val jvmTest by getting
+        val jvmMain by getting{
+
+        }
+        val jvmTest by getting{
+            dependencies {
+                implementation("io.ktor:ktor-client-cio:$ktorVersion")
+                implementation(compose.desktop.currentOs)
+                implementation(spclibs.kotlinx.coroutines.test)
+
+                implementation("ch.qos.logback:logback-classic:1.2.11")
+
+                implementation(kotlin("test-junit5"))
+                implementation("org.junit.jupiter:junit-jupiter:5.8.2")
+            }
+        }
     }
 }
 
 java{
     targetCompatibility = space.kscience.gradle.KScienceVersions.JVM_TARGET
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }

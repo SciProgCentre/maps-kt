@@ -1,11 +1,8 @@
 package center.sciprog.maps.compose
 
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.toComposeImageBitmap
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.readBytes
-import io.ktor.utils.io.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -26,23 +23,24 @@ public class OpenStreetMapTileProvider(
     private val cacheDirectory: Path,
     parallelism: Int = 4,
     cacheCapacity: Int = 200,
+    private val osmBaseUrl: String = "https://tile.openstreetmap.org",
 ) : MapTileProvider {
     private val semaphore = Semaphore(parallelism)
-    private val cache = LruCache<TileId, Deferred<ImageBitmap>>(cacheCapacity)
+    private val cache = LruCache<TileId, Deferred<Image>>(cacheCapacity)
 
-    private fun TileId.osmUrl() = URL("https://tile.openstreetmap.org/${zoom}/${i}/${j}.png")
+    private fun TileId.osmUrl() = URL("$osmBaseUrl/${zoom}/${i}/${j}.png")
 
     private fun TileId.cacheFilePath() = cacheDirectory.resolve("${zoom}/${i}/${j}.png")
 
     /**
      * Download and cache the tile image
      */
-    private fun CoroutineScope.downloadImageAsync(id: TileId): Deferred<ImageBitmap> = async(Dispatchers.IO) {
+    private fun CoroutineScope.downloadImageAsync(id: TileId): Deferred<Image> = async(Dispatchers.IO) {
 
         id.cacheFilePath()?.let { path ->
             if (path.exists()) {
                 try {
-                    return@async Image.makeFromEncoded(path.readBytes()).toComposeImageBitmap()
+                    return@async Image.makeFromEncoded(path.readBytes())
                 } catch (ex: Exception) {
                     logger.debug { "Failed to load image from $path" }
                     path.deleteIfExists()
@@ -62,7 +60,7 @@ public class OpenStreetMapTileProvider(
                 path.writeBytes(byteArray)
             }
 
-            Image.makeFromEncoded(byteArray).toComposeImageBitmap()
+            Image.makeFromEncoded(byteArray)
         }
     }
 
@@ -71,21 +69,17 @@ public class OpenStreetMapTileProvider(
     ): Deferred<MapTile> {
 
         //start image download
-        val imageDeferred = cache.getOrPut(tileId) {
+        val imageDeferred: Deferred<Image> = cache.getOrPut(tileId) {
             downloadImageAsync(tileId)
         }
 
         //collect the result asynchronously
         return async {
-            val image: ImageBitmap = try {
-                imageDeferred.await()
-            } catch (ex: Exception) {
+            val image: Image = runCatching { imageDeferred.await() }.onFailure {
+                logger.error(it) { "Failed to load tile image with id=$tileId" }
                 cache.remove(tileId)
-                if (ex !is CancellationException) {
-                    logger.error(ex) { "Failed to load tile image with id=$tileId" }
-                }
-                throw ex
-            }
+            }.getOrThrow()
+
             MapTile(tileId, image)
         }
     }

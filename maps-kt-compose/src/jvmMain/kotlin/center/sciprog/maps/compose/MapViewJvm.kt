@@ -14,8 +14,8 @@ import androidx.compose.ui.graphics.drawscope.*
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.*
 import center.sciprog.maps.coordinates.*
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
 import org.jetbrains.skia.Font
 import org.jetbrains.skia.Paint
@@ -197,19 +197,21 @@ public actual fun MapView(
             for (j in verticalIndices) {
                 for (i in horizontalIndices) {
                     val id = TileId(zoom, i, j)
-                    try {
+                    //ensure that failed tiles do not fail the application
+                    supervisorScope {
                         //start all
                         val deferred = loadTileAsync(id)
                         //wait asynchronously for it to finish
                         launch {
-                            mapTiles += deferred.await()
-                        }
-                    } catch (ex: Exception) {
-                        if (ex !is CancellationException) {
-                            //displaying the error is maps responsibility
-                            logger.error(ex) { "Failed to load tile with id=$id" }
+                            try {
+                                mapTiles += deferred.await()
+                            } catch (ex: Exception) {
+                                //displaying the error is maps responsibility
+                                logger.error(ex) { "Failed to load tile with id=$id" }
+                            }
                         }
                     }
+
                 }
 
             }
@@ -334,7 +336,7 @@ public actual fun MapView(
                     (canvasSize.height / 2 + (mapTileProvider.toCoordinate(id.j).dp - centerCoordinates.y.dp) * tileScale.toFloat()).roundToPx()
                 )
                 drawImage(
-                    image = image,
+                    image = image.toComposeImageBitmap(),
                     dstOffset = offset,
                     dstSize = tileSize
                 )

@@ -1,8 +1,8 @@
 package center.sciprog.maps.compose
 
-import androidx.compose.ui.graphics.ImageBitmap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import org.jetbrains.skia.Image
 import kotlin.math.floor
 
 public data class TileId(
@@ -13,7 +13,7 @@ public data class TileId(
 
 public data class MapTile(
     val id: TileId,
-    val image: ImageBitmap,
+    val image: Image,
 )
 
 public interface MapTileProvider {
