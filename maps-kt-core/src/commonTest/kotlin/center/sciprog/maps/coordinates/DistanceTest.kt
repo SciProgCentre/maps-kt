@@ -20,7 +20,7 @@ internal class DistanceTest {
         val distance = curve.distance
 
         assertEquals(632.035426877, distance.kilometers, 0.0001)
-        assertEquals((-0.6947937116552751).radians, curve.forward.bearing)
+        assertEquals(-0.6947937116552751, curve.forward.bearing.radians.value, 0.0001)
     }
 
     @Test

@@ -268,6 +268,7 @@ public actual fun MapView(
                 }
 
                 is MapBitmapImageFeature -> drawImage(feature.image, feature.position.toOffset())
+
                 is MapVectorImageFeature -> {
                     val offset = feature.position.toOffset()
                     val size = feature.size.toSize()
@@ -302,6 +303,14 @@ public actual fun MapView(
                     }
                 }
 
+//                is MapPathFeature -> {
+//                    val offset = feature.rectangle.center.toOffset() - feature.targetRect.center
+//                    translate(offset.x, offset.y) {
+//                        sca
+//                        drawPath(feature.path, brush = feature.brush, style = feature.style)
+//                    }
+//                }
+
                 is MapPointsFeature -> {
                     val points = feature.points.map { it.toOffset() }
                     drawPoints(
@@ -312,9 +321,9 @@ public actual fun MapView(
                     )
                 }
 
-                else -> {
-                    logger.error { "Unrecognized feature type: ${feature::class}" }
-                }
+//                else -> {
+//                    logger.error { "Unrecognized feature type: ${feature::class}" }
+//                }
             }
         }
 

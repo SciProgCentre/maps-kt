@@ -57,6 +57,21 @@ public class MapDrawFeature(
         MapDrawFeature(newCoordinates, zoomRange, drawFeature)
 }
 
+//public class MapPathFeature(
+//    public val rectangle: GmcRectangle,
+//    public val path: Path,
+//    public val brush: Brush,
+//    public val style: DrawStyle = Fill,
+//    public val targetRect: Rect = path.getBounds(),
+//    override val zoomRange: IntRange = defaultZoomRange,
+//) : DraggableMapFeature {
+//    override fun withCoordinates(newCoordinates: GeodeticMapCoordinates): MapFeature =
+//        MapPathFeature(rectangle.moveTo(newCoordinates), path, brush, style, targetRect, zoomRange)
+//
+//    override fun getBoundingBox(zoom: Double): GmcRectangle = rectangle
+//
+//}
+
 public class MapPointsFeature(
     public val points: List<GeodeticMapCoordinates>,
     override val zoomRange: IntRange = defaultZoomRange,
@@ -64,9 +79,7 @@ public class MapPointsFeature(
     public val color: Color = Color.Red,
     public val pointMode: PointMode = PointMode.Points,
 ) : MapFeature {
-    override fun getBoundingBox(zoom: Double): GmcRectangle {
-        return GmcRectangle(points.first(), points.last())
-    }
+    override fun getBoundingBox(zoom: Double): GmcRectangle = GmcRectangle(points.first(), points.last())
 }
 
 public class MapCircleFeature(
@@ -118,8 +131,11 @@ public class MapArcFeature(
     public val arcLength: Angle,
     override val zoomRange: IntRange = defaultZoomRange,
     public val color: Color = Color.Red,
-) : MapFeature {
+) : DraggableMapFeature {
     override fun getBoundingBox(zoom: Double): GmcRectangle = oval
+
+    override fun withCoordinates(newCoordinates: GeodeticMapCoordinates): MapFeature =
+        MapArcFeature(oval.moveTo(newCoordinates), startAngle, arcLength, zoomRange, color)
 }
 
 public class MapBitmapImageFeature(

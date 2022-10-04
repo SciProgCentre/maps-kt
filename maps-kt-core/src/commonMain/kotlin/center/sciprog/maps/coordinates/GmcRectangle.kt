@@ -46,6 +46,8 @@ public data class GmcRectangle(
     }
 }
 
+public fun GmcRectangle.moveTo(newCenter: Gmc): GmcRectangle = GmcRectangle.square(newCenter, height = latitudeDelta, width = longitudeDelta)
+
 public val GmcRectangle.center: GeodeticMapCoordinates
     get() = GeodeticMapCoordinates(
         (a.latitude + b.latitude) / 2,
