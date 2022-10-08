@@ -20,7 +20,10 @@ public class GmcCurve(
     }
 }
 
-public fun GmcCurve.reversed(): GmcCurve = GmcCurve(backward, forward, distance)
+/**
+ * Reverse direction and order of ends
+ */
+public fun GmcCurve.reversed(): GmcCurve = GmcCurve(backward.reversed(), forward.reversed(), distance)
 
 /**
  * Compute a curve alongside a meridian
