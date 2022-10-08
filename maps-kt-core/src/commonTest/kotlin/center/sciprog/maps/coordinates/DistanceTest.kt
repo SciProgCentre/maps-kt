@@ -30,5 +30,6 @@ internal class DistanceTest {
         )
 
         assertEquals(spb.latitude.radians.value,curve.backward.latitude.radians.value, 0.0001)
+        assertEquals(spb.longitude.radians.value,curve.backward.longitude.radians.value, 0.0001)
     }
 }

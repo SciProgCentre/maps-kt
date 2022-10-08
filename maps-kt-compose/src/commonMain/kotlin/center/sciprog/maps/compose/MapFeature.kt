@@ -1,10 +1,11 @@
 package center.sciprog.maps.compose
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.PointMode
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -57,20 +58,20 @@ public class MapDrawFeature(
         MapDrawFeature(newCoordinates, zoomRange, drawFeature)
 }
 
-//public class MapPathFeature(
-//    public val rectangle: GmcRectangle,
-//    public val path: Path,
-//    public val brush: Brush,
-//    public val style: DrawStyle = Fill,
-//    public val targetRect: Rect = path.getBounds(),
-//    override val zoomRange: IntRange = defaultZoomRange,
-//) : DraggableMapFeature {
-//    override fun withCoordinates(newCoordinates: GeodeticMapCoordinates): MapFeature =
-//        MapPathFeature(rectangle.moveTo(newCoordinates), path, brush, style, targetRect, zoomRange)
-//
-//    override fun getBoundingBox(zoom: Double): GmcRectangle = rectangle
-//
-//}
+public class MapPathFeature(
+    public val rectangle: GmcRectangle,
+    public val path: Path,
+    public val brush: Brush,
+    public val style: DrawStyle = Fill,
+    public val targetRect: Rect = path.getBounds(),
+    override val zoomRange: IntRange = defaultZoomRange,
+) : DraggableMapFeature {
+    override fun withCoordinates(newCoordinates: GeodeticMapCoordinates): MapFeature =
+        MapPathFeature(rectangle.moveTo(newCoordinates), path, brush, style, targetRect, zoomRange)
+
+    override fun getBoundingBox(zoom: Double): GmcRectangle = rectangle
+
+}
 
 public class MapPointsFeature(
     public val points: List<GeodeticMapCoordinates>,

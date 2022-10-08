@@ -303,13 +303,14 @@ public actual fun MapView(
                     }
                 }
 
-//                is MapPathFeature -> {
+                is MapPathFeature -> {
+                    TODO("MapPathFeature not implemented")
 //                    val offset = feature.rectangle.center.toOffset() - feature.targetRect.center
 //                    translate(offset.x, offset.y) {
 //                        sca
 //                        drawPath(feature.path, brush = feature.brush, style = feature.style)
 //                    }
-//                }
+                }
 
                 is MapPointsFeature -> {
                     val points = feature.points.map { it.toOffset() }

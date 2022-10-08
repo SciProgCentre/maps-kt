@@ -190,7 +190,7 @@ public fun GeoEllipsoid.curveInDirection(
     val L = lambda - (1 - C) * f * sinAlpha *
             (sigma.value + C * sinSigma * (cosSigmaM2 + C * cosSigma * (-1 + 2 * cos2SigmaM2)))
 
-    val endPoint = Gmc(phi2, L.radians)
+    val endPoint = Gmc(phi2, start.longitude + L.radians)
 
     // eq. 12
 
