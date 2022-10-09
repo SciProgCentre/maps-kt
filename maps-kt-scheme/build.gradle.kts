@@ -23,6 +23,7 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
+                implementation("org.jfree:org.jfree.svg:5.0.3")
                 api(compose.desktop.currentOs)
             }
         }

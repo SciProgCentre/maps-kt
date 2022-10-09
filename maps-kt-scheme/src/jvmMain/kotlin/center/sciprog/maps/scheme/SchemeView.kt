@@ -9,6 +9,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
 import androidx.compose.ui.input.pointer.*
@@ -18,11 +19,13 @@ import androidx.compose.ui.unit.dp
 import mu.KotlinLogging
 import org.jetbrains.skia.Font
 import org.jetbrains.skia.Paint
+import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
 
-private fun Color.toPaint(): Paint = Paint().apply {
+internal fun Color.toSkiaPaint(): Paint = Paint().apply {
     isAntiAlias = true
     color = toArgb()
 }
@@ -174,16 +177,17 @@ public fun SchemeView(
                     val topLeft = feature.oval.leftTop.toOffset()
                     val bottomRight = feature.oval.rightBottom.toOffset()
 
-                    val path = Path().apply {
-                        addArcRad(
-                            Rect(topLeft, bottomRight),
-                            feature.startAngle,
-                            feature.arcLength
-                        )
-                    }
+                    val size = Size(abs(topLeft.x - bottomRight.x), abs(topLeft.y - bottomRight.y))
 
-                    drawPath(path, color = feature.color, style = Stroke())
-
+                    drawArc(
+                        color = feature.color,
+                        startAngle = (feature.startAngle * 180 / PI).toFloat(),
+                        sweepAngle = (feature.arcLength * 180 / PI).toFloat(),
+                        useCenter = false,
+                        topLeft = topLeft,
+                        size = size,
+                        style = Stroke()
+                    )
                 }
 
                 is SchemeBitmapFeature -> drawImage(feature.image, feature.position.toOffset())
@@ -204,7 +208,7 @@ public fun SchemeView(
                         offset.x + 5,
                         offset.y - 5,
                         Font().apply { size = 16f },
-                        feature.color.toPaint()
+                        feature.color.toSkiaPaint()
                     )
                 }
 

@@ -89,3 +89,7 @@ public fun Angle.normalized(center: Angle = Angle.pi): Angle =
     this - Angle.piTimes2 * floor((radians.value + PI - center.radians.value) / PI/2)
 
 public fun abs(angle: Angle): Angle = if (angle < Angle.zero) -angle else angle
+
+public fun Radians.toFloat(): Float = value.toFloat()
+
+public fun Degrees.toFloat(): Float = value.toFloat()

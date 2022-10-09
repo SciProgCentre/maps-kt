@@ -9,6 +9,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
 import androidx.compose.ui.input.pointer.*
@@ -255,15 +256,17 @@ public actual fun MapView(
                     val topLeft = feature.oval.topLeft.toOffset()
                     val bottomRight = feature.oval.bottomRight.toOffset()
 
-                    val path = Path().apply {
-                        addArcRad(
-                            Rect(topLeft, bottomRight),
-                            feature.startAngle.radians.value.toFloat(),
-                            feature.arcLength.radians.value.toFloat()
-                        )
-                    }
+                    val size = Size(abs(topLeft.x - bottomRight.x), abs(topLeft.y - bottomRight.y))
 
-                    drawPath(path, color = feature.color, style = Stroke())
+                    drawArc(
+                        color = feature.color,
+                        startAngle = feature.startAngle.degrees.toFloat(),
+                        sweepAngle = feature.arcLength.degrees.toFloat(),
+                        useCenter = false,
+                        topLeft = topLeft,
+                        size = size,
+                        style = Stroke()
+                    )
 
                 }
 
