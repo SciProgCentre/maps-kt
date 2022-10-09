@@ -9,10 +9,14 @@ import androidx.compose.ui.graphics.drawscope.DrawContext
 import androidx.compose.ui.graphics.drawscope.DrawTransform
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import org.jfree.svg.SVGGraphics2D
+import java.awt.BasicStroke
 import java.awt.Graphics2D
+import java.awt.geom.Arc2D
 
-internal fun Paint.toAwt(): java.awt.Paint {
-    return java.awt.Color(color.toArgb())
+internal fun Graphics2D.setupPaint(p: Paint){
+    paint = java.awt.Color(p.color.toArgb())
+    stroke = BasicStroke(p.strokeWidth)
 }
 
 
@@ -73,7 +77,7 @@ internal fun DrawContext.asDrawTransform(): DrawTransform = object : DrawTransfo
     }
 }
 
-internal class SvgCanvas(val graphics: Graphics2D) : Canvas {
+internal class SvgCanvas(val graphics: SVGGraphics2D) : Canvas {
     override fun clipPath(path: Path, clipOp: ClipOp) {
         TODO("Not yet implemented")
     }
@@ -112,19 +116,15 @@ internal class SvgCanvas(val graphics: Graphics2D) : Canvas {
         useCenter: Boolean,
         paint: Paint,
     ) {
-        graphics.paint = paint.toAwt()
-        graphics.drawArc(
-            top.toInt(),
-            left.toInt(),
-            (right - left).toInt(),
-            (top - bottom).toInt(),
-            startAngle.toInt(),
-            sweepAngle.toInt()
+        graphics.setupPaint(paint)
+        val arc = Arc2D.Float(
+            left, top, (right - left), (top - bottom), -startAngle, -sweepAngle, Arc2D.OPEN
         )
+        graphics.draw(arc)
     }
 
     override fun drawCircle(center: Offset, radius: Float, paint: Paint) {
-        graphics.paint = paint.toAwt()
+        graphics.setupPaint(paint)
         graphics.drawOval(
             (center.x - radius).toInt(),
             (center.y - radius).toInt(),
@@ -134,7 +134,7 @@ internal class SvgCanvas(val graphics: Graphics2D) : Canvas {
     }
 
     override fun drawImage(image: ImageBitmap, topLeftOffset: Offset, paint: Paint) {
-        graphics.paint = paint.toAwt()
+        graphics.setupPaint(paint)
         graphics.drawImage(image.toAwtImage(), null, topLeftOffset.x.toInt(), topLeftOffset.y.toInt())
     }
 
@@ -150,12 +150,12 @@ internal class SvgCanvas(val graphics: Graphics2D) : Canvas {
     }
 
     override fun drawLine(p1: Offset, p2: Offset, paint: Paint) {
-        graphics.paint = paint.toAwt()
+        graphics.setupPaint(paint)
         graphics.drawLine(p1.x.toInt(), p1.y.toInt(), p2.x.toInt(), p2.y.toInt())
     }
 
     override fun drawOval(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
-        graphics.paint = paint.toAwt()
+        graphics.setupPaint(paint)
         graphics.drawOval(
             left.toInt(),
             top.toInt(),
@@ -165,13 +165,14 @@ internal class SvgCanvas(val graphics: Graphics2D) : Canvas {
     }
 
     override fun drawPath(path: Path, paint: Paint) {
+        graphics.setupPaint(paint)
         val skiaPath = path.asSkiaPath()
         val points: List<Offset> = skiaPath.points.mapNotNull { it?.let { Offset(it.x, it.y) } }
         drawPoints(PointMode.Lines, points, paint)
     }
 
     override fun drawPoints(pointMode: PointMode, points: List<Offset>, paint: Paint) {
-        graphics.paint = paint.toAwt()
+        graphics.setupPaint(paint)
         val xs = IntArray(points.size) { points[it].x.toInt() }
         val ys = IntArray(points.size) { points[it].y.toInt() }
         when (pointMode) {
@@ -218,7 +219,7 @@ internal class SvgCanvas(val graphics: Graphics2D) : Canvas {
     }
 
     override fun drawRect(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
-        graphics.paint = paint.toAwt()
+        graphics.setupPaint(paint)
         graphics.drawRect(
             left.toInt(),
             top.toInt(),
@@ -236,7 +237,7 @@ internal class SvgCanvas(val graphics: Graphics2D) : Canvas {
         radiusY: Float,
         paint: Paint,
     ) {
-        graphics.paint = paint.toAwt()
+        graphics.setupPaint(paint)
         graphics.drawRoundRect(
             left.toInt(),
             top.toInt(),
@@ -285,7 +286,7 @@ internal class SvgCanvas(val graphics: Graphics2D) : Canvas {
     }
 }
 
-internal class SvgDrawContext(val graphics: Graphics2D, override var size: Size) : DrawContext {
+internal class SvgDrawContext(val graphics: SVGGraphics2D, override var size: Size) : DrawContext {
     override val canvas: Canvas = SvgCanvas(graphics)
 
     override val transform: DrawTransform = asDrawTransform()

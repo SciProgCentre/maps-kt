@@ -172,7 +172,12 @@ public fun SchemeView(
                     center = feature.center.toOffset()
                 )
 
-                is SchemeLineFeature -> drawLine(feature.color, feature.a.toOffset(), feature.b.toOffset())
+                is SchemeLineFeature -> drawLine(
+                    feature.color,
+                    feature.a.toOffset(),
+                    feature.b.toOffset(),
+                )
+
                 is SchemeArcFeature -> {
                     val topLeft = feature.oval.leftTop.toOffset()
                     val bottomRight = feature.oval.rightBottom.toOffset()

@@ -10,7 +10,7 @@ val ktorVersion by extra("2.0.3")
 
 allprojects {
     group = "center.sciprog"
-    version = "0.1.0-dev-11"
+    version = "0.1.0-dev-12"
 }
 
 ksciencePublish{
