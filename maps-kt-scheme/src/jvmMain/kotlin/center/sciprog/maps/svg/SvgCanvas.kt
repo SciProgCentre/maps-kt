@@ -12,9 +12,9 @@ import androidx.compose.ui.unit.IntSize
 import org.jfree.svg.SVGGraphics2D
 import java.awt.BasicStroke
 import java.awt.Graphics2D
-import java.awt.geom.Arc2D
+import java.awt.geom.*
 
-internal fun Graphics2D.setupPaint(p: Paint){
+internal fun Graphics2D.setupPaint(p: Paint) {
     paint = java.awt.Color(p.color.toArgb())
     stroke = BasicStroke(p.strokeWidth)
 }
@@ -84,11 +84,13 @@ internal class SvgCanvas(val graphics: SVGGraphics2D) : Canvas {
 
     override fun clipRect(left: Float, top: Float, right: Float, bottom: Float, clipOp: ClipOp) {
         if (clipOp == ClipOp.Intersect) {
-            graphics.clipRect(
-                left.toInt(),
-                top.toInt(),
-                (right - left).toInt(),
-                (top - bottom).toInt()
+            graphics.clip(
+                Rectangle2D.Float(
+                    left,
+                    top,
+                    (right - left),
+                    (top - bottom)
+                )
             )
         } else {
             TODO()
@@ -125,11 +127,13 @@ internal class SvgCanvas(val graphics: SVGGraphics2D) : Canvas {
 
     override fun drawCircle(center: Offset, radius: Float, paint: Paint) {
         graphics.setupPaint(paint)
-        graphics.drawOval(
-            (center.x - radius).toInt(),
-            (center.y - radius).toInt(),
-            (radius * 2).toInt(),
-            (radius * 2).toInt()
+        graphics.draw(
+            Ellipse2D.Float(
+                (center.x - radius),
+                (center.y - radius),
+                (radius * 2),
+                (radius * 2)
+            )
         )
     }
 
@@ -151,16 +155,18 @@ internal class SvgCanvas(val graphics: SVGGraphics2D) : Canvas {
 
     override fun drawLine(p1: Offset, p2: Offset, paint: Paint) {
         graphics.setupPaint(paint)
-        graphics.drawLine(p1.x.toInt(), p1.y.toInt(), p2.x.toInt(), p2.y.toInt())
+        graphics.draw(Line2D.Float(p1.x, p1.y, p2.x, p2.y))
     }
 
     override fun drawOval(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
         graphics.setupPaint(paint)
-        graphics.drawOval(
-            left.toInt(),
-            top.toInt(),
-            (right - left).toInt(),
-            (top - bottom).toInt()
+        graphics.draw(
+            Ellipse2D.Float(
+                left,
+                top,
+                (right - left),
+                (top - bottom)
+            )
         )
     }
 
@@ -188,20 +194,24 @@ internal class SvgCanvas(val graphics: SVGGraphics2D) : Canvas {
                 val diameter = paint.strokeWidth
                 if (paint.strokeCap == StrokeCap.Round) {
                     points.forEach { offset ->
-                        graphics.fillOval(
-                            (offset.x - diameter / 2).toInt(),
-                            (offset.y - diameter / 2).toInt(),
-                            diameter.toInt(),
-                            diameter.toInt()
+                        graphics.fill(
+                            Ellipse2D.Float(
+                                (offset.x - diameter / 2),
+                                (offset.y - diameter / 2),
+                                diameter,
+                                diameter
+                            )
                         )
                     }
                 } else {
                     points.forEach { offset ->
-                        graphics.fillRect(
-                            (offset.x - diameter / 2).toInt(),
-                            (offset.y - diameter / 2).toInt(),
-                            diameter.toInt(),
-                            diameter.toInt()
+                        graphics.fill(
+                            Rectangle2D.Float(
+                                (offset.x - diameter / 2),
+                                (offset.y - diameter / 2),
+                                diameter,
+                                diameter
+                            )
                         )
                     }
                 }
@@ -220,11 +230,13 @@ internal class SvgCanvas(val graphics: SVGGraphics2D) : Canvas {
 
     override fun drawRect(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
         graphics.setupPaint(paint)
-        graphics.drawRect(
-            left.toInt(),
-            top.toInt(),
-            (right - left).toInt(),
-            (top - bottom).toInt()
+        graphics.draw(
+            Rectangle2D.Float(
+                left,
+                top,
+                (right - left),
+                (top - bottom)
+            )
         )
     }
 
@@ -238,13 +250,15 @@ internal class SvgCanvas(val graphics: SVGGraphics2D) : Canvas {
         paint: Paint,
     ) {
         graphics.setupPaint(paint)
-        graphics.drawRoundRect(
-            left.toInt(),
-            top.toInt(),
-            (right - left).toInt(),
-            (top - bottom).toInt(),
-            radiusX.toInt(),
-            radiusY.toInt()
+        graphics.draw(
+            RoundRectangle2D.Float(
+                left,
+                top,
+                (right - left),
+                (top - bottom),
+                radiusX,
+                radiusY
+            )
         )
     }
 

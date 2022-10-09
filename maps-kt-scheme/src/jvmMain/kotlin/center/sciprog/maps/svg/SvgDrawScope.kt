@@ -11,8 +11,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import org.jfree.svg.SVGGraphics2D
 import java.awt.BasicStroke
 import java.awt.Font
-import java.awt.geom.AffineTransform
-import java.awt.geom.Arc2D
+import java.awt.geom.*
 import java.awt.image.AffineTransformOp
 import java.awt.Color as AWTColor
 
@@ -78,26 +77,15 @@ public class SvgDrawScope(
         blendMode: BlendMode,
     ) {
         setupColor(brush)
-        when (style) {
-            Fill -> graphics.fillArc(
-                topLeft.x.toInt(),
-                topLeft.y.toInt(),
-                size.width.toInt(),
-                size.height.toInt(),
-                startAngle.toInt(),
-                sweepAngle.toInt()
-            )
+        val arc = Arc2D.Float(
+            topLeft.x, topLeft.y, size.width, size.height, -startAngle, -sweepAngle, Arc2D.OPEN
+        )
 
+        when (style) {
+            Fill -> graphics.fill(arc)
             is Stroke -> {
                 setupStroke(style)
-                graphics.drawArc(
-                    topLeft.x.toInt(),
-                    topLeft.y.toInt(),
-                    size.width.toInt(),
-                    size.height.toInt(),
-                    startAngle.toInt(),
-                    sweepAngle.toInt()
-                )
+                graphics.draw(arc)
             }
         }
     }
@@ -115,21 +103,15 @@ public class SvgDrawScope(
         blendMode: BlendMode,
     ) {
         setupColor(color)
-        when (style) {
-            Fill -> graphics.fillArc(
-                topLeft.x.toInt(),
-                topLeft.y.toInt(),
-                size.width.toInt(),
-                size.height.toInt(),
-                -startAngle.toInt(),
-                -sweepAngle.toInt()
-            )
 
+        val arc = Arc2D.Float(
+            topLeft.x, topLeft.y, size.width, size.height, -startAngle, -sweepAngle, Arc2D.OPEN
+        )
+
+        when (style) {
+            Fill -> graphics.fill(arc)
             is Stroke -> {
                 setupStroke(style)
-                val arc = Arc2D.Float(
-                    topLeft.x, topLeft.y, size.width, size.height, -startAngle, -sweepAngle, Arc2D.OPEN
-                )
                 graphics.draw(arc)
             }
         }
@@ -146,22 +128,18 @@ public class SvgDrawScope(
         blendMode: BlendMode,
     ) {
         setupColor(brush)
+        val circle = Ellipse2D.Float(
+            (center.x - radius),
+            (center.y - radius),
+            (radius * 2),
+            (radius * 2)
+        )
         when (style) {
-            Fill -> graphics.fillOval(
-                (center.x - radius).toInt(),
-                (center.y - radius).toInt(),
-                (radius * 2).toInt(),
-                (radius * 2).toInt()
-            )
+            Fill -> graphics.fill(circle)
 
             is Stroke -> {
                 setupStroke(style)
-                graphics.drawOval(
-                    (center.x - radius).toInt(),
-                    (center.y - radius).toInt(),
-                    (radius * 2).toInt(),
-                    (radius * 2).toInt()
-                )
+                graphics.draw(circle)
             }
         }
 
@@ -177,22 +155,18 @@ public class SvgDrawScope(
         blendMode: BlendMode,
     ) {
         setupColor(color)
+        val circle = Ellipse2D.Float(
+            (center.x - radius),
+            (center.y - radius),
+            (radius * 2),
+            (radius * 2)
+        )
         when (style) {
-            Fill -> graphics.fillOval(
-                (center.x - radius).toInt(),
-                (center.y - radius).toInt(),
-                (radius * 2).toInt(),
-                (radius * 2).toInt()
-            )
+            Fill -> graphics.fill(circle)
 
             is Stroke -> {
                 setupStroke(style)
-                graphics.drawOval(
-                    (center.x - radius).toInt(),
-                    (center.y - radius).toInt(),
-                    (radius * 2).toInt(),
-                    (radius * 2).toInt()
-                )
+                graphics.draw(circle)
             }
         }
     }
@@ -205,6 +179,9 @@ public class SvgDrawScope(
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
     ) {
+        if (style is Stroke) {
+            setupStroke(style)
+        }
         graphics.drawImage(image.toAwtImage(), null, topLeft.x.toInt(), topLeft.y.toInt())
     }
 
@@ -226,7 +203,11 @@ public class SvgDrawScope(
         )
         val awtImage = image.toAwtImage().getSubimage(srcOffset.x, srcOffset.y, srcSize.width, srcSize.height)
         val op = AffineTransformOp(scale, AffineTransformOp.TYPE_NEAREST_NEIGHBOR)
+        if (style is Stroke) {
+            setupStroke(style)
+        }
         graphics.drawImage(awtImage, op, dstOffset.x, dstOffset.y)
+
     }
 
     override fun drawImage(
@@ -262,7 +243,7 @@ public class SvgDrawScope(
     ) {
         setupColor(brush)
         setupStroke(strokeWidth, cap)
-        graphics.drawLine(start.x.toInt(), start.y.toInt(), end.x.toInt(), end.y.toInt())
+        graphics.draw(Line2D.Float(start.x, start.y, end.x, end.y))
     }
 
     override fun drawLine(
@@ -278,7 +259,7 @@ public class SvgDrawScope(
     ) {
         setupColor(color)
         setupStroke(strokeWidth, cap)
-        graphics.drawLine(start.x.toInt(), start.y.toInt(), end.x.toInt(), end.y.toInt())
+        graphics.draw(Line2D.Float(start.x, start.y, end.x, end.y))
     }
 
     override fun drawOval(
@@ -291,14 +272,13 @@ public class SvgDrawScope(
         blendMode: BlendMode,
     ) {
         setupColor(brush)
+        val oval = Ellipse2D.Float(topLeft.x, topLeft.y, size.width, size.height)
         when (style) {
-            Fill -> graphics.fillOval(topLeft.x.toInt(), topLeft.y.toInt(), size.width.toInt(), size.height.toInt())
-            is Stroke -> graphics.drawOval(
-                topLeft.x.toInt(),
-                topLeft.y.toInt(),
-                size.width.toInt(),
-                size.height.toInt()
-            )
+            Fill -> graphics.fill(oval)
+            is Stroke -> {
+                setupStroke(style)
+                graphics.draw(oval)
+            }
         }
     }
 
@@ -312,14 +292,13 @@ public class SvgDrawScope(
         blendMode: BlendMode,
     ) {
         setupColor(color)
+        val oval = Ellipse2D.Float(topLeft.x, topLeft.y, size.width, size.height)
         when (style) {
-            Fill -> graphics.fillOval(topLeft.x.toInt(), topLeft.y.toInt(), size.width.toInt(), size.height.toInt())
-            is Stroke -> graphics.drawOval(
-                topLeft.x.toInt(),
-                topLeft.y.toInt(),
-                size.width.toInt(),
-                size.height.toInt()
-            )
+            Fill -> graphics.fill(oval)
+            is Stroke -> {
+                setupStroke(style)
+                graphics.draw(oval)
+            }
         }
     }
 
@@ -395,16 +374,12 @@ public class SvgDrawScope(
         blendMode: BlendMode,
     ) {
         setupColor(brush)
+        val rect = Rectangle2D.Float(topLeft.x, topLeft.y, size.width, size.height)
         when (style) {
-            Fill -> graphics.fillRect(topLeft.x.toInt(), topLeft.y.toInt(), size.width.toInt(), size.height.toInt())
+            Fill -> graphics.fill(rect)
             is Stroke -> {
                 setupStroke(style)
-                graphics.drawRect(
-                    topLeft.x.toInt(),
-                    topLeft.y.toInt(),
-                    size.width.toInt(),
-                    size.height.toInt()
-                )
+                graphics.draw(rect)
             }
         }
 
@@ -420,16 +395,12 @@ public class SvgDrawScope(
         blendMode: BlendMode,
     ) {
         setupColor(color)
+        val rect = Rectangle2D.Float(topLeft.x, topLeft.y, size.width, size.height)
         when (style) {
-            Fill -> graphics.fillRect(topLeft.x.toInt(), topLeft.y.toInt(), size.width.toInt(), size.height.toInt())
+            Fill -> graphics.fill(rect)
             is Stroke -> {
                 setupStroke(style)
-                graphics.drawRect(
-                    topLeft.x.toInt(),
-                    topLeft.y.toInt(),
-                    size.width.toInt(),
-                    size.height.toInt()
-                )
+                graphics.draw(rect)
             }
         }
     }
@@ -445,26 +416,12 @@ public class SvgDrawScope(
         blendMode: BlendMode,
     ) {
         setupColor(brush)
+        val rect = Rectangle2D.Float(topLeft.x, topLeft.y, size.width, size.height)
         when (style) {
-            Fill -> graphics.fillRoundRect(
-                topLeft.x.toInt(),
-                topLeft.y.toInt(),
-                size.width.toInt(),
-                size.height.toInt(),
-                cornerRadius.x.toInt(),
-                cornerRadius.y.toInt()
-            )
-
+            Fill -> graphics.fill(rect)
             is Stroke -> {
                 setupStroke(style)
-                graphics.drawRoundRect(
-                    topLeft.x.toInt(),
-                    topLeft.y.toInt(),
-                    size.width.toInt(),
-                    size.height.toInt(),
-                    cornerRadius.x.toInt(),
-                    cornerRadius.y.toInt()
-                )
+                graphics.draw(rect)
             }
         }
 
@@ -481,26 +438,22 @@ public class SvgDrawScope(
         blendMode: BlendMode,
     ) {
         setupColor(color)
+
+        val roundRect = RoundRectangle2D.Float(
+            topLeft.x,
+            topLeft.y,
+            size.width,
+            size.height,
+            cornerRadius.x,
+            cornerRadius.y
+        )
+
         when (style) {
-            Fill -> graphics.fillRoundRect(
-                topLeft.x.toInt(),
-                topLeft.y.toInt(),
-                size.width.toInt(),
-                size.height.toInt(),
-                cornerRadius.x.toInt(),
-                cornerRadius.y.toInt()
-            )
+            Fill -> graphics.fill(roundRect)
 
             is Stroke -> {
                 setupStroke(style)
-                graphics.drawRoundRect(
-                    topLeft.x.toInt(),
-                    topLeft.y.toInt(),
-                    size.width.toInt(),
-                    size.height.toInt(),
-                    cornerRadius.x.toInt(),
-                    cornerRadius.y.toInt()
-                )
+                graphics.draw(roundRect)
             }
         }
     }
