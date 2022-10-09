@@ -26,13 +26,12 @@ fun SchemeFeaturesState.snapshot(): FeatureStateSnapshot =
         features(),
         features().values.filterIsInstance<PainterFeature>().associateWith { it.painter() })
 
-
-fun FeatureStateSnapshot.exportToSvg(
+fun FeatureStateSnapshot.generateSvg(
     viewPoint: SchemeViewPoint,
     width: Double,
     height: Double,
-    path: java.nio.file.Path,
-) {
+    id: String? = null
+): String{
 
     fun SchemeCoordinates.toOffset(): Offset = Offset(
         (width / 2 + (x - viewPoint.focus.x) * viewPoint.scale).toFloat(),
@@ -132,6 +131,17 @@ fun FeatureStateSnapshot.exportToSvg(
             drawFeature(viewPoint.scale, feature)
         }
     }
+    return svgGraphics2D.getSVGElement(id)
+}
 
-    SVGUtils.writeToSVG(path.toFile(), svgGraphics2D.svgElement)
+fun FeatureStateSnapshot.exportToSvg(
+    viewPoint: SchemeViewPoint,
+    width: Double,
+    height: Double,
+    path: java.nio.file.Path,
+) {
+
+    val svgString = generateSvg(viewPoint, width, height)
+
+    SVGUtils.writeToSVG(path.toFile(), svgString)
 }
