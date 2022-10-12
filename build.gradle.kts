@@ -6,11 +6,13 @@ plugins {
     id("space.kscience.gradle.project")
 }
 
-val ktorVersion by extra("2.0.3")
-
 allprojects {
     group = "center.sciprog"
-    version = "0.1.0-dev-13"
+    version = "0.1.0"
+}
+
+apiValidation{
+    validationDisabled = true
 }
 
 ksciencePublish{

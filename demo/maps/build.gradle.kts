@@ -20,7 +20,7 @@ kotlin {
             dependencies {
                 implementation(projects.mapsKtCompose)
                 implementation(compose.desktop.currentOs)
-                implementation("io.ktor:ktor-client-cio:$ktorVersion")
+                implementation("io.ktor:ktor-client-cio")
                 implementation("ch.qos.logback:logback-classic:1.2.11")
             }
         }

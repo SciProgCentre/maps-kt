@@ -6,7 +6,6 @@ plugins {
     `maven-publish`
 }
 
-val ktorVersion: String by rootProject.extra
 
 kotlin {
     explicitApi = org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Warning
@@ -20,16 +19,16 @@ kotlin {
             dependencies {
                 api(projects.mapsKtCore)
                 api(compose.foundation)
-                api("io.ktor:ktor-client-core:$ktorVersion")
+                api(project.dependencies.platform(spclibs.ktor.bom))
+                api("io.ktor:ktor-client-core")
                 api("io.github.microutils:kotlin-logging:2.1.23")
             }
         }
-        val jvmMain by getting{
-
+        val jvmMain by getting {
         }
-        val jvmTest by getting{
+        val jvmTest by getting {
             dependencies {
-                implementation("io.ktor:ktor-client-cio:$ktorVersion")
+                implementation("io.ktor:ktor-client-cio")
                 implementation(compose.desktop.currentOs)
                 implementation(spclibs.kotlinx.coroutines.test)
 
@@ -42,7 +41,7 @@ kotlin {
     }
 }
 
-java{
+java {
     targetCompatibility = space.kscience.gradle.KScienceVersions.JVM_TARGET
 }
 
