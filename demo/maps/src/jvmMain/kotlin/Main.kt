@@ -87,7 +87,6 @@ fun App() {
                 centerCoordinates = pointTwo,
             )
 
-
             draw(position = pointThree) {
                 drawLine(start = Offset(-10f, -10f), end = Offset(10f, 10f), color = Color.Red)
                 drawLine(start = Offset(-10f, 10f), end = Offset(10f, -10f), color = Color.Red)
