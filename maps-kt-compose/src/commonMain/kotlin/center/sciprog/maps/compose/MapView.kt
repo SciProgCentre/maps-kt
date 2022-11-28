@@ -37,7 +37,7 @@ public fun interface DragHandle {
             if (event.buttons.isPrimaryPressed) {
                 block(event, start, end)
             } else {
-                false
+                true
             }
         }
 
@@ -145,17 +145,12 @@ public fun MapView(
             ?: MapViewPoint.globe
     }
 
-    val featureDrag = DragHandle.withPrimaryButton { _, start, end ->
-        val zoom = start.zoom
-        featureState.findAllWithAttribute(DraggableAttribute) { it }.forEach { id ->
-            val feature = features[id] as? DraggableMapFeature ?: return@forEach
-            val boundingBox = feature.getBoundingBox(zoom) ?: return@forEach
-            if (start.focus in boundingBox) {
-                featureState.addFeature(id, feature.withCoordinates(end.focus))
-                return@withPrimaryButton false
-            }
+    val featureDrag: DragHandle = DragHandle.withPrimaryButton { event, start, end ->
+        var bypass = true
+        featureState.forEachWithAttribute(DraggableAttribute) { _, handle ->
+            bypass = bypass and handle.handle(event, start, end)
         }
-        return@withPrimaryButton true
+        bypass
     }
 
 

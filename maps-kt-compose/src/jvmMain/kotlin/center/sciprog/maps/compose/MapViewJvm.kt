@@ -112,11 +112,8 @@ public actual fun MapView(
 
                     drag(change.id) { dragChange ->
                         val dragAmount = dragChange.position - dragChange.previousPosition
-                        val dpStart = DpOffset(
-                            dragChange.previousPosition.x.toDp(),
-                            dragChange.previousPosition.y.toDp()
-                        )
-                        val dpEnd = DpOffset(dragChange.position.x.toDp(), dragChange.position.y.toDp())
+                        val dpStart = dragChange.previousPosition.toDpOffset()
+                        val dpEnd = dragChange.position.toDpOffset()
 
                         //apply drag handle and check if it prohibits the drag even propagation
                         if (

@@ -14,7 +14,7 @@ import center.sciprog.maps.coordinates.*
 
 public typealias FeatureId = String
 
-public object DraggableAttribute : MapFeaturesState.Attribute<Boolean>
+public object DraggableAttribute : MapFeaturesState.Attribute<DragHandle>
 
 public class MapFeaturesState internal constructor(
     private val features: MutableMap<FeatureId, MapFeature>,
@@ -23,9 +23,24 @@ public class MapFeaturesState internal constructor(
     public interface Attribute<T>
 
     //TODO use context receiver for that
-    public fun FeatureId.draggable(enabled: Boolean = true) {
-        setAttribute(this, DraggableAttribute, enabled)
+    public fun FeatureId.draggable(
+        //TODO add constraints
+        callback: DragHandle = DragHandle.BYPASS
+    ) {
+        val handle = DragHandle.withPrimaryButton { event, start, end ->
+            val feature = features[this] as? DraggableMapFeature ?: return@withPrimaryButton true
+            val boundingBox = feature.getBoundingBox(start.zoom) ?: return@withPrimaryButton true
+            if (start.focus in boundingBox) {
+                addFeature(this, feature.withCoordinates(end.focus))
+                callback.handle(event, start, end)
+                false
+            } else {
+                true
+            }
+        }
+        setAttribute(this, DraggableAttribute, handle)
     }
+
 
     public fun features(): Map<FeatureId, MapFeature> = features
 
@@ -42,17 +57,31 @@ public class MapFeaturesState internal constructor(
         attributes.getOrPut(id) { mutableStateMapOf() }[key] = value
     }
 
+    public fun removeAttribute(id: FeatureId, key: Attribute<*>) {
+        attributes[id]?.remove(key)
+    }
+
     @Suppress("UNCHECKED_CAST")
     public fun <T> getAttribute(id: FeatureId, key: Attribute<T>): T? =
         attributes[id]?.get(key)?.let { it as T }
 
-    @Suppress("UNCHECKED_CAST")
-    public fun <T> findAllWithAttribute(key: Attribute<T>, condition: (T) -> Boolean): Set<FeatureId> {
-        return attributes.filterValues {
-            condition(it[key] as T)
-        }.keys
+//    @Suppress("UNCHECKED_CAST")
+//    public fun <T> findAllWithAttribute(key: Attribute<T>, condition: (T) -> Boolean): Set<FeatureId> {
+//        return attributes.filterValues {
+//            condition(it[key] as T)
+//        }.keys
+//    }
+
+    public fun <T> forEachWithAttribute(key: Attribute<T>, block: (id: FeatureId, attributeValue: T) -> Unit) {
+        attributes.forEach { (id, attributeMap) ->
+            attributeMap[key]?.let {
+                @Suppress("UNCHECKED_CAST")
+                block(id, it as T)
+            }
+        }
     }
-    public companion object{
+
+    public companion object {
 
         /**
          * Build, but do not remember map feature state
