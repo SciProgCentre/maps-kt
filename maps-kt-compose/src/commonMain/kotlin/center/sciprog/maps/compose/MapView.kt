@@ -146,11 +146,10 @@ public fun MapView(
     }
 
     val featureDrag: DragHandle = DragHandle.withPrimaryButton { event, start, end ->
-        var bypass = true
         featureState.forEachWithAttribute(DraggableAttribute) { _, handle ->
-            bypass = bypass and handle.handle(event, start, end)
+            if(!handle.handle(event, start, end)) return@withPrimaryButton false
         }
-        bypass
+        true
     }
 
 

@@ -45,8 +45,6 @@ fun App() {
         val pointTwo = 55.929444 to 37.518434
         val pointThree = 60.929444 to 37.518434
 
-        val dragPoint = 55.744 to 37.614
-
         MapView(
             mapTileProvider = mapTileProvider,
 //            initialViewPoint = MapViewPoint(
@@ -65,7 +63,27 @@ fun App() {
 
             image(pointOne, Icons.Filled.Home)
 
-            rectangle(dragPoint, id = "dragMe", size = DpSize(10.dp, 10.dp)).draggable()
+            var drag1 = Gmc.ofDegrees(55.744, 37.614)
+
+            var drag2 = Gmc.ofDegrees(55.8, 37.5)
+
+            fun updateLine() {
+                line(drag1, drag2, id = "connection", color = Color.Magenta)
+            }
+
+            rectangle(drag1, size = DpSize(10.dp, 10.dp)).draggable { _, _, end ->
+                drag1 = end.focus
+                updateLine()
+                true
+            }
+
+            rectangle(drag2, size = DpSize(10.dp, 10.dp)).draggable { _, _, end ->
+                drag2 = end.focus
+                updateLine()
+                true
+            }
+
+            updateLine()
 
             points(
                 points = listOf(

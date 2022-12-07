@@ -18,10 +18,15 @@ import kotlin.math.floor
 public interface MapFeature {
     public val zoomRange: IntRange
     public fun getBoundingBox(zoom: Double): GmcRectangle?
-
 }
 
-public interface DraggableMapFeature : MapFeature {
+public interface SelectableMapFeature : MapFeature {
+    public operator fun contains(point: MapViewPoint): Boolean = getBoundingBox(point.zoom)?.let {
+        point.focus in it
+    } ?: false
+}
+
+public interface DraggableMapFeature : SelectableMapFeature {
     public fun withCoordinates(newCoordinates: GeodeticMapCoordinates): MapFeature
 }
 
@@ -118,8 +123,12 @@ public class MapLineFeature(
     public val b: GeodeticMapCoordinates,
     override val zoomRange: IntRange = defaultZoomRange,
     public val color: Color = Color.Red,
-) : MapFeature {
+) : SelectableMapFeature {
     override fun getBoundingBox(zoom: Double): GmcRectangle = GmcRectangle(a, b)
+
+    override fun contains(point: MapViewPoint): Boolean {
+        return super.contains(point)
+    }
 }
 
 /**

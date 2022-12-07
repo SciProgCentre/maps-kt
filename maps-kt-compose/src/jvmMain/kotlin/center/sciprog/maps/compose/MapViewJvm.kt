@@ -116,20 +116,17 @@ public actual fun MapView(
                         val dpEnd = dragChange.position.toDpOffset()
 
                         //apply drag handle and check if it prohibits the drag even propagation
-                        if (
-                            !config.dragHandle.handle(
+                        if (selectionStart == null && !config.dragHandle.handle(
                                 event,
                                 MapViewPoint(dpStart.toGeodetic(), viewPoint.zoom),
                                 MapViewPoint(dpEnd.toGeodetic(), viewPoint.zoom)
                             )
                         ) {
-                            //clear selection just in case
-                            selectionStart = null
                             return@drag
                         }
 
                         if (event.buttons.isPrimaryPressed) {
-                            //Evaluating selection frame
+                            //If selection process is started, modify the frame
                             selectionStart?.let { start ->
                                 val offset = dragChange.position
                                 selectRect = Rect(
@@ -141,8 +138,8 @@ public actual fun MapView(
                                 return@drag
                             }
 
-                            config.onClick(MapViewPoint(dpPos.toGeodetic(), viewPoint.zoom), event)
-
+//                            config.onClick(MapViewPoint(dpPos.toGeodetic(), viewPoint.zoom), event)
+                            //If no selection, drag map
                             setViewPoint(
                                 viewPoint.move(
                                     -dragAmount.x.toDp().value / tileScale,

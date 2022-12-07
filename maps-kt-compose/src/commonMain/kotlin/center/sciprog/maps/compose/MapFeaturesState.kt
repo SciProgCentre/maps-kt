@@ -18,14 +18,14 @@ public object DraggableAttribute : MapFeaturesState.Attribute<DragHandle>
 
 public class MapFeaturesState internal constructor(
     private val features: MutableMap<FeatureId, MapFeature>,
-    private val attributes: MutableMap<FeatureId, SnapshotStateMap<Attribute<out Any?>, in Any?>>,
+    @PublishedApi internal val attributes: MutableMap<FeatureId, SnapshotStateMap<Attribute<out Any?>, in Any?>>,
 ) {
     public interface Attribute<T>
 
     //TODO use context receiver for that
     public fun FeatureId.draggable(
         //TODO add constraints
-        callback: DragHandle = DragHandle.BYPASS
+        callback: DragHandle = DragHandle.BYPASS,
     ) {
         val handle = DragHandle.withPrimaryButton { event, start, end ->
             val feature = features[this] as? DraggableMapFeature ?: return@withPrimaryButton true
@@ -72,7 +72,7 @@ public class MapFeaturesState internal constructor(
 //        }.keys
 //    }
 
-    public fun <T> forEachWithAttribute(key: Attribute<T>, block: (id: FeatureId, attributeValue: T) -> Unit) {
+    public inline fun <T> forEachWithAttribute(key: Attribute<T>, block: (id: FeatureId, attributeValue: T) -> Unit) {
         attributes.forEach { (id, attributeMap) ->
             attributeMap[key]?.let {
                 @Suppress("UNCHECKED_CAST")
@@ -124,6 +124,16 @@ public fun MapFeaturesState.circle(
     id: FeatureId? = null,
 ): FeatureId = addFeature(
     id, MapCircleFeature(centerCoordinates.toCoordinates(), zoomRange, size, color)
+)
+
+public fun MapFeaturesState.rectangle(
+    centerCoordinates: Gmc,
+    zoomRange: IntRange = defaultZoomRange,
+    size: DpSize = DpSize(5.dp, 5.dp),
+    color: Color = Color.Red,
+    id: FeatureId? = null,
+): FeatureId = addFeature(
+    id, MapRectangleFeature(centerCoordinates, zoomRange, size, color)
 )
 
 public fun MapFeaturesState.rectangle(
