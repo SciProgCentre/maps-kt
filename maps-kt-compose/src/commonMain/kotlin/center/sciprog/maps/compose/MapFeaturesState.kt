@@ -11,27 +11,33 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import center.sciprog.maps.coordinates.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
-public typealias FeatureId = String
+@JvmInline
+public value class FeatureId<out MapFeature>(public val id: String)
 
 public object DraggableAttribute : MapFeaturesState.Attribute<DragHandle>
+public object SelectableAttribute : MapFeaturesState.Attribute<(FeatureId<*>, SelectableMapFeature) -> Unit>
 
 public class MapFeaturesState internal constructor(
-    private val features: MutableMap<FeatureId, MapFeature>,
-    @PublishedApi internal val attributes: MutableMap<FeatureId, SnapshotStateMap<Attribute<out Any?>, in Any?>>,
+    private val featureMap: MutableMap<String, MapFeature>,
+    @PublishedApi internal val attributeMap: MutableMap<String, SnapshotStateMap<Attribute<out Any?>, in Any?>>,
 ) {
     public interface Attribute<T>
 
     //TODO use context receiver for that
-    public fun FeatureId.draggable(
+    public fun FeatureId<DraggableMapFeature>.draggable(
         //TODO add constraints
         callback: DragHandle = DragHandle.BYPASS,
     ) {
         val handle = DragHandle.withPrimaryButton { event, start, end ->
-            val feature = features[this] as? DraggableMapFeature ?: return@withPrimaryButton true
+            val feature = featureMap[id] as? DraggableMapFeature ?: return@withPrimaryButton true
             val boundingBox = feature.getBoundingBox(start.zoom) ?: return@withPrimaryButton true
             if (start.focus in boundingBox) {
-                addFeature(this, feature.withCoordinates(end.focus))
+                feature(id, feature.withCoordinates(end.focus))
                 callback.handle(event, start, end)
                 false
             } else {
@@ -41,29 +47,53 @@ public class MapFeaturesState internal constructor(
         setAttribute(this, DraggableAttribute, handle)
     }
 
-
-    public fun features(): Map<FeatureId, MapFeature> = features
-
-
-    private fun generateID(feature: MapFeature): FeatureId = "@feature[${feature.hashCode().toUInt()}]"
-
-    public fun addFeature(id: FeatureId?, feature: MapFeature): FeatureId {
-        val safeId = id ?: generateID(feature)
-        features[id ?: generateID(feature)] = feature
-        return safeId
-    }
-
-    public fun <T> setAttribute(id: FeatureId, key: Attribute<T>, value: T) {
-        attributes.getOrPut(id) { mutableStateMapOf() }[key] = value
-    }
-
-    public fun removeAttribute(id: FeatureId, key: Attribute<*>) {
-        attributes[id]?.remove(key)
+    /**
+     * Cyclic update of a feature. Called infinitely until canceled.
+     */
+    public fun <T : MapFeature> FeatureId<T>.updates(
+        scope: CoroutineScope,
+        update: suspend (T) -> T,
+    ): Job = scope.launch {
+        while (isActive) {
+            feature(this@updates, update(getFeature(this@updates)))
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
-    public fun <T> getAttribute(id: FeatureId, key: Attribute<T>): T? =
-        attributes[id]?.get(key)?.let { it as T }
+    public fun <T : SelectableMapFeature> FeatureId<T>.selectable(
+        onSelect: (FeatureId<T>, T) -> Unit,
+    ) {
+        setAttribute(this, SelectableAttribute) { id, feature -> onSelect(id as FeatureId<T>, feature as T) }
+    }
+
+
+    public fun features(): Map<FeatureId<*>, MapFeature> = featureMap.mapKeys { FeatureId<MapFeature>(it.key) }
+
+    @Suppress("UNCHECKED_CAST")
+    public fun <T : MapFeature> getFeature(id: FeatureId<T>): T = featureMap[id.id] as T
+
+
+    private fun generateID(feature: MapFeature): String = "@feature[${feature.hashCode().toUInt()}]"
+
+    public fun <T : MapFeature> feature(id: String?, feature: T): FeatureId<T> {
+        val safeId = id ?: generateID(feature)
+        featureMap[safeId] = feature
+        return FeatureId(safeId)
+    }
+
+    public fun <T : MapFeature> feature(id: FeatureId<T>?, feature: T): FeatureId<T> = feature(id?.id, feature)
+
+    public fun <T> setAttribute(id: FeatureId<*>, key: Attribute<T>, value: T) {
+        attributeMap.getOrPut(id.id) { mutableStateMapOf() }[key] = value
+    }
+
+    public fun removeAttribute(id: FeatureId<*>, key: Attribute<*>) {
+        attributeMap[id.id]?.remove(key)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    public fun <T> getAttribute(id: FeatureId<*>, key: Attribute<T>): T? =
+        attributeMap[id.id]?.get(key)?.let { it as T }
 
 //    @Suppress("UNCHECKED_CAST")
 //    public fun <T> findAllWithAttribute(key: Attribute<T>, condition: (T) -> Boolean): Set<FeatureId> {
@@ -72,11 +102,14 @@ public class MapFeaturesState internal constructor(
 //        }.keys
 //    }
 
-    public inline fun <T> forEachWithAttribute(key: Attribute<T>, block: (id: FeatureId, attributeValue: T) -> Unit) {
-        attributes.forEach { (id, attributeMap) ->
+    public inline fun <T> forEachWithAttribute(
+        key: Attribute<T>,
+        block: (id: FeatureId<*>, attributeValue: T) -> Unit,
+    ) {
+        attributeMap.forEach { (id, attributeMap) ->
             attributeMap[key]?.let {
                 @Suppress("UNCHECKED_CAST")
-                block(id, it as T)
+                block(FeatureId<MapFeature>(id), it as T)
             }
         }
     }
@@ -111,8 +144,8 @@ public fun MapFeaturesState.circle(
     zoomRange: IntRange = defaultZoomRange,
     size: Float = 5f,
     color: Color = Color.Red,
-    id: FeatureId? = null,
-): FeatureId = addFeature(
+    id: String? = null,
+): FeatureId<MapCircleFeature> = feature(
     id, MapCircleFeature(center, zoomRange, size, color)
 )
 
@@ -121,8 +154,8 @@ public fun MapFeaturesState.circle(
     zoomRange: IntRange = defaultZoomRange,
     size: Float = 5f,
     color: Color = Color.Red,
-    id: FeatureId? = null,
-): FeatureId = addFeature(
+    id: String? = null,
+): FeatureId<MapCircleFeature> = feature(
     id, MapCircleFeature(centerCoordinates.toCoordinates(), zoomRange, size, color)
 )
 
@@ -131,8 +164,8 @@ public fun MapFeaturesState.rectangle(
     zoomRange: IntRange = defaultZoomRange,
     size: DpSize = DpSize(5.dp, 5.dp),
     color: Color = Color.Red,
-    id: FeatureId? = null,
-): FeatureId = addFeature(
+    id: String? = null,
+): FeatureId<MapRectangleFeature> = feature(
     id, MapRectangleFeature(centerCoordinates, zoomRange, size, color)
 )
 
@@ -141,25 +174,25 @@ public fun MapFeaturesState.rectangle(
     zoomRange: IntRange = defaultZoomRange,
     size: DpSize = DpSize(5.dp, 5.dp),
     color: Color = Color.Red,
-    id: FeatureId? = null,
-): FeatureId = addFeature(
+    id: String? = null,
+): FeatureId<MapRectangleFeature> = feature(
     id, MapRectangleFeature(centerCoordinates.toCoordinates(), zoomRange, size, color)
 )
 
 public fun MapFeaturesState.draw(
     position: Pair<Double, Double>,
     zoomRange: IntRange = defaultZoomRange,
-    id: FeatureId? = null,
+    id: String? = null,
     drawFeature: DrawScope.() -> Unit,
-): FeatureId = addFeature(id, MapDrawFeature(position.toCoordinates(), zoomRange, drawFeature))
+): FeatureId<MapDrawFeature> = feature(id, MapDrawFeature(position.toCoordinates(), zoomRange, drawFeature))
 
 public fun MapFeaturesState.line(
     aCoordinates: Gmc,
     bCoordinates: Gmc,
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
-    id: FeatureId? = null,
-): FeatureId = addFeature(
+    id: String? = null,
+): FeatureId<MapLineFeature> = feature(
     id,
     MapLineFeature(aCoordinates, bCoordinates, zoomRange, color)
 )
@@ -168,8 +201,8 @@ public fun MapFeaturesState.line(
     curve: GmcCurve,
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
-    id: FeatureId? = null,
-): FeatureId = addFeature(
+    id: String? = null,
+): FeatureId<MapLineFeature> = feature(
     id,
     MapLineFeature(curve.forward.coordinates, curve.backward.coordinates, zoomRange, color)
 )
@@ -179,8 +212,8 @@ public fun MapFeaturesState.line(
     bCoordinates: Pair<Double, Double>,
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
-    id: FeatureId? = null,
-): FeatureId = addFeature(
+    id: String? = null,
+): FeatureId<MapLineFeature> = feature(
     id,
     MapLineFeature(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), zoomRange, color)
 )
@@ -191,8 +224,8 @@ public fun MapFeaturesState.arc(
     arcLength: Angle,
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
-    id: FeatureId? = null,
-): FeatureId = addFeature(
+    id: String? = null,
+): FeatureId<MapArcFeature> = feature(
     id,
     MapArcFeature(oval, startAngle, arcLength, zoomRange, color)
 )
@@ -204,8 +237,8 @@ public fun MapFeaturesState.arc(
     arcLength: Angle,
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
-    id: FeatureId? = null,
-): FeatureId = addFeature(
+    id: String? = null,
+): FeatureId<MapArcFeature> = feature(
     id,
     MapArcFeature(
         oval = GmcRectangle.square(center.toCoordinates(), radius, radius),
@@ -222,8 +255,8 @@ public fun MapFeaturesState.points(
     stroke: Float = 2f,
     color: Color = Color.Red,
     pointMode: PointMode = PointMode.Points,
-    id: FeatureId? = null,
-): FeatureId = addFeature(id, MapPointsFeature(points, zoomRange, stroke, color, pointMode))
+    id: String? = null,
+): FeatureId<MapPointsFeature> = feature(id, MapPointsFeature(points, zoomRange, stroke, color, pointMode))
 
 @JvmName("pointsFromPairs")
 public fun MapFeaturesState.points(
@@ -232,28 +265,30 @@ public fun MapFeaturesState.points(
     stroke: Float = 2f,
     color: Color = Color.Red,
     pointMode: PointMode = PointMode.Points,
-    id: FeatureId? = null,
-): FeatureId = addFeature(id, MapPointsFeature(points.map { it.toCoordinates() }, zoomRange, stroke, color, pointMode))
+    id: String? = null,
+): FeatureId<MapPointsFeature> =
+    feature(id, MapPointsFeature(points.map { it.toCoordinates() }, zoomRange, stroke, color, pointMode))
 
 public fun MapFeaturesState.image(
     position: Pair<Double, Double>,
     image: ImageVector,
     size: DpSize = DpSize(20.dp, 20.dp),
     zoomRange: IntRange = defaultZoomRange,
-    id: FeatureId? = null,
-): FeatureId = addFeature(id, MapVectorImageFeature(position.toCoordinates(), image, size, zoomRange))
+    id: String? = null,
+): FeatureId<MapVectorImageFeature> =
+    feature(id, MapVectorImageFeature(position.toCoordinates(), image, size, zoomRange))
 
 public fun MapFeaturesState.group(
     zoomRange: IntRange = defaultZoomRange,
-    id: FeatureId? = null,
+    id: String? = null,
     builder: MapFeaturesState.() -> Unit,
-): FeatureId {
+): FeatureId<MapFeatureGroup> {
     val map = MapFeaturesState(
         mutableStateMapOf(),
         mutableStateMapOf()
     ).apply(builder).features()
     val feature = MapFeatureGroup(map, zoomRange)
-    return addFeature(id, feature)
+    return feature(id, feature)
 }
 
 public fun MapFeaturesState.text(
@@ -262,8 +297,8 @@ public fun MapFeaturesState.text(
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
     font: MapTextFeatureFont.() -> Unit = { size = 16f },
-    id: FeatureId? = null,
-): FeatureId = addFeature(id, MapTextFeature(position, text, zoomRange, color, font))
+    id: String? = null,
+): FeatureId<MapTextFeature> = feature(id, MapTextFeature(position, text, zoomRange, color, font))
 
 public fun MapFeaturesState.text(
     position: Pair<Double, Double>,
@@ -271,5 +306,5 @@ public fun MapFeaturesState.text(
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
     font: MapTextFeatureFont.() -> Unit = { size = 16f },
-    id: FeatureId? = null,
-): FeatureId = addFeature(id, MapTextFeature(position.toCoordinates(), text, zoomRange, color, font))
+    id: String? = null,
+): FeatureId<MapTextFeature> = feature(id, MapTextFeature(position.toCoordinates(), text, zoomRange, color, font))

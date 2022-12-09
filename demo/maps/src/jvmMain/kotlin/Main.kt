@@ -15,8 +15,6 @@ import center.sciprog.maps.coordinates.*
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import java.nio.file.Path
 import kotlin.math.PI
 import kotlin.random.Random
@@ -45,6 +43,8 @@ fun App() {
         val pointTwo = 55.929444 to 37.518434
         val pointThree = 60.929444 to 37.518434
 
+        val dragPoint = 55.744 to 37.614
+
         MapView(
             mapTileProvider = mapTileProvider,
 //            initialViewPoint = MapViewPoint(
@@ -67,8 +67,12 @@ fun App() {
 
             var drag2 = Gmc.ofDegrees(55.8, 37.5)
 
+            var drag3 = Gmc.ofDegrees(56.0, 37.5)
+
             fun updateLine() {
-                line(drag1, drag2, id = "connection", color = Color.Magenta)
+                line(drag1, drag2, id = "connection1", color = Color.Magenta)
+                line(drag2, drag3, id = "connection2", color = Color.Magenta)
+                line(drag3, drag1, id = "connection3", color = Color.Magenta)
             }
 
             rectangle(drag1, size = DpSize(10.dp, 10.dp)).draggable { _, _, end ->
@@ -82,6 +86,13 @@ fun App() {
                 updateLine()
                 true
             }
+
+            rectangle(drag3, size = DpSize(10.dp, 10.dp)).draggable { _, _, end ->
+                drag3 = end.focus
+                updateLine()
+                true
+            }
+
 
             updateLine()
 
@@ -98,9 +109,13 @@ fun App() {
             )
 
             //remember feature ID
-            val circleId: FeatureId = circle(
+            circle(
                 centerCoordinates = pointTwo,
-            )
+            ).updates(scope) {
+                delay(200)
+                //Overwrite a feature with new color
+                it.copy(color = Color(Random.nextFloat(), Random.nextFloat(), Random.nextFloat()))
+            }
 
             draw(position = pointThree) {
                 drawLine(start = Offset(-10f, -10f), end = Offset(10f, 10f), color = Color.Red)
@@ -116,18 +131,6 @@ fun App() {
                 group(id = "center") {
                     circle(center = it, color = Color.Blue, id = "circle", size = 1f)
                     text(position = it, it.toShortString(), id = "text", color = Color.Blue)
-                }
-            }
-
-            scope.launch {
-                while (isActive) {
-                    delay(200)
-                    //Overwrite a feature with new color
-                    circle(
-                        pointTwo,
-                        id = circleId,
-                        color = Color(Random.nextFloat(), Random.nextFloat(), Random.nextFloat())
-                    )
                 }
             }
         }

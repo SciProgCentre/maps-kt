@@ -33,7 +33,7 @@ public interface DraggableMapFeature : SelectableMapFeature {
 public fun Iterable<MapFeature>.computeBoundingBox(zoom: Double): GmcRectangle? =
     mapNotNull { it.getBoundingBox(zoom) }.wrapAll()
 
-internal fun Pair<Number, Number>.toCoordinates() =
+public fun Pair<Number, Number>.toCoordinates() =
     GeodeticMapCoordinates.ofDegrees(first.toDouble(), second.toDouble())
 
 internal val defaultZoomRange = 1..18
@@ -88,7 +88,7 @@ public class MapPointsFeature(
     override fun getBoundingBox(zoom: Double): GmcRectangle = GmcRectangle(points.first(), points.last())
 }
 
-public class MapCircleFeature(
+public data class MapCircleFeature(
     public val center: GeodeticMapCoordinates,
     override val zoomRange: IntRange = defaultZoomRange,
     public val size: Float = 5f,
@@ -179,7 +179,7 @@ public class MapVectorImageFeature(
  * A group of other features
  */
 public class MapFeatureGroup(
-    public val children: Map<FeatureId, MapFeature>,
+    public val children: Map<FeatureId<*>, MapFeature>,
     override val zoomRange: IntRange = defaultZoomRange,
 ) : MapFeature {
     override fun getBoundingBox(zoom: Double): GmcRectangle? =

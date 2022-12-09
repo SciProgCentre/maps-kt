@@ -98,13 +98,13 @@ public fun MapView(
     mapTileProvider: MapTileProvider,
     initialViewPoint: MapViewPoint? = null,
     initialRectangle: GmcRectangle? = null,
-    featureMap: Map<FeatureId, MapFeature>,
+    featureMap: Map<FeatureId<*>, MapFeature>,
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
 ) {
     val featuresState = key(featureMap) {
         MapFeaturesState.build {
-            featureMap.forEach(::addFeature)
+            featureMap.forEach { feature(it.key.id, it.value) }
         }
     }
 
@@ -147,7 +147,7 @@ public fun MapView(
 
     val featureDrag: DragHandle = DragHandle.withPrimaryButton { event, start, end ->
         featureState.forEachWithAttribute(DraggableAttribute) { _, handle ->
-            if(!handle.handle(event, start, end)) return@withPrimaryButton false
+            if (!handle.handle(event, start, end)) return@withPrimaryButton false
         }
         true
     }
