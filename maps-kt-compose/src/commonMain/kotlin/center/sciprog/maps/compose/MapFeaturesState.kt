@@ -3,7 +3,6 @@ package center.sciprog.maps.compose
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -19,15 +18,10 @@ import kotlinx.coroutines.launch
 @JvmInline
 public value class FeatureId<out MapFeature>(public val id: String)
 
-public object DraggableAttribute : MapFeaturesState.Attribute<DragHandle>
-public object SelectableAttribute : MapFeaturesState.Attribute<(FeatureId<*>, SelectableMapFeature) -> Unit>
-
 public class MapFeaturesState internal constructor(
     private val featureMap: MutableMap<String, MapFeature>,
-    @PublishedApi internal val attributeMap: MutableMap<String, SnapshotStateMap<Attribute<out Any?>, in Any?>>,
+    //@PublishedApi internal val attributeMap: MutableMap<String, SnapshotStateMap<Attribute<out Any?>, in Any?>>,
 ) {
-    public interface Attribute<T>
-
     //TODO use context receiver for that
     public fun FeatureId<DraggableMapFeature>.draggable(
         //TODO add constraints
@@ -50,12 +44,12 @@ public class MapFeaturesState internal constructor(
     /**
      * Cyclic update of a feature. Called infinitely until canceled.
      */
-    public fun <T : MapFeature> FeatureId<T>.updates(
+    public fun <T : MapFeature> FeatureId<T>.updated(
         scope: CoroutineScope,
         update: suspend (T) -> T,
     ): Job = scope.launch {
         while (isActive) {
-            feature(this@updates, update(getFeature(this@updates)))
+            feature(this@updated, update(getFeature(this@updated)))
         }
     }
 
@@ -83,16 +77,17 @@ public class MapFeaturesState internal constructor(
 
     public fun <T : MapFeature> feature(id: FeatureId<T>?, feature: T): FeatureId<T> = feature(id?.id, feature)
 
-    public fun <T> setAttribute(id: FeatureId<*>, key: Attribute<T>, value: T) {
+    public fun <T> setAttribute(id: FeatureId<*>, key: MapFeature.Attribute<T>, value: T) {
+        feature(id,getFeature(id).at)
         attributeMap.getOrPut(id.id) { mutableStateMapOf() }[key] = value
     }
 
-    public fun removeAttribute(id: FeatureId<*>, key: Attribute<*>) {
+    public fun removeAttribute(id: FeatureId<*>, key: MapFeature.Attribute<*>) {
         attributeMap[id.id]?.remove(key)
     }
 
     @Suppress("UNCHECKED_CAST")
-    public fun <T> getAttribute(id: FeatureId<*>, key: Attribute<T>): T? =
+    public fun <T> getAttribute(id: FeatureId<*>, key: MapFeature.Attribute<T>): T? =
         attributeMap[id.id]?.get(key)?.let { it as T }
 
 //    @Suppress("UNCHECKED_CAST")
@@ -103,7 +98,7 @@ public class MapFeaturesState internal constructor(
 //    }
 
     public inline fun <T> forEachWithAttribute(
-        key: Attribute<T>,
+        key: MapFeature.Attribute<T>,
         block: (id: FeatureId<*>, attributeValue: T) -> Unit,
     ) {
         attributeMap.forEach { (id, attributeMap) ->

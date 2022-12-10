@@ -111,7 +111,7 @@ fun App() {
             //remember feature ID
             circle(
                 centerCoordinates = pointTwo,
-            ).updates(scope) {
+            ).updated(scope) {
                 delay(200)
                 //Overwrite a feature with new color
                 it.copy(color = Color(Random.nextFloat(), Random.nextFloat(), Random.nextFloat()))
