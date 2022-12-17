@@ -18,10 +18,11 @@ import kotlinx.coroutines.launch
 @JvmInline
 public value class FeatureId<out MapFeature>(public val id: String)
 
-public class MapFeaturesState internal constructor(
-    private val featureMap: MutableMap<String, MapFeature>,
-    //@PublishedApi internal val attributeMap: MutableMap<String, SnapshotStateMap<Attribute<out Any?>, in Any?>>,
-) {
+public class MapFeaturesState {
+
+    @PublishedApi
+    internal val featureMap: MutableMap<String, MapFeature> = mutableStateMapOf()
+
     //TODO use context receiver for that
     public fun FeatureId<DraggableMapFeature>.draggable(
         //TODO add constraints
@@ -61,7 +62,8 @@ public class MapFeaturesState internal constructor(
     }
 
 
-    public fun features(): Map<FeatureId<*>, MapFeature> = featureMap.mapKeys { FeatureId<MapFeature>(it.key) }
+    public val features: Map<FeatureId<*>, MapFeature>
+        get() = featureMap.mapKeys { FeatureId<MapFeature>(it.key) }
 
     @Suppress("UNCHECKED_CAST")
     public fun <T : MapFeature> getFeature(id: FeatureId<T>): T = featureMap[id.id] as T
@@ -77,18 +79,14 @@ public class MapFeaturesState internal constructor(
 
     public fun <T : MapFeature> feature(id: FeatureId<T>?, feature: T): FeatureId<T> = feature(id?.id, feature)
 
-    public fun <T> setAttribute(id: FeatureId<*>, key: MapFeature.Attribute<T>, value: T) {
-        feature(id,getFeature(id).at)
-        attributeMap.getOrPut(id.id) { mutableStateMapOf() }[key] = value
-    }
-
-    public fun removeAttribute(id: FeatureId<*>, key: MapFeature.Attribute<*>) {
-        attributeMap[id.id]?.remove(key)
+    public fun <T> setAttribute(id: FeatureId<MapFeature>, key: MapFeature.Attribute<T>, value: T?) {
+        getFeature(id).attributes.setAttribute(key, value)
     }
 
     @Suppress("UNCHECKED_CAST")
-    public fun <T> getAttribute(id: FeatureId<*>, key: MapFeature.Attribute<T>): T? =
-        attributeMap[id.id]?.get(key)?.let { it as T }
+    public fun <T> getAttribute(id: FeatureId<MapFeature>, key: MapFeature.Attribute<T>): T? =
+        getFeature(id).attributes[key]
+
 
 //    @Suppress("UNCHECKED_CAST")
 //    public fun <T> findAllWithAttribute(key: Attribute<T>, condition: (T) -> Boolean): Set<FeatureId> {
@@ -101,10 +99,9 @@ public class MapFeaturesState internal constructor(
         key: MapFeature.Attribute<T>,
         block: (id: FeatureId<*>, attributeValue: T) -> Unit,
     ) {
-        attributeMap.forEach { (id, attributeMap) ->
-            attributeMap[key]?.let {
-                @Suppress("UNCHECKED_CAST")
-                block(FeatureId<MapFeature>(id), it as T)
+        featureMap.forEach { (id, feature) ->
+            feature.attributes[key]?.let {
+                block(FeatureId<MapFeature>(id), it)
             }
         }
     }
@@ -116,10 +113,7 @@ public class MapFeaturesState internal constructor(
          */
         public fun build(
             builder: MapFeaturesState.() -> Unit = {},
-        ): MapFeaturesState = MapFeaturesState(
-            mutableStateMapOf(),
-            mutableStateMapOf()
-        ).apply(builder)
+        ): MapFeaturesState = MapFeaturesState().apply(builder)
 
         /**
          * Build and remember map feature state
@@ -178,8 +172,8 @@ public fun MapFeaturesState.draw(
     position: Pair<Double, Double>,
     zoomRange: IntRange = defaultZoomRange,
     id: String? = null,
-    drawFeature: DrawScope.() -> Unit,
-): FeatureId<MapDrawFeature> = feature(id, MapDrawFeature(position.toCoordinates(), zoomRange, drawFeature))
+    draw: DrawScope.() -> Unit,
+): FeatureId<MapDrawFeature> = feature(id, MapDrawFeature(position.toCoordinates(), zoomRange, drawFeature = draw))
 
 public fun MapFeaturesState.line(
     aCoordinates: Gmc,
@@ -278,10 +272,7 @@ public fun MapFeaturesState.group(
     id: String? = null,
     builder: MapFeaturesState.() -> Unit,
 ): FeatureId<MapFeatureGroup> {
-    val map = MapFeaturesState(
-        mutableStateMapOf(),
-        mutableStateMapOf()
-    ).apply(builder).features()
+    val map = MapFeaturesState().apply(builder).features
     val feature = MapFeatureGroup(map, zoomRange)
     return feature(id, feature)
 }
@@ -293,7 +284,10 @@ public fun MapFeaturesState.text(
     color: Color = Color.Red,
     font: MapTextFeatureFont.() -> Unit = { size = 16f },
     id: String? = null,
-): FeatureId<MapTextFeature> = feature(id, MapTextFeature(position, text, zoomRange, color, font))
+): FeatureId<MapTextFeature> = feature(
+    id,
+    MapTextFeature(position, text, zoomRange, color, fontConfig = font)
+)
 
 public fun MapFeaturesState.text(
     position: Pair<Double, Double>,
@@ -302,4 +296,7 @@ public fun MapFeaturesState.text(
     color: Color = Color.Red,
     font: MapTextFeatureFont.() -> Unit = { size = 16f },
     id: String? = null,
-): FeatureId<MapTextFeature> = feature(id, MapTextFeature(position.toCoordinates(), text, zoomRange, color, font))
+): FeatureId<MapTextFeature> = feature(
+    id,
+    MapTextFeature(position.toCoordinates(), text, zoomRange, color, fontConfig = font)
+)

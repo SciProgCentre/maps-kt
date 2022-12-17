@@ -136,12 +136,10 @@ public fun MapView(
 ) {
     val featureState = MapFeaturesState.remember(buildFeatures)
 
-    val features = featureState.features()
-
     val viewPointOverride: MapViewPoint = remember(initialViewPoint, initialRectangle) {
         initialViewPoint
             ?: initialRectangle?.computeViewPoint(mapTileProvider)
-            ?: features.values.computeBoundingBox(1.0)?.computeViewPoint(mapTileProvider)
+            ?: featureState.features.values.computeBoundingBox(1.0)?.computeViewPoint(mapTileProvider)
             ?: MapViewPoint.globe
     }
 

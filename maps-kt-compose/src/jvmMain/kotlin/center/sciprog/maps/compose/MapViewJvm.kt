@@ -214,7 +214,7 @@ public actual fun MapView(
     }
 
     val painterCache = key(featuresState) {
-        featuresState.features().values.filterIsInstance<MapVectorImageFeature>().associateWith { it.painter() }
+        featuresState.features.values.filterIsInstance<MapVectorImageFeature>().associateWith { it.painter() }
     }
 
     Canvas(canvasModifier) {
@@ -349,7 +349,7 @@ public actual fun MapView(
                 )
             }
 
-            featuresState.features().values.filter { zoom in it.zoomRange }.forEach { feature ->
+            featuresState.features.values.filter { zoom in it.zoomRange }.forEach { feature ->
                 drawFeature(zoom, feature)
             }
         }
