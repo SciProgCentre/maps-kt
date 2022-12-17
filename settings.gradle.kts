@@ -46,6 +46,7 @@ dependencyResolutionManagement {
 
 include(
     ":maps-kt-core",
+    ":maps-kt-features",
     ":maps-kt-compose",
     ":demo:maps",
     ":maps-kt-scheme",

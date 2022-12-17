@@ -15,23 +15,11 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api(projects.mapsKtCore)
                 api(compose.foundation)
-                api(project.dependencies.platform(spclibs.ktor.bom))
-                api("io.ktor:ktor-client-core")
-                api("io.github.microutils:kotlin-logging:2.1.23")
             }
-        }
-        val jvmMain by getting {
         }
         val jvmTest by getting {
             dependencies {
-                implementation("io.ktor:ktor-client-cio")
-                implementation(compose.desktop.currentOs)
-                implementation(spclibs.kotlinx.coroutines.test)
-
-                implementation("ch.qos.logback:logback-classic:1.2.11")
-
                 implementation(kotlin("test-junit5"))
                 implementation("org.junit.jupiter:junit-jupiter:5.8.2")
             }
