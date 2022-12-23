@@ -282,7 +282,7 @@ public fun MapFeaturesState.text(
     text: String,
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
-    font: MapTextFeatureFont.() -> Unit = { size = 16f },
+    font: FeatureFont.() -> Unit = { size = 16f },
     id: String? = null,
 ): FeatureId<TextFeature> = feature(
     id,
@@ -294,7 +294,7 @@ public fun MapFeaturesState.text(
     text: String,
     zoomRange: IntRange = defaultZoomRange,
     color: Color = Color.Red,
-    font: MapTextFeatureFont.() -> Unit = { size = 16f },
+    font: FeatureFont.() -> Unit = { size = 16f },
     id: String? = null,
 ): FeatureId<TextFeature> = feature(
     id,
