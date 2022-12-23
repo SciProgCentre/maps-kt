@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.drawscope.*
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.*
 import center.sciprog.maps.coordinates.*
+import center.sciprog.maps.features.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
@@ -50,7 +51,7 @@ private val logger = KotlinLogging.logger("MapView")
 public actual fun MapView(
     mapTileProvider: MapTileProvider,
     initialViewPoint: MapViewPoint,
-    featuresState: MapFeaturesState,
+    featuresState: FeaturesState<Gmc>,
     config: MapViewConfig,
     modifier: Modifier,
 ): Unit = key(initialViewPoint) {
@@ -214,7 +215,7 @@ public actual fun MapView(
     }
 
     val painterCache = key(featuresState) {
-        featuresState.features.values.filterIsInstance<MapVectorImageFeature>().associateWith { it.painter() }
+        featuresState.features.values.filterIsInstance<VectorImageFeature<Gmc>>().associateWith { it.painter() }
     }
 
     Canvas(canvasModifier) {
@@ -229,14 +230,14 @@ public actual fun MapView(
 
         fun DrawScope.drawFeature(zoom: Int, feature: MapFeature) {
             when (feature) {
-                is MapFeatureSelector -> drawFeature(zoom, feature.selector(zoom))
-                is MapCircleFeature -> drawCircle(
+                is FeatureSelector -> drawFeature(zoom, feature.selector(zoom))
+                is CircleFeature -> drawCircle(
                     feature.color,
-                    feature.size,
+                    feature.size.toPx(),
                     center = feature.center.toOffset()
                 )
 
-                is MapRectangleFeature -> drawRect(
+                is RectangleFeature -> drawRect(
                     feature.color,
                     topLeft = feature.center.toOffset() - Offset(
                         feature.size.width.toPx() / 2,
@@ -245,8 +246,8 @@ public actual fun MapView(
                     size = feature.size.toSize()
                 )
 
-                is MapLineFeature -> drawLine(feature.color, feature.a.toOffset(), feature.b.toOffset())
-                is MapArcFeature -> {
+                is LineFeature -> drawLine(feature.color, feature.a.toOffset(), feature.b.toOffset())
+                is ArcFeature -> {
                     val topLeft = feature.oval.topLeft.toOffset()
                     val bottomRight = feature.oval.bottomRight.toOffset()
 
@@ -254,8 +255,8 @@ public actual fun MapView(
 
                     drawArc(
                         color = feature.color,
-                        startAngle = feature.startAngle.degrees.toFloat(),
-                        sweepAngle = feature.arcLength.degrees.toFloat(),
+                        startAngle = feature.startAngle.radians.degrees.toFloat(),
+                        sweepAngle = feature.arcLength.radians.degrees.toFloat(),
                         useCenter = false,
                         topLeft = topLeft,
                         size = size,
@@ -264,9 +265,9 @@ public actual fun MapView(
 
                 }
 
-                is MapBitmapImageFeature -> drawImage(feature.image, feature.position.toOffset())
+                is BitmapImageFeature -> drawImage(feature.image, feature.position.toOffset())
 
-                is MapVectorImageFeature -> {
+                is VectorImageFeature -> {
                     val offset = feature.position.toOffset()
                     val size = feature.size.toSize()
                     translate(offset.x - size.width / 2, offset.y - size.height / 2) {
@@ -276,7 +277,7 @@ public actual fun MapView(
                     }
                 }
 
-                is MapTextFeature -> drawIntoCanvas { canvas ->
+                is TextFeature -> drawIntoCanvas { canvas ->
                     val offset = feature.position.toOffset()
                     canvas.nativeCanvas.drawString(
                         feature.text,
@@ -287,20 +288,20 @@ public actual fun MapView(
                     )
                 }
 
-                is MapDrawFeature -> {
+                is DrawFeature -> {
                     val offset = feature.position.toOffset()
                     translate(offset.x, offset.y) {
                         feature.drawFeature(this)
                     }
                 }
 
-                is MapFeatureGroup -> {
+                is FeatureGroup -> {
                     feature.children.values.forEach {
                         drawFeature(zoom, it)
                     }
                 }
 
-                is MapPathFeature -> {
+                is PathFeature -> {
                     TODO("MapPathFeature not implemented")
 //                    val offset = feature.rectangle.center.toOffset() - feature.targetRect.center
 //                    translate(offset.x, offset.y) {
@@ -309,7 +310,7 @@ public actual fun MapView(
 //                    }
                 }
 
-                is MapPointsFeature -> {
+                is PointsFeature -> {
                     val points = feature.points.map { it.toOffset() }
                     drawPoints(
                         points = points,
@@ -349,7 +350,7 @@ public actual fun MapView(
                 )
             }
 
-            featuresState.features.values.filter { zoom in it.zoomRange }.forEach { feature ->
+            featuresState.features.values.filter { viewPoint.zoom in it.zoomRange }.forEach { feature ->
                 drawFeature(zoom, feature)
             }
         }

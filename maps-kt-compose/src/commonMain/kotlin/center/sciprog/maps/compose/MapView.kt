@@ -8,7 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import center.sciprog.maps.coordinates.*
+import center.sciprog.maps.coordinates.Gmc
+import center.sciprog.maps.features.*
 import kotlin.math.PI
 import kotlin.math.log2
 import kotlin.math.min
@@ -20,7 +21,7 @@ import kotlin.math.min
 public data class MapViewConfig(
     val zoomSpeed: Double = 1.0 / 3.0,
     val onClick: MapViewPoint.(PointerEvent) -> Unit = {},
-    val dragHandle: DragHandle = DragHandle.BYPASS,
+    val dragHandle: DragHandle<Gmc> = DragHandle.bypass(),
     val onViewChange: MapViewPoint.() -> Unit = {},
     val onSelect: (GmcRectangle) -> Unit = {},
     val zoomOnSelect: Boolean = true,
@@ -31,14 +32,14 @@ public data class MapViewConfig(
 public expect fun MapView(
     mapTileProvider: MapTileProvider,
     initialViewPoint: MapViewPoint,
-    featuresState: MapFeaturesState,
+    featuresState: FeaturesState<Gmc>,
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
 )
 
 internal val defaultCanvasSize = DpSize(512.dp, 512.dp)
 
-public fun GmcRectangle.computeViewPoint(
+public fun Rectangle<Gmc>.computeViewPoint(
     mapTileProvider: MapTileProvider,
     canvasSize: DpSize = defaultCanvasSize,
 ): MapViewPoint {
@@ -64,7 +65,7 @@ public fun MapView(
     modifier: Modifier = Modifier.fillMaxSize(),
 ) {
     val featuresState = key(featureMap) {
-        MapFeaturesState.build {
+        FeaturesState.build(GmcCoordinateSpace) {
             featureMap.forEach { feature(it.key.id, it.value) }
         }
     }
@@ -72,7 +73,7 @@ public fun MapView(
     val viewPointOverride: MapViewPoint = remember(initialViewPoint, initialRectangle) {
         initialViewPoint
             ?: initialRectangle?.computeViewPoint(mapTileProvider)
-            ?: featureMap.values.computeBoundingBox(1.0)?.computeViewPoint(mapTileProvider)
+            ?: featureMap.values.computeBoundingBox(GmcCoordinateSpace, 1.0)?.computeViewPoint(mapTileProvider)
             ?: MapViewPoint.globe
     }
 
@@ -93,19 +94,20 @@ public fun MapView(
     initialRectangle: GmcRectangle? = null,
     config: MapViewConfig = MapViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
-    buildFeatures: MapFeaturesState.() -> Unit = {},
+    buildFeatures: FeaturesState<Gmc>.() -> Unit = {},
 ) {
-    val featureState = MapFeaturesState.remember(buildFeatures)
+    val featureState = FeaturesState.remember(GmcCoordinateSpace, buildFeatures)
 
     val viewPointOverride: MapViewPoint = remember(initialViewPoint, initialRectangle) {
         initialViewPoint
             ?: initialRectangle?.computeViewPoint(mapTileProvider)
-            ?: featureState.features.values.computeBoundingBox(1.0)?.computeViewPoint(mapTileProvider)
+            ?: featureState.features.values.computeBoundingBox(GmcCoordinateSpace,1.0)?.computeViewPoint(mapTileProvider)
             ?: MapViewPoint.globe
     }
 
-    val featureDrag: DragHandle = DragHandle.withPrimaryButton { event, start, end ->
+    val featureDrag: DragHandle<Gmc> = DragHandle.withPrimaryButton { event, start: ViewPoint<Gmc>, end: ViewPoint<Gmc> ->
         featureState.forEachWithAttribute(DraggableAttribute) { _, handle ->
+            handle as DragHandle<Gmc>
             if (!handle.handle(event, start, end)) return@withPrimaryButton false
         }
         true

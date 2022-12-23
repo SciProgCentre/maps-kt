@@ -4,7 +4,9 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.graphics.Color
 
 public object DraggableAttribute : Feature.Attribute<DragHandle<*>>
+
 public object SelectableAttribute : Feature.Attribute<(FeatureId<*>, SelectableFeature<*>) -> Unit>
+
 public object VisibleAttribute : Feature.Attribute<Boolean>
 
 public object ColorAttribute : Feature.Attribute<Color>

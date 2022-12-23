@@ -1,6 +1,5 @@
 package center.sciprog.maps.coordinates
 
-import kotlin.math.acos
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -48,7 +47,7 @@ public class GeoEllipsoid(public val equatorRadius: Distance, public val polarRa
 /**
  * A radius of circle normal to the axis of the ellipsoid at given latitude
  */
-internal fun GeoEllipsoid.reducedRadius(latitude: Angle): Distance {
+public fun GeoEllipsoid.reducedRadius(latitude: Angle): Distance {
     val reducedLatitudeTan = (1 - f) * tan(latitude)
     return equatorRadius / sqrt(1.0 + reducedLatitudeTan.pow(2))
 }

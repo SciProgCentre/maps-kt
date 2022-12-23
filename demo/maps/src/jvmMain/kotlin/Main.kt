@@ -12,6 +12,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import center.sciprog.maps.compose.*
 import center.sciprog.maps.coordinates.*
+import center.sciprog.maps.features.*
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import kotlinx.coroutines.delay
@@ -129,7 +130,7 @@ fun App() {
 
             centerCoordinates?.let {
                 group(id = "center") {
-                    circle(center = it, color = Color.Blue, id = "circle", size = 1f)
+                    circle(center = it, color = Color.Blue, id = "circle", size = 1.dp)
                     text(position = it, it.toShortString(), id = "text", color = Color.Blue)
                 }
             }

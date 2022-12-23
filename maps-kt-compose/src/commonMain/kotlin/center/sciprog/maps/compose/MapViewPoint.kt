@@ -1,14 +1,16 @@
-package center.sciprog.maps.coordinates
+package center.sciprog.maps.compose
 
+import center.sciprog.maps.coordinates.*
+import center.sciprog.maps.features.ViewPoint
 import kotlin.math.pow
 
 /**
  * Observable position on the map. Includes observation coordinate and [zoom] factor
  */
 public data class MapViewPoint(
-    val focus: GeodeticMapCoordinates,
-    val zoom: Double,
-) {
+    override val focus: GeodeticMapCoordinates,
+    override val zoom: Double,
+) : ViewPoint<Gmc>{
     val scaleFactor: Double by lazy { WebMercatorProjection.scaleFactor(zoom) }
 
     public companion object{

@@ -12,19 +12,25 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import center.sciprog.maps.features.Feature.Companion.defaultZoomRange
 import kotlin.math.floor
 
+public typealias DoubleRange = ClosedFloatingPointRange<Double>
 
 public interface Feature<T : Any> {
     public interface Attribute<T>
 
     public val space: CoordinateSpace<T>
 
-    public val zoomRange: ClosedFloatingPointRange<Double>
+    public val zoomRange: DoubleRange
 
     public var attributes: AttributeMap
 
     public fun getBoundingBox(zoom: Double): Rectangle<T>?
+
+    public companion object {
+        public val defaultZoomRange: ClosedFloatingPointRange<Double> = 1.0..Double.POSITIVE_INFINITY
+    }
 }
 
 public interface SelectableFeature<T : Any> : Feature<T> {
@@ -41,13 +47,12 @@ public fun <T : Any> Iterable<Feature<T>>.computeBoundingBox(
     space: CoordinateSpace<T>,
     zoom: Double,
 ): Rectangle<T>? = with(space) {
-    mapNotNull { it.getBoundingBox(zoom) }.computeRectangle()
+    mapNotNull { it.getBoundingBox(zoom) }.wrapRectangles()
 }
 
 //public fun Pair<Number, Number>.toCoordinates(): GeodeticMapCoordinates =
 //    GeodeticMapCoordinates.ofDegrees(first.toDouble(), second.toDouble())
 
-internal val defaultZoomRange = 1.0..Double.POSITIVE_INFINITY
 
 /**
  * A feature that decides what to show depending on the zoom value (it could change size of shape)
@@ -60,20 +65,6 @@ public class FeatureSelector<T : Any>(
     override val zoomRange: ClosedFloatingPointRange<Double> get() = defaultZoomRange
 
     override fun getBoundingBox(zoom: Double): Rectangle<T>? = selector(floor(zoom).toInt()).getBoundingBox(zoom)
-}
-
-public class DrawFeature<T : Any>(
-    override val space: CoordinateSpace<T>,
-    public val rectangle: Rectangle<T>,
-    override val zoomRange: ClosedFloatingPointRange<Double> = defaultZoomRange,
-    override var attributes: AttributeMap = AttributeMap(),
-    public val drawFeature: DrawScope.() -> Unit,
-) : DraggableFeature<T> {
-    override fun getBoundingBox(zoom: Double): Rectangle<T> = rectangle
-
-    override fun withCoordinates(newCoordinates: T): Feature<T> = with(space) {
-        DrawFeature(space, rectangle.withCenter(newCoordinates), zoomRange, attributes, drawFeature)
-    }
 }
 
 public class PathFeature<T : Any>(
@@ -112,7 +103,7 @@ public class PointsFeature<T : Any>(
     override var attributes: AttributeMap = AttributeMap(),
 ) : Feature<T> {
     override fun getBoundingBox(zoom: Double): Rectangle<T>? = with(space) {
-        points.computeRectangle()
+        points.wrapPoints()
     }
 }
 
@@ -182,32 +173,43 @@ public class ArcFeature<T : Any>(
     }
 }
 
-public class BitmapImageFeature<T : Any>(
+
+public data class DrawFeature<T : Any>(
     override val space: CoordinateSpace<T>,
-    public val rectangle: Rectangle<T>,
+    public val position: T,
+    override val zoomRange: ClosedFloatingPointRange<Double> = defaultZoomRange,
+    override var attributes: AttributeMap = AttributeMap(),
+    public val drawFeature: DrawScope.() -> Unit,
+) : DraggableFeature<T> {
+    override fun getBoundingBox(zoom: Double): Rectangle<T> = space.buildRectangle(position, position)
+
+    override fun withCoordinates(newCoordinates: T): Feature<T> = copy(position = newCoordinates)
+}
+
+public data class BitmapImageFeature<T : Any>(
+    override val space: CoordinateSpace<T>,
+    public val position: T,
+    public val size: DpSize,
     public val image: ImageBitmap,
     override val zoomRange: ClosedFloatingPointRange<Double> = defaultZoomRange,
     override var attributes: AttributeMap = AttributeMap(),
 ) : DraggableFeature<T> {
-    override fun getBoundingBox(zoom: Double): Rectangle<T> = rectangle
+    override fun getBoundingBox(zoom: Double): Rectangle<T> = space.buildRectangle(position, zoom, size)
 
-    override fun withCoordinates(newCoordinates: T): Feature<T> = with(space) {
-        BitmapImageFeature(space, rectangle.withCenter(newCoordinates), image, zoomRange, attributes)
-    }
+    override fun withCoordinates(newCoordinates: T): Feature<T> = copy(position = newCoordinates)
 }
 
-public class VectorImageFeature<T : Any>(
+public data class VectorImageFeature<T : Any>(
     override val space: CoordinateSpace<T>,
-    public val rectangle: Rectangle<T>,
+    public val position: T,
+    public val size: DpSize,
     public val image: ImageVector,
     override val zoomRange: ClosedFloatingPointRange<Double> = defaultZoomRange,
     override var attributes: AttributeMap = AttributeMap(),
 ) : DraggableFeature<T> {
-    override fun getBoundingBox(zoom: Double): Rectangle<T> = rectangle
+    override fun getBoundingBox(zoom: Double): Rectangle<T> = space.buildRectangle(position, zoom, size)
 
-    override fun withCoordinates(newCoordinates: T): Feature<T> = with(space) {
-        VectorImageFeature(space, rectangle.withCenter(newCoordinates), image, zoomRange, attributes)
-    }
+    override fun withCoordinates(newCoordinates: T): Feature<T> = copy(position = newCoordinates)
 
     @Composable
     public fun painter(): VectorPainter = rememberVectorPainter(image)
@@ -223,11 +225,12 @@ public class FeatureGroup<T : Any>(
     override var attributes: AttributeMap = AttributeMap(),
 ) : Feature<T> {
     override fun getBoundingBox(zoom: Double): Rectangle<T>? = with(space) {
-        children.values.mapNotNull { it.getBoundingBox(zoom) }.computeRectangle()
+        children.values.mapNotNull { it.getBoundingBox(zoom) }.wrapRectangles()
     }
 }
 
 public class TextFeature<T : Any>(
+    override val space: CoordinateSpace<T>,
     public val position: T,
     public val text: String,
     override val zoomRange: ClosedFloatingPointRange<Double> = defaultZoomRange,
@@ -235,8 +238,8 @@ public class TextFeature<T : Any>(
     override var attributes: AttributeMap = AttributeMap(),
     public val fontConfig: FeatureFont.() -> Unit,
 ) : DraggableFeature<T> {
-    override fun getBoundingBox(zoom: Double): Rectangle<T> = GmcRectangle(position, position)
+    override fun getBoundingBox(zoom: Double): Rectangle<T> = space.buildRectangle(position, position)
 
     override fun withCoordinates(newCoordinates: T): Feature<T> =
-        TextFeature(newCoordinates, text, zoomRange, color, attributes, fontConfig)
+        TextFeature(space, newCoordinates, text, zoomRange, color, attributes, fontConfig)
 }

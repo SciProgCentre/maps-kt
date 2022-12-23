@@ -16,6 +16,7 @@ kotlin {
         commonMain {
             dependencies {
                 api(projects.mapsKtCore)
+                api(projects.mapsKtFeatures)
                 api(compose.foundation)
                 api(project.dependencies.platform(spclibs.ktor.bom))
                 api("io.ktor:ktor-client-core")
