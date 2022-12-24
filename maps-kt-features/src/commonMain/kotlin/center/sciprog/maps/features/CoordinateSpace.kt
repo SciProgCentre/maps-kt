@@ -3,7 +3,7 @@ package center.sciprog.maps.features
 import androidx.compose.ui.unit.DpSize
 
 
-public interface Area<T: Any>{
+public interface Area<T : Any> {
     public operator fun contains(point: T): Boolean
 }
 
@@ -11,7 +11,7 @@ public interface Area<T: Any>{
  * A map coordinates rectangle. [a] and [b] represent opposing angles
  * of the rectangle without specifying which ones.
  */
-public interface Rectangle<T : Any>: Area<T> {
+public interface Rectangle<T : Any> : Area<T> {
     public val a: T
     public val b: T
 }
@@ -24,12 +24,24 @@ public interface CoordinateSpace<T : Any> {
     /**
      * Build a rectangle by two opposing corners
      */
-    public fun buildRectangle(first: T, second: T): Rectangle<T>
+    public fun Rectangle(first: T, second: T): Rectangle<T>
 
     /**
      * Build a rectangle of visual size [size]
      */
-    public fun buildRectangle(center: T, zoom: Double, size: DpSize): Rectangle<T>
+    public fun Rectangle(center: T, zoom: Double, size: DpSize): Rectangle<T>
+
+    /**
+     * Create a [ViewPoint] associated with this coordinate space.
+     */
+    public fun ViewPoint(center: T, zoom: Double): ViewPoint<T>
+
+    public fun ViewPoint<T>.moveBy(delta: T): ViewPoint<T>
+
+    public fun ViewPoint<T>.zoomBy(
+        zoomDelta: Double,
+        invariant: T = focus,
+    ): ViewPoint<T>
 
     /**
      * Move given rectangle to be centered at [center]
@@ -39,4 +51,8 @@ public interface CoordinateSpace<T : Any> {
     public fun Collection<Rectangle<T>>.wrapRectangles(): Rectangle<T>?
 
     public fun Collection<T>.wrapPoints(): Rectangle<T>?
+
 }
+
+public fun <T : Any> CoordinateSpace<T>.Rectangle(viewPoint: ViewPoint<T>, size: DpSize): Rectangle<T> =
+    Rectangle(viewPoint.focus, viewPoint.zoom, size)

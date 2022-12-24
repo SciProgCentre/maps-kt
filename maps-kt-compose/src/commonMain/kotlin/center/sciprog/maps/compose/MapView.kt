@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import center.sciprog.maps.coordinates.Gmc
@@ -15,25 +14,12 @@ import kotlin.math.log2
 import kotlin.math.min
 
 
-//TODO consider replacing by modifier
-/**
- */
-public data class MapViewConfig(
-    val zoomSpeed: Double = 1.0 / 3.0,
-    val onClick: MapViewPoint.(PointerEvent) -> Unit = {},
-    val dragHandle: DragHandle<Gmc> = DragHandle.bypass(),
-    val onViewChange: MapViewPoint.() -> Unit = {},
-    val onSelect: (GmcRectangle) -> Unit = {},
-    val zoomOnSelect: Boolean = true,
-    val onCanvasSizeChange: (DpSize) -> Unit = {},
-)
-
 @Composable
 public expect fun MapView(
     mapTileProvider: MapTileProvider,
     initialViewPoint: MapViewPoint,
     featuresState: FeaturesState<Gmc>,
-    config: MapViewConfig = MapViewConfig(),
+    config: ViewConfig<Gmc> = ViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
 )
 
@@ -61,7 +47,7 @@ public fun MapView(
     initialViewPoint: MapViewPoint? = null,
     initialRectangle: GmcRectangle? = null,
     featureMap: Map<FeatureId<*>, MapFeature>,
-    config: MapViewConfig = MapViewConfig(),
+    config: ViewConfig<Gmc> = ViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
 ) {
     val featuresState = key(featureMap) {
@@ -92,7 +78,7 @@ public fun MapView(
     mapTileProvider: MapTileProvider,
     initialViewPoint: MapViewPoint? = null,
     initialRectangle: GmcRectangle? = null,
-    config: MapViewConfig = MapViewConfig(),
+    config: ViewConfig<Gmc> = ViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
     buildFeatures: FeaturesState<Gmc>.() -> Unit = {},
 ) {

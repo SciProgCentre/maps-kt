@@ -57,7 +57,7 @@ fun App() {
 //                50.kilometers,
 //                50.kilometers
 //            ),
-            config = MapViewConfig(
+            config = ViewConfig(
                 onViewChange = { centerCoordinates = focus },
             )
         ) {

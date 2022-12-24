@@ -116,7 +116,7 @@ public data class CircleFeature<T : Any>(
     override var attributes: AttributeMap = AttributeMap(),
 ) : DraggableFeature<T> {
     override fun getBoundingBox(zoom: Double): Rectangle<T> =
-        space.buildRectangle(center, zoom, DpSize(size, size))
+        space.Rectangle(center, zoom, DpSize(size, size))
 
     override fun withCoordinates(newCoordinates: T): Feature<T> =
         CircleFeature(space, newCoordinates, zoomRange, size, color, attributes)
@@ -131,7 +131,7 @@ public class RectangleFeature<T : Any>(
     override var attributes: AttributeMap = AttributeMap(),
 ) : DraggableFeature<T> {
     override fun getBoundingBox(zoom: Double): Rectangle<T> =
-        space.buildRectangle(center, zoom, size)
+        space.Rectangle(center, zoom, size)
 
     override fun withCoordinates(newCoordinates: T): Feature<T> =
         RectangleFeature(space, newCoordinates, zoomRange, size, color, attributes)
@@ -146,7 +146,7 @@ public class LineFeature<T : Any>(
     override var attributes: AttributeMap = AttributeMap(),
 ) : SelectableFeature<T> {
     override fun getBoundingBox(zoom: Double): Rectangle<T> =
-        space.buildRectangle(a, b)
+        space.Rectangle(a, b)
 
     override fun contains(point: ViewPoint<T>): Boolean {
         return super.contains(point)
@@ -181,7 +181,7 @@ public data class DrawFeature<T : Any>(
     override var attributes: AttributeMap = AttributeMap(),
     public val drawFeature: DrawScope.() -> Unit,
 ) : DraggableFeature<T> {
-    override fun getBoundingBox(zoom: Double): Rectangle<T> = space.buildRectangle(position, position)
+    override fun getBoundingBox(zoom: Double): Rectangle<T> = space.Rectangle(position, position)
 
     override fun withCoordinates(newCoordinates: T): Feature<T> = copy(position = newCoordinates)
 }
@@ -194,7 +194,7 @@ public data class BitmapImageFeature<T : Any>(
     override val zoomRange: ClosedFloatingPointRange<Double> = defaultZoomRange,
     override var attributes: AttributeMap = AttributeMap(),
 ) : DraggableFeature<T> {
-    override fun getBoundingBox(zoom: Double): Rectangle<T> = space.buildRectangle(position, zoom, size)
+    override fun getBoundingBox(zoom: Double): Rectangle<T> = space.Rectangle(position, zoom, size)
 
     override fun withCoordinates(newCoordinates: T): Feature<T> = copy(position = newCoordinates)
 }
@@ -207,7 +207,7 @@ public data class VectorImageFeature<T : Any>(
     override val zoomRange: ClosedFloatingPointRange<Double> = defaultZoomRange,
     override var attributes: AttributeMap = AttributeMap(),
 ) : DraggableFeature<T> {
-    override fun getBoundingBox(zoom: Double): Rectangle<T> = space.buildRectangle(position, zoom, size)
+    override fun getBoundingBox(zoom: Double): Rectangle<T> = space.Rectangle(position, zoom, size)
 
     override fun withCoordinates(newCoordinates: T): Feature<T> = copy(position = newCoordinates)
 
@@ -238,7 +238,7 @@ public class TextFeature<T : Any>(
     override var attributes: AttributeMap = AttributeMap(),
     public val fontConfig: FeatureFont.() -> Unit,
 ) : DraggableFeature<T> {
-    override fun getBoundingBox(zoom: Double): Rectangle<T> = space.buildRectangle(position, position)
+    override fun getBoundingBox(zoom: Double): Rectangle<T> = space.Rectangle(position, position)
 
     override fun withCoordinates(newCoordinates: T): Feature<T> =
         TextFeature(space, newCoordinates, text, zoomRange, color, attributes, fontConfig)

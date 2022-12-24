@@ -1,4 +1,3 @@
-import org.jetbrains.compose.compose
 import space.kscience.gradle.KScienceVersions.JVM_TARGET
 
 
@@ -30,6 +29,6 @@ kotlin {
     }
 }
 
-java{
+java {
     targetCompatibility = JVM_TARGET
 }
