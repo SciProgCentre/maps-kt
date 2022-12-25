@@ -20,7 +20,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
 import org.jetbrains.skia.Paint
-import kotlin.math.*
+import kotlin.math.ceil
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.pow
 
 
 private fun Color.toPaint(): Paint = Paint().apply {
@@ -57,7 +60,7 @@ public actual fun MapView(
         // Load tiles asynchronously
         LaunchedEffect(viewPoint, canvasSize) {
             with(mapTileProvider) {
-                val indexRange = 0 until 2.0.pow(zoom).toInt()
+                val indexRange = 0 until 2.0.pow(intZoom).toInt()
 
                 val left = centerCoordinates.x - canvasSize.width.value / 2 / tileScale
                 val right = centerCoordinates.x + canvasSize.width.value / 2 / tileScale
@@ -71,7 +74,7 @@ public actual fun MapView(
 
                 for (j in verticalIndices) {
                     for (i in horizontalIndices) {
-                        val id = TileId(floor(zoom).toInt(), i, j)
+                        val id = TileId(intZoom, i, j)
                         //ensure that failed tiles do not fail the application
                         supervisorScope {
                             //start all

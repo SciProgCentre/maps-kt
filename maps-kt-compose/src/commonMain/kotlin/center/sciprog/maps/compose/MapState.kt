@@ -11,21 +11,23 @@ internal class MapState internal constructor(
     config: ViewConfig<Gmc>,
     canvasSize: DpSize,
     viewPoint: ViewPoint<Gmc>,
-    public val tileSize: Int,
+    val tileSize: Int,
 ) : CoordinateViewState<Gmc>(config, canvasSize, viewPoint) {
     override val space: CoordinateSpace<Gmc> get() = GmcCoordinateSpace
 
     public val scaleFactor: Double
         get() = WebMercatorProjection.scaleFactor(viewPoint.zoom)
 
+    val intZoom: Int get() = floor(zoom).toInt()
+
     public val centerCoordinates: WebMercatorCoordinates
-        get() = WebMercatorProjection.toMercator(viewPoint.focus, zoom)
+        get() = WebMercatorProjection.toMercator(viewPoint.focus, intZoom)
 
     internal val tileScale: Double
-        get() = 2.0.pow(viewPoint.zoom - zoom)
+        get() = 2.0.pow(viewPoint.zoom - floor(viewPoint.zoom))
 
     private fun DpOffset.toMercator(): WebMercatorCoordinates = WebMercatorCoordinates(
-        floor(zoom).toInt(),
+        intZoom,
         (x - canvasSize.width / 2).value / tileScale + centerCoordinates.x,
         (y - canvasSize.height / 2).value / tileScale + centerCoordinates.y,
     )
@@ -42,7 +44,7 @@ internal class MapState internal constructor(
     )
 
     override fun Gmc.toDpOffset(): DpOffset =
-        WebMercatorProjection.toMercator(this, zoom).toOffset()
+        WebMercatorProjection.toMercator(this, intZoom).toOffset()
 
     override fun Rectangle<Gmc>.toDpRect(): DpRect {
         val topLeft = topLeft.toDpOffset()
