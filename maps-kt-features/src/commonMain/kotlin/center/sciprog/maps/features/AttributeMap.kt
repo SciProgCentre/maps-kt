@@ -3,6 +3,8 @@ package center.sciprog.maps.features
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.graphics.Color
 
+public object DepthAttribute : Feature.Attribute<Float>
+
 public object DraggableAttribute : Feature.Attribute<DragHandle<*>>
 
 public object SelectableAttribute : Feature.Attribute<(FeatureId<*>, SelectableFeature<*>) -> Unit>
@@ -14,7 +16,7 @@ public object ColorAttribute : Feature.Attribute<Color>
 public class AttributeMap {
     public val map: MutableMap<Feature.Attribute<*>, Any> = mutableStateMapOf()
 
-    public fun <T, A : Feature.Attribute<T>> setAttribute(
+    public operator fun <T, A : Feature.Attribute<T>> set(
         attribute: A,
         attrValue: T?,
     ) {
@@ -43,3 +45,9 @@ public class AttributeMap {
 
     override fun toString(): String = "AttributeMap(value=${map.entries})"
 }
+
+public var Feature<*>.depth: Float
+    get() = attributes[DepthAttribute] ?: 0f
+    set(value) {
+        attributes[DepthAttribute] = value
+    }

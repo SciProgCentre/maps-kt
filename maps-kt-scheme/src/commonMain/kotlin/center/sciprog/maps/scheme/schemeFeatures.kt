@@ -23,7 +23,12 @@ fun FeaturesState<XY>.background(
         offset,
         XY(width + offset.x, height + offset.y)
     )
-    return scalableImage(box, id = id, painter = painter)
+    return feature(
+        id,
+        ScalableImageFeature(coordinateSpace, box, painter = painter).apply {
+            depth = -100f
+        }
+    )
 }
 
 fun FeaturesState<XY>.circle(

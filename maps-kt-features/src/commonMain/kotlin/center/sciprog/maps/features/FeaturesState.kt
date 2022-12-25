@@ -44,7 +44,7 @@ public class FeaturesState<T : Any>(public val coordinateSpace: CoordinateSpace<
 
 
     public fun <F : Feature<T>, V> setAttribute(id: FeatureId<F>, key: Feature.Attribute<V>, value: V?) {
-        getFeature(id).attributes.setAttribute(key, value)
+        getFeature(id).attributes.set(key, value)
     }
 
     //TODO use context receiver for that

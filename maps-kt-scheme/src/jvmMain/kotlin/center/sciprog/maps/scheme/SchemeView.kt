@@ -48,14 +48,12 @@ public fun SchemeView(
             }
 
             clipRect {
-                featuresState.features.values.filterIsInstance<ScalableImageFeature<XY>>().forEach { background ->
-                    drawFeature(state, painterCache, background)
-                }
-                featuresState.features.values.filter {
-                    it !is ScalableImageFeature && viewPoint.zoom in it.zoomRange
-                }.forEach { feature ->
-                    drawFeature(state, painterCache, feature)
-                }
+                featuresState.features.values
+                    .filter { viewPoint.zoom in it.zoomRange }
+                    .sortedBy { it.depth }
+                    .forEach { background ->
+                        drawFeature(state, painterCache, background)
+                    }
             }
             selectRect?.let { dpRect ->
                 val rect = dpRect.toRect()

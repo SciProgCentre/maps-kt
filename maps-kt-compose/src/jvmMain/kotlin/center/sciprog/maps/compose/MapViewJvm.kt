@@ -15,10 +15,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import center.sciprog.maps.coordinates.Gmc
-import center.sciprog.maps.features.FeaturesState
-import center.sciprog.maps.features.PainterFeature
-import center.sciprog.maps.features.ViewConfig
-import center.sciprog.maps.features.drawFeature
+import center.sciprog.maps.features.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
@@ -130,7 +127,7 @@ public actual fun MapView(
                     )
                 }
 
-                featuresState.features.values.filter { viewPoint.zoom in it.zoomRange }.forEach { feature ->
+                featuresState.features.values.filter { viewPoint.zoom in it.zoomRange }.sortedBy { it.depth }.forEach { feature ->
                     drawFeature(state, painterCache, feature)
                 }
             }
