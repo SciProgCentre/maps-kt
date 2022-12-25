@@ -4,7 +4,7 @@ import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.unit.DpSize
 
 public data class ViewConfig<T : Any>(
-    val zoomSpeed: Double = 1.0 / 3.0,
+    val zoomSpeed: Float = 1f / 3f,
     val onClick: ViewPoint<T>.(PointerEvent) -> Unit = {},
     val dragHandle: DragHandle<T> = DragHandle.bypass(),
     val onViewChange: ViewPoint<T>.() -> Unit = {},

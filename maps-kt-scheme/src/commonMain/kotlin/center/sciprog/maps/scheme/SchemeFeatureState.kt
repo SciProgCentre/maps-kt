@@ -1,206 +1,85 @@
 package center.sciprog.maps.scheme
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import center.sciprog.maps.scheme.SchemeFeature.Companion.defaultScaleRange
+import center.sciprog.maps.features.*
 
-typealias FeatureId = String
+internal fun Pair<Number, Number>.toCoordinates(): XY = XY(first.toFloat(), second.toFloat())
 
-
-public class SchemeFeaturesState internal constructor(
-    private val features: MutableMap<FeatureId, SchemeFeature>,
-    private val attributes: MutableMap<FeatureId, SnapshotStateMap<Attribute<out Any?>, in Any?>>,
-) {
-    public interface Attribute<T>
-
-    public fun features(): Map<FeatureId, SchemeFeature> = features
-
-
-    private fun generateID(feature: SchemeFeature): FeatureId = "@feature[${feature.hashCode().toUInt()}]"
-
-    public fun addFeature(id: FeatureId?, feature: SchemeFeature): FeatureId {
-        val safeId = id ?: generateID(feature)
-        features[id ?: generateID(feature)] = feature
-        return safeId
-    }
-
-    public fun <T> setAttribute(id: FeatureId, key: Attribute<T>, value: T) {
-        attributes.getOrPut(id) { mutableStateMapOf() }[key] = value
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    public fun <T> getAttribute(id: FeatureId, key: Attribute<T>): T? =
-        attributes[id]?.get(key)?.let { it as T }
-
-    @Suppress("UNCHECKED_CAST")
-    public fun <T> findAllWithAttribute(key: Attribute<T>, condition: (T) -> Boolean): Set<FeatureId> {
-        return attributes.filterValues {
-            condition(it[key] as T)
-        }.keys
-    }
-
-    public companion object {
-
-        /**
-         * Build, but do not remember map feature state
-         */
-        public fun build(
-            builder: SchemeFeaturesState.() -> Unit = {},
-        ): SchemeFeaturesState = SchemeFeaturesState(
-            mutableStateMapOf(),
-            mutableStateMapOf()
-        ).apply(builder)
-
-        /**
-         * Build and remember map feature state
-         */
-        @Composable
-        public fun remember(
-            builder: SchemeFeaturesState.() -> Unit = {},
-        ): SchemeFeaturesState = androidx.compose.runtime.remember(builder) {
-            build(builder)
-        }
-
-    }
-}
-
-fun SchemeFeaturesState.background(
-    box: SchemeRectangle,
-    id: FeatureId? = null,
-    painter: @Composable () -> Painter,
-): FeatureId = addFeature(
-    id,
-    SchemeBackgroundFeature(box, painter = painter)
-)
-
-fun SchemeFeaturesState.background(
+fun FeaturesState<XY>.background(
     width: Float,
     height: Float,
-    offset: SchemeCoordinates = SchemeCoordinates(0f, 0f),
-    id: FeatureId? = null,
+    offset: XY = XY(0f, 0f),
+    id: String? = null,
     painter: @Composable () -> Painter,
-): FeatureId {
-    val box = SchemeRectangle(
+): FeatureId<ScalableImageFeature<XY>> {
+    val box = XYRectangle(
         offset,
-        SchemeCoordinates(width + offset.x, height + offset.y)
+        XY(width + offset.x, height + offset.y)
     )
-    return background(box, id, painter = painter)
+    return scalableImage(box, id = id, painter = painter)
 }
 
-fun SchemeFeaturesState.circle(
-    center: SchemeCoordinates,
-    scaleRange: FloatRange = defaultScaleRange,
-    size: Float = 5f,
-    color: Color = Color.Red,
-    id: FeatureId? = null,
-) = addFeature(
-    id, SchemeCircleFeature(center, scaleRange, size, color)
-)
-
-fun SchemeFeaturesState.circle(
+fun FeaturesState<XY>.circle(
     centerCoordinates: Pair<Number, Number>,
-    scaleRange: FloatRange = defaultScaleRange,
-    size: Float = 5f,
+    zoomRange: FloatRange = Feature.defaultZoomRange,
+    size: Dp = 5.dp,
     color: Color = Color.Red,
-    id: FeatureId? = null,
-) = addFeature(
-    id, SchemeCircleFeature(centerCoordinates.toCoordinates(), scaleRange, size, color)
-)
+    id: String? = null,
+): FeatureId<CircleFeature<XY>> = circle(centerCoordinates.toCoordinates(), zoomRange, size, color, id = id)
 
-fun SchemeFeaturesState.draw(
+fun FeaturesState<XY>.draw(
     position: Pair<Number, Number>,
-    scaleRange: FloatRange = defaultScaleRange,
-    id: FeatureId? = null,
-    drawFeature: DrawScope.() -> Unit,
-) = addFeature(id, SchemeDrawFeature(position.toCoordinates(), scaleRange, drawFeature))
+    zoomRange: FloatRange = Feature.defaultZoomRange,
+    id: String? = null,
+    draw: DrawScope.() -> Unit,
+): FeatureId<DrawFeature<XY>> = draw(position.toCoordinates(), zoomRange = zoomRange, id = id, draw = draw)
 
-fun SchemeFeaturesState.line(
-    aCoordinates: SchemeCoordinates,
-    bCoordinates: SchemeCoordinates,
-    scaleRange: FloatRange = defaultScaleRange,
-    color: Color = Color.Red,
-    id: FeatureId? = null,
-): FeatureId = addFeature(
-    id,
-    SchemeLineFeature(aCoordinates, bCoordinates, scaleRange, color)
-)
-
-fun SchemeFeaturesState.line(
+fun FeaturesState<XY>.line(
     aCoordinates: Pair<Number, Number>,
     bCoordinates: Pair<Number, Number>,
-    scaleRange: FloatRange = defaultScaleRange,
+    scaleRange: FloatRange = Feature.defaultZoomRange,
     color: Color = Color.Red,
-    id: FeatureId? = null,
-) = line(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), scaleRange, color, id)
+    id: String? = null,
+): FeatureId<LineFeature<XY>> = line(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), scaleRange, color, id)
 
-public fun SchemeFeaturesState.arc(
-    oval: SchemeRectangle,
-    startAngle: Float,
-    arcLength: Float,
-    scaleRange: FloatRange = defaultScaleRange,
-    color: Color = Color.Red,
-    id: FeatureId? = null,
-): FeatureId = addFeature(
-    id,
-    SchemeArcFeature(oval, startAngle, arcLength, scaleRange, color)
-)
 
-public fun SchemeFeaturesState.arc(
+public fun FeaturesState<XY>.arc(
     center: Pair<Double, Double>,
     radius: Float,
     startAngle: Float,
     arcLength: Float,
-    scaleRange: FloatRange = defaultScaleRange,
+    zoomRange: FloatRange = Feature.defaultZoomRange,
     color: Color = Color.Red,
-    id: FeatureId? = null,
-): FeatureId = addFeature(
-    id,
-    SchemeArcFeature(
-        oval = SchemeRectangle.square(center.toCoordinates(), radius, radius),
-        startAngle = startAngle,
-        arcLength = arcLength,
-        scaleRange = scaleRange,
-        color = color
-    )
+    id: String? = null,
+): FeatureId<ArcFeature<XY>> = arc(
+    oval = XYCoordinateSpace.Rectangle(center.toCoordinates(), radius, radius),
+    startAngle = startAngle,
+    arcLength = arcLength,
+    zoomRange = zoomRange,
+    color = color
 )
 
-fun SchemeFeaturesState.text(
-    position: SchemeCoordinates,
-    text: String,
-    scaleRange: FloatRange = defaultScaleRange,
-    color: Color = Color.Red,
-    id: FeatureId? = null,
-) = addFeature(id, SchemeTextFeature(position, text, scaleRange, color))
-
-fun SchemeFeaturesState.text(
-    position: Pair<Number, Number>,
-    text: String,
-    scaleRange: FloatRange = defaultScaleRange,
-    color: Color = Color.Red,
-    id: FeatureId? = null,
-) = addFeature(id, SchemeTextFeature(position.toCoordinates(), text, scaleRange, color))
-
-fun SchemeFeaturesState.image(
+fun FeaturesState<XY>.image(
     position: Pair<Number, Number>,
     image: ImageVector,
-    size: DpSize = DpSize(20.dp, 20.dp),
-    scaleRange: FloatRange = defaultScaleRange,
-    id: FeatureId? = null,
-) = addFeature(id, SchemeImageFeature(position.toCoordinates(), image, size, scaleRange))
+    size: DpSize = DpSize(image.defaultWidth, image.defaultHeight),
+    zoomRange: FloatRange = Feature.defaultZoomRange,
+    id: String? = null,
+): FeatureId<VectorImageFeature<XY>> =
+    image(position.toCoordinates(), image, size = size, zoomRange = zoomRange, id = id)
 
-fun SchemeFeaturesState.group(
-    scaleRange: FloatRange = defaultScaleRange,
-    id: FeatureId? = null,
-    builder: SchemeFeaturesState.() -> Unit,
-): FeatureId {
-    val groupBuilder = SchemeFeaturesState.build(builder)
-    val feature = SchemeFeatureGroup(groupBuilder.features(), scaleRange)
-    return addFeature(id, feature)
-}
+fun FeaturesState<XY>.text(
+    position: Pair<Number, Number>,
+    text: String,
+    zoomRange: FloatRange = Feature.defaultZoomRange,
+    color: Color = Color.Red,
+    id: String? = null,
+): FeatureId<TextFeature<XY>> = text(position.toCoordinates(), text, zoomRange, color, id = id)
+

@@ -8,14 +8,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toComposeImageBitmap
-import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import center.sciprog.maps.coordinates.Gmc
-import center.sciprog.maps.features.*
+import center.sciprog.maps.features.FeaturesState
+import center.sciprog.maps.features.PainterFeature
+import center.sciprog.maps.features.ViewConfig
+import center.sciprog.maps.features.drawFeature
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
@@ -53,6 +56,7 @@ public actual fun MapView(
         initialViewPoint,
         mapTileProvider.tileSize
     )
+
     with(state) {
 
         val mapTiles = remember(mapTileProvider) { mutableStateListOf<MapTile>() }
@@ -96,8 +100,8 @@ public actual fun MapView(
             }
         }
 
-        val painterCache: Map<VectorImageFeature<Gmc>, VectorPainter> = key(featuresState) {
-            featuresState.features.values.filterIsInstance<VectorImageFeature<Gmc>>().associateWith { it.painter() }
+        val painterCache: Map<PainterFeature<Gmc>, Painter> = key(featuresState) {
+            featuresState.features.values.filterIsInstance<PainterFeature<Gmc>>().associateWith { it.painter() }
         }
 
         Canvas(modifier = modifier.mapControls(state).fillMaxSize()) {

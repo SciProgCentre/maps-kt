@@ -29,17 +29,17 @@ public interface CoordinateSpace<T : Any> {
     /**
      * Build a rectangle of visual size [size]
      */
-    public fun Rectangle(center: T, zoom: Double, size: DpSize): Rectangle<T>
+    public fun Rectangle(center: T, zoom: Float, size: DpSize): Rectangle<T>
 
     /**
      * Create a [ViewPoint] associated with this coordinate space.
      */
-    public fun ViewPoint(center: T, zoom: Double): ViewPoint<T>
+    public fun ViewPoint(center: T, zoom: Float): ViewPoint<T>
 
     public fun ViewPoint<T>.moveBy(delta: T): ViewPoint<T>
 
     public fun ViewPoint<T>.zoomBy(
-        zoomDelta: Double,
+        zoomDelta: Float,
         invariant: T = focus,
     ): ViewPoint<T>
 

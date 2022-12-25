@@ -7,7 +7,7 @@ import center.sciprog.maps.coordinates.*
 import center.sciprog.maps.features.*
 import kotlin.math.*
 
-internal class MapState internal constructor(
+internal class MapViewState internal constructor(
     config: ViewConfig<Gmc>,
     canvasSize: DpSize,
     viewPoint: ViewPoint<Gmc>,
@@ -15,36 +15,36 @@ internal class MapState internal constructor(
 ) : CoordinateViewState<Gmc>(config, canvasSize, viewPoint) {
     override val space: CoordinateSpace<Gmc> get() = GmcCoordinateSpace
 
-    public val scaleFactor: Double
+    val scaleFactor: Double
         get() = WebMercatorProjection.scaleFactor(viewPoint.zoom)
 
     val intZoom: Int get() = floor(zoom).toInt()
 
-    public val centerCoordinates: WebMercatorCoordinates
+    val centerCoordinates: WebMercatorCoordinates
         get() = WebMercatorProjection.toMercator(viewPoint.focus, intZoom)
 
-    internal val tileScale: Double
-        get() = 2.0.pow(viewPoint.zoom - floor(viewPoint.zoom))
-
-    private fun DpOffset.toMercator(): WebMercatorCoordinates = WebMercatorCoordinates(
-        intZoom,
-        (x - canvasSize.width / 2).value / tileScale + centerCoordinates.x,
-        (y - canvasSize.height / 2).value / tileScale + centerCoordinates.y,
-    )
+    val tileScale: Float
+        get() = 2f.pow(viewPoint.zoom - floor(viewPoint.zoom))
 
     /*
      * Convert screen independent offset to GMC, adjusting for fractional zoom
      */
-    override fun DpOffset.toCoordinates(): Gmc =
-        WebMercatorProjection.toGeodetic(toMercator())
+    override fun DpOffset.toCoordinates(): Gmc {
+        val mercator = WebMercatorCoordinates(
+            intZoom,
+            (x - canvasSize.width / 2).value / tileScale + centerCoordinates.x,
+            (y - canvasSize.height / 2).value / tileScale + centerCoordinates.y,
+        )
+        return WebMercatorProjection.toGeodetic(mercator)
+    }
 
-    internal fun WebMercatorCoordinates.toOffset(): DpOffset = DpOffset(
-        (canvasSize.width / 2 + (x.dp - centerCoordinates.x.dp) * tileScale.toFloat()),
-        (canvasSize.height / 2 + (y.dp - centerCoordinates.y.dp) * tileScale.toFloat())
-    )
-
-    override fun Gmc.toDpOffset(): DpOffset =
-        WebMercatorProjection.toMercator(this, intZoom).toOffset()
+    override fun Gmc.toDpOffset(): DpOffset {
+        val mercator = WebMercatorProjection.toMercator(this, intZoom)
+        return  DpOffset(
+            (canvasSize.width / 2 + (mercator.x.dp - centerCoordinates.x.dp) * tileScale.toFloat()),
+            (canvasSize.height / 2 + (mercator.y.dp - centerCoordinates.y.dp) * tileScale.toFloat())
+        )
+    }
 
     override fun Rectangle<Gmc>.toDpRect(): DpRect {
         val topLeft = topLeft.toDpOffset()
@@ -59,7 +59,7 @@ internal class MapState internal constructor(
                 canvasSize.height.value / rectangle.latitudeDelta.radians.value
             ) * PI / tileSize
         )
-        return MapViewPoint(rectangle.center, zoom)
+        return MapViewPoint(rectangle.center, zoom.toFloat())
     }
 
     override fun ViewPoint<Gmc>.moveBy(x: Dp, y: Dp): ViewPoint<Gmc> {
@@ -82,6 +82,6 @@ internal fun rememberMapState(
     canvasSize: DpSize,
     viewPoint: ViewPoint<Gmc>,
     tileSize: Int,
-): MapState = remember {
-    MapState(config, canvasSize, viewPoint, tileSize)
+): MapViewState = remember {
+    MapViewState(config, canvasSize, viewPoint, tileSize)
 }

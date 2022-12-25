@@ -12,7 +12,7 @@ import center.sciprog.maps.features.Rectangle
  *
  * Note that this is a rectangle only on a Mercator projection.
  */
-public data class GmcRectangle(
+internal data class GmcRectangle(
     override val a: GeodeticMapCoordinates,
     override val b: GeodeticMapCoordinates,
 ) : Rectangle<Gmc> {

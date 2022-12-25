@@ -8,14 +8,14 @@ import center.sciprog.maps.features.ViewPoint
 import kotlin.math.pow
 
 public object GmcCoordinateSpace : CoordinateSpace<Gmc> {
-    override fun Rectangle(first: Gmc, second: Gmc): GmcRectangle = GmcRectangle(first, second)
+    override fun Rectangle(first: Gmc, second: Gmc): Rectangle<Gmc> = GmcRectangle(first, second)
 
-    override fun Rectangle(center: Gmc, zoom: Double, size: DpSize): GmcRectangle {
+    override fun Rectangle(center: Gmc, zoom: Float, size: DpSize): Rectangle<Gmc> {
         val scale = WebMercatorProjection.scaleFactor(zoom)
-        return buildRectangle(center, (size.width.value / scale).radians, (size.height.value / scale).radians)
+        return Rectangle(center, (size.width.value / scale).radians, (size.height.value / scale).radians)
     }
 
-    override fun ViewPoint(center: Gmc, zoom: Double): ViewPoint<Gmc> = MapViewPoint(center, zoom)
+    override fun ViewPoint(center: Gmc, zoom: Float): ViewPoint<Gmc> = MapViewPoint(center, zoom)
 
     override fun ViewPoint<Gmc>.moveBy(delta: Gmc): ViewPoint<Gmc> {
         val newCoordinates = GeodeticMapCoordinates(
@@ -28,21 +28,19 @@ public object GmcCoordinateSpace : CoordinateSpace<Gmc> {
         return MapViewPoint(newCoordinates, zoom)
     }
 
-    override fun ViewPoint<Gmc>.zoomBy(zoomDelta: Double, invariant: Gmc): ViewPoint<Gmc> = if (invariant == focus) {
-        ViewPoint(focus, (zoom + zoomDelta).coerceIn(2.0, 18.0) )
+    override fun ViewPoint<Gmc>.zoomBy(zoomDelta: Float, invariant: Gmc): ViewPoint<Gmc> = if (invariant == focus) {
+        ViewPoint(focus, (zoom + zoomDelta).coerceIn(2f, 18f) )
     } else {
-        val difScale = (1 - 2.0.pow(-zoomDelta))
+        val difScale = (1 - 2f.pow(-zoomDelta))
         val newCenter = GeodeticMapCoordinates(
             focus.latitude + (invariant.latitude - focus.latitude) * difScale,
             focus.longitude + (invariant.longitude - focus.longitude) * difScale
         )
-        MapViewPoint(newCenter, (zoom + zoomDelta).coerceIn(2.0, 18.0))
+        MapViewPoint(newCenter, (zoom + zoomDelta).coerceIn(2f, 18f))
     }
 
-
-    override fun Rectangle<Gmc>.withCenter(center: Gmc): GmcRectangle {
-        return buildRectangle(center, height = latitudeDelta, width = longitudeDelta)
-    }
+    override fun Rectangle<Gmc>.withCenter(center: Gmc): Rectangle<Gmc> =
+        Rectangle(center, height = latitudeDelta, width = longitudeDelta)
 
     override fun Collection<Rectangle<Gmc>>.wrapRectangles(): Rectangle<Gmc>? {
         if (isEmpty()) return null
@@ -68,24 +66,24 @@ public object GmcCoordinateSpace : CoordinateSpace<Gmc> {
 /**
  * A quasi-square section. Note that latitudinal distance could be imprecise for large distances
  */
-public fun CoordinateSpace<Gmc>.buildRectangle(
+public fun CoordinateSpace<Gmc>.Rectangle(
     center: Gmc,
     height: Distance,
     width: Distance,
     ellipsoid: GeoEllipsoid = GeoEllipsoid.WGS84,
-): GmcRectangle {
+): Rectangle<Gmc> {
     val reducedRadius = ellipsoid.reducedRadius(center.latitude)
-    return buildRectangle(center, (height / ellipsoid.polarRadius).radians, (width / reducedRadius).radians)
+    return Rectangle(center, (height / ellipsoid.polarRadius).radians, (width / reducedRadius).radians)
 }
 
 /**
  * A quasi-square section.
  */
-public fun CoordinateSpace<Gmc>.buildRectangle(
+public fun CoordinateSpace<Gmc>.Rectangle(
     center: GeodeticMapCoordinates,
     height: Angle,
     width: Angle,
-): GmcRectangle {
+): Rectangle<Gmc> {
     val a = GeodeticMapCoordinates(
         center.latitude - (height / 2),
         center.longitude - (width / 2)

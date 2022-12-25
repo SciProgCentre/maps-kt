@@ -9,12 +9,12 @@ import kotlin.math.pow
  */
 public data class MapViewPoint(
     override val focus: GeodeticMapCoordinates,
-    override val zoom: Double,
+    override val zoom: Float,
 ) : ViewPoint<Gmc>{
     val scaleFactor: Double by lazy { WebMercatorProjection.scaleFactor(zoom) }
 
     public companion object{
-        public val globe: MapViewPoint = MapViewPoint(GeodeticMapCoordinates(0.0.radians, 0.0.radians), 1.0)
+        public val globe: MapViewPoint = MapViewPoint(GeodeticMapCoordinates(0.0.radians, 0.0.radians), 1f)
     }
 }
 
@@ -30,15 +30,15 @@ public fun MapViewPoint.move(delta: GeodeticMapCoordinates): MapViewPoint {
 }
 
 public fun MapViewPoint.zoom(
-    zoomDelta: Double,
+    zoomDelta: Float,
     invariant: GeodeticMapCoordinates = focus,
 ): MapViewPoint = if (invariant == focus) {
-    copy(zoom = (zoom + zoomDelta).coerceIn(2.0, 18.0))
+    copy(zoom = (zoom + zoomDelta).coerceIn(2f, 18f))
 } else {
-    val difScale = (1 - 2.0.pow(-zoomDelta))
+    val difScale = (1 - 2f.pow(-zoomDelta))
     val newCenter = GeodeticMapCoordinates(
         focus.latitude + (invariant.latitude - focus.latitude) * difScale,
         focus.longitude + (invariant.longitude - focus.longitude) * difScale
     )
-    MapViewPoint(newCenter, (zoom + zoomDelta).coerceIn(2.0, 18.0))
+    MapViewPoint(newCenter, (zoom + zoomDelta).coerceIn(2f, 18f))
 }

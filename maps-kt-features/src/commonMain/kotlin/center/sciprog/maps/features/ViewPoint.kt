@@ -5,5 +5,5 @@ package center.sciprog.maps.features
  */
 public interface ViewPoint<T: Any> {
     public val focus: T
-    public val zoom: Double
+    public val zoom: Float
 }

@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -133,7 +135,7 @@ public class FeaturesState<T : Any>(public val coordinateSpace: CoordinateSpace<
 
 public fun <T : Any> FeaturesState<T>.circle(
     center: T,
-    zoomRange: DoubleRange = defaultZoomRange,
+    zoomRange: FloatRange = defaultZoomRange,
     size: Dp = 5.dp,
     color: Color = Color.Red,
     id: String? = null,
@@ -143,7 +145,7 @@ public fun <T : Any> FeaturesState<T>.circle(
 
 public fun <T : Any> FeaturesState<T>.rectangle(
     centerCoordinates: T,
-    zoomRange: DoubleRange = defaultZoomRange,
+    zoomRange: FloatRange = defaultZoomRange,
     size: DpSize = DpSize(5.dp, 5.dp),
     color: Color = Color.Red,
     id: String? = null,
@@ -151,10 +153,20 @@ public fun <T : Any> FeaturesState<T>.rectangle(
     id, RectangleFeature(coordinateSpace, centerCoordinates, zoomRange, size, color)
 )
 
+public fun <T : Any> FeaturesState<T>.draw(
+    position: T,
+    zoomRange: FloatRange = defaultZoomRange,
+    id: String? = null,
+    draw: DrawScope.() -> Unit,
+): FeatureId<DrawFeature<T>> = feature(
+    id,
+    DrawFeature(coordinateSpace, position, zoomRange, drawFeature = draw)
+)
+
 public fun <T : Any> FeaturesState<T>.line(
     aCoordinates: T,
     bCoordinates: T,
-    zoomRange: DoubleRange = defaultZoomRange,
+    zoomRange: FloatRange = defaultZoomRange,
     color: Color = Color.Red,
     id: String? = null,
 ): FeatureId<LineFeature<T>> = feature(
@@ -166,7 +178,7 @@ public fun <T : Any> FeaturesState<T>.arc(
     oval: Rectangle<T>,
     startAngle: Float,
     arcLength: Float,
-    zoomRange: DoubleRange = defaultZoomRange,
+    zoomRange: FloatRange = defaultZoomRange,
     color: Color = Color.Red,
     id: String? = null,
 ): FeatureId<ArcFeature<T>> = feature(
@@ -176,7 +188,7 @@ public fun <T : Any> FeaturesState<T>.arc(
 
 public fun <T : Any> FeaturesState<T>.points(
     points: List<T>,
-    zoomRange: DoubleRange = defaultZoomRange,
+    zoomRange: FloatRange = defaultZoomRange,
     stroke: Float = 2f,
     color: Color = Color.Red,
     pointMode: PointMode = PointMode.Points,
@@ -187,7 +199,8 @@ public fun <T : Any> FeaturesState<T>.points(
 public fun <T : Any> FeaturesState<T>.image(
     position: T,
     image: ImageVector,
-    zoomRange: DoubleRange = defaultZoomRange,
+    zoomRange: FloatRange = defaultZoomRange,
+    size: DpSize = DpSize(image.defaultWidth, image.defaultHeight),
     id: String? = null,
 ): FeatureId<VectorImageFeature<T>> =
     feature(
@@ -195,14 +208,14 @@ public fun <T : Any> FeaturesState<T>.image(
         VectorImageFeature(
             coordinateSpace,
             position,
-            DpSize(image.defaultWidth, image.defaultHeight),
+            size,
             image,
             zoomRange
         )
     )
 
 public fun <T : Any> FeaturesState<T>.group(
-    zoomRange: DoubleRange = defaultZoomRange,
+    zoomRange: FloatRange = defaultZoomRange,
     id: String? = null,
     builder: FeaturesState<T>.() -> Unit,
 ): FeatureId<FeatureGroup<T>> {
@@ -211,10 +224,20 @@ public fun <T : Any> FeaturesState<T>.group(
     return feature(id, feature)
 }
 
+public fun <T : Any> FeaturesState<T>.scalableImage(
+    box: Rectangle<T>,
+    zoomRange: FloatRange = defaultZoomRange,
+    id: String? = null,
+    painter: @Composable () -> Painter,
+): FeatureId<ScalableImageFeature<T>> = feature(
+    id,
+    ScalableImageFeature<T>(coordinateSpace, box, zoomRange, painter = painter)
+)
+
 public fun <T : Any> FeaturesState<T>.text(
     position: T,
     text: String,
-    zoomRange: DoubleRange = defaultZoomRange,
+    zoomRange: FloatRange = defaultZoomRange,
     color: Color = Color.Red,
     font: FeatureFont.() -> Unit = { size = 16f },
     id: String? = null,

@@ -84,7 +84,7 @@ public fun FeaturesState<Gmc>.arc(
     id,
     ArcFeature(
         coordinateSpace,
-        oval = buildRectangle(coordinatesOf(center), radius, radius),
+        oval = Rectangle(coordinatesOf(center), radius, radius),
         startAngle = startAngle.radians.toFloat(),
         arcLength = arcLength.radians.toFloat(),
         zoomRange = zoomRange,

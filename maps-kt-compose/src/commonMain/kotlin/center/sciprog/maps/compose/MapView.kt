@@ -35,7 +35,7 @@ public fun Rectangle<Gmc>.computeViewPoint(
             canvasSize.height.value / latitudeDelta.radians.value
         ) * PI / mapTileProvider.tileSize
     )
-    return MapViewPoint(center, zoom)
+    return MapViewPoint(center, zoom.toFloat())
 }
 
 /**
@@ -45,7 +45,7 @@ public fun Rectangle<Gmc>.computeViewPoint(
 public fun MapView(
     mapTileProvider: MapTileProvider,
     initialViewPoint: MapViewPoint? = null,
-    initialRectangle: GmcRectangle? = null,
+    initialRectangle: Rectangle<Gmc>? = null,
     featureMap: Map<FeatureId<*>, MapFeature>,
     config: ViewConfig<Gmc> = ViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
@@ -59,7 +59,7 @@ public fun MapView(
     val viewPointOverride: MapViewPoint = remember(initialViewPoint, initialRectangle) {
         initialViewPoint
             ?: initialRectangle?.computeViewPoint(mapTileProvider)
-            ?: featureMap.values.computeBoundingBox(GmcCoordinateSpace, 1.0)?.computeViewPoint(mapTileProvider)
+            ?: featureMap.values.computeBoundingBox(GmcCoordinateSpace, 1f)?.computeViewPoint(mapTileProvider)
             ?: MapViewPoint.globe
     }
 
@@ -77,7 +77,7 @@ public fun MapView(
 public fun MapView(
     mapTileProvider: MapTileProvider,
     initialViewPoint: MapViewPoint? = null,
-    initialRectangle: GmcRectangle? = null,
+    initialRectangle: Rectangle<Gmc>? = null,
     config: ViewConfig<Gmc> = ViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
     buildFeatures: FeaturesState<Gmc>.() -> Unit = {},
@@ -87,12 +87,13 @@ public fun MapView(
     val viewPointOverride: MapViewPoint = remember(initialViewPoint, initialRectangle) {
         initialViewPoint
             ?: initialRectangle?.computeViewPoint(mapTileProvider)
-            ?: featureState.features.values.computeBoundingBox(GmcCoordinateSpace,1.0)?.computeViewPoint(mapTileProvider)
+            ?: featureState.features.values.computeBoundingBox(GmcCoordinateSpace,1f)?.computeViewPoint(mapTileProvider)
             ?: MapViewPoint.globe
     }
 
     val featureDrag: DragHandle<Gmc> = DragHandle.withPrimaryButton { event, start: ViewPoint<Gmc>, end: ViewPoint<Gmc> ->
         featureState.forEachWithAttribute(DraggableAttribute) { _, handle ->
+            //TODO add safety
             handle as DragHandle<Gmc>
             if (!handle.handle(event, start, end)) return@withPrimaryButton false
         }

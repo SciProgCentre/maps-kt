@@ -14,10 +14,10 @@ public object WebMercatorProjection {
     /**
      * Compute radians to projection coordinates ratio for given [zoom] factor
      */
-    public fun scaleFactor(zoom: Double): Double = 256.0 / 2 / PI * 2.0.pow(zoom)
+    public fun scaleFactor(zoom: Float): Double = 256.0 / 2 / PI * 2f.pow(zoom)
 
     public fun toGeodetic(mercator: WebMercatorCoordinates): GeodeticMapCoordinates {
-        val scaleFactor = scaleFactor(mercator.zoom.toDouble())
+        val scaleFactor = scaleFactor(mercator.zoom.toFloat())
         val longitude = mercator.x / scaleFactor - PI
         val latitude = (atan(exp(PI - mercator.y / scaleFactor)) - PI / 4) * 2
         return GeodeticMapCoordinates.ofRadians(latitude, longitude)
@@ -29,7 +29,7 @@ public object WebMercatorProjection {
     public fun toMercator(gmc: GeodeticMapCoordinates, zoom: Int): WebMercatorCoordinates {
         require(abs(gmc.latitude) <= MercatorProjection.MAXIMUM_LATITUDE) { "Latitude exceeds the maximum latitude for mercator coordinates" }
 
-        val scaleFactor = scaleFactor(zoom.toDouble())
+        val scaleFactor = scaleFactor(zoom.toFloat())
         return WebMercatorCoordinates(
             zoom = zoom,
             x = scaleFactor * (gmc.longitude.radians.value + PI),

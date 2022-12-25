@@ -16,6 +16,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                api(projects.mapsKtFeatures)
                 api("io.github.microutils:kotlin-logging:2.1.23")
                 api(compose.foundation)
             }

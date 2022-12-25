@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
+import center.sciprog.maps.features.*
 import center.sciprog.maps.scheme.*
 import org.jfree.svg.SVGGraphics2D
 import org.jfree.svg.SVGUtils
@@ -15,34 +16,34 @@ import kotlin.math.PI
 import kotlin.math.abs
 
 
-class FeatureStateSnapshot(
-    val features: Map<FeatureId, SchemeFeature>,
-    val painterCache: Map<PainterFeature, Painter>,
+class FeatureStateSnapshot<T : Any>(
+    val features: Map<FeatureId<*>, Feature<T>>,
+    val painterCache: Map<PainterFeature<T>, Painter>,
 )
 
 @Composable
-fun SchemeFeaturesState.snapshot(): FeatureStateSnapshot =
-    FeatureStateSnapshot(
-        features(),
-        features().values.filterIsInstance<PainterFeature>().associateWith { it.painter() })
+fun <T: Any> FeaturesState<T>.snapshot(): FeatureStateSnapshot<T> = FeatureStateSnapshot(
+    features,
+    features.values.filterIsInstance<PainterFeature<T>>().associateWith { it.painter() }
+)
 
-fun FeatureStateSnapshot.generateSvg(
-    viewPoint: SchemeViewPoint,
+fun FeatureStateSnapshot<XY>.generateSvg(
+    viewPoint: ViewPoint<XY>,
     width: Double,
     height: Double,
-    id: String? = null
-): String{
+    id: String? = null,
+): String {
 
-    fun SchemeCoordinates.toOffset(): Offset = Offset(
-        (width / 2 + (x - viewPoint.focus.x) * viewPoint.scale).toFloat(),
-        (height / 2 + (viewPoint.focus.y - y) * viewPoint.scale).toFloat()
+    fun XY.toOffset(): Offset = Offset(
+        (width / 2 + (x - viewPoint.focus.x) * viewPoint.zoom).toFloat(),
+        (height / 2 + (viewPoint.focus.y - y) * viewPoint.zoom).toFloat()
     )
 
 
-    fun SvgDrawScope.drawFeature(scale: Float, feature: SchemeFeature) {
+    fun SvgDrawScope.drawFeature(scale: Float, feature: Feature<XY>) {
         when (feature) {
-            is SchemeBackgroundFeature -> {
-                val offset = SchemeCoordinates(feature.rectangle.left, feature.rectangle.top).toOffset()
+            is ScalableImageFeature -> {
+                val offset = XY(feature.rectangle.left, feature.rectangle.top).toOffset()
                 val backgroundSize = Size(
                     (feature.rectangle.width * scale),
                     (feature.rectangle.height * scale)
@@ -55,15 +56,17 @@ fun FeatureStateSnapshot.generateSvg(
                 }
             }
 
-            is SchemeFeatureSelector -> drawFeature(scale, feature.selector(scale))
-            is SchemeCircleFeature -> drawCircle(
+            is FeatureSelector -> drawFeature(scale, feature.selector(scale))
+
+            is CircleFeature -> drawCircle(
                 feature.color,
-                feature.size,
+                feature.size.toPx(),
                 center = feature.center.toOffset()
             )
 
-            is SchemeLineFeature -> drawLine(feature.color, feature.a.toOffset(), feature.b.toOffset())
-            is SchemeArcFeature -> {
+            is LineFeature -> drawLine(feature.color, feature.a.toOffset(), feature.b.toOffset())
+
+            is ArcFeature -> {
                 val topLeft = feature.oval.leftTop.toOffset()
                 val bottomRight = feature.oval.rightBottom.toOffset()
 
@@ -80,9 +83,9 @@ fun FeatureStateSnapshot.generateSvg(
                 )
             }
 
-            is SchemeBitmapFeature -> drawImage(feature.image, feature.position.toOffset())
+            is BitmapImageFeature -> drawImage(feature.image, feature.position.toOffset())
 
-            is SchemeImageFeature -> {
+            is VectorImageFeature -> {
                 val offset = feature.position.toOffset()
                 val imageSize = feature.size.toSize()
                 translate(offset.x - imageSize.width / 2, offset.y - imageSize.height / 2) {
@@ -92,7 +95,7 @@ fun FeatureStateSnapshot.generateSvg(
                 }
             }
 
-            is SchemeTextFeature -> drawIntoCanvas { canvas ->
+            is TextFeature -> drawIntoCanvas { canvas ->
                 val offset = feature.position.toOffset()
                 drawText(
                     feature.text,
@@ -103,14 +106,14 @@ fun FeatureStateSnapshot.generateSvg(
                 )
             }
 
-            is SchemeDrawFeature -> {
+            is DrawFeature -> {
                 val offset = feature.position.toOffset()
                 translate(offset.x, offset.y) {
                     feature.drawFeature(this)
                 }
             }
 
-            is SchemeFeatureGroup -> {
+            is FeatureGroup -> {
                 feature.children.values.forEach {
                     drawFeature(scale, it)
                 }
@@ -122,20 +125,20 @@ fun FeatureStateSnapshot.generateSvg(
     val svgScope = SvgDrawScope(svgGraphics2D, Size(width.toFloat(), height.toFloat()))
 
     svgScope.apply {
-        features.values.filterIsInstance<SchemeBackgroundFeature>().forEach { background ->
-            drawFeature(viewPoint.scale, background)
+        features.values.filterIsInstance<ScalableImageFeature<XY>>().forEach { background ->
+            drawFeature(viewPoint.zoom, background)
         }
         features.values.filter {
-            it !is SchemeBackgroundFeature && viewPoint.scale in it.scaleRange
+            it !is ScalableImageFeature && viewPoint.zoom in it.zoomRange
         }.forEach { feature ->
-            drawFeature(viewPoint.scale, feature)
+            drawFeature(viewPoint.zoom, feature)
         }
     }
     return svgGraphics2D.getSVGElement(id)
 }
 
-fun FeatureStateSnapshot.exportToSvg(
-    viewPoint: SchemeViewPoint,
+fun FeatureStateSnapshot<XY>.exportToSvg(
+    viewPoint: ViewPoint<XY>,
     width: Double,
     height: Double,
     path: java.nio.file.Path,

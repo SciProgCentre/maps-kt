@@ -8,6 +8,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import center.sciprog.maps.features.FeaturesState
+import center.sciprog.maps.features.ViewConfig
+import center.sciprog.maps.features.ViewPoint
+import center.sciprog.maps.features.computeBoundingBox
 import center.sciprog.maps.scheme.*
 import center.sciprog.maps.svg.FeatureStateSnapshot
 import center.sciprog.maps.svg.exportToSvg
@@ -25,7 +29,7 @@ fun App() {
     MaterialTheme {
         val scope = rememberCoroutineScope()
 
-        val schemeFeaturesState = SchemeFeaturesState.remember {
+        val schemeFeaturesState = FeaturesState.remember(XYCoordinateSpace) {
             background(1600f, 1200f) { painterResource("middle-earth.jpg") }
             circle(410.52737 to 868.7676, color = Color.Blue)
             text(410.52737 to 868.7676, "Shire", color = Color.Blue)
@@ -33,14 +37,14 @@ fun App() {
             text(1132.0881 to 394.99127, "Ordruin", color = Color.Red)
             arc(center = 1132.0881 to 394.99127, radius = 20f, startAngle = 0f, 2 * PI.toFloat())
 
-            val hobbitId = circle(410.52737 to 868.7676)
+            circle(410.52737 to 868.7676, id = "hobbit")
 
             scope.launch {
                 var t = 0.0
                 while (isActive) {
                     val x = 410.52737 + t * (1132.0881 - 410.52737)
                     val y = 868.7676 + t * (394.99127 - 868.7676)
-                    circle(x to y, color = Color.Green, id = hobbitId)
+                    circle(x to y, color = Color.Green, id = "hobbit")
                     delay(100)
                     t += 0.005
                     if (t >= 1.0) t = 0.0
@@ -48,14 +52,14 @@ fun App() {
             }
         }
 
-        val initialViewPoint: SchemeViewPoint = remember {
-            schemeFeaturesState.features().values.computeBoundingBox(1f)?.computeViewPoint()
-                ?: SchemeViewPoint(SchemeCoordinates(0f, 0f))
+        val initialViewPoint: ViewPoint<XY> = remember {
+            schemeFeaturesState.features.values.computeBoundingBox(XYCoordinateSpace, 1f)?.computeViewPoint()
+                ?: XYViewPoint(XY(0f, 0f))
         }
 
-        var viewPoint by remember { mutableStateOf<SchemeViewPoint>(initialViewPoint) }
+        var viewPoint: ViewPoint<XY> by remember { mutableStateOf(initialViewPoint) }
 
-        var snapshot: FeatureStateSnapshot? by remember { mutableStateOf(null) }
+        var snapshot: FeatureStateSnapshot<XY>? by remember { mutableStateOf(null) }
 
         if (snapshot == null) {
             snapshot = schemeFeaturesState.snapshot()
@@ -78,7 +82,7 @@ fun App() {
             SchemeView(
                 initialViewPoint = initialViewPoint,
                 featuresState = schemeFeaturesState,
-                config = SchemeViewConfig(
+                config = ViewConfig(
                     onClick = {
                         println("${focus.x}, ${focus.y}")
                     },

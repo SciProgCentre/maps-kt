@@ -8,8 +8,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.vector.VectorPainter
 import org.jetbrains.skia.Font
 import org.jetbrains.skia.Paint
 import kotlin.math.PI
@@ -22,7 +22,7 @@ internal fun Color.toPaint(): Paint = Paint().apply {
 
 public fun <T : Any> DrawScope.drawFeature(
     state: CoordinateViewState<T>,
-    painterCache: Map<VectorImageFeature<T>, VectorPainter>,
+    painterCache: Map<PainterFeature<T>, Painter>,
     feature: Feature<T>,
 ): Unit = with(state) {
     fun T.toOffset(): Offset = toOffset(this@drawFeature)
@@ -115,6 +115,17 @@ public fun <T : Any> DrawScope.drawFeature(
                 strokeWidth = feature.stroke,
                 pointMode = feature.pointMode
             )
+        }
+
+        is ScalableImageFeature -> {
+            val rect = feature.rectangle.toDpRect().toRect()
+            val offset = rect.topLeft
+
+            translate(offset.x, offset.y) {
+                with(painterCache[feature]!!) {
+                    draw(rect.size)
+                }
+            }
         }
 
         else -> {

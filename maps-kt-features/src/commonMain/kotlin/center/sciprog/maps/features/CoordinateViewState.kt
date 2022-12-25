@@ -25,7 +25,7 @@ public abstract class CoordinateViewState<T : Any>(
             viewPointState.value = value
         }
 
-    public val zoom: Double get() = viewPoint.zoom
+    public val zoom: Float get() = viewPoint.zoom
 
     public abstract fun DpOffset.toCoordinates(): T
 

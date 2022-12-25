@@ -1,4 +1,4 @@
-package center.sciprog.maps.features
+package center.sciprog.maps.compose
 
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.gestures.forEachGesture
@@ -8,6 +8,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.*
+import center.sciprog.maps.features.CoordinateViewState
+import center.sciprog.maps.features.bottomRight
+import center.sciprog.maps.features.topLeft
 import kotlin.math.max
 import kotlin.math.min
 
@@ -24,7 +27,7 @@ public fun <T : Any> Modifier.mapControls(
                 val event: PointerEvent = awaitPointerEvent()
 
                 event.changes.forEach { change ->
-                    val dragStart = change.position
+                    //val dragStart = change.position
                     //val dpPos = DpOffset(dragStart.x.toDp(), dragStart.y.toDp())
 
                     //start selection
@@ -95,7 +98,7 @@ public fun <T : Any> Modifier.mapControls(
         //compute invariant point of translation
         val invariant = DpOffset(xPos.toDp(), yPos.toDp()).toCoordinates()
         viewPoint = with(space) {
-            viewPoint.zoomBy(-change.scrollDelta.y.toDouble() * config.zoomSpeed, invariant)
+            viewPoint.zoomBy(-change.scrollDelta.y * config.zoomSpeed, invariant)
         }
     }
 }
