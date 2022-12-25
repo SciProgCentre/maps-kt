@@ -26,12 +26,12 @@ public object WebMercatorProjection {
     /**
      * https://en.wikipedia.org/wiki/Web_Mercator_projection#Formulas
      */
-    public fun toMercator(gmc: GeodeticMapCoordinates, zoom: Int): WebMercatorCoordinates {
+    public fun toMercator(gmc: GeodeticMapCoordinates, zoom: Double): WebMercatorCoordinates {
         require(abs(gmc.latitude) <= MercatorProjection.MAXIMUM_LATITUDE) { "Latitude exceeds the maximum latitude for mercator coordinates" }
 
-        val scaleFactor = scaleFactor(zoom.toDouble())
+        val scaleFactor = scaleFactor(zoom)
         return WebMercatorCoordinates(
-            zoom = zoom,
+            zoom = floor(zoom).toInt(),
             x = scaleFactor * (gmc.longitude.radians.value + PI),
             y = scaleFactor * (PI - ln(tan(PI / 4 + gmc.latitude.radians.value / 2)))
         )

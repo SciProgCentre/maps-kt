@@ -12,45 +12,6 @@ import kotlin.math.max
 import kotlin.math.min
 
 
-public abstract class CoordinateViewState<T : Any>(
-    public val config: ViewConfig<T>,
-    canvasSize: DpSize,
-    viewPoint: ViewPoint<T>,
-) {
-
-    public abstract val space: CoordinateSpace<T>
-
-    public var canvasSize: DpSize by mutableStateOf(canvasSize)
-    protected var viewPointState: MutableState<ViewPoint<T>> = mutableStateOf(viewPoint)
-
-    public var viewPoint: ViewPoint<T>
-        get() = viewPointState.value
-        set(value) {
-            config.onViewChange(value)
-            viewPointState.value = value
-        }
-
-    public abstract fun DpOffset.toCoordinates(): T
-
-    public abstract fun T.toDpOffset(): DpOffset
-
-    public fun T.toOffset(density: Density): Offset = with(density){
-        val dpOffset = this@toOffset.toDpOffset()
-        Offset(dpOffset.x.toPx(), dpOffset.y.toPx())
-    }
-
-    public abstract fun ViewPoint<T>.moveBy(x: Dp, y: Dp): ViewPoint<T>
-
-    public abstract fun viewPointFor(rectangle: Rectangle<T>): ViewPoint<T>
-
-    // Selection rectangle. If null - no selection
-    public var selectRect: DpRect? by mutableStateOf<DpRect?>(null)
-}
-
-public val DpRect.topLeft: DpOffset get() = DpOffset(left, top)
-public val DpRect.bottomRight: DpOffset get() = DpOffset(right, bottom)
-
-
 @OptIn(ExperimentalComposeUiApi::class)
 public fun <T : Any> Modifier.mapControls(
     state: CoordinateViewState<T>,
@@ -64,7 +25,7 @@ public fun <T : Any> Modifier.mapControls(
 
                 event.changes.forEach { change ->
                     val dragStart = change.position
-                    val dpPos = DpOffset(dragStart.x.toDp(), dragStart.y.toDp())
+                    //val dpPos = DpOffset(dragStart.x.toDp(), dragStart.y.toDp())
 
                     //start selection
                     val selectionStart: Offset? =

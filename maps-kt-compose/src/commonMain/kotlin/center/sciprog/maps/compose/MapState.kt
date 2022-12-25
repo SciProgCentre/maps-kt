@@ -2,10 +2,7 @@ package center.sciprog.maps.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.*
 import center.sciprog.maps.coordinates.*
 import center.sciprog.maps.features.*
 import kotlin.math.*
@@ -18,9 +15,6 @@ internal class MapState internal constructor(
 ) : CoordinateViewState<Gmc>(config, canvasSize, viewPoint) {
     override val space: CoordinateSpace<Gmc> get() = GmcCoordinateSpace
 
-    public val zoom: Int
-        get() = floor(viewPoint.zoom).toInt()
-
     public val scaleFactor: Double
         get() = WebMercatorProjection.scaleFactor(viewPoint.zoom)
 
@@ -31,7 +25,7 @@ internal class MapState internal constructor(
         get() = 2.0.pow(viewPoint.zoom - zoom)
 
     private fun DpOffset.toMercator(): WebMercatorCoordinates = WebMercatorCoordinates(
-        zoom,
+        floor(zoom).toInt(),
         (x - canvasSize.width / 2).value / tileScale + centerCoordinates.x,
         (y - canvasSize.height / 2).value / tileScale + centerCoordinates.y,
     )
@@ -49,6 +43,12 @@ internal class MapState internal constructor(
 
     override fun Gmc.toDpOffset(): DpOffset =
         WebMercatorProjection.toMercator(this, zoom).toOffset()
+
+    override fun Rectangle<Gmc>.toDpRect(): DpRect {
+        val topLeft = topLeft.toDpOffset()
+        val bottomRight = bottomRight.toDpOffset()
+        return DpRect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y)
+    }
 
     override fun viewPointFor(rectangle: Rectangle<Gmc>): ViewPoint<Gmc> {
         val zoom = log2(
@@ -80,6 +80,6 @@ internal fun rememberMapState(
     canvasSize: DpSize,
     viewPoint: ViewPoint<Gmc>,
     tileSize: Int,
-):MapState = remember {
+): MapState = remember {
     MapState(config, canvasSize, viewPoint, tileSize)
 }

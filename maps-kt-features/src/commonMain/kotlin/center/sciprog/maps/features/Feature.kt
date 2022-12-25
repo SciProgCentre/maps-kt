@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import center.sciprog.maps.features.Feature.Companion.defaultZoomRange
-import kotlin.math.floor
 
 public typealias DoubleRange = ClosedFloatingPointRange<Double>
 
@@ -60,11 +59,11 @@ public fun <T : Any> Iterable<Feature<T>>.computeBoundingBox(
 public class FeatureSelector<T : Any>(
     override val space: CoordinateSpace<T>,
     override var attributes: AttributeMap = AttributeMap(),
-    public val selector: (zoom: Int) -> Feature<T>,
+    public val selector: (zoom: Double) -> Feature<T>,
 ) : Feature<T> {
     override val zoomRange: ClosedFloatingPointRange<Double> get() = defaultZoomRange
 
-    override fun getBoundingBox(zoom: Double): Rectangle<T>? = selector(floor(zoom).toInt()).getBoundingBox(zoom)
+    override fun getBoundingBox(zoom: Double): Rectangle<T>? = selector(zoom).getBoundingBox(zoom)
 }
 
 public class PathFeature<T : Any>(
