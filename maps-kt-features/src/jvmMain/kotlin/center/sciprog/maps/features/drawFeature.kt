@@ -62,10 +62,10 @@ public fun <T : Any> DrawScope.drawFeature(
 
         }
 
-        is BitmapImageFeature -> drawImage(feature.image, feature.position.toOffset())
+        is BitmapImageFeature -> drawImage(feature.image, feature.center.toOffset())
 
         is VectorImageFeature -> {
-            val offset = feature.position.toOffset()
+            val offset = feature.center.toOffset()
             val size = feature.size.toSize()
             translate(offset.x - size.width / 2, offset.y - size.height / 2) {
                 with(painterCache[feature]!!) {

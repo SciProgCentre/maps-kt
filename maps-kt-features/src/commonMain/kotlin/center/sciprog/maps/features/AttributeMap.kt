@@ -5,8 +5,6 @@ import androidx.compose.ui.graphics.Color
 
 public object ZAttribute : Feature.Attribute<Float>
 
-public object DraggableAttribute : Feature.Attribute<DragHandle<Any>>
-
 public object SelectableAttribute : Feature.Attribute<(FeatureId<*>, SelectableFeature<*>) -> Unit>
 
 public object VisibleAttribute : Feature.Attribute<Boolean>

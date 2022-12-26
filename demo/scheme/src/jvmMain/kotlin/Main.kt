@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import center.sciprog.maps.features.FeaturesState
+import center.sciprog.maps.features.FeatureCollection
 import center.sciprog.maps.features.ViewConfig
 import center.sciprog.maps.features.ViewPoint
 import center.sciprog.maps.features.computeBoundingBox
@@ -29,7 +29,7 @@ fun App() {
     MaterialTheme {
         val scope = rememberCoroutineScope()
 
-        val schemeFeaturesState = FeaturesState.remember(XYCoordinateSpace) {
+        val schemeFeaturesState = FeatureCollection.remember(XYCoordinateSpace) {
             background(1600f, 1200f) { painterResource("middle-earth.jpg") }
             circle(410.52737 to 868.7676, color = Color.Blue)
             text(410.52737 to 868.7676, "Shire", color = Color.Blue)

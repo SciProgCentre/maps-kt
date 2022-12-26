@@ -12,12 +12,12 @@ import center.sciprog.maps.features.*
 import center.sciprog.maps.features.Feature.Companion.defaultZoomRange
 
 
-internal fun FeaturesState<Gmc>.coordinatesOf(pair: Pair<Number, Number>) =
+internal fun FeatureCollection<Gmc>.coordinatesOf(pair: Pair<Number, Number>) =
     GeodeticMapCoordinates.ofDegrees(pair.first.toDouble(), pair.second.toDouble())
 
 public typealias MapFeature = Feature<Gmc>
 
-public fun FeaturesState<Gmc>.circle(
+public fun FeatureCollection<Gmc>.circle(
     centerCoordinates: Pair<Number, Number>,
     zoomRange: DoubleRange = defaultZoomRange,
     size: Dp = 5.dp,
@@ -27,7 +27,7 @@ public fun FeaturesState<Gmc>.circle(
     id, CircleFeature(coordinateSpace, coordinatesOf(centerCoordinates), zoomRange, size, color)
 )
 
-public fun FeaturesState<Gmc>.rectangle(
+public fun FeatureCollection<Gmc>.rectangle(
     centerCoordinates: Pair<Number, Number>,
     zoomRange: DoubleRange = defaultZoomRange,
     size: DpSize = DpSize(5.dp, 5.dp),
@@ -38,7 +38,7 @@ public fun FeaturesState<Gmc>.rectangle(
 )
 
 
-public fun FeaturesState<Gmc>.draw(
+public fun FeatureCollection<Gmc>.draw(
     position: Pair<Number, Number>,
     zoomRange: DoubleRange = defaultZoomRange,
     id: String? = null,
@@ -49,7 +49,7 @@ public fun FeaturesState<Gmc>.draw(
 )
 
 
-public fun FeaturesState<Gmc>.line(
+public fun FeatureCollection<Gmc>.line(
     curve: GmcCurve,
     zoomRange: DoubleRange = defaultZoomRange,
     color: Color = Color.Red,
@@ -60,7 +60,7 @@ public fun FeaturesState<Gmc>.line(
 )
 
 
-public fun FeaturesState<Gmc>.line(
+public fun FeatureCollection<Gmc>.line(
     aCoordinates: Pair<Double, Double>,
     bCoordinates: Pair<Double, Double>,
     zoomRange: DoubleRange = defaultZoomRange,
@@ -72,7 +72,7 @@ public fun FeaturesState<Gmc>.line(
 )
 
 
-public fun FeaturesState<Gmc>.arc(
+public fun FeatureCollection<Gmc>.arc(
     center: Pair<Double, Double>,
     radius: Distance,
     startAngle: Angle,
@@ -92,7 +92,7 @@ public fun FeaturesState<Gmc>.arc(
     )
 )
 
-public fun FeaturesState<Gmc>.points(
+public fun FeatureCollection<Gmc>.points(
     points: List<Pair<Double, Double>>,
     zoomRange: DoubleRange = defaultZoomRange,
     stroke: Float = 2f,
@@ -102,7 +102,7 @@ public fun FeaturesState<Gmc>.points(
 ): FeatureId<PointsFeature<Gmc>> =
     feature(id, PointsFeature(coordinateSpace, points.map(::coordinatesOf), zoomRange, stroke, color, pointMode))
 
-public fun FeaturesState<Gmc>.image(
+public fun FeatureCollection<Gmc>.image(
     position: Pair<Double, Double>,
     image: ImageVector,
     size: DpSize = DpSize(20.dp, 20.dp),
@@ -119,7 +119,7 @@ public fun FeaturesState<Gmc>.image(
     )
 )
 
-public fun FeaturesState<Gmc>.text(
+public fun FeatureCollection<Gmc>.text(
     position: Pair<Double, Double>,
     text: String,
     zoomRange: DoubleRange = defaultZoomRange,

@@ -42,7 +42,7 @@ private val logger = KotlinLogging.logger("MapView")
 public actual fun MapView(
     mapTileProvider: MapTileProvider,
     initialViewPoint: MapViewPoint,
-    featuresState: FeaturesState<Gmc>,
+    featuresState: FeatureCollection<Gmc>,
     config: ViewConfig<Gmc>,
     modifier: Modifier,
 ): Unit = key(initialViewPoint) {

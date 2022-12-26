@@ -49,6 +49,13 @@ public interface DraggableFeature<T : Any> : SelectableFeature<T> {
     public fun withCoordinates(newCoordinates: T): Feature<T>
 }
 
+/**
+ * A draggable marker feature. Other features could be bound to this one.
+ */
+public interface MarkerFeature<T: Any>: DraggableFeature<T>{
+    public val center: T
+}
+
 public fun <T : Any> Iterable<Feature<T>>.computeBoundingBox(
     space: CoordinateSpace<T>,
     zoom: Float,
@@ -115,12 +122,12 @@ public class PointsFeature<T : Any>(
 
 public data class CircleFeature<T : Any>(
     override val space: CoordinateSpace<T>,
-    public val center: T,
+    override val center: T,
     override val zoomRange: FloatRange = defaultZoomRange,
     public val size: Dp = 5.dp,
     public val color: Color = Color.Red,
     override var attributes: AttributeMap = AttributeMap(),
-) : DraggableFeature<T> {
+) : MarkerFeature<T> {
     override fun getBoundingBox(zoom: Float): Rectangle<T> =
         space.Rectangle(center, zoom, DpSize(size, size))
 
@@ -130,12 +137,12 @@ public data class CircleFeature<T : Any>(
 
 public class RectangleFeature<T : Any>(
     override val space: CoordinateSpace<T>,
-    public val center: T,
+    override val center: T,
     override val zoomRange: FloatRange = defaultZoomRange,
     public val size: DpSize = DpSize(5.dp, 5.dp),
     public val color: Color = Color.Red,
     override var attributes: AttributeMap = AttributeMap(),
-) : DraggableFeature<T> {
+) : MarkerFeature<T> {
     override fun getBoundingBox(zoom: Float): Rectangle<T> =
         space.Rectangle(center, zoom, size)
 
@@ -193,35 +200,35 @@ public data class DrawFeature<T : Any>(
 
 public data class BitmapImageFeature<T : Any>(
     override val space: CoordinateSpace<T>,
-    public val position: T,
+    override val center: T,
     public val size: DpSize,
     public val image: ImageBitmap,
     override val zoomRange: FloatRange = defaultZoomRange,
     override var attributes: AttributeMap = AttributeMap(),
-) : DraggableFeature<T> {
-    override fun getBoundingBox(zoom: Float): Rectangle<T> = space.Rectangle(position, zoom, size)
+) : MarkerFeature<T> {
+    override fun getBoundingBox(zoom: Float): Rectangle<T> = space.Rectangle(center, zoom, size)
 
-    override fun withCoordinates(newCoordinates: T): Feature<T> = copy(position = newCoordinates)
+    override fun withCoordinates(newCoordinates: T): Feature<T> = copy(center = newCoordinates)
 }
 
 public data class VectorImageFeature<T : Any>(
     override val space: CoordinateSpace<T>,
-    public val position: T,
+    override val center: T,
     public val size: DpSize,
     public val image: ImageVector,
     override val zoomRange: FloatRange = defaultZoomRange,
     override var attributes: AttributeMap = AttributeMap(),
-) : DraggableFeature<T>, PainterFeature<T> {
-    override fun getBoundingBox(zoom: Float): Rectangle<T> = space.Rectangle(position, zoom, size)
+) : MarkerFeature<T>, PainterFeature<T> {
+    override fun getBoundingBox(zoom: Float): Rectangle<T> = space.Rectangle(center, zoom, size)
 
-    override fun withCoordinates(newCoordinates: T): Feature<T> = copy(position = newCoordinates)
+    override fun withCoordinates(newCoordinates: T): Feature<T> = copy(center = newCoordinates)
 
     @Composable
     override fun painter(): VectorPainter = rememberVectorPainter(image)
 }
 
 /**
- * A background image that is bound to coordinates and is scaled together with them
+ * An image that is bound to coordinates and is scaled together with them
  *
  * @param rectangle the size of background in scheme size units. The screen units to scheme units ratio equals scale.
  */

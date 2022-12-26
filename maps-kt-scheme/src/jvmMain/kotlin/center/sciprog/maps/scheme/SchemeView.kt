@@ -23,7 +23,7 @@ private val logger = KotlinLogging.logger("SchemeView")
 @Composable
 public fun SchemeView(
     initialViewPoint: ViewPoint<XY>,
-    featuresState: FeaturesState<XY>,
+    featuresState: FeatureCollection<XY>,
     config: ViewConfig<XY>,
     modifier: Modifier = Modifier.fillMaxSize(),
 ) = key(initialViewPoint) {
@@ -96,7 +96,7 @@ public fun SchemeView(
     modifier: Modifier = Modifier.fillMaxSize(),
 ) {
     val featuresState = key(featureMap) {
-        FeaturesState.build(XYCoordinateSpace) {
+        FeatureCollection.build(XYCoordinateSpace) {
             featureMap.forEach { feature(it.key.id, it.value) }
         }
     }
@@ -124,9 +124,9 @@ public fun SchemeView(
     initialRectangle: Rectangle<XY>? = null,
     config: ViewConfig<XY> = ViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
-    buildFeatures: FeaturesState<XY>.() -> Unit = {},
+    buildFeatures: FeatureCollection<XY>.() -> Unit = {},
 ) {
-    val featureState = FeaturesState.remember(XYCoordinateSpace, buildFeatures)
+    val featureState = FeatureCollection.remember(XYCoordinateSpace, buildFeatures)
 
     val viewPointOverride: ViewPoint<XY> = remember(initialViewPoint, initialRectangle) {
         initialViewPoint

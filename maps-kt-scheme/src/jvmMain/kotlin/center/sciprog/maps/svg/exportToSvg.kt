@@ -22,7 +22,7 @@ class FeatureStateSnapshot<T : Any>(
 )
 
 @Composable
-fun <T: Any> FeaturesState<T>.snapshot(): FeatureStateSnapshot<T> = FeatureStateSnapshot(
+fun <T: Any> FeatureCollection<T>.snapshot(): FeatureStateSnapshot<T> = FeatureStateSnapshot(
     features,
     features.values.filterIsInstance<PainterFeature<T>>().associateWith { it.painter() }
 )
@@ -83,10 +83,10 @@ fun FeatureStateSnapshot<XY>.generateSvg(
                 )
             }
 
-            is BitmapImageFeature -> drawImage(feature.image, feature.position.toOffset())
+            is BitmapImageFeature -> drawImage(feature.image, feature.center.toOffset())
 
             is VectorImageFeature -> {
-                val offset = feature.position.toOffset()
+                val offset = feature.center.toOffset()
                 val imageSize = feature.size.toSize()
                 translate(offset.x - imageSize.width / 2, offset.y - imageSize.height / 2) {
                     with(painterCache[feature]!!) {

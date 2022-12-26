@@ -18,10 +18,23 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 @JvmInline
-public value class FeatureId<out MapFeature>(public val id: String)
+public value class FeatureId<out F : Feature<*>>(public val id: String)
 
-public class FeaturesState<T : Any>(public val coordinateSpace: CoordinateSpace<T>) :
-    CoordinateSpace<T> by coordinateSpace {
+public interface FeatureBuilder<T : Any> {
+
+    public val coordinateSpace: CoordinateSpace<T>
+
+    public fun <F : Feature<T>> feature(id: String?, feature: F): FeatureId<F>
+
+    public fun <F : Feature<T>, V> setAttribute(id: FeatureId<F>, key: Feature.Attribute<V>, value: V?)
+}
+
+public fun <T : Any, F : Feature<T>> FeatureBuilder<T>.feature(id: FeatureId<F>, feature: F): FeatureId<F> =
+    feature(id.id, feature)
+
+public class FeatureCollection<T : Any>(
+    override val coordinateSpace: CoordinateSpace<T>,
+) : CoordinateSpace<T> by coordinateSpace, FeatureBuilder<T> {
 
     @PublishedApi
     internal val featureMap: MutableMap<String, Feature<T>> = mutableStateMapOf()
@@ -30,21 +43,21 @@ public class FeaturesState<T : Any>(public val coordinateSpace: CoordinateSpace<
         get() = featureMap.mapKeys { FeatureId<Feature<T>>(it.key) }
 
     @Suppress("UNCHECKED_CAST")
-    public fun <F : Feature<T>> getFeature(id: FeatureId<F>): F = featureMap[id.id] as F
+    public operator fun <F : Feature<T>> get(id: FeatureId<F>): F = featureMap[id.id] as F
 
     private fun generateID(feature: Feature<T>): String = "@feature[${feature.hashCode().toUInt()}]"
 
-    public fun <F : Feature<T>> feature(id: String?, feature: F): FeatureId<F> {
+    override fun <F : Feature<T>> feature(id: String?, feature: F): FeatureId<F> {
         val safeId = id ?: generateID(feature)
         featureMap[safeId] = feature
         return FeatureId(safeId)
     }
 
-    public fun <F : Feature<T>> feature(id: FeatureId<F>?, feature: F): FeatureId<F> = feature(id?.id, feature)
+    public fun <F : Feature<T>> feature(id: FeatureId<F>, feature: F): FeatureId<F> = feature(id.id, feature)
 
 
-    public fun <F : Feature<T>, V> setAttribute(id: FeatureId<F>, key: Feature.Attribute<V>, value: V?) {
-        getFeature(id).attributes[key] = value
+    override fun <F : Feature<T>, V> setAttribute(id: FeatureId<F>, key: Feature.Attribute<V>, value: V?) {
+        get(id).attributes[key] = value
     }
 
     /**
@@ -54,26 +67,38 @@ public class FeaturesState<T : Any>(public val coordinateSpace: CoordinateSpace<
      *
      * TODO use context receiver for that
      */
+    @Suppress("UNCHECKED_CAST")
     public fun FeatureId<DraggableFeature<T>>.draggable(
         constraint: ((T) -> T)? = null,
-        callback: ((start: T, end: T) -> Unit) = { _, _ -> },
+        callback: ((start: T, end: T) -> Unit)? = null,
     ) {
-        @Suppress("UNCHECKED_CAST")
-        val handle = DragHandle.withPrimaryButton<Any> { _, start, end ->
-            val startPosition = start.focus as T
-            val endPosition = end.focus as T
-            val feature = featureMap[id] as? DraggableFeature ?: return@withPrimaryButton DragResult(end)
-            val boundingBox = feature.getBoundingBox(start.zoom) ?: return@withPrimaryButton DragResult(end)
-            if (startPosition in boundingBox) {
-                val finalPosition = constraint?.invoke(endPosition) ?: endPosition
-                feature(id, feature.withCoordinates(finalPosition))
-                callback(startPosition, finalPosition)
-                DragResult(ViewPoint(finalPosition, end.zoom), false)
-            } else {
-                DragResult(end, true)
+        if (getAttribute(this, DraggableAttribute) == null) {
+            val handle = DragHandle.withPrimaryButton<Any> { _, start, end ->
+                val feature = featureMap[id] as? DraggableFeature ?: return@withPrimaryButton DragResult(end)
+                val startPosition = start.focus as T
+                val endPosition = end.focus as T
+                val boundingBox = feature.getBoundingBox(start.zoom) ?: return@withPrimaryButton DragResult(end)
+                if (startPosition in boundingBox) {
+                    val finalPosition = constraint?.invoke(endPosition) ?: endPosition
+                    feature(id, feature.withCoordinates(finalPosition))
+                    feature.attributes[DragListenerAttribute]?.forEach {
+                        it.invoke(startPosition, endPosition)
+                    }
+                    DragResult(ViewPoint(finalPosition, end.zoom), false)
+                } else {
+                    DragResult(end, true)
+                }
             }
+            setAttribute(this, DraggableAttribute, handle)
         }
-        setAttribute(this, DraggableAttribute, handle)
+
+        //Apply callback
+        if (callback != null) {
+            setAttribute(
+                this, DragListenerAttribute,
+                ((getAttribute(this, DragListenerAttribute) ?: emptySet()) + callback) as Set<(Any, Any) -> Unit>
+            )
+        }
     }
 
     /**
@@ -84,7 +109,7 @@ public class FeaturesState<T : Any>(public val coordinateSpace: CoordinateSpace<
         update: suspend (F) -> F,
     ): Job = scope.launch {
         while (isActive) {
-            feature(this@updated, update(getFeature(this@updated)))
+            feature(this@updated, update(get(this@updated)))
         }
     }
 
@@ -98,15 +123,7 @@ public class FeaturesState<T : Any>(public val coordinateSpace: CoordinateSpace<
 
     @Suppress("UNCHECKED_CAST")
     public fun <A> getAttribute(id: FeatureId<Feature<T>>, key: Feature.Attribute<A>): A? =
-        getFeature(id).attributes[key]
-
-
-//    @Suppress("UNCHECKED_CAST")
-//    public fun <T> findAllWithAttribute(key: Attribute<T>, condition: (T) -> Boolean): Set<FeatureId> {
-//        return attributes.filterValues {
-//            condition(it[key] as T)
-//        }.keys
-//    }
+        get(id).attributes[key]
 
     /**
      * Process all features with a given attribute from the one with highest [z] to lowest
@@ -129,8 +146,8 @@ public class FeaturesState<T : Any>(public val coordinateSpace: CoordinateSpace<
          */
         public fun <T : Any> build(
             coordinateSpace: CoordinateSpace<T>,
-            builder: FeaturesState<T>.() -> Unit = {},
-        ): FeaturesState<T> = FeaturesState(coordinateSpace).apply(builder)
+            builder: FeatureCollection<T>.() -> Unit = {},
+        ): FeatureCollection<T> = FeatureCollection(coordinateSpace).apply(builder)
 
         /**
          * Build and remember map feature state
@@ -138,15 +155,15 @@ public class FeaturesState<T : Any>(public val coordinateSpace: CoordinateSpace<
         @Composable
         public fun <T : Any> remember(
             coordinateSpace: CoordinateSpace<T>,
-            builder: FeaturesState<T>.() -> Unit = {},
-        ): FeaturesState<T> = remember(builder) {
+            builder: FeatureCollection<T>.() -> Unit = {},
+        ): FeatureCollection<T> = remember(builder) {
             build(coordinateSpace, builder)
         }
 
     }
 }
 
-public fun <T : Any> FeaturesState<T>.circle(
+public fun <T : Any> FeatureBuilder<T>.circle(
     center: T,
     zoomRange: FloatRange = defaultZoomRange,
     size: Dp = 5.dp,
@@ -156,7 +173,7 @@ public fun <T : Any> FeaturesState<T>.circle(
     id, CircleFeature(coordinateSpace, center, zoomRange, size, color)
 )
 
-public fun <T : Any> FeaturesState<T>.rectangle(
+public fun <T : Any> FeatureBuilder<T>.rectangle(
     centerCoordinates: T,
     zoomRange: FloatRange = defaultZoomRange,
     size: DpSize = DpSize(5.dp, 5.dp),
@@ -166,7 +183,7 @@ public fun <T : Any> FeaturesState<T>.rectangle(
     id, RectangleFeature(coordinateSpace, centerCoordinates, zoomRange, size, color)
 )
 
-public fun <T : Any> FeaturesState<T>.draw(
+public fun <T : Any> FeatureBuilder<T>.draw(
     position: T,
     zoomRange: FloatRange = defaultZoomRange,
     id: String? = null,
@@ -176,7 +193,7 @@ public fun <T : Any> FeaturesState<T>.draw(
     DrawFeature(coordinateSpace, position, zoomRange, drawFeature = draw)
 )
 
-public fun <T : Any> FeaturesState<T>.line(
+public fun <T : Any> FeatureBuilder<T>.line(
     aCoordinates: T,
     bCoordinates: T,
     zoomRange: FloatRange = defaultZoomRange,
@@ -187,7 +204,7 @@ public fun <T : Any> FeaturesState<T>.line(
     LineFeature(coordinateSpace, aCoordinates, bCoordinates, zoomRange, color)
 )
 
-public fun <T : Any> FeaturesState<T>.arc(
+public fun <T : Any> FeatureBuilder<T>.arc(
     oval: Rectangle<T>,
     startAngle: Float,
     arcLength: Float,
@@ -199,7 +216,7 @@ public fun <T : Any> FeaturesState<T>.arc(
     ArcFeature(coordinateSpace, oval, startAngle, arcLength, zoomRange, color)
 )
 
-public fun <T : Any> FeaturesState<T>.points(
+public fun <T : Any> FeatureBuilder<T>.points(
     points: List<T>,
     zoomRange: FloatRange = defaultZoomRange,
     stroke: Float = 2f,
@@ -209,7 +226,7 @@ public fun <T : Any> FeaturesState<T>.points(
 ): FeatureId<PointsFeature<T>> =
     feature(id, PointsFeature(coordinateSpace, points, zoomRange, stroke, color, pointMode))
 
-public fun <T : Any> FeaturesState<T>.image(
+public fun <T : Any> FeatureBuilder<T>.image(
     position: T,
     image: ImageVector,
     zoomRange: FloatRange = defaultZoomRange,
@@ -227,17 +244,17 @@ public fun <T : Any> FeaturesState<T>.image(
         )
     )
 
-public fun <T : Any> FeaturesState<T>.group(
+public fun <T : Any> FeatureBuilder<T>.group(
     zoomRange: FloatRange = defaultZoomRange,
     id: String? = null,
-    builder: FeaturesState<T>.() -> Unit,
+    builder: FeatureCollection<T>.() -> Unit,
 ): FeatureId<FeatureGroup<T>> {
-    val map = FeaturesState(coordinateSpace).apply(builder).features
+    val map = FeatureCollection(coordinateSpace).apply(builder).features
     val feature = FeatureGroup(coordinateSpace, map, zoomRange)
     return feature(id, feature)
 }
 
-public fun <T : Any> FeaturesState<T>.scalableImage(
+public fun <T : Any> FeatureBuilder<T>.scalableImage(
     box: Rectangle<T>,
     zoomRange: FloatRange = defaultZoomRange,
     id: String? = null,
@@ -247,7 +264,7 @@ public fun <T : Any> FeaturesState<T>.scalableImage(
     ScalableImageFeature<T>(coordinateSpace, box, zoomRange, painter = painter)
 )
 
-public fun <T : Any> FeaturesState<T>.text(
+public fun <T : Any> FeatureBuilder<T>.text(
     position: T,
     text: String,
     zoomRange: FloatRange = defaultZoomRange,

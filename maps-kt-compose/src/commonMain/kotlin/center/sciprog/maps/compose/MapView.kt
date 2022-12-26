@@ -18,7 +18,7 @@ import kotlin.math.min
 public expect fun MapView(
     mapTileProvider: MapTileProvider,
     initialViewPoint: MapViewPoint,
-    featuresState: FeaturesState<Gmc>,
+    featuresState: FeatureCollection<Gmc>,
     config: ViewConfig<Gmc> = ViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
 )
@@ -51,7 +51,7 @@ public fun MapView(
     modifier: Modifier = Modifier.fillMaxSize(),
 ) {
     val featuresState = key(featureMap) {
-        FeaturesState.build(GmcCoordinateSpace) {
+        FeatureCollection.build(GmcCoordinateSpace) {
             featureMap.forEach { feature(it.key.id, it.value) }
         }
     }
@@ -80,9 +80,9 @@ public fun MapView(
     initialRectangle: Rectangle<Gmc>? = null,
     config: ViewConfig<Gmc> = ViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
-    buildFeatures: FeaturesState<Gmc>.() -> Unit = {},
+    buildFeatures: FeatureCollection<Gmc>.() -> Unit = {},
 ) {
-    val featureState = FeaturesState.remember(GmcCoordinateSpace, buildFeatures)
+    val featureState = FeatureCollection.remember(GmcCoordinateSpace, buildFeatures)
 
     val viewPointOverride: MapViewPoint = remember(initialViewPoint, initialRectangle) {
         initialViewPoint

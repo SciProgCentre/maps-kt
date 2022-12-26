@@ -64,35 +64,13 @@ fun App() {
 
             image(pointOne, Icons.Filled.Home)
 
-            var drag1 = Gmc.ofDegrees(55.744, 37.614)
+            val marker1 = rectangle(55.744 to 37.614, size = DpSize(10.dp, 10.dp), color = Color.Magenta)
+            val marker2 = rectangle(55.8 to 37.5, size = DpSize(10.dp, 10.dp), color = Color.Magenta)
+            val marker3 = rectangle(56.0 to 37.5, size = DpSize(10.dp, 10.dp), color = Color.Magenta)
 
-            var drag2 = Gmc.ofDegrees(55.8, 37.5)
-
-            var drag3 = Gmc.ofDegrees(56.0, 37.5)
-
-            fun updateLine() {
-                line(drag1, drag2, id = "connection1", color = Color.Magenta)
-                line(drag2, drag3, id = "connection2", color = Color.Magenta)
-                line(drag3, drag1, id = "connection3", color = Color.Magenta)
-            }
-
-            rectangle(drag1, size = DpSize(10.dp, 10.dp)).draggable { _, end ->
-                drag1 = end
-                updateLine()
-            }
-
-            rectangle(drag2, size = DpSize(10.dp, 10.dp)).draggable { _, end ->
-                drag2 = end
-                updateLine()
-            }
-
-            rectangle(drag3, size = DpSize(10.dp, 10.dp)).draggable { _, end ->
-                drag3 = end
-                updateLine()
-            }
-
-
-            updateLine()
+            draggableLine(marker1, marker2)
+            draggableLine(marker2, marker3)
+            draggableLine(marker3, marker1)
 
             points(
                 points = listOf(

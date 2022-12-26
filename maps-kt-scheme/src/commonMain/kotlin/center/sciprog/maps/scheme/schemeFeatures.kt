@@ -12,7 +12,7 @@ import center.sciprog.maps.features.*
 
 internal fun Pair<Number, Number>.toCoordinates(): XY = XY(first.toFloat(), second.toFloat())
 
-fun FeaturesState<XY>.background(
+fun FeatureCollection<XY>.background(
     width: Float,
     height: Float,
     offset: XY = XY(0f, 0f),
@@ -31,7 +31,7 @@ fun FeaturesState<XY>.background(
     )
 }
 
-fun FeaturesState<XY>.circle(
+fun FeatureCollection<XY>.circle(
     centerCoordinates: Pair<Number, Number>,
     zoomRange: FloatRange = Feature.defaultZoomRange,
     size: Dp = 5.dp,
@@ -39,14 +39,14 @@ fun FeaturesState<XY>.circle(
     id: String? = null,
 ): FeatureId<CircleFeature<XY>> = circle(centerCoordinates.toCoordinates(), zoomRange, size, color, id = id)
 
-fun FeaturesState<XY>.draw(
+fun FeatureCollection<XY>.draw(
     position: Pair<Number, Number>,
     zoomRange: FloatRange = Feature.defaultZoomRange,
     id: String? = null,
     draw: DrawScope.() -> Unit,
 ): FeatureId<DrawFeature<XY>> = draw(position.toCoordinates(), zoomRange = zoomRange, id = id, draw = draw)
 
-fun FeaturesState<XY>.line(
+fun FeatureCollection<XY>.line(
     aCoordinates: Pair<Number, Number>,
     bCoordinates: Pair<Number, Number>,
     scaleRange: FloatRange = Feature.defaultZoomRange,
@@ -55,7 +55,7 @@ fun FeaturesState<XY>.line(
 ): FeatureId<LineFeature<XY>> = line(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), scaleRange, color, id)
 
 
-public fun FeaturesState<XY>.arc(
+public fun FeatureCollection<XY>.arc(
     center: Pair<Double, Double>,
     radius: Float,
     startAngle: Float,
@@ -71,7 +71,7 @@ public fun FeaturesState<XY>.arc(
     color = color
 )
 
-fun FeaturesState<XY>.image(
+fun FeatureCollection<XY>.image(
     position: Pair<Number, Number>,
     image: ImageVector,
     size: DpSize = DpSize(image.defaultWidth, image.defaultHeight),
@@ -80,7 +80,7 @@ fun FeaturesState<XY>.image(
 ): FeatureId<VectorImageFeature<XY>> =
     image(position.toCoordinates(), image, size = size, zoomRange = zoomRange, id = id)
 
-fun FeaturesState<XY>.text(
+fun FeatureCollection<XY>.text(
     position: Pair<Number, Number>,
     text: String,
     zoomRange: FloatRange = Feature.defaultZoomRange,
