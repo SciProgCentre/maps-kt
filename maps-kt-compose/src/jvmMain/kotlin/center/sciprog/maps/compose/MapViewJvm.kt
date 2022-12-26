@@ -111,14 +111,14 @@ public actual fun MapView(
 
             clipRect {
                 val tileSize = IntSize(
-                    ceil((mapTileProvider.tileSize.dp * tileScale.toFloat()).toPx()).toInt(),
-                    ceil((mapTileProvider.tileSize.dp * tileScale.toFloat()).toPx()).toInt()
+                    ceil((mapTileProvider.tileSize.dp * tileScale).toPx()).toInt(),
+                    ceil((mapTileProvider.tileSize.dp * tileScale).toPx()).toInt()
                 )
                 mapTiles.forEach { (id, image) ->
                     //converting back from tile index to screen offset
                     val offset = IntOffset(
-                        (canvasSize.width / 2 + (mapTileProvider.toCoordinate(id.i).dp - centerCoordinates.x.dp) * tileScale.toFloat()).roundToPx(),
-                        (canvasSize.height / 2 + (mapTileProvider.toCoordinate(id.j).dp - centerCoordinates.y.dp) * tileScale.toFloat()).roundToPx()
+                        (canvasSize.width / 2 + (mapTileProvider.toCoordinate(id.i).dp - centerCoordinates.x.dp) * tileScale).roundToPx(),
+                        (canvasSize.height / 2 + (mapTileProvider.toCoordinate(id.j).dp - centerCoordinates.y.dp) * tileScale).roundToPx()
                     )
                     drawImage(
                         image = image.toComposeImageBitmap(),

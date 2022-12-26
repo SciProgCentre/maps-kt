@@ -68,9 +68,9 @@ fun App() {
             val marker2 = rectangle(55.8 to 37.5, size = DpSize(10.dp, 10.dp), color = Color.Magenta)
             val marker3 = rectangle(56.0 to 37.5, size = DpSize(10.dp, 10.dp), color = Color.Magenta)
 
-            draggableLine(marker1, marker2)
-            draggableLine(marker2, marker3)
-            draggableLine(marker3, marker1)
+            draggableLine(marker1, marker2, color = Color.Blue)
+            draggableLine(marker2, marker3, color = Color.Blue)
+            draggableLine(marker3, marker1, color = Color.Blue)
 
             points(
                 points = listOf(

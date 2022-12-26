@@ -27,6 +27,8 @@ public interface FeatureBuilder<T : Any> {
     public fun <F : Feature<T>> feature(id: String?, feature: F): FeatureId<F>
 
     public fun <F : Feature<T>, V> setAttribute(id: FeatureId<F>, key: Feature.Attribute<V>, value: V?)
+
+    public val defaultColor: Color get() = Color.Red
 }
 
 public fun <T : Any, F : Feature<T>> FeatureBuilder<T>.feature(id: FeatureId<F>, feature: F): FeatureId<F> =
@@ -167,7 +169,7 @@ public fun <T : Any> FeatureBuilder<T>.circle(
     center: T,
     zoomRange: FloatRange = defaultZoomRange,
     size: Dp = 5.dp,
-    color: Color = Color.Red,
+    color: Color = defaultColor,
     id: String? = null,
 ): FeatureId<CircleFeature<T>> = feature(
     id, CircleFeature(coordinateSpace, center, zoomRange, size, color)
@@ -177,7 +179,7 @@ public fun <T : Any> FeatureBuilder<T>.rectangle(
     centerCoordinates: T,
     zoomRange: FloatRange = defaultZoomRange,
     size: DpSize = DpSize(5.dp, 5.dp),
-    color: Color = Color.Red,
+    color: Color = defaultColor,
     id: String? = null,
 ): FeatureId<RectangleFeature<T>> = feature(
     id, RectangleFeature(coordinateSpace, centerCoordinates, zoomRange, size, color)
@@ -197,7 +199,7 @@ public fun <T : Any> FeatureBuilder<T>.line(
     aCoordinates: T,
     bCoordinates: T,
     zoomRange: FloatRange = defaultZoomRange,
-    color: Color = Color.Red,
+    color: Color = defaultColor,
     id: String? = null,
 ): FeatureId<LineFeature<T>> = feature(
     id,
@@ -209,7 +211,7 @@ public fun <T : Any> FeatureBuilder<T>.arc(
     startAngle: Float,
     arcLength: Float,
     zoomRange: FloatRange = defaultZoomRange,
-    color: Color = Color.Red,
+    color: Color = defaultColor,
     id: String? = null,
 ): FeatureId<ArcFeature<T>> = feature(
     id,
@@ -220,7 +222,7 @@ public fun <T : Any> FeatureBuilder<T>.points(
     points: List<T>,
     zoomRange: FloatRange = defaultZoomRange,
     stroke: Float = 2f,
-    color: Color = Color.Red,
+    color: Color = defaultColor,
     pointMode: PointMode = PointMode.Points,
     id: String? = null,
 ): FeatureId<PointsFeature<T>> =
@@ -268,7 +270,7 @@ public fun <T : Any> FeatureBuilder<T>.text(
     position: T,
     text: String,
     zoomRange: FloatRange = defaultZoomRange,
-    color: Color = Color.Red,
+    color: Color = defaultColor,
     font: FeatureFont.() -> Unit = { size = 16f },
     id: String? = null,
 ): FeatureId<TextFeature<T>> = feature(
