@@ -44,23 +44,33 @@ public class FeaturesState<T : Any>(public val coordinateSpace: CoordinateSpace<
 
 
     public fun <F : Feature<T>, V> setAttribute(id: FeatureId<F>, key: Feature.Attribute<V>, value: V?) {
-        getFeature(id).attributes.set(key, value)
+        getFeature(id).attributes[key] = value
     }
 
-    //TODO use context receiver for that
+    /**
+     * Add drag to this feature
+     *
+     * @param constraint optional drag constraint
+     *
+     * TODO use context receiver for that
+     */
     public fun FeatureId<DraggableFeature<T>>.draggable(
-        //TODO add constraints
-        callback: DragHandle<T> = DragHandle.bypass(),
+        constraint: ((T) -> T)? = null,
+        callback: ((start: T, end: T) -> Unit) = { _, _ -> },
     ) {
-        val handle = DragHandle.withPrimaryButton<T> { event, start, end ->
-            val feature = featureMap[id] as? DraggableFeature ?: return@withPrimaryButton true
-            val boundingBox = feature.getBoundingBox(start.zoom) ?: return@withPrimaryButton true
-            if (start.focus in boundingBox) {
-                feature(id, feature.withCoordinates(end.focus))
-                callback.handle(event, start, end)
-                false
+        @Suppress("UNCHECKED_CAST")
+        val handle = DragHandle.withPrimaryButton<Any> { _, start, end ->
+            val startPosition = start.focus as T
+            val endPosition = end.focus as T
+            val feature = featureMap[id] as? DraggableFeature ?: return@withPrimaryButton DragResult(end)
+            val boundingBox = feature.getBoundingBox(start.zoom) ?: return@withPrimaryButton DragResult(end)
+            if (startPosition in boundingBox) {
+                val finalPosition = constraint?.invoke(endPosition) ?: endPosition
+                feature(id, feature.withCoordinates(finalPosition))
+                callback(startPosition, finalPosition)
+                DragResult(ViewPoint(finalPosition, end.zoom), false)
             } else {
-                true
+                DragResult(end, true)
             }
         }
         setAttribute(this, DraggableAttribute, handle)
@@ -98,11 +108,14 @@ public class FeaturesState<T : Any>(public val coordinateSpace: CoordinateSpace<
 //        }.keys
 //    }
 
+    /**
+     * Process all features with a given attribute from the one with highest [z] to lowest
+     */
     public inline fun <A> forEachWithAttribute(
         key: Feature.Attribute<A>,
         block: (id: FeatureId<*>, attributeValue: A) -> Unit,
     ) {
-        featureMap.forEach { (id, feature) ->
+        featureMap.entries.sortedByDescending { it.value.z }.forEach { (id, feature) ->
             feature.attributes[key]?.let {
                 block(FeatureId<Feature<T>>(id), it)
             }

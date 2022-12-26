@@ -50,7 +50,7 @@ public fun SchemeView(
             clipRect {
                 featuresState.features.values
                     .filter { viewPoint.zoom in it.zoomRange }
-                    .sortedBy { it.depth }
+                    .sortedBy { it.z }
                     .forEach { background ->
                         drawFeature(state, painterCache, background)
                     }
@@ -139,10 +139,12 @@ public fun SchemeView(
         DragHandle.withPrimaryButton { event, start: ViewPoint<XY>, end: ViewPoint<XY> ->
             featureState.forEachWithAttribute(DraggableAttribute) { _, handle ->
                 //TODO add safety
-                handle as DragHandle<XY>
-                if (!handle.handle(event, start, end)) return@withPrimaryButton false
+                (handle as DragHandle<XY>)
+                    .handle(event, start, end)
+                    .takeIf { !it.handleNext }
+                    ?.let { return@withPrimaryButton it }
             }
-            true
+            DragResult(end)
         }
 
 

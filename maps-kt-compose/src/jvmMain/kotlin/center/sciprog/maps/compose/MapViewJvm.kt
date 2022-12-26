@@ -127,7 +127,7 @@ public actual fun MapView(
                     )
                 }
 
-                featuresState.features.values.filter { viewPoint.zoom in it.zoomRange }.sortedBy { it.depth }.forEach { feature ->
+                featuresState.features.values.filter { viewPoint.zoom in it.zoomRange }.sortedBy { it.z }.forEach { feature ->
                     drawFeature(state, painterCache, feature)
                 }
             }

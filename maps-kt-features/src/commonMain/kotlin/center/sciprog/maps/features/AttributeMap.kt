@@ -3,9 +3,9 @@ package center.sciprog.maps.features
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.graphics.Color
 
-public object DepthAttribute : Feature.Attribute<Float>
+public object ZAttribute : Feature.Attribute<Float>
 
-public object DraggableAttribute : Feature.Attribute<DragHandle<*>>
+public object DraggableAttribute : Feature.Attribute<DragHandle<Any>>
 
 public object SelectableAttribute : Feature.Attribute<(FeatureId<*>, SelectableFeature<*>) -> Unit>
 
@@ -46,8 +46,8 @@ public class AttributeMap {
     override fun toString(): String = "AttributeMap(value=${map.entries})"
 }
 
-public var Feature<*>.depth: Float
-    get() = attributes[DepthAttribute] ?: 0f
+public var Feature<*>.z: Float
+    get() = attributes[ZAttribute] ?: 0f
     set(value) {
-        attributes[DepthAttribute] = value
+        attributes[ZAttribute] = value
     }

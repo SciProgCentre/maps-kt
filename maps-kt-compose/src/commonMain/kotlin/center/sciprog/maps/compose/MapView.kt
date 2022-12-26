@@ -87,17 +87,24 @@ public fun MapView(
     val viewPointOverride: MapViewPoint = remember(initialViewPoint, initialRectangle) {
         initialViewPoint
             ?: initialRectangle?.computeViewPoint(mapTileProvider)
-            ?: featureState.features.values.computeBoundingBox(GmcCoordinateSpace,1f)?.computeViewPoint(mapTileProvider)
+            ?: featureState.features.values.computeBoundingBox(GmcCoordinateSpace, 1f)
+                ?.computeViewPoint(mapTileProvider)
             ?: MapViewPoint.globe
     }
 
-    val featureDrag: DragHandle<Gmc> = DragHandle.withPrimaryButton { event, start: ViewPoint<Gmc>, end: ViewPoint<Gmc> ->
+    val featureDrag: DragHandle<Gmc> = DragHandle.withPrimaryButton { event, start, end ->
         featureState.forEachWithAttribute(DraggableAttribute) { _, handle ->
-            //TODO add safety
-            handle as DragHandle<Gmc>
-            if (!handle.handle(event, start, end)) return@withPrimaryButton false
+            @Suppress("UNCHECKED_CAST")
+            (handle as DragHandle<Gmc>)
+                .handle(event, start, end)
+                .takeIf { !it.handleNext }
+                ?.let {
+                    //we expect it already have no bypass
+                    return@withPrimaryButton it
+                }
         }
-        true
+        //bypass
+        DragResult(end)
     }
 
 

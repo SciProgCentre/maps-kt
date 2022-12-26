@@ -26,7 +26,7 @@ fun FeaturesState<XY>.background(
     return feature(
         id,
         ScalableImageFeature(coordinateSpace, box, painter = painter).apply {
-            depth = -100f
+            z = -100f
         }
     )
 }

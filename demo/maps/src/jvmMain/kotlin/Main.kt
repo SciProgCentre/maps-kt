@@ -76,22 +76,19 @@ fun App() {
                 line(drag3, drag1, id = "connection3", color = Color.Magenta)
             }
 
-            rectangle(drag1, size = DpSize(10.dp, 10.dp)).draggable { _, _, end ->
-                drag1 = end.focus
+            rectangle(drag1, size = DpSize(10.dp, 10.dp)).draggable { _, end ->
+                drag1 = end
                 updateLine()
-                true
             }
 
-            rectangle(drag2, size = DpSize(10.dp, 10.dp)).draggable { _, _, end ->
-                drag2 = end.focus
+            rectangle(drag2, size = DpSize(10.dp, 10.dp)).draggable { _, end ->
+                drag2 = end
                 updateLine()
-                true
             }
 
-            rectangle(drag3, size = DpSize(10.dp, 10.dp)).draggable { _, _, end ->
-                drag3 = end.focus
+            rectangle(drag3, size = DpSize(10.dp, 10.dp)).draggable { _, end ->
+                drag3 = end
                 updateLine()
-                true
             }
 
 

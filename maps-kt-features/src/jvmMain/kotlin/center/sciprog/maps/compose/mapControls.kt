@@ -44,13 +44,13 @@ public fun <T : Any> Modifier.mapControls(
                         val dpEnd = dragChange.position.toDpOffset()
 
                         //apply drag handle and check if it prohibits the drag even propagation
-                        if (selectionStart == null && !config.dragHandle.handle(
+                        if (selectionStart == null) {
+                            val dragResult = config.dragHandle.handle(
                                 event,
                                 space.ViewPoint(dpStart.toCoordinates(), viewPoint.zoom),
                                 space.ViewPoint(dpEnd.toCoordinates(), viewPoint.zoom)
                             )
-                        ) {
-                            return@drag
+                            if(!dragResult.handleNext) return@drag
                         }
 
                         if (event.buttons.isPrimaryPressed) {
