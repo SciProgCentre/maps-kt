@@ -3,7 +3,6 @@ plugins {
     `maven-publish`
 }
 
-
 kotlin {
     sourceSets {
         commonMain {
