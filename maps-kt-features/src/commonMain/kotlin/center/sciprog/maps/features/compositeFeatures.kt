@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.Color
 public fun <T : Any> FeatureCollection<T>.draggableLine(
     aId: FeatureId<MarkerFeature<T>>,
     bId: FeatureId<MarkerFeature<T>>,
-    zoomRange: FloatRange = Feature.defaultZoomRange,
+    zoomRange: FloatRange = defaultZoomRange,
     color: Color = Color.Red,
     id: String? = null,
 ): FeatureId<LineFeature<T>> {

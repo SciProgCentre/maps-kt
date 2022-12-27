@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import center.sciprog.maps.features.Feature.Companion.defaultZoomRange
 
 public typealias DoubleRange = FloatRange
 public typealias FloatRange = ClosedFloatingPointRange<Float>
@@ -28,15 +27,11 @@ public interface Feature<T : Any> {
     public var attributes: AttributeMap
 
     public fun getBoundingBox(zoom: Float): Rectangle<T>?
-
-    public companion object {
-        public val defaultZoomRange: FloatRange = 0f..Float.POSITIVE_INFINITY
-    }
 }
 
 public interface PainterFeature<T:Any>: Feature<T> {
     @Composable
-    public fun painter(): Painter
+    public fun getPainter(): Painter
 }
 
 public interface SelectableFeature<T : Any> : Feature<T> {
@@ -72,10 +67,11 @@ public fun <T : Any> Iterable<Feature<T>>.computeBoundingBox(
  */
 public class FeatureSelector<T : Any>(
     override val space: CoordinateSpace<T>,
+    override val zoomRange: FloatRange,
     override var attributes: AttributeMap = AttributeMap(),
-    public val selector: (zoom: Float) -> Feature<T>,
+    public val selector: (zoom: Float) -> Feature<T>, 
 ) : Feature<T> {
-    override val zoomRange: FloatRange get() = defaultZoomRange
+
 
     override fun getBoundingBox(zoom: Float): Rectangle<T>? = selector(zoom).getBoundingBox(zoom)
 }
@@ -85,9 +81,9 @@ public class PathFeature<T : Any>(
     public val rectangle: Rectangle<T>,
     public val path: Path,
     public val brush: Brush,
+    override val zoomRange: FloatRange,
     public val style: DrawStyle = Fill,
     public val targetRect: Rect = path.getBounds(),
-    override val zoomRange: FloatRange = defaultZoomRange,
     override var attributes: AttributeMap = AttributeMap(),
 ) : DraggableFeature<T> {
     override fun withCoordinates(newCoordinates: T): Feature<T> = with(space) {
@@ -109,7 +105,7 @@ public class PathFeature<T : Any>(
 public class PointsFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     public val points: List<T>,
-    override val zoomRange: FloatRange = defaultZoomRange,
+    override val zoomRange: FloatRange,
     public val stroke: Float = 2f,
     public val color: Color = Color.Red,
     public val pointMode: PointMode = PointMode.Points,
@@ -123,7 +119,7 @@ public class PointsFeature<T : Any>(
 public data class CircleFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     override val center: T,
-    override val zoomRange: FloatRange = defaultZoomRange,
+    override val zoomRange: FloatRange,
     public val size: Dp = 5.dp,
     public val color: Color = Color.Red,
     override var attributes: AttributeMap = AttributeMap(),
@@ -138,7 +134,7 @@ public data class CircleFeature<T : Any>(
 public class RectangleFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     override val center: T,
-    override val zoomRange: FloatRange = defaultZoomRange,
+    override val zoomRange: FloatRange,
     public val size: DpSize = DpSize(5.dp, 5.dp),
     public val color: Color = Color.Red,
     override var attributes: AttributeMap = AttributeMap(),
@@ -154,7 +150,7 @@ public class LineFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     public val a: T,
     public val b: T,
-    override val zoomRange: FloatRange = defaultZoomRange,
+    override val zoomRange: FloatRange,
     public val color: Color = Color.Red,
     override var attributes: AttributeMap = AttributeMap(),
 ) : SelectableFeature<T> {
@@ -175,7 +171,7 @@ public class ArcFeature<T : Any>(
     public val oval: Rectangle<T>,
     public val startAngle: Float,
     public val arcLength: Float,
-    override val zoomRange: FloatRange = defaultZoomRange,
+    override val zoomRange: FloatRange,
     public val color: Color = Color.Red,
     override var attributes: AttributeMap = AttributeMap(),
 ) : DraggableFeature<T> {
@@ -189,7 +185,7 @@ public class ArcFeature<T : Any>(
 public data class DrawFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     public val position: T,
-    override val zoomRange: FloatRange = defaultZoomRange,
+    override val zoomRange: FloatRange,
     override var attributes: AttributeMap = AttributeMap(),
     public val drawFeature: DrawScope.() -> Unit,
 ) : DraggableFeature<T> {
@@ -203,7 +199,7 @@ public data class BitmapImageFeature<T : Any>(
     override val center: T,
     public val size: DpSize,
     public val image: ImageBitmap,
-    override val zoomRange: FloatRange = defaultZoomRange,
+    override val zoomRange: FloatRange,
     override var attributes: AttributeMap = AttributeMap(),
 ) : MarkerFeature<T> {
     override fun getBoundingBox(zoom: Float): Rectangle<T> = space.Rectangle(center, zoom, size)
@@ -216,7 +212,7 @@ public data class VectorImageFeature<T : Any>(
     override val center: T,
     public val size: DpSize,
     public val image: ImageVector,
-    override val zoomRange: FloatRange = defaultZoomRange,
+    override val zoomRange: FloatRange,
     override var attributes: AttributeMap = AttributeMap(),
 ) : MarkerFeature<T>, PainterFeature<T> {
     override fun getBoundingBox(zoom: Float): Rectangle<T> = space.Rectangle(center, zoom, size)
@@ -224,7 +220,7 @@ public data class VectorImageFeature<T : Any>(
     override fun withCoordinates(newCoordinates: T): Feature<T> = copy(center = newCoordinates)
 
     @Composable
-    override fun painter(): VectorPainter = rememberVectorPainter(image)
+    override fun getPainter(): VectorPainter = rememberVectorPainter(image)
 }
 
 /**
@@ -235,12 +231,12 @@ public data class VectorImageFeature<T : Any>(
 public class ScalableImageFeature<T: Any>(
     override val space: CoordinateSpace<T>,
     public val rectangle: Rectangle<T>,
-    override val zoomRange: FloatRange = defaultZoomRange,
+    override val zoomRange: FloatRange,
     override var attributes: AttributeMap = AttributeMap(),
     public val painter: @Composable () -> Painter,
 ) : Feature<T>, PainterFeature<T>{
     @Composable
-    override fun painter(): Painter  = painter.invoke()
+    override fun getPainter(): Painter  = painter.invoke()
 
     override fun getBoundingBox(zoom: Float): Rectangle<T> =rectangle
 }
@@ -252,7 +248,7 @@ public class ScalableImageFeature<T: Any>(
 public class FeatureGroup<T : Any>(
     override val space: CoordinateSpace<T>,
     public val children: Map<FeatureId<*>, Feature<T>>,
-    override val zoomRange: FloatRange = defaultZoomRange,
+    override val zoomRange: FloatRange,
     override var attributes: AttributeMap = AttributeMap(),
 ) : Feature<T> {
     override fun getBoundingBox(zoom: Float): Rectangle<T>? = with(space) {
@@ -264,7 +260,7 @@ public class TextFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     public val position: T,
     public val text: String,
-    override val zoomRange: FloatRange = defaultZoomRange,
+    override val zoomRange: FloatRange,
     public val color: Color = Color.Black,
     override var attributes: AttributeMap = AttributeMap(),
     public val fontConfig: FeatureFont.() -> Unit,

@@ -6,6 +6,7 @@ package center.sciprog.maps.coordinates
 public class GeodeticMapCoordinates(
     public val latitude: Angle,
     longitude: Angle,
+    public val elevation: Distance = 0.kilometers
 ) {
     public val longitude: Angle = longitude.normalized(Angle.zero)
 

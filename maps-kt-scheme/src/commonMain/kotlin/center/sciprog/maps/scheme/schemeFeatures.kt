@@ -12,7 +12,7 @@ import center.sciprog.maps.features.*
 
 internal fun Pair<Number, Number>.toCoordinates(): XY = XY(first.toFloat(), second.toFloat())
 
-fun FeatureCollection<XY>.background(
+fun FeatureBuilder<XY>.background(
     width: Float,
     height: Float,
     offset: XY = XY(0f, 0f),
@@ -25,42 +25,42 @@ fun FeatureCollection<XY>.background(
     )
     return feature(
         id,
-        ScalableImageFeature(coordinateSpace, box, painter = painter).apply {
+        ScalableImageFeature(coordinateSpace, box, zoomRange = defaultZoomRange, painter = painter).apply {
             z = -100f
         }
     )
 }
 
-fun FeatureCollection<XY>.circle(
+fun FeatureBuilder<XY>.circle(
     centerCoordinates: Pair<Number, Number>,
-    zoomRange: FloatRange = Feature.defaultZoomRange,
+    zoomRange: FloatRange = defaultZoomRange,
     size: Dp = 5.dp,
     color: Color = Color.Red,
     id: String? = null,
 ): FeatureId<CircleFeature<XY>> = circle(centerCoordinates.toCoordinates(), zoomRange, size, color, id = id)
 
-fun FeatureCollection<XY>.draw(
+fun FeatureBuilder<XY>.draw(
     position: Pair<Number, Number>,
-    zoomRange: FloatRange = Feature.defaultZoomRange,
+    zoomRange: FloatRange = defaultZoomRange,
     id: String? = null,
     draw: DrawScope.() -> Unit,
 ): FeatureId<DrawFeature<XY>> = draw(position.toCoordinates(), zoomRange = zoomRange, id = id, draw = draw)
 
-fun FeatureCollection<XY>.line(
+fun FeatureBuilder<XY>.line(
     aCoordinates: Pair<Number, Number>,
     bCoordinates: Pair<Number, Number>,
-    scaleRange: FloatRange = Feature.defaultZoomRange,
+    scaleRange: FloatRange = defaultZoomRange,
     color: Color = Color.Red,
     id: String? = null,
 ): FeatureId<LineFeature<XY>> = line(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), scaleRange, color, id)
 
 
-public fun FeatureCollection<XY>.arc(
+public fun FeatureBuilder<XY>.arc(
     center: Pair<Double, Double>,
     radius: Float,
     startAngle: Float,
     arcLength: Float,
-    zoomRange: FloatRange = Feature.defaultZoomRange,
+    zoomRange: FloatRange = defaultZoomRange,
     color: Color = Color.Red,
     id: String? = null,
 ): FeatureId<ArcFeature<XY>> = arc(
@@ -71,19 +71,19 @@ public fun FeatureCollection<XY>.arc(
     color = color
 )
 
-fun FeatureCollection<XY>.image(
+fun FeatureBuilder<XY>.image(
     position: Pair<Number, Number>,
     image: ImageVector,
     size: DpSize = DpSize(image.defaultWidth, image.defaultHeight),
-    zoomRange: FloatRange = Feature.defaultZoomRange,
+    zoomRange: FloatRange = defaultZoomRange,
     id: String? = null,
 ): FeatureId<VectorImageFeature<XY>> =
     image(position.toCoordinates(), image, size = size, zoomRange = zoomRange, id = id)
 
-fun FeatureCollection<XY>.text(
+fun FeatureBuilder<XY>.text(
     position: Pair<Number, Number>,
     text: String,
-    zoomRange: FloatRange = Feature.defaultZoomRange,
+    zoomRange: FloatRange = defaultZoomRange,
     color: Color = Color.Red,
     id: String? = null,
 ): FeatureId<TextFeature<XY>> = text(position.toCoordinates(), text, zoomRange, color, id = id)

@@ -98,7 +98,7 @@ public actual fun MapView(
         }
 
         val painterCache: Map<PainterFeature<Gmc>, Painter> = key(featuresState) {
-            featuresState.features.values.filterIsInstance<PainterFeature<Gmc>>().associateWith { it.painter() }
+            featuresState.features.values.filterIsInstance<PainterFeature<Gmc>>().associateWith { it.getPainter() }
         }
 
         Canvas(modifier = modifier.mapControls(state).fillMaxSize()) {

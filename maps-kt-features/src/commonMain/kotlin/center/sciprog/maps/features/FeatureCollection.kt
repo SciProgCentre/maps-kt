@@ -11,11 +11,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import center.sciprog.maps.features.Feature.Companion.defaultZoomRange
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.jvm.JvmInline
 
 @JvmInline
 public value class FeatureId<out F : Feature<*>>(public val id: String)
@@ -29,6 +29,8 @@ public interface FeatureBuilder<T : Any> {
     public fun <F : Feature<T>, V> setAttribute(id: FeatureId<F>, key: Feature.Attribute<V>, value: V?)
 
     public val defaultColor: Color get() = Color.Red
+
+    public val defaultZoomRange: FloatRange get() = 0f..Float.POSITIVE_INFINITY
 }
 
 public fun <T : Any, F : Feature<T>> FeatureBuilder<T>.feature(id: FeatureId<F>, feature: F): FeatureId<F> =

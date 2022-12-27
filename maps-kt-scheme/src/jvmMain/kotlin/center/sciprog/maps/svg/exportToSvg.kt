@@ -24,7 +24,7 @@ class FeatureStateSnapshot<T : Any>(
 @Composable
 fun <T: Any> FeatureCollection<T>.snapshot(): FeatureStateSnapshot<T> = FeatureStateSnapshot(
     features,
-    features.values.filterIsInstance<PainterFeature<T>>().associateWith { it.painter() }
+    features.values.filterIsInstance<PainterFeature<T>>().associateWith { it.getPainter() }
 )
 
 fun FeatureStateSnapshot<XY>.generateSvg(

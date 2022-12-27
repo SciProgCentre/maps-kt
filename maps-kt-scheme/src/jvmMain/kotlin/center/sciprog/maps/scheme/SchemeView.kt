@@ -37,7 +37,7 @@ public fun SchemeView(
     }
     with(state) {
         val painterCache: Map<PainterFeature<XY>, Painter> = key(featuresState) {
-            featuresState.features.values.filterIsInstance<PainterFeature<XY>>().associateWith { it.painter() }
+            featuresState.features.values.filterIsInstance<PainterFeature<XY>>().associateWith { it.getPainter() }
         }
 
         Canvas(modifier = modifier.mapControls(state).fillMaxSize()) {
