@@ -29,11 +29,7 @@ public value class GeoJsonFeature(override val json: JsonObject) : GeoJson {
 
     public val geometry: GeoJsonGeometry? get() = json[GEOMETRY_KEY]?.jsonObject?.let { GeoJsonGeometry(it) }
 
-    public fun getProperty(propertyName: String): JsonElement? = properties?.get(propertyName)
-
-    public fun getString(propertyName: String): String? = getProperty(propertyName)?.jsonPrimitive?.contentOrNull
-
-    public companion object{
+    public companion object {
         public const val GEOMETRY_KEY: String = "geometry"
     }
 }
@@ -61,6 +57,13 @@ public value class GeoJsonFeatureCollection(override val json: JsonObject) : Geo
         )
     }
 }
+
+public fun GeoJson(json: JsonObject): GeoJson =
+    when (json[TYPE_KEY]?.jsonPrimitive?.contentOrNull ?: error("Not a GeoJson")) {
+        "Feature" -> GeoJsonFeature(json)
+        "FeatureCollection" -> GeoJsonFeatureCollection(json)
+        else -> GeoJsonGeometry(json)
+    }
 
 /**
  * Combine a collection of features to a new [GeoJsonFeatureCollection]

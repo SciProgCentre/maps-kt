@@ -16,7 +16,7 @@ public fun FeatureBuilder<Gmc>.geoJsonGeometry(
     geometry: GeoJsonGeometry,
     color: Color = defaultColor,
     id: String? = null,
-): FeatureId<*> = when (geometry) {
+): FeatureId<Feature<Gmc>> = when (geometry) {
     is GeoJsonLineString -> points(
         geometry.coordinates,
         color = color,
@@ -42,7 +42,7 @@ public fun FeatureBuilder<Gmc>.geoJsonGeometry(
     is GeoJsonMultiPolygon -> group(id = id) {
         geometry.coordinates.forEach {
             points(
-                it,
+                it.first(),
                 color = color,
                 pointMode = PointMode.Polygon
             )
@@ -51,7 +51,7 @@ public fun FeatureBuilder<Gmc>.geoJsonGeometry(
 
     is GeoJsonPoint -> circle(geometry.coordinates, color = color, id = id)
     is GeoJsonPolygon -> points(
-        geometry.coordinates,
+        geometry.coordinates.first(),
         color = color,
         pointMode = PointMode.Polygon
     )
@@ -67,18 +67,23 @@ public fun FeatureBuilder<Gmc>.geoJsonFeature(
     geoJson: GeoJsonFeature,
     color: Color = defaultColor,
     id: String? = null,
-) {
-    val geometry = geoJson.geometry ?: return
+): FeatureId<Feature<Gmc>>? {
+    val geometry = geoJson.geometry ?: return null
     val idOverride = geoJson.properties?.get("id")?.jsonPrimitive?.contentOrNull ?: id
     val colorOverride = geoJson.properties?.get("color")?.jsonPrimitive?.intOrNull?.let { Color(it) } ?: color
-    geoJsonGeometry(geometry, colorOverride, idOverride)
+    return geoJsonGeometry(geometry, colorOverride, idOverride)
 }
 
 public fun FeatureBuilder<Gmc>.geoJson(
-    geoJson: GeoJsonFeatureCollection,
+    geoJson: GeoJson,
     id: String? = null,
-): FeatureId<FeatureGroup<Gmc>> = group(id = id) {
-    geoJson.features.forEach {
-        geoJsonFeature(it)
+): FeatureId<Feature<Gmc>>? = when (geoJson) {
+    is GeoJsonFeature -> geoJsonFeature(geoJson, id = id)
+    is GeoJsonFeatureCollection -> group(id = id) {
+        geoJson.features.forEach {
+            geoJsonFeature(it)
+        }
     }
+
+    is GeoJsonGeometry -> geoJsonGeometry(geoJson, id = id)
 }

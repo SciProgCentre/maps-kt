@@ -1,4 +1,3 @@
-import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -19,6 +18,7 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(projects.mapsKtCompose)
+                implementation(projects.mapsKtGeojson)
                 implementation(compose.desktop.currentOs)
                 implementation("io.ktor:ktor-client-cio")
                 implementation("ch.qos.logback:logback-classic:1.2.11")

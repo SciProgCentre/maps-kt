@@ -83,10 +83,12 @@ public value class GeoJsonPolygon(override val json: JsonObject) : GeoJsonGeomet
         require(type == "Polygon") { "Not a GeoJson Polygon geometry" }
     }
 
-    public val coordinates: List<Gmc>
-        get() = json[COORDINATES_KEY]?.jsonArray
-            ?.map { it.toGmc() }
-            ?: error("Coordinates are not provided")
+    public val coordinates: List<List<Gmc>>
+        get() = json[COORDINATES_KEY]?.jsonArray?.map { polygon ->
+            polygon.jsonArray.map { point ->
+                point.toGmc()
+            }
+        } ?: error("Coordinates are not provided")
 }
 
 @JvmInline
@@ -95,10 +97,12 @@ public value class GeoJsonMultiPolygon(override val json: JsonObject) : GeoJsonG
         require(type == "MultiPolygon") { "Not a GeoJson MultiPolygon geometry" }
     }
 
-    public val coordinates: List<List<Gmc>>
-        get() = json[COORDINATES_KEY]?.jsonArray?.map { lineJson ->
-            lineJson.jsonArray.map {
-                it.toGmc()
+    public val coordinates: List<List<List<Gmc>>>
+        get() = json[COORDINATES_KEY]?.jsonArray?.map { allPolygons ->
+            allPolygons.jsonArray.map { polygon ->
+                polygon.jsonArray.map { point ->
+                    point.toGmc()
+                }
             }
         } ?: error("Coordinates are not provided")
 }

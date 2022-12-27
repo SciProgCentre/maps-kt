@@ -13,9 +13,11 @@ import androidx.compose.ui.window.application
 import center.sciprog.maps.compose.*
 import center.sciprog.maps.coordinates.*
 import center.sciprog.maps.features.*
+import center.sciprog.maps.geojson.geoJson
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import kotlinx.coroutines.delay
+import java.net.URL
 import java.nio.file.Path
 import kotlin.math.PI
 import kotlin.random.Random
@@ -44,8 +46,6 @@ fun App() {
         val pointTwo = 55.929444 to 37.518434
         val pointThree = 60.929444 to 37.518434
 
-        val dragPoint = 55.744 to 37.614
-
         MapView(
             mapTileProvider = mapTileProvider,
 //            initialViewPoint = MapViewPoint(
@@ -61,6 +61,8 @@ fun App() {
                 onViewChange = { centerCoordinates = focus },
             )
         ) {
+
+            geoJson(URL("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json"))
 
             image(pointOne, Icons.Filled.Home)
 
