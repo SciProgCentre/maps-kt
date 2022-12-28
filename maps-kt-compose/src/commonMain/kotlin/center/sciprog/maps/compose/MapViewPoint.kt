@@ -11,7 +11,7 @@ public data class MapViewPoint(
     override val focus: GeodeticMapCoordinates,
     override val zoom: Float,
 ) : ViewPoint<Gmc>{
-    val scaleFactor: Double by lazy { WebMercatorProjection.scaleFactor(zoom) }
+    val scaleFactor: Float by lazy { WebMercatorProjection.scaleFactor(zoom) }
 
     public companion object{
         public val globe: MapViewPoint = MapViewPoint(GeodeticMapCoordinates(0.0.radians, 0.0.radians), 1f)

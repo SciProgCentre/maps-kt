@@ -29,14 +29,14 @@ public interface Feature<T : Any> {
     public fun getBoundingBox(zoom: Float): Rectangle<T>?
 }
 
-public interface PainterFeature<T:Any>: Feature<T> {
+public interface PainterFeature<T : Any> : Feature<T> {
     @Composable
     public fun getPainter(): Painter
 }
 
 public interface SelectableFeature<T : Any> : Feature<T> {
-    public operator fun contains(point: ViewPoint<T>): Boolean = getBoundingBox(point.zoom)?.let {
-        point.focus in it
+    public fun contains(point: T, zoom: Float): Boolean = getBoundingBox(zoom)?.let {
+        point in it
     } ?: false
 }
 
@@ -47,7 +47,7 @@ public interface DraggableFeature<T : Any> : SelectableFeature<T> {
 /**
  * A draggable marker feature. Other features could be bound to this one.
  */
-public interface MarkerFeature<T: Any>: DraggableFeature<T>{
+public interface MarkerFeature<T : Any> : DraggableFeature<T> {
     public val center: T
 }
 
@@ -69,9 +69,8 @@ public class FeatureSelector<T : Any>(
     override val space: CoordinateSpace<T>,
     override val zoomRange: FloatRange,
     override val attributes: AttributeMap = AttributeMap(),
-    public val selector: (zoom: Float) -> Feature<T>, 
+    public val selector: (zoom: Float) -> Feature<T>,
 ) : Feature<T> {
-
 
     override fun getBoundingBox(zoom: Float): Rectangle<T>? = selector(zoom).getBoundingBox(zoom)
 }
@@ -157,8 +156,8 @@ public class LineFeature<T : Any>(
     override fun getBoundingBox(zoom: Float): Rectangle<T> =
         space.Rectangle(a, b)
 
-    override fun contains(point: ViewPoint<T>): Boolean {
-        return super.contains(point)
+    override fun contains(point: T, zoom: Float): Boolean = with(space) {
+        point in space.Rectangle(a, b) && point.distanceToLine(a, b, zoom).value < 5f
     }
 }
 
@@ -228,17 +227,17 @@ public data class VectorImageFeature<T : Any>(
  *
  * @param rectangle the size of background in scheme size units. The screen units to scheme units ratio equals scale.
  */
-public class ScalableImageFeature<T: Any>(
+public class ScalableImageFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     public val rectangle: Rectangle<T>,
     override val zoomRange: FloatRange,
     override val attributes: AttributeMap = AttributeMap(),
     public val painter: @Composable () -> Painter,
-) : Feature<T>, PainterFeature<T>{
+) : Feature<T>, PainterFeature<T> {
     @Composable
-    override fun getPainter(): Painter  = painter.invoke()
+    override fun getPainter(): Painter = painter.invoke()
 
-    override fun getBoundingBox(zoom: Float): Rectangle<T> =rectangle
+    override fun getBoundingBox(zoom: Float): Rectangle<T> = rectangle
 }
 
 

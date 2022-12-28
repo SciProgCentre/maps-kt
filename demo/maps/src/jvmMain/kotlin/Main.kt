@@ -2,8 +2,9 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.runtime.*
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.unit.DpSize
@@ -17,6 +18,10 @@ import center.sciprog.maps.geojson.geoJson
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import java.net.URL
 import java.nio.file.Path
 import kotlin.math.PI
@@ -32,6 +37,7 @@ fun App() {
     MaterialTheme {
 
         val scope = rememberCoroutineScope()
+
         val mapTileProvider = remember {
             OpenStreetMapTileProvider(
                 client = HttpClient(CIO),
@@ -39,7 +45,7 @@ fun App() {
             )
         }
 
-        var centerCoordinates by remember { mutableStateOf<Gmc?>(null) }
+        val centerCoordinates = MutableStateFlow<Gmc?>(null)
 
 
         val pointOne = 55.568548 to 37.568604
@@ -48,17 +54,9 @@ fun App() {
 
         MapView(
             mapTileProvider = mapTileProvider,
-//            initialViewPoint = MapViewPoint(
-//                GeodeticMapCoordinates.ofDegrees(55.7558, 37.6173),
-//                8.0
-//            ),
-//            initialRectangle = GmcRectangle.square(
-//                GeodeticMapCoordinates.ofDegrees(55.7558, 37.6173),
-//                50.kilometers,
-//                50.kilometers
-//            ),
             config = ViewConfig(
-                onViewChange = { centerCoordinates = focus },
+                onViewChange = { centerCoordinates.value = focus },
+                onClick = { _, viewPoint -> println(viewPoint) }
             )
         ) {
 
@@ -95,22 +93,22 @@ fun App() {
                 it.copy(color = Color(Random.nextFloat(), Random.nextFloat(), Random.nextFloat()))
             }
 
-            draw(position = pointThree) {
-                drawLine(start = Offset(-10f, -10f), end = Offset(10f, 10f), color = Color.Red)
-                drawLine(start = Offset(-10f, 10f), end = Offset(10f, -10f), color = Color.Red)
-            }
+//            draw(position = pointThree) {
+//                drawLine(start = Offset(-10f, -10f), end = Offset(10f, 10f), color = Color.Red)
+//                drawLine(start = Offset(-10f, 10f), end = Offset(10f, -10f), color = Color.Red)
+//            }
 
             arc(pointOne, 10.0.kilometers, (PI / 4).radians, -Angle.pi / 2)
 
             line(pointOne, pointTwo, id = "line")
             text(pointOne, "Home", font = { size = 32f })
 
-            centerCoordinates?.let {
+            centerCoordinates.filterNotNull().onEach {
                 group(id = "center") {
                     circle(center = it, color = Color.Blue, id = "circle", size = 1.dp)
                     text(position = it, it.toShortString(), id = "text", color = Color.Blue)
                 }
-            }
+            }.launchIn(scope)
         }
     }
 }

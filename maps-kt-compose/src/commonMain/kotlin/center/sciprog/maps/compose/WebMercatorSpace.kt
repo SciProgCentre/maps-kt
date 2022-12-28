@@ -1,19 +1,29 @@
 package center.sciprog.maps.compose
 
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import center.sciprog.maps.coordinates.*
 import center.sciprog.maps.features.CoordinateSpace
 import center.sciprog.maps.features.Rectangle
 import center.sciprog.maps.features.ViewPoint
+import kotlin.math.floor
 import kotlin.math.pow
 
-public object GmcCoordinateSpace : CoordinateSpace<Gmc> {
+public object WebMercatorSpace : CoordinateSpace<Gmc> {
+
+    private fun intZoom(zoom: Float): Int = floor(zoom).toInt()
+    private fun tileScale(zoom: Float): Float = 2f.pow(zoom - floor(zoom))
+
+
     override fun Rectangle(first: Gmc, second: Gmc): Rectangle<Gmc> = GmcRectangle(first, second)
 
     override fun Rectangle(center: Gmc, zoom: Float, size: DpSize): Rectangle<Gmc> {
         val scale = WebMercatorProjection.scaleFactor(zoom)
         return Rectangle(center, (size.width.value / scale).radians, (size.height.value / scale).radians)
     }
+
+    override val defaultViewPoint: ViewPoint<Gmc> = MapViewPoint.globe
 
     override fun ViewPoint(center: Gmc, zoom: Float): ViewPoint<Gmc> = MapViewPoint(center, zoom)
 
@@ -29,7 +39,7 @@ public object GmcCoordinateSpace : CoordinateSpace<Gmc> {
     }
 
     override fun ViewPoint<Gmc>.zoomBy(zoomDelta: Float, invariant: Gmc): ViewPoint<Gmc> = if (invariant == focus) {
-        ViewPoint(focus, (zoom + zoomDelta).coerceIn(2f, 18f) )
+        ViewPoint(focus, (zoom + zoomDelta).coerceIn(2f, 18f))
     } else {
         val difScale = (1 - 2f.pow(-zoomDelta))
         val newCenter = GeodeticMapCoordinates(
@@ -60,6 +70,17 @@ public object GmcCoordinateSpace : CoordinateSpace<Gmc> {
         val minLong = minOf { it.longitude }
         val maxLong = maxOf { it.longitude }
         return GmcRectangle(GeodeticMapCoordinates(minLat, minLong), GeodeticMapCoordinates(maxLat, maxLong))
+    }
+
+    override fun Gmc.offsetTo(b: Gmc, zoom: Float): DpOffset {
+        val intZoom = intZoom(zoom)
+        val mercatorA = WebMercatorProjection.toMercator(this, intZoom)
+        val mercatorB = WebMercatorProjection.toMercator(b, intZoom)
+        val tileScale = tileScale(zoom)
+        return DpOffset(
+            (mercatorA.x - mercatorB.x).dp * tileScale,
+            (mercatorA.y - mercatorB.y).dp * tileScale
+        )
     }
 }
 

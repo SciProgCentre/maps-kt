@@ -1,14 +1,14 @@
 package center.sciprog.maps.compose
 
 import androidx.compose.foundation.gestures.drag
-import androidx.compose.foundation.gestures.forEachGesture
-import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.*
-import androidx.compose.ui.unit.*
-import center.sciprog.maps.features.CoordinateViewState
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.dp
+import center.sciprog.maps.features.CoordinateViewScope
 import center.sciprog.maps.features.bottomRight
 import center.sciprog.maps.features.topLeft
 import kotlin.math.max
@@ -17,16 +17,37 @@ import kotlin.math.min
 
 @OptIn(ExperimentalComposeUiApi::class)
 public fun <T : Any> Modifier.mapControls(
-    state: CoordinateViewState<T>,
+    state: CoordinateViewScope<T>,
 ): Modifier = with(state) {
     pointerInput(Unit) {
-        forEachGesture {
-            awaitPointerEventScope {
-                fun Offset.toDpOffset() = DpOffset(x.toDp(), y.toDp())
-
+        fun Offset.toDpOffset() = DpOffset(x.toDp(), y.toDp())
+        awaitPointerEventScope {
+            while (true) {
+                val event = awaitPointerEvent()
+                if (event.type == PointerEventType.Release ) {
+                    config.onClick?.handle(
+                        event,
+                        space.ViewPoint(event.changes.first().position.toDpOffset().toCoordinates(), zoom)
+                    )
+                }
+            }
+        }
+    }.pointerInput(Unit) {
+        fun Offset.toDpOffset() = DpOffset(x.toDp(), y.toDp())
+        awaitPointerEventScope {
+            while (true) {
                 val event: PointerEvent = awaitPointerEvent()
-
                 event.changes.forEach { change ->
+
+                    if (event.type == PointerEventType.Scroll) {
+                        val (xPos, yPos) = change.position
+                        //compute invariant point of translation
+                        val invariant = DpOffset(xPos.toDp(), yPos.toDp()).toCoordinates()
+                        viewPoint = with(space) {
+                            viewPoint.zoomBy(-change.scrollDelta.y * config.zoomSpeed, invariant)
+                        }
+                        change.consume()
+                    }
                     //val dragStart = change.position
                     //val dpPos = DpOffset(dragStart.x.toDp(), dragStart.y.toDp())
 
@@ -45,12 +66,12 @@ public fun <T : Any> Modifier.mapControls(
 
                         //apply drag handle and check if it prohibits the drag even propagation
                         if (selectionStart == null) {
-                            val dragResult = config.dragHandle.handle(
+                            val dragResult = config.dragHandle?.handle(
                                 event,
-                                space.ViewPoint(dpStart.toCoordinates(), viewPoint.zoom),
-                                space.ViewPoint(dpEnd.toCoordinates(), viewPoint.zoom)
+                                space.ViewPoint(dpStart.toCoordinates(), zoom),
+                                space.ViewPoint(dpEnd.toCoordinates(), zoom)
                             )
-                            if(!dragResult.handleNext) return@drag
+                            if (dragResult?.handleNext == false) return@drag
                         }
 
                         if (event.buttons.isPrimaryPressed) {
@@ -85,20 +106,12 @@ public fun <T : Any> Modifier.mapControls(
                         )
                         config.onSelect(coordinateRect)
                         if (config.zoomOnSelect) {
-                            viewPoint = viewPointFor(coordinateRect)
+                            viewPoint = computeViewPoint(coordinateRect)
                         }
                         selectRect = null
                     }
                 }
             }
-        }
-    }.onPointerEvent(PointerEventType.Scroll) {
-        val change = it.changes.first()
-        val (xPos, yPos) = change.position
-        //compute invariant point of translation
-        val invariant = DpOffset(xPos.toDp(), yPos.toDp()).toCoordinates()
-        viewPoint = with(space) {
-            viewPoint.zoomBy(-change.scrollDelta.y * config.zoomSpeed, invariant)
         }
     }
 }

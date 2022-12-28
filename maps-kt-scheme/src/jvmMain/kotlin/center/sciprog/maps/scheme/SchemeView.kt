@@ -4,7 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
@@ -22,19 +21,10 @@ private val logger = KotlinLogging.logger("SchemeView")
 
 @Composable
 public fun SchemeView(
-    initialViewPoint: ViewPoint<XY>,
+    state: XYViewScope,
     featuresState: FeatureCollection<XY>,
-    config: ViewConfig<XY>,
     modifier: Modifier = Modifier.fillMaxSize(),
-) = key(initialViewPoint) {
-
-    val state = remember {
-        XYViewState(
-            config,
-            defaultCanvasSize,
-            initialViewPoint,
-        )
-    }
+) {
     with(state) {
         val painterCache: Map<PainterFeature<XY>, Painter> = key(featuresState) {
             featuresState.features.values.filterIsInstance<PainterFeature<XY>>().associateWith { it.getPainter() }
@@ -95,20 +85,22 @@ public fun SchemeView(
     config: ViewConfig<XY> = ViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
 ) {
+
+
     val featuresState = key(featureMap) {
         FeatureCollection.build(XYCoordinateSpace) {
             featureMap.forEach { feature(it.key.id, it.value) }
         }
     }
 
-    val viewPointOverride: ViewPoint<XY> = remember(initialViewPoint, initialRectangle) {
-        initialViewPoint
-            ?: initialRectangle?.computeViewPoint()
-            ?: featureMap.values.computeBoundingBox(XYCoordinateSpace, 1f)?.computeViewPoint()
-            ?: XYViewPoint(XY(0f, 0f), 1f)
-    }
+    val state = rememberMapState(
+        config,
+        featuresState.features.values,
+        initialViewPoint = initialViewPoint,
+        initialRectangle = initialRectangle,
+    )
 
-    SchemeView(viewPointOverride, featuresState, config, modifier)
+    SchemeView(state, featuresState, modifier)
 }
 
 /**
@@ -127,37 +119,42 @@ public fun SchemeView(
     buildFeatures: FeatureCollection<XY>.() -> Unit = {},
 ) {
     val featureState = FeatureCollection.remember(XYCoordinateSpace, buildFeatures)
+    val mapState: XYViewScope = rememberMapState(
+        config,
+        featureState.features.values,
+        initialViewPoint = initialViewPoint,
+        initialRectangle = initialRectangle,
+    )
 
-    val viewPointOverride: ViewPoint<XY> = remember(initialViewPoint, initialRectangle) {
-        initialViewPoint
-            ?: initialRectangle?.computeViewPoint()
-            ?: featureState.features.values.computeBoundingBox(XYCoordinateSpace, 1f)?.computeViewPoint()
-            ?: XYViewPoint(XY(0f, 0f), 1f)
+    val featureDrag: DragHandle<XY> = DragHandle.withPrimaryButton { event, start, end ->
+        featureState.forEachWithAttribute(DraggableAttribute) { _, handle ->
+            @Suppress("UNCHECKED_CAST")
+            (handle as DragHandle<XY>)
+                .handle(event, start, end)
+                .takeIf { !it.handleNext }
+                ?.let {
+                    //we expect it already have no bypass
+                    return@withPrimaryButton it
+                }
+        }
+        //bypass
+        DragResult(end)
     }
 
-    val featureDrag: DragHandle<XY> =
-        DragHandle.withPrimaryButton { event, start: ViewPoint<XY>, end: ViewPoint<XY> ->
-            featureState.forEachWithAttribute(DraggableAttribute) { _, handle ->
-                //TODO add safety
-                (handle as DragHandle<XY>)
-                    .handle(event, start, end)
-                    .takeIf { !it.handleNext }
-                    ?.let { return@withPrimaryButton it }
-            }
-            DragResult(end)
+    val featureClick: ClickHandle<XY> = ClickHandle.withPrimaryButton { event, click ->
+        featureState.forEachWithAttribute(SelectableAttribute) { _, handle ->
+            @Suppress("UNCHECKED_CAST")
+            (handle as ClickHandle<XY>).handle(event, click)
+            config.onClick?.handle(event, click)
         }
-
+    }
 
     val newConfig = config.copy(
-        dragHandle = DragHandle.combine(featureDrag, config.dragHandle)
+        dragHandle = config.dragHandle?.let { DragHandle.combine(featureDrag, it) } ?: featureDrag,
+        onClick = featureClick
     )
 
-    SchemeView(
-        initialViewPoint = viewPointOverride,
-        featuresState = featureState,
-        config = newConfig,
-        modifier = modifier,
-    )
+    SchemeView(mapState, featureState, modifier)
 }
 
 ///**

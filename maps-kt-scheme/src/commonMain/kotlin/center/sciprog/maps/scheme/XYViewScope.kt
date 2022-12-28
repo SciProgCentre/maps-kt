@@ -1,14 +1,17 @@
 package center.sciprog.maps.scheme
 
-import androidx.compose.ui.unit.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.dp
 import center.sciprog.maps.features.*
 import kotlin.math.min
 
-class XYViewState(
+class XYViewScope(
     config: ViewConfig<XY>,
-    canvasSize: DpSize,
-    viewPoint: ViewPoint<XY>,
-) : CoordinateViewState<XY>(config, canvasSize, viewPoint) {
+) : CoordinateViewScope<XY>(config) {
     override val space: CoordinateSpace<XY>
         get() = XYCoordinateSpace
 
@@ -21,8 +24,7 @@ class XYViewState(
         (canvasSize.width / 2 + (x.dp - viewPoint.focus.x.dp) * viewPoint.zoom),
         (canvasSize.height / 2 + (viewPoint.focus.y.dp - y.dp) * viewPoint.zoom)
     )
-
-    override fun viewPointFor(rectangle: Rectangle<XY>): ViewPoint<XY> {
+    override fun computeViewPoint(rectangle: Rectangle<XY>): ViewPoint<XY> {
         val scale = min(
             canvasSize.width.value / rectangle.width,
             canvasSize.height.value / rectangle.height
@@ -41,5 +43,24 @@ class XYViewState(
         val bottomRight = rightBottom.toDpOffset()
         return DpRect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y)
     }
+}
 
+@Composable
+public fun rememberMapState(
+    config: ViewConfig<XY>,
+    features: Collection<Feature<XY>> = emptyList(),
+    initialViewPoint: ViewPoint<XY>? = null,
+    initialRectangle: Rectangle<XY>? = null,
+): XYViewScope = remember {
+    XYViewScope(config).also { mapState->
+        if (initialViewPoint != null) {
+            mapState.viewPoint = initialViewPoint
+        } else if (initialRectangle != null) {
+            mapState.viewPoint = mapState.computeViewPoint(initialRectangle)
+        } else {
+            features.computeBoundingBox(XYCoordinateSpace, 1f)?.let {
+                mapState.viewPoint = mapState.computeViewPoint(it)
+            }
+        }
+    }
 }

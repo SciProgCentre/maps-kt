@@ -2,29 +2,30 @@ package center.sciprog.maps.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.dp
 import center.sciprog.maps.coordinates.*
 import center.sciprog.maps.features.*
 import kotlin.math.*
 
-internal class MapViewState internal constructor(
+public class MapViewScope internal constructor(
+    public val mapTileProvider: MapTileProvider,
     config: ViewConfig<Gmc>,
-    canvasSize: DpSize,
-    viewPoint: ViewPoint<Gmc>,
-    val tileSize: Int,
-) : CoordinateViewState<Gmc>(config, canvasSize, viewPoint) {
-    override val space: CoordinateSpace<Gmc> get() = GmcCoordinateSpace
+) : CoordinateViewScope<Gmc>(config) {
+    override val space: CoordinateSpace<Gmc> get() = WebMercatorSpace
 
-    val scaleFactor: Double
-        get() = WebMercatorProjection.scaleFactor(viewPoint.zoom)
+    public val scaleFactor: Float
+        get() = WebMercatorProjection.scaleFactor(zoom)
 
-    val intZoom: Int get() = floor(zoom).toInt()
+    public val intZoom: Int get() = floor(zoom).toInt()
 
-    val centerCoordinates: WebMercatorCoordinates
+    public val centerCoordinates: WebMercatorCoordinates
         get() = WebMercatorProjection.toMercator(viewPoint.focus, intZoom)
 
-    val tileScale: Float
-        get() = 2f.pow(viewPoint.zoom - floor(viewPoint.zoom))
+    public val tileScale: Float
+        get() = 2f.pow(zoom - floor(zoom))
 
     /*
      * Convert screen independent offset to GMC, adjusting for fractional zoom
@@ -40,9 +41,9 @@ internal class MapViewState internal constructor(
 
     override fun Gmc.toDpOffset(): DpOffset {
         val mercator = WebMercatorProjection.toMercator(this, intZoom)
-        return  DpOffset(
-            (canvasSize.width / 2 + (mercator.x.dp - centerCoordinates.x.dp) * tileScale.toFloat()),
-            (canvasSize.height / 2 + (mercator.y.dp - centerCoordinates.y.dp) * tileScale.toFloat())
+        return DpOffset(
+            (canvasSize.width / 2 + (mercator.x.dp - centerCoordinates.x.dp) * tileScale),
+            (canvasSize.height / 2 + (mercator.y.dp - centerCoordinates.y.dp) * tileScale)
         )
     }
 
@@ -52,12 +53,12 @@ internal class MapViewState internal constructor(
         return DpRect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y)
     }
 
-    override fun viewPointFor(rectangle: Rectangle<Gmc>): ViewPoint<Gmc> {
+    override fun computeViewPoint(rectangle: Rectangle<Gmc>): ViewPoint<Gmc> {
         val zoom = log2(
             min(
                 canvasSize.width.value / rectangle.longitudeDelta.radians.value,
                 canvasSize.height.value / rectangle.latitudeDelta.radians.value
-            ) * PI / tileSize
+            ) * PI / mapTileProvider.tileSize
         )
         return MapViewPoint(rectangle.center, zoom.toFloat())
     }
@@ -78,10 +79,21 @@ internal class MapViewState internal constructor(
 
 @Composable
 internal fun rememberMapState(
+    mapTileProvider: MapTileProvider,
     config: ViewConfig<Gmc>,
-    canvasSize: DpSize,
-    viewPoint: ViewPoint<Gmc>,
-    tileSize: Int,
-): MapViewState = remember {
-    MapViewState(config, canvasSize, viewPoint, tileSize)
+    features: Collection<Feature<Gmc>> = emptyList(),
+    initialViewPoint: MapViewPoint? = null,
+    initialRectangle: Rectangle<Gmc>? = null,
+): MapViewScope = remember {
+    MapViewScope(mapTileProvider, config).also { mapState->
+        if (initialViewPoint != null) {
+            mapState.viewPoint = initialViewPoint
+        } else if (initialRectangle != null) {
+            mapState.viewPoint = mapState.computeViewPoint(initialRectangle)
+        } else {
+            features.computeBoundingBox(WebMercatorSpace, 1f)?.let {
+                mapState.viewPoint = mapState.computeViewPoint(it)
+            }
+        }
+    }
 }

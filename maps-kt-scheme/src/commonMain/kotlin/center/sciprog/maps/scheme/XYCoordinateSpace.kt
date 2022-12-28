@@ -1,6 +1,8 @@
 package center.sciprog.maps.scheme
 
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import center.sciprog.maps.features.CoordinateSpace
 import center.sciprog.maps.features.Rectangle
 import center.sciprog.maps.features.ViewPoint
@@ -61,4 +63,11 @@ object XYCoordinateSpace : CoordinateSpace<XY> {
             XY(maxX, maxY)
         )
     }
+
+    override val defaultViewPoint: ViewPoint<XY> = XYViewPoint(XY(0f, 0f), 1f)
+
+    override fun XY.offsetTo(b: XY, zoom: Float): DpOffset = DpOffset(
+        (b.x - x).dp * zoom,
+        (b.y - y).dp * zoom
+    )
 }

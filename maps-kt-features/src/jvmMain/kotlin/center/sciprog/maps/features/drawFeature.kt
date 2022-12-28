@@ -21,7 +21,7 @@ internal fun Color.toPaint(): Paint = Paint().apply {
 }
 
 public fun <T : Any> DrawScope.drawFeature(
-    state: CoordinateViewState<T>,
+    state: CoordinateViewScope<T>,
     painterCache: Map<PainterFeature<T>, Painter>,
     feature: Feature<T>,
 ): Unit = with(state) {

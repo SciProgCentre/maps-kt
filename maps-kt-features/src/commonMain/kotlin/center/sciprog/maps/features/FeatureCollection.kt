@@ -119,9 +119,14 @@ public class FeatureCollection<T : Any>(
 
     @Suppress("UNCHECKED_CAST")
     public fun <F : SelectableFeature<T>> FeatureId<F>.selectable(
-        onSelect: (FeatureId<F>, F) -> Unit,
+        onSelect: () -> Unit,
     ) {
-        setAttribute(this, SelectableAttribute) { id, feature -> onSelect(id as FeatureId<F>, feature as F) }
+//        val handle = ClickHandle<Any> { event, click ->
+//            val feature: F = get(this@selectable)
+//            if (feature.contains(this, click.focus))
+//        }
+//
+//        setAttribute(this, SelectableAttribute, handle)
     }
 
 

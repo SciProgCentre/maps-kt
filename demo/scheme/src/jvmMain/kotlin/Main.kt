@@ -79,15 +79,20 @@ fun App() {
                 )
             }
         ) {
-            SchemeView(
-                initialViewPoint = initialViewPoint,
-                featuresState = schemeFeaturesState,
-                config = ViewConfig(
-                    onClick = {
-                        println("${focus.x}, ${focus.y}")
+            val mapState: XYViewScope = rememberMapState(
+                ViewConfig(
+                    onClick = {_, click ->
+                        println("${click.focus.x}, ${click.focus.y}")
                     },
                     onViewChange = { viewPoint = this }
                 ),
+                schemeFeaturesState.features.values,
+                initialViewPoint = initialViewPoint,
+            )
+
+            SchemeView(
+                mapState,
+                schemeFeaturesState,
             )
         }
 

@@ -21,9 +21,9 @@ public interface MapTileProvider {
 
     public val tileSize: Int get() = DEFAULT_TILE_SIZE
 
-    public fun toIndex(d: Double): Int = floor(d / tileSize).toInt()
+    public fun toIndex(d: Float): Int = floor(d / tileSize).toInt()
 
-    public fun toCoordinate(i: Int): Double = (i * tileSize).toDouble()
+    public fun toCoordinate(i: Int): Float = (i * tileSize).toFloat()
 
     public companion object {
         public const val DEFAULT_TILE_SIZE: Int = 256

@@ -7,14 +7,14 @@ package center.sciprog.maps.coordinates
 
 import kotlin.math.*
 
-public data class WebMercatorCoordinates(val zoom: Int, val x: Double, val y: Double)
+public data class WebMercatorCoordinates(val zoom: Int, val x: Float, val y: Float)
 
 public object WebMercatorProjection {
 
     /**
      * Compute radians to projection coordinates ratio for given [zoom] factor
      */
-    public fun scaleFactor(zoom: Float): Double = 256.0 / 2 / PI * 2f.pow(zoom)
+    public fun scaleFactor(zoom: Float): Float = (256.0 / 2 / PI * 2f.pow(zoom)).toFloat()
 
     public fun toGeodetic(mercator: WebMercatorCoordinates): GeodeticMapCoordinates {
         val scaleFactor = scaleFactor(mercator.zoom.toFloat())
@@ -32,8 +32,8 @@ public object WebMercatorProjection {
         val scaleFactor = scaleFactor(zoom.toFloat())
         return WebMercatorCoordinates(
             zoom = zoom,
-            x = scaleFactor * (gmc.longitude.radians.value + PI),
-            y = scaleFactor * (PI - ln(tan(PI / 4 + gmc.latitude.radians.value / 2)))
+            x = scaleFactor * (gmc.longitude.radians.value + PI).toFloat(),
+            y = scaleFactor * (PI - ln(tan(PI / 4 + gmc.latitude.radians.value / 2))).toFloat()
         )
     }
 

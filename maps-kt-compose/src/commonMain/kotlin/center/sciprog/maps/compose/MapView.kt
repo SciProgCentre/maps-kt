@@ -2,41 +2,18 @@ package center.sciprog.maps.compose
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
 import center.sciprog.maps.coordinates.Gmc
 import center.sciprog.maps.features.*
-import kotlin.math.PI
-import kotlin.math.log2
-import kotlin.math.min
 
 
 @Composable
 public expect fun MapView(
-    mapTileProvider: MapTileProvider,
-    initialViewPoint: MapViewPoint,
+    mapState: MapViewScope,
     featuresState: FeatureCollection<Gmc>,
-    config: ViewConfig<Gmc> = ViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
 )
-
-internal val defaultCanvasSize = DpSize(512.dp, 512.dp)
-
-public fun Rectangle<Gmc>.computeViewPoint(
-    mapTileProvider: MapTileProvider,
-    canvasSize: DpSize = defaultCanvasSize,
-): MapViewPoint {
-    val zoom = log2(
-        min(
-            canvasSize.width.value / longitudeDelta.radians.value,
-            canvasSize.height.value / latitudeDelta.radians.value
-        ) * PI / mapTileProvider.tileSize
-    )
-    return MapViewPoint(center, zoom.toFloat())
-}
 
 /**
  * A builder for a Map with static features.
@@ -50,20 +27,22 @@ public fun MapView(
     config: ViewConfig<Gmc> = ViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
 ) {
-    val featuresState = key(featureMap) {
-        FeatureCollection.build(GmcCoordinateSpace) {
+
+    val featuresState = remember(featureMap) {
+        FeatureCollection.build(WebMercatorSpace) {
             featureMap.forEach { feature(it.key.id, it.value) }
         }
     }
 
-    val viewPointOverride: MapViewPoint = remember(initialViewPoint, initialRectangle) {
-        initialViewPoint
-            ?: initialRectangle?.computeViewPoint(mapTileProvider)
-            ?: featureMap.values.computeBoundingBox(GmcCoordinateSpace, 1f)?.computeViewPoint(mapTileProvider)
-            ?: MapViewPoint.globe
-    }
+    val mapState: MapViewScope = rememberMapState(
+        mapTileProvider,
+        config,
+        featuresState.features.values,
+        initialViewPoint = initialViewPoint,
+        initialRectangle = initialRectangle,
+    )
 
-    MapView(mapTileProvider, viewPointOverride, featuresState, config, modifier)
+    MapView(mapState, featuresState, modifier)
 }
 
 /**
@@ -82,15 +61,15 @@ public fun MapView(
     modifier: Modifier = Modifier.fillMaxSize(),
     buildFeatures: FeatureCollection<Gmc>.() -> Unit = {},
 ) {
-    val featureState = FeatureCollection.remember(GmcCoordinateSpace, buildFeatures)
 
-    val viewPointOverride: MapViewPoint = remember(initialViewPoint, initialRectangle) {
-        initialViewPoint
-            ?: initialRectangle?.computeViewPoint(mapTileProvider)
-            ?: featureState.features.values.computeBoundingBox(GmcCoordinateSpace, 1f)
-                ?.computeViewPoint(mapTileProvider)
-            ?: MapViewPoint.globe
-    }
+    val featureState = FeatureCollection.remember(WebMercatorSpace, buildFeatures)
+    val mapState: MapViewScope = rememberMapState(
+        mapTileProvider,
+        config,
+        featureState.features.values,
+        initialViewPoint = initialViewPoint,
+        initialRectangle = initialRectangle,
+    )
 
     val featureDrag: DragHandle<Gmc> = DragHandle.withPrimaryButton { event, start, end ->
         featureState.forEachWithAttribute(DraggableAttribute) { _, handle ->
@@ -107,16 +86,18 @@ public fun MapView(
         DragResult(end)
     }
 
+    val featureClick: ClickHandle<Gmc> = ClickHandle.withPrimaryButton { event, click ->
+        featureState.forEachWithAttribute(SelectableAttribute) { _, handle ->
+            @Suppress("UNCHECKED_CAST")
+            (handle as ClickHandle<Gmc>).handle(event, click)
+            config.onClick?.handle(event, click)
+        }
+    }
 
     val newConfig = config.copy(
-        dragHandle = DragHandle.combine(featureDrag, config.dragHandle)
+        dragHandle = config.dragHandle?.let { DragHandle.combine(featureDrag, it) } ?: featureDrag,
+        onClick = featureClick
     )
 
-    MapView(
-        mapTileProvider = mapTileProvider,
-        initialViewPoint = viewPointOverride,
-        featuresState = featureState,
-        config = newConfig,
-        modifier = modifier,
-    )
+    MapView(mapState, featureState, modifier)
 }
