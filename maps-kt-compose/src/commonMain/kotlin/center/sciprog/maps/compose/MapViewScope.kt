@@ -81,7 +81,6 @@ public class MapViewScope internal constructor(
 internal fun rememberMapState(
     mapTileProvider: MapTileProvider,
     config: ViewConfig<Gmc>,
-    features: Collection<Feature<Gmc>> = emptyList(),
     initialViewPoint: MapViewPoint? = null,
     initialRectangle: Rectangle<Gmc>? = null,
 ): MapViewScope = remember {
@@ -90,10 +89,6 @@ internal fun rememberMapState(
             mapState.viewPoint = initialViewPoint
         } else if (initialRectangle != null) {
             mapState.viewPoint = mapState.computeViewPoint(initialRectangle)
-        } else {
-            features.computeBoundingBox(WebMercatorSpace, 1f)?.let {
-                mapState.viewPoint = mapState.computeViewPoint(it)
-            }
         }
     }
 }

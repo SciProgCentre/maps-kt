@@ -5,6 +5,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.unit.DpSize
@@ -93,10 +94,10 @@ fun App() {
                 it.copy(color = Color(Random.nextFloat(), Random.nextFloat(), Random.nextFloat()))
             }
 
-//            draw(position = pointThree) {
-//                drawLine(start = Offset(-10f, -10f), end = Offset(10f, 10f), color = Color.Red)
-//                drawLine(start = Offset(-10f, 10f), end = Offset(10f, -10f), color = Color.Red)
-//            }
+            draw(position = pointThree) {
+                drawLine(start = Offset(-10f, -10f), end = Offset(10f, 10f), color = Color.Red)
+                drawLine(start = Offset(-10f, 10f), end = Offset(10f, -10f), color = Color.Red)
+            }
 
             arc(pointOne, 10.0.kilometers, (PI / 4).radians, -Angle.pi / 2)
 

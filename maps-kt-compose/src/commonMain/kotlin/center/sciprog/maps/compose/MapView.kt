@@ -5,10 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import center.sciprog.maps.coordinates.Gmc
-import center.sciprog.maps.features.FeatureCollection
-import center.sciprog.maps.features.FeatureId
-import center.sciprog.maps.features.Rectangle
-import center.sciprog.maps.features.ViewConfig
+import center.sciprog.maps.features.*
 
 
 @Composable
@@ -31,7 +28,7 @@ public fun MapView(
     modifier: Modifier = Modifier.fillMaxSize(),
 ) {
 
-    val featuresState = remember(featureMap) {
+    val featureState = remember(featureMap) {
         FeatureCollection.build(WebMercatorSpace) {
             featureMap.forEach { feature(it.key.id, it.value) }
         }
@@ -40,12 +37,11 @@ public fun MapView(
     val mapState: MapViewScope = rememberMapState(
         mapTileProvider,
         config,
-        featuresState.features.values,
         initialViewPoint = initialViewPoint,
-        initialRectangle = initialRectangle,
+        initialRectangle = initialRectangle ?: featureState.features.values.computeBoundingBox(WebMercatorSpace, 1f),
     )
 
-    MapView(mapState, featuresState, modifier)
+    MapView(mapState, featureState, modifier)
 }
 
 /**
@@ -66,12 +62,12 @@ public fun MapView(
 ) {
 
     val featureState = FeatureCollection.remember(WebMercatorSpace, buildFeatures)
+
     val mapState: MapViewScope = rememberMapState(
         mapTileProvider,
         config,
-        featureState.features.values,
         initialViewPoint = initialViewPoint,
-        initialRectangle = initialRectangle,
+        initialRectangle = initialRectangle ?: featureState.features.values.computeBoundingBox(WebMercatorSpace, 1f),
     )
 
     MapView(mapState, featureState, modifier)

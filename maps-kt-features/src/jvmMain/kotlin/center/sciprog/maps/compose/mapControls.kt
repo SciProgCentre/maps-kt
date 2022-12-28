@@ -93,12 +93,13 @@ public fun <T : Any> Modifier.mapControls(
                             val dragResult = config.dragHandle?.handle(event, dragStart, dragEnd)
                             if (dragResult?.handleNext == false) return@drag
 
-                            features.values.filterIsInstance<DraggableFeature<T>>()
+                            features.values.asSequence()
+                                .filterIsInstance<DraggableFeature<T>>()
                                 .sortedByDescending { it.z }
-                                .forEach { draggableFeature ->
-                                    draggableFeature.attributes[DraggableAttribute]?.let { handler->
-                                        if (!handler.handle(event, dragStart, dragEnd).handleNext) return@drag
-                                    }
+                                .mapNotNull {
+                                    it.attributes[DraggableAttribute]
+                                }.forEach { handler ->
+                                    if (!handler.handle(event, dragStart, dragEnd).handleNext) return@drag
                                 }
                         }
 

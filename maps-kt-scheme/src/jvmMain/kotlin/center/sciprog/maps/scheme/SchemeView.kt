@@ -30,7 +30,7 @@ public fun SchemeView(
             featuresState.features.values.filterIsInstance<PainterFeature<XY>>().associateWith { it.getPainter() }
         }
 
-        Canvas(modifier = modifier.mapControls(state).fillMaxSize()) {
+        Canvas(modifier = modifier.mapControls(state, featuresState.features).fillMaxSize()) {
 
             if (canvasSize != size.toDpSize()) {
                 canvasSize = size.toDpSize()
@@ -87,7 +87,7 @@ public fun SchemeView(
 ) {
 
 
-    val featuresState = key(featureMap) {
+    val featureState = key(featureMap) {
         FeatureCollection.build(XYCoordinateSpace) {
             featureMap.forEach { feature(it.key.id, it.value) }
         }
@@ -95,12 +95,11 @@ public fun SchemeView(
 
     val state = rememberMapState(
         config,
-        featuresState.features.values,
         initialViewPoint = initialViewPoint,
-        initialRectangle = initialRectangle,
+        initialRectangle = initialRectangle ?: featureState.features.values.computeBoundingBox(XYCoordinateSpace, 1f),
     )
 
-    SchemeView(state, featuresState, modifier)
+    SchemeView(state, featureState, modifier)
 }
 
 /**
@@ -121,37 +120,8 @@ public fun SchemeView(
     val featureState = FeatureCollection.remember(XYCoordinateSpace, buildFeatures)
     val mapState: XYViewScope = rememberMapState(
         config,
-        featureState.features.values,
         initialViewPoint = initialViewPoint,
-        initialRectangle = initialRectangle,
-    )
-
-    val featureDrag: DragHandle<XY> = DragHandle.withPrimaryButton { event, start, end ->
-        featureState.forEachWithAttribute(DraggableAttribute) { _, handle ->
-            @Suppress("UNCHECKED_CAST")
-            (handle as DragHandle<XY>)
-                .handle(event, start, end)
-                .takeIf { !it.handleNext }
-                ?.let {
-                    //we expect it already have no bypass
-                    return@withPrimaryButton it
-                }
-        }
-        //bypass
-        DragResult(end)
-    }
-
-    val featureClick: ClickListener<XY> = ClickListener.withPrimaryButton { event, click ->
-        featureState.forEachWithAttribute(ClickableListenerAttribute) { _, handle ->
-            @Suppress("UNCHECKED_CAST")
-            (handle as ClickListener<XY>).handle(event, click)
-            config.onClick?.handle(event, click)
-        }
-    }
-
-    val newConfig = config.copy(
-        dragHandle = config.dragHandle?.let { DragHandle.combine(featureDrag, it) } ?: featureDrag,
-        onClick = featureClick
+        initialRectangle = initialRectangle ?: featureState.features.values.computeBoundingBox(XYCoordinateSpace, 1f),
     )
 
     SchemeView(mapState, featureState, modifier)

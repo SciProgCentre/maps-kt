@@ -30,6 +30,7 @@ public abstract class CoordinateViewScope<T : Any>(
         get() = viewPointState.value ?: space.defaultViewPoint
         set(value) {
             viewPointState.value = value
+            config.onViewChange(viewPoint)
         }
 
     public val zoom: Float get() = viewPoint.zoom

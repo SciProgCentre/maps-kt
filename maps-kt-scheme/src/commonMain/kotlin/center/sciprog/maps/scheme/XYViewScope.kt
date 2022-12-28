@@ -48,7 +48,6 @@ class XYViewScope(
 @Composable
 public fun rememberMapState(
     config: ViewConfig<XY>,
-    features: Collection<Feature<XY>> = emptyList(),
     initialViewPoint: ViewPoint<XY>? = null,
     initialRectangle: Rectangle<XY>? = null,
 ): XYViewScope = remember {
@@ -57,10 +56,6 @@ public fun rememberMapState(
             mapState.viewPoint = initialViewPoint
         } else if (initialRectangle != null) {
             mapState.viewPoint = mapState.computeViewPoint(initialRectangle)
-        } else {
-            features.computeBoundingBox(XYCoordinateSpace, 1f)?.let {
-                mapState.viewPoint = mapState.computeViewPoint(it)
-            }
         }
     }
 }
