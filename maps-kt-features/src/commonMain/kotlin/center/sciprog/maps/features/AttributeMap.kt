@@ -7,9 +7,9 @@ public object ZAttribute : Feature.Attribute<Float>
 
 public object DraggableAttribute : Feature.Attribute<DragHandle<Any>>
 
-public object DragListenerAttribute : Feature.Attribute<Set<(begin: Any, end: Any) -> Unit>>
+public object DragListenerAttribute : Feature.Attribute<Set<DragListener<Any>>>
 
-public object SelectableAttribute : Feature.Attribute<ClickHandle<Any>>
+public object ClickableListenerAttribute : Feature.Attribute<Set<ClickListener<Any>>>
 
 public object VisibleAttribute : Feature.Attribute<Boolean>
 

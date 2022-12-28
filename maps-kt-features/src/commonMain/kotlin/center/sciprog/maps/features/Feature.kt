@@ -34,13 +34,13 @@ public interface PainterFeature<T : Any> : Feature<T> {
     public fun getPainter(): Painter
 }
 
-public interface SelectableFeature<T : Any> : Feature<T> {
-    public fun contains(point: T, zoom: Float): Boolean = getBoundingBox(zoom)?.let {
-        point in it
+public interface ClickableFeature<T : Any> : Feature<T> {
+    public operator fun contains(viewPoint: ViewPoint<T>): Boolean = getBoundingBox(viewPoint.zoom)?.let {
+        viewPoint.focus in it
     } ?: false
 }
 
-public interface DraggableFeature<T : Any> : SelectableFeature<T> {
+public interface DraggableFeature<T : Any> : ClickableFeature<T> {
     public fun withCoordinates(newCoordinates: T): Feature<T>
 }
 
@@ -152,12 +152,12 @@ public class LineFeature<T : Any>(
     override val zoomRange: FloatRange,
     public val color: Color = Color.Red,
     override val attributes: AttributeMap = AttributeMap(),
-) : SelectableFeature<T> {
+) : ClickableFeature<T> {
     override fun getBoundingBox(zoom: Float): Rectangle<T> =
         space.Rectangle(a, b)
 
-    override fun contains(point: T, zoom: Float): Boolean = with(space) {
-        point in space.Rectangle(a, b) && point.distanceToLine(a, b, zoom).value < 5f
+    override fun contains(veiwPoint: ViewPoint<T>): Boolean = with(space) {
+        veiwPoint.focus in space.Rectangle(a, b) && veiwPoint.focus.distanceToLine(a, b, veiwPoint.zoom).value < 5f
     }
 }
 

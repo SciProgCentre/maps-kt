@@ -9,6 +9,10 @@ import androidx.compose.ui.input.pointer.isPrimaryPressed
  */
 public data class DragResult<T : Any>(val result: ViewPoint<T>, val handleNext: Boolean = true)
 
+public fun interface DragListener<in T : Any> {
+    public fun handle(event: PointerEvent, from: ViewPoint<T>, to: ViewPoint<T>)
+}
+
 public fun interface DragHandle<T : Any> {
     /**
      * @param event - qualifiers of the event used for drag

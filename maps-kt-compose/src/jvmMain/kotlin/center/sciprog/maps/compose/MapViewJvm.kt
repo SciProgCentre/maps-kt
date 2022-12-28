@@ -93,7 +93,7 @@ public actual fun MapView(
         featuresState.features.values.filterIsInstance<PainterFeature<Gmc>>().associateWith { it.getPainter() }
     }
 
-    Canvas(modifier = modifier.mapControls(mapState).fillMaxSize()) {
+    Canvas(modifier = modifier.mapControls(mapState, featuresState.features).fillMaxSize()) {
 
         if (canvasSize != size.toDpSize()) {
             logger.debug { "Recalculate canvas. Size: $size" }

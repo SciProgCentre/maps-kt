@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -47,7 +48,8 @@ public class FeatureCollection<T : Any>(
         get() = featureMap.mapKeys { FeatureId<Feature<T>>(it.key) }
 
     @Suppress("UNCHECKED_CAST")
-    public operator fun <F : Feature<T>> get(id: FeatureId<F>): F = featureMap[id.id] as F
+    public operator fun <F : Feature<T>> get(id: FeatureId<F>): F =
+        featureMap[id.id]?.let { it as F } ?: error("Feature with id=$id not found")
 
     private fun generateID(feature: Feature<T>): String = "@feature[${feature.hashCode().toUInt()}]"
 
@@ -64,6 +66,19 @@ public class FeatureCollection<T : Any>(
         get(id).attributes[key] = value
     }
 
+    @Suppress("UNCHECKED_CAST")
+    public fun FeatureId<DraggableFeature<T>>.onDrag(
+        listener: PointerEvent.(from: ViewPoint<T>, to: ViewPoint<T>) -> Unit,
+    ) {
+        with(get(this)) {
+            attributes[DragListenerAttribute] =
+                (attributes[DragListenerAttribute] ?: emptySet()) + DragListener { event, from, to ->
+                    event.listener(from as ViewPoint<T>, to as ViewPoint<T>)
+                }
+        }
+    }
+
+
     /**
      * Add drag to this feature
      *
@@ -74,19 +89,18 @@ public class FeatureCollection<T : Any>(
     @Suppress("UNCHECKED_CAST")
     public fun FeatureId<DraggableFeature<T>>.draggable(
         constraint: ((T) -> T)? = null,
-        callback: ((start: T, end: T) -> Unit)? = null,
+        listener: (PointerEvent.(from: ViewPoint<T>, to: ViewPoint<T>) -> Unit)? = null
     ) {
         if (getAttribute(this, DraggableAttribute) == null) {
-            val handle = DragHandle.withPrimaryButton<Any> { _, start, end ->
-                val feature = featureMap[id] as? DraggableFeature ?: return@withPrimaryButton DragResult(end)
-                val startPosition = start.focus as T
-                val endPosition = end.focus as T
-                val boundingBox = feature.getBoundingBox(start.zoom) ?: return@withPrimaryButton DragResult(end)
-                if (startPosition in boundingBox) {
-                    val finalPosition = constraint?.invoke(endPosition) ?: endPosition
+            val handle = DragHandle.withPrimaryButton<Any> { event, start, end ->
+                val feature = featureMap[id] as? DraggableFeature<T> ?: return@withPrimaryButton DragResult(end)
+                start as ViewPoint<T>
+                end as ViewPoint<T>
+                if (start in feature) {
+                    val finalPosition = constraint?.invoke(end.focus) ?: end.focus
                     feature(id, feature.withCoordinates(finalPosition))
                     feature.attributes[DragListenerAttribute]?.forEach {
-                        it.invoke(startPosition, endPosition)
+                        it.handle(event, start, ViewPoint(finalPosition, end.zoom))
                     }
                     DragResult(ViewPoint(finalPosition, end.zoom), false)
                 } else {
@@ -97,11 +111,8 @@ public class FeatureCollection<T : Any>(
         }
 
         //Apply callback
-        if (callback != null) {
-            setAttribute(
-                this, DragListenerAttribute,
-                ((getAttribute(this, DragListenerAttribute) ?: emptySet()) + callback) as Set<(Any, Any) -> Unit>
-            )
+        if (listener != null) {
+            onDrag(listener)
         }
     }
 
@@ -118,15 +129,15 @@ public class FeatureCollection<T : Any>(
     }
 
     @Suppress("UNCHECKED_CAST")
-    public fun <F : SelectableFeature<T>> FeatureId<F>.selectable(
-        onSelect: () -> Unit,
+    public fun <F : ClickableFeature<T>> FeatureId<F>.onClick(
+        onClick: PointerEvent.(click: ViewPoint<T>) -> Unit,
     ) {
-//        val handle = ClickHandle<Any> { event, click ->
-//            val feature: F = get(this@selectable)
-//            if (feature.contains(this, click.focus))
-//        }
-//
-//        setAttribute(this, SelectableAttribute, handle)
+        with(get(this)) {
+            attributes[ClickableListenerAttribute] =
+                (attributes[ClickableListenerAttribute] ?: emptySet()) + ClickListener { event, point ->
+                    event.onClick(point as ViewPoint<T>)
+                }
+        }
     }
 
 

@@ -5,7 +5,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import center.sciprog.maps.coordinates.Gmc
-import center.sciprog.maps.features.*
+import center.sciprog.maps.features.FeatureCollection
+import center.sciprog.maps.features.FeatureId
+import center.sciprog.maps.features.Rectangle
+import center.sciprog.maps.features.ViewConfig
 
 
 @Composable
@@ -69,34 +72,6 @@ public fun MapView(
         featureState.features.values,
         initialViewPoint = initialViewPoint,
         initialRectangle = initialRectangle,
-    )
-
-    val featureDrag: DragHandle<Gmc> = DragHandle.withPrimaryButton { event, start, end ->
-        featureState.forEachWithAttribute(DraggableAttribute) { _, handle ->
-            @Suppress("UNCHECKED_CAST")
-            (handle as DragHandle<Gmc>)
-                .handle(event, start, end)
-                .takeIf { !it.handleNext }
-                ?.let {
-                    //we expect it already have no bypass
-                    return@withPrimaryButton it
-                }
-        }
-        //bypass
-        DragResult(end)
-    }
-
-    val featureClick: ClickHandle<Gmc> = ClickHandle.withPrimaryButton { event, click ->
-        featureState.forEachWithAttribute(SelectableAttribute) { _, handle ->
-            @Suppress("UNCHECKED_CAST")
-            (handle as ClickHandle<Gmc>).handle(event, click)
-            config.onClick?.handle(event, click)
-        }
-    }
-
-    val newConfig = config.copy(
-        dragHandle = config.dragHandle?.let { DragHandle.combine(featureDrag, it) } ?: featureDrag,
-        onClick = featureClick
     )
 
     MapView(mapState, featureState, modifier)

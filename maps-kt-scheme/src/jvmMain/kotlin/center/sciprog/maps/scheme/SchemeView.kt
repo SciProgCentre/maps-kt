@@ -141,10 +141,10 @@ public fun SchemeView(
         DragResult(end)
     }
 
-    val featureClick: ClickHandle<XY> = ClickHandle.withPrimaryButton { event, click ->
-        featureState.forEachWithAttribute(SelectableAttribute) { _, handle ->
+    val featureClick: ClickListener<XY> = ClickListener.withPrimaryButton { event, click ->
+        featureState.forEachWithAttribute(ClickableListenerAttribute) { _, handle ->
             @Suppress("UNCHECKED_CAST")
-            (handle as ClickHandle<XY>).handle(event, click)
+            (handle as ClickListener<XY>).handle(event, click)
             config.onClick?.handle(event, click)
         }
     }

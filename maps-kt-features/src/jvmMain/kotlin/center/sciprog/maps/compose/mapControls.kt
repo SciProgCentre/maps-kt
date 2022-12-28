@@ -1,34 +1,51 @@
 package center.sciprog.maps.compose
 
 import androidx.compose.foundation.gestures.drag
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
-import center.sciprog.maps.features.CoordinateViewScope
-import center.sciprog.maps.features.bottomRight
-import center.sciprog.maps.features.topLeft
+import center.sciprog.maps.features.*
 import kotlin.math.max
 import kotlin.math.min
 
 
-@OptIn(ExperimentalComposeUiApi::class)
+/**
+ * Create a modifier for Map/Scheme canvas controls on desktop
+ */
 public fun <T : Any> Modifier.mapControls(
     state: CoordinateViewScope<T>,
+    features: Map<FeatureId<*>, Feature<T>>,
 ): Modifier = with(state) {
     pointerInput(Unit) {
         fun Offset.toDpOffset() = DpOffset(x.toDp(), y.toDp())
         awaitPointerEventScope {
             while (true) {
                 val event = awaitPointerEvent()
-                if (event.type == PointerEventType.Release ) {
+                if (event.type == PointerEventType.Release) {
+                    val coordinates = event.changes.first().position.toDpOffset().toCoordinates()
+                    val viewPoint = space.ViewPoint(coordinates, zoom)
                     config.onClick?.handle(
                         event,
-                        space.ViewPoint(event.changes.first().position.toDpOffset().toCoordinates(), zoom)
+                        viewPoint
                     )
+                    features.values.mapNotNull { feature ->
+                        val clickableFeature = feature as? ClickableFeature
+                            ?: return@mapNotNull null
+                        val listeners = clickableFeature.attributes[ClickableListenerAttribute]
+                            ?: return@mapNotNull null
+                        if (viewPoint in clickableFeature) {
+                            feature to listeners
+                        } else {
+                            null
+                        }
+                    }.maxByOrNull {
+                        it.first.z
+                    }?.second?.forEach {
+                        it.handle(event, viewPoint)
+                    }
                 }
             }
         }
@@ -48,6 +65,7 @@ public fun <T : Any> Modifier.mapControls(
                         }
                         change.consume()
                     }
+
                     //val dragStart = change.position
                     //val dpPos = DpOffset(dragStart.x.toDp(), dragStart.y.toDp())
 
@@ -61,17 +79,27 @@ public fun <T : Any> Modifier.mapControls(
 
                     drag(change.id) { dragChange ->
                         val dragAmount: Offset = dragChange.position - dragChange.previousPosition
-                        val dpStart = dragChange.previousPosition.toDpOffset()
-                        val dpEnd = dragChange.position.toDpOffset()
 
                         //apply drag handle and check if it prohibits the drag even propagation
                         if (selectionStart == null) {
-                            val dragResult = config.dragHandle?.handle(
-                                event,
-                                space.ViewPoint(dpStart.toCoordinates(), zoom),
-                                space.ViewPoint(dpEnd.toCoordinates(), zoom)
+                            val dragStart = space.ViewPoint(
+                                dragChange.previousPosition.toDpOffset().toCoordinates(),
+                                zoom
                             )
+                            val dragEnd = space.ViewPoint(
+                                dragChange.position.toDpOffset().toCoordinates(),
+                                zoom
+                            )
+                            val dragResult = config.dragHandle?.handle(event, dragStart, dragEnd)
                             if (dragResult?.handleNext == false) return@drag
+
+                            features.values.filterIsInstance<DraggableFeature<T>>()
+                                .sortedByDescending { it.z }
+                                .forEach { draggableFeature ->
+                                    draggableFeature.attributes[DraggableAttribute]?.let { handler->
+                                        if (!handler.handle(event, dragStart, dragEnd).handleNext) return@drag
+                                    }
+                                }
                         }
 
                         if (event.buttons.isPrimaryPressed) {
