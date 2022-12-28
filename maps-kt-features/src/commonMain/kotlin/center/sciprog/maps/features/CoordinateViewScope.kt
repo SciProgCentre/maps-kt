@@ -6,10 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.*
-import kotlin.math.pow
-import kotlin.math.sqrt
-
-private fun distanceBetween(a: DpOffset, b: DpOffset): Dp = sqrt((b.x - a.x).value.pow(2) + (b.y - a.y).value.pow(2)).dp
 
 public abstract class CoordinateViewScope<T : Any>(
     public val config: ViewConfig<T>,
@@ -17,8 +13,8 @@ public abstract class CoordinateViewScope<T : Any>(
 
     public abstract val space: CoordinateSpace<T>
 
-    protected var canvasSizeState: MutableState<DpSize?> = mutableStateOf(null)
-    protected var viewPointState: MutableState<ViewPoint<T>?> = mutableStateOf(null)
+    private var canvasSizeState: MutableState<DpSize?> = mutableStateOf(null)
+    private var viewPointState: MutableState<ViewPoint<T>?> = mutableStateOf(null)
 
     public var canvasSize: DpSize
         get() = canvasSizeState.value ?: DpSize(512.dp, 512.dp)

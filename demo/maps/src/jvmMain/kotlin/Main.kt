@@ -5,7 +5,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.unit.DpSize
@@ -65,9 +64,9 @@ fun App() {
 
             image(pointOne, Icons.Filled.Home)
 
-            val marker1 = rectangle(55.744 to 37.614, size = DpSize(10.dp, 10.dp), color = Color.Magenta)
-            val marker2 = rectangle(55.8 to 37.5, size = DpSize(10.dp, 10.dp), color = Color.Magenta)
-            val marker3 = rectangle(56.0 to 37.5, size = DpSize(10.dp, 10.dp), color = Color.Magenta)
+            val marker1 = rectangle(55.744 to 38.614, size = DpSize(10.dp, 10.dp), color = Color.Magenta)
+            val marker2 = rectangle(55.8 to 38.5, size = DpSize(10.dp, 10.dp), color = Color.Magenta)
+            val marker3 = rectangle(56.0 to 38.5, size = DpSize(10.dp, 10.dp), color = Color.Magenta)
 
             draggableLine(marker1, marker2, color = Color.Blue)
             draggableLine(marker2, marker3, color = Color.Blue)
@@ -94,10 +93,10 @@ fun App() {
                 it.copy(color = Color(Random.nextFloat(), Random.nextFloat(), Random.nextFloat()))
             }
 
-            draw(position = pointThree) {
-                drawLine(start = Offset(-10f, -10f), end = Offset(10f, 10f), color = Color.Red)
-                drawLine(start = Offset(-10f, 10f), end = Offset(10f, -10f), color = Color.Red)
-            }
+//            draw(position = pointThree) {
+//                drawLine(start = Offset(-10f, -10f), end = Offset(10f, 10f), color = Color.Red)
+//                drawLine(start = Offset(-10f, 10f), end = Offset(10f, -10f), color = Color.Red)
+//            }
 
             arc(pointOne, 10.0.kilometers, (PI / 4).radians, -Angle.pi / 2)
 

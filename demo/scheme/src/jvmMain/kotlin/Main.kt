@@ -86,7 +86,6 @@ fun App() {
                     },
                     onViewChange = { viewPoint = this }
                 ),
-                schemeFeaturesState.features.values,
                 initialViewPoint = initialViewPoint,
             )
 

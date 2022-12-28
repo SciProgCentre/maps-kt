@@ -96,7 +96,7 @@ public fun SchemeView(
     val state = rememberMapState(
         config,
         initialViewPoint = initialViewPoint,
-        initialRectangle = initialRectangle ?: featureState.features.values.computeBoundingBox(XYCoordinateSpace, 1f),
+        initialRectangle = initialRectangle ?: featureState.features.values.computeBoundingBox(XYCoordinateSpace, Float.MAX_VALUE),
     )
 
     SchemeView(state, featureState, modifier)
@@ -121,87 +121,9 @@ public fun SchemeView(
     val mapState: XYViewScope = rememberMapState(
         config,
         initialViewPoint = initialViewPoint,
-        initialRectangle = initialRectangle ?: featureState.features.values.computeBoundingBox(XYCoordinateSpace, 1f),
+        initialRectangle = initialRectangle ?: featureState.features.values.computeBoundingBox(XYCoordinateSpace, Float.MAX_VALUE),
     )
 
     SchemeView(mapState, featureState, modifier)
 }
 
-///**
-// * A builder for a Scheme with static features.
-// */
-//@Composable
-//public fun SchemeView(
-//    initialViewPoint: XYViewPoint? = null,
-//    initialRectangle: XYRectangle? = null,
-//    featureMap: Map<FeatureId<*>,>,
-//    config: SchemeViewConfig = SchemeViewConfig(),
-//    modifier: Modifier = Modifier.fillMaxSize(),
-//) {
-//    val featuresState = key(featureMap) {
-//        SchemeFeaturesState.build {
-//            featureMap.forEach(::addFeature)
-//        }
-//    }
-//
-//    val viewPointOverride: XYViewPoint = remember(initialViewPoint, initialRectangle) {
-//        initialViewPoint
-//            ?: initialRectangle?.computeViewPoint()
-//            ?: featureMap.values.computeBoundingBox(1f)?.computeViewPoint()
-//            ?: XYViewPoint(XY(0f, 0f))
-//    }
-//
-//    SchemeView(viewPointOverride, featuresState, config, modifier)
-//}
-//
-///**
-// * Draw a map using convenient parameters. If neither [initialViewPoint], noe [initialRectangle] is defined,
-// * use map features to infer view region.
-// * @param initialViewPoint The view point of the map using center and zoom. Is used if provided
-// * @param initialRectangle The rectangle to be used for view point computation. Used if [initialViewPoint] is not defined.
-// * @param buildFeatures - a builder for features
-// */
-//@Composable
-//public fun SchemeView(
-//    initialViewPoint: XYViewPoint? = null,
-//    initialRectangle: Rectangle<XY>? = null,
-//    config: ViewConfig<XY> = ViewConfig(),
-//    modifier: Modifier = Modifier.fillMaxSize(),
-//    buildFeatures: FeaturesState<XY>.() -> Unit = {},
-//) {
-//    val featureState = FeaturesState.remember(XYCoordinateSpace, buildFeatures)
-//
-//    val features = featureState.features
-//
-//    val viewPointOverride: XYViewPoint = remember(initialViewPoint, initialRectangle) {
-//        initialViewPoint
-//            ?: initialRectangle?.computeViewPoint()
-//            ?: features.values.computeBoundingBox(1f)?.computeViewPoint()
-//            ?: XYViewPoint(XY(0f, 0f))
-//    }
-//
-////    val featureDrag = DragHandle.withPrimaryButton { _, start, end ->
-////        val zoom = start.zoom
-////        featureState.findAllWithAttribute(DraggableAttribute) { it }.forEach { id ->
-////            val feature = features[id] as? DraggableMapFeature ?: return@forEach
-////            val boundingBox = feature.getBoundingBox(zoom) ?: return@forEach
-////            if (start.focus in boundingBox) {
-////                featureState.addFeature(id, feature.withCoordinates(end.focus))
-////                return@withPrimaryButton false
-////            }
-////        }
-////        return@withPrimaryButton true
-////    }
-////
-////
-////    val newConfig = config.copy(
-////        dragHandle = DragHandle.combine(featureDrag, config.dragHandle)
-////    )
-//
-//    SchemeView(
-//        initialViewPoint = viewPointOverride,
-//        featuresState = featureState,
-//        config = config,
-//        modifier = modifier,
-//    )
-//}

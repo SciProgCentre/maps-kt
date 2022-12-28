@@ -38,7 +38,7 @@ public fun MapView(
         mapTileProvider,
         config,
         initialViewPoint = initialViewPoint,
-        initialRectangle = initialRectangle ?: featureState.features.values.computeBoundingBox(WebMercatorSpace, 1f),
+        initialRectangle = initialRectangle ?: featureState.features.values.computeBoundingBox(WebMercatorSpace, Float.MAX_VALUE),
     )
 
     MapView(mapState, featureState, modifier)
@@ -67,7 +67,7 @@ public fun MapView(
         mapTileProvider,
         config,
         initialViewPoint = initialViewPoint,
-        initialRectangle = initialRectangle ?: featureState.features.values.computeBoundingBox(WebMercatorSpace, 1f),
+        initialRectangle = initialRectangle ?: featureState.features.values.computeBoundingBox(WebMercatorSpace, Float.MAX_VALUE),
     )
 
     MapView(mapState, featureState, modifier)

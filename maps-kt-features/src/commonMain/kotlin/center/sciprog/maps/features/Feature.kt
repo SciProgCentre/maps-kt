@@ -156,8 +156,8 @@ public class LineFeature<T : Any>(
     override fun getBoundingBox(zoom: Float): Rectangle<T> =
         space.Rectangle(a, b)
 
-    override fun contains(veiwPoint: ViewPoint<T>): Boolean = with(space) {
-        veiwPoint.focus in space.Rectangle(a, b) && veiwPoint.focus.distanceToLine(a, b, veiwPoint.zoom).value < 5f
+    override fun contains(viewPoint: ViewPoint<T>): Boolean = with(space) {
+        viewPoint.focus in space.Rectangle(a, b) && viewPoint.focus.distanceToLine(a, b, viewPoint.zoom).value < 5f
     }
 }
 

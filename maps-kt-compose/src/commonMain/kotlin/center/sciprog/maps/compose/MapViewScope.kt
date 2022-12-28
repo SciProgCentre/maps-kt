@@ -16,7 +16,7 @@ public class MapViewScope internal constructor(
 ) : CoordinateViewScope<Gmc>(config) {
     override val space: CoordinateSpace<Gmc> get() = WebMercatorSpace
 
-    public val scaleFactor: Float
+    private val scaleFactor: Float
         get() = WebMercatorProjection.scaleFactor(zoom)
 
     public val intZoom: Int get() = floor(zoom).toInt()
