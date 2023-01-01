@@ -25,9 +25,13 @@ fun FeatureBuilder<XY>.background(
     )
     return feature(
         id,
-        ScalableImageFeature(coordinateSpace, box, zoomRange = defaultZoomRange, painter = painter).apply {
-            z = -100f
-        }
+        ScalableImageFeature(
+            space,
+            box,
+            zoomRange = defaultZoomRange,
+            painter = painter,
+            attributes = Attributes(ZAttribute, -100f)
+        )
     )
 }
 
@@ -68,7 +72,8 @@ public fun FeatureBuilder<XY>.arc(
     startAngle = startAngle,
     arcLength = arcLength,
     zoomRange = zoomRange,
-    color = color
+    color = color,
+    id = id
 )
 
 fun FeatureBuilder<XY>.image(

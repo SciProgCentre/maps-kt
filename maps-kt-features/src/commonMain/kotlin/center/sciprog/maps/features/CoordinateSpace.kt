@@ -76,6 +76,8 @@ public interface CoordinateSpace<T : Any> {
 
         return distanceVale.dp
     }
+
+    public fun T.isInsidePolygon(points: List<T>): Boolean
 }
 
 public fun <T : Any> CoordinateSpace<T>.Rectangle(viewPoint: ViewPoint<T>, size: DpSize): Rectangle<T> =

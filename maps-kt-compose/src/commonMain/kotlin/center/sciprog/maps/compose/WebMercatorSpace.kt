@@ -7,6 +7,7 @@ import center.sciprog.maps.coordinates.*
 import center.sciprog.maps.features.CoordinateSpace
 import center.sciprog.maps.features.Rectangle
 import center.sciprog.maps.features.ViewPoint
+import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.pow
 
@@ -82,6 +83,13 @@ public object WebMercatorSpace : CoordinateSpace<Gmc> {
             (mercatorA.y - mercatorB.y).dp * tileScale
         )
     }
+
+    override fun Gmc.isInsidePolygon(points: List<Gmc>): Boolean = points.zipWithNext().count { (left, right) ->
+        val dist = right.latitude - left.latitude
+        val intersection = left.latitude * abs((right.longitude - longitude) / dist) +
+                right.latitude * abs((longitude - left.longitude) / dist)
+        longitude in left.longitude..right.longitude && intersection >= latitude
+    } % 2 == 0
 }
 
 /**

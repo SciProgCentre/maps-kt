@@ -24,27 +24,31 @@ public fun <T : Any> Modifier.mapControls(
         awaitPointerEventScope {
             while (true) {
                 val event = awaitPointerEvent()
+                val coordinates = event.changes.first().position.toDpOffset().toCoordinates()
+                val point = space.ViewPoint(coordinates, zoom)
+
+                val sortedFeatures =features.values.sortedByDescending { it.z }
+
+                if (event.type == PointerEventType.Move) {
+                    for (feature in sortedFeatures) {
+                        val listeners = (feature as? DomainFeature)?.attributes?.get(HoverListenerAttribute)
+                        if (listeners != null && point in feature) {
+                            listeners.forEach { it.handle(event, point) }
+                            break
+                        }
+                    }
+                }
                 if (event.type == PointerEventType.Release) {
-                    val coordinates = event.changes.first().position.toDpOffset().toCoordinates()
-                    val viewPoint = space.ViewPoint(coordinates, zoom)
                     config.onClick?.handle(
                         event,
-                        viewPoint
+                        point
                     )
-                    features.values.mapNotNull { feature ->
-                        val clickableFeature = feature as? ClickableFeature
-                            ?: return@mapNotNull null
-                        val listeners = clickableFeature.attributes[ClickableListenerAttribute]
-                            ?: return@mapNotNull null
-                        if (viewPoint in clickableFeature) {
-                            feature to listeners
-                        } else {
-                            null
+                    for (feature in sortedFeatures) {
+                        val listeners = (feature as? DomainFeature)?.attributes?.get(ClickListenerAttribute)
+                        if (listeners != null && point in feature) {
+                            listeners.forEach { it.handle(event, point) }
+                            break
                         }
-                    }.maxByOrNull {
-                        it.first.z
-                    }?.second?.forEach {
-                        it.handle(event, viewPoint)
                     }
                 }
             }

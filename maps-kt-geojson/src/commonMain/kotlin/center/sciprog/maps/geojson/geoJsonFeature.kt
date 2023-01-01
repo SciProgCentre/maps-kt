@@ -41,19 +41,17 @@ public fun FeatureBuilder<Gmc>.geoJsonGeometry(
 
     is GeoJsonMultiPolygon -> group(id = id) {
         geometry.coordinates.forEach {
-            points(
+            polygon(
                 it.first(),
                 color = color,
-                pointMode = PointMode.Polygon
             )
         }
     }
 
     is GeoJsonPoint -> circle(geometry.coordinates, color = color, id = id)
-    is GeoJsonPolygon -> points(
+    is GeoJsonPolygon -> polygon(
         geometry.coordinates.first(),
         color = color,
-        pointMode = PointMode.Polygon
     )
 
     is GeoJsonGeometryCollection -> group(id = id) {
@@ -61,6 +59,8 @@ public fun FeatureBuilder<Gmc>.geoJsonGeometry(
             geoJsonGeometry(it)
         }
     }
+}.apply {
+    withAttribute(AlphaAttribute, 0.5f)
 }
 
 public fun FeatureBuilder<Gmc>.geoJsonFeature(

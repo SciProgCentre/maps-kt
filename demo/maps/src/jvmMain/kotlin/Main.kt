@@ -109,6 +109,15 @@ fun App() {
                     text(position = it, it.toShortString(), id = "text", color = Color.Blue)
                 }
             }.launchIn(scope)
+
+            features.forEach { (id, feature) ->
+                if (feature is PolygonFeature) {
+                    (id as FeatureId<PolygonFeature<Gmc>>).onHover {
+                        println("Hover on $id")
+                        points(feature.points, color = Color.Blue, id = "selected", attributes = Attributes(ZAttribute, 10f))
+                    }
+                }
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ import androidx.compose.ui.unit.dp
 import center.sciprog.maps.features.CoordinateSpace
 import center.sciprog.maps.features.Rectangle
 import center.sciprog.maps.features.ViewPoint
+import kotlin.math.abs
 import kotlin.math.pow
 
 object XYCoordinateSpace : CoordinateSpace<XY> {
@@ -70,4 +71,11 @@ object XYCoordinateSpace : CoordinateSpace<XY> {
         (b.x - x).dp * zoom,
         (b.y - y).dp * zoom
     )
+
+    override fun XY.isInsidePolygon(points: List<XY>): Boolean = points.zipWithNext().count { (left, right) ->
+        val dist = right.y - left.y
+        val intersection = left.y * abs((right.x - x) / dist) +
+                right.y * abs((x - left.x) / dist)
+        x in left.x..right.x && intersection >= y
+    } % 2 == 0
 }

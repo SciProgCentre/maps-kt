@@ -3,6 +3,7 @@ package center.sciprog.maps.features
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -24,7 +25,9 @@ public fun <T : Any> DrawScope.drawFeature(
     state: CoordinateViewScope<T>,
     painterCache: Map<PainterFeature<T>, Painter>,
     feature: Feature<T>,
+
 ): Unit = with(state) {
+    val alpha = feature.attributes[AlphaAttribute]?:1f
     fun T.toOffset(): Offset = toOffset(this@drawFeature)
 
     when (feature) {
@@ -57,7 +60,8 @@ public fun <T : Any> DrawScope.drawFeature(
                 useCenter = false,
                 topLeft = dpRect.topLeft,
                 size = size,
-                style = Stroke()
+                style = Stroke(),
+                alpha = alpha
             )
 
         }
@@ -93,6 +97,7 @@ public fun <T : Any> DrawScope.drawFeature(
         }
 
         is FeatureGroup -> {
+            //do nothing
             feature.children.values.forEach {
                 drawFeature(state, painterCache, it)
             }
@@ -113,7 +118,23 @@ public fun <T : Any> DrawScope.drawFeature(
                 points = points,
                 color = feature.color,
                 strokeWidth = feature.stroke,
-                pointMode = feature.pointMode
+                pointMode = feature.pointMode,
+                alpha = alpha
+            )
+        }
+
+        is PolygonFeature -> {
+            val points = feature.points.map { it.toOffset() }
+            val last = points.last()
+            val polygonPath = Path()
+            polygonPath.moveTo(last.x, last.y)
+            for ((x,y) in points){
+                polygonPath.lineTo(x,y)
+            }
+            drawPath(
+                path = polygonPath,
+                color = feature.color,
+                alpha = alpha
             )
         }
 
