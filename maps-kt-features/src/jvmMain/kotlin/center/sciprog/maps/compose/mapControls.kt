@@ -14,10 +14,11 @@ import kotlin.math.min
 
 /**
  * Create a modifier for Map/Scheme canvas controls on desktop
+ * @param features a collection of features to be rendered in descending [ZAttribute] order
  */
 public fun <T : Any> Modifier.mapControls(
     state: CoordinateViewScope<T>,
-    features: Map<FeatureId<*>, Feature<T>>,
+    features: Collection<Feature<T>>,
 ): Modifier = with(state) {
     pointerInput(Unit) {
         fun Offset.toDpOffset() = DpOffset(x.toDp(), y.toDp())
@@ -27,10 +28,8 @@ public fun <T : Any> Modifier.mapControls(
                 val coordinates = event.changes.first().position.toDpOffset().toCoordinates()
                 val point = space.ViewPoint(coordinates, zoom)
 
-                val sortedFeatures =features.values.sortedByDescending { it.z }
-
                 if (event.type == PointerEventType.Move) {
-                    for (feature in sortedFeatures) {
+                    for (feature in features) {
                         val listeners = (feature as? DomainFeature)?.attributes?.get(HoverListenerAttribute)
                         if (listeners != null && point in feature) {
                             listeners.forEach { it.handle(event, point) }
@@ -43,7 +42,7 @@ public fun <T : Any> Modifier.mapControls(
                         event,
                         point
                     )
-                    for (feature in sortedFeatures) {
+                    for (feature in features) {
                         val listeners = (feature as? DomainFeature)?.attributes?.get(ClickListenerAttribute)
                         if (listeners != null && point in feature) {
                             listeners.forEach { it.handle(event, point) }
@@ -97,9 +96,8 @@ public fun <T : Any> Modifier.mapControls(
                             val dragResult = config.dragHandle?.handle(event, dragStart, dragEnd)
                             if (dragResult?.handleNext == false) return@drag
 
-                            features.values.asSequence()
+                            features.asSequence()
                                 .filterIsInstance<DraggableFeature<T>>()
-                                .sortedByDescending { it.z }
                                 .mapNotNull {
                                     it.attributes[DraggableAttribute]
                                 }.forEach { handler ->

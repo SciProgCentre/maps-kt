@@ -12,7 +12,7 @@ import center.sciprog.maps.features.*
 
 internal fun Pair<Number, Number>.toCoordinates(): XY = XY(first.toFloat(), second.toFloat())
 
-fun FeatureBuilder<XY>.background(
+fun FeatureGroup<XY>.background(
     width: Float,
     height: Float,
     offset: XY = XY(0f, 0f),
@@ -35,7 +35,7 @@ fun FeatureBuilder<XY>.background(
     )
 }
 
-fun FeatureBuilder<XY>.circle(
+fun FeatureGroup<XY>.circle(
     centerCoordinates: Pair<Number, Number>,
     zoomRange: FloatRange = defaultZoomRange,
     size: Dp = 5.dp,
@@ -43,14 +43,14 @@ fun FeatureBuilder<XY>.circle(
     id: String? = null,
 ): FeatureId<CircleFeature<XY>> = circle(centerCoordinates.toCoordinates(), zoomRange, size, color, id = id)
 
-fun FeatureBuilder<XY>.draw(
+fun FeatureGroup<XY>.draw(
     position: Pair<Number, Number>,
     zoomRange: FloatRange = defaultZoomRange,
     id: String? = null,
     draw: DrawScope.() -> Unit,
 ): FeatureId<DrawFeature<XY>> = draw(position.toCoordinates(), zoomRange = zoomRange, id = id, draw = draw)
 
-fun FeatureBuilder<XY>.line(
+fun FeatureGroup<XY>.line(
     aCoordinates: Pair<Number, Number>,
     bCoordinates: Pair<Number, Number>,
     scaleRange: FloatRange = defaultZoomRange,
@@ -59,7 +59,7 @@ fun FeatureBuilder<XY>.line(
 ): FeatureId<LineFeature<XY>> = line(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), scaleRange, color, id)
 
 
-public fun FeatureBuilder<XY>.arc(
+public fun FeatureGroup<XY>.arc(
     center: Pair<Double, Double>,
     radius: Float,
     startAngle: Float,
@@ -76,7 +76,7 @@ public fun FeatureBuilder<XY>.arc(
     id = id
 )
 
-fun FeatureBuilder<XY>.image(
+fun FeatureGroup<XY>.image(
     position: Pair<Number, Number>,
     image: ImageVector,
     size: DpSize = DpSize(image.defaultWidth, image.defaultHeight),
@@ -85,7 +85,7 @@ fun FeatureBuilder<XY>.image(
 ): FeatureId<VectorImageFeature<XY>> =
     image(position.toCoordinates(), image, size = size, zoomRange = zoomRange, id = id)
 
-fun FeatureBuilder<XY>.text(
+fun FeatureGroup<XY>.text(
     position: Pair<Number, Number>,
     text: String,
     zoomRange: FloatRange = defaultZoomRange,

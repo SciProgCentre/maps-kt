@@ -22,6 +22,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.net.URL
 import java.nio.file.Path
 import kotlin.math.PI
@@ -64,13 +66,13 @@ fun App() {
 
             image(pointOne, Icons.Filled.Home)
 
-            val marker1 = rectangle(55.744 to 38.614, size = DpSize(10.dp, 10.dp), color = Color.Magenta)
-            val marker2 = rectangle(55.8 to 38.5, size = DpSize(10.dp, 10.dp), color = Color.Magenta)
-            val marker3 = rectangle(56.0 to 38.5, size = DpSize(10.dp, 10.dp), color = Color.Magenta)
+            val marker1 = rectangle(55.744 to 38.614, size = DpSize(10.dp, 10.dp)).color(Color.Magenta)
+            val marker2 = rectangle(55.8 to 38.5, size = DpSize(10.dp, 10.dp)).color(Color.Magenta)
+            val marker3 = rectangle(56.0 to 38.5, size = DpSize(10.dp, 10.dp)).color(Color.Magenta)
 
-            draggableLine(marker1, marker2, color = Color.Blue)
-            draggableLine(marker2, marker3, color = Color.Blue)
-            draggableLine(marker3, marker1, color = Color.Blue)
+            draggableLine(marker1, marker2).color(Color.Blue)
+            draggableLine(marker2, marker3).color(Color.Blue)
+            draggableLine(marker3, marker1).color(Color.Blue)
 
             points(
                 points = listOf(
@@ -85,13 +87,16 @@ fun App() {
             )
 
             //remember feature ID
-            circle(
+            val circleId = circle(
                 centerCoordinates = pointTwo,
-            ).updated(scope) {
-                delay(200)
-                //Overwrite a feature with new color
-                it.copy(color = Color(Random.nextFloat(), Random.nextFloat(), Random.nextFloat()))
+            )
+            scope.launch {
+                while (isActive) {
+                    delay(200)
+                    circleId.color(Color(Random.nextFloat(), Random.nextFloat(), Random.nextFloat()))
+                }
             }
+
 
 //            draw(position = pointThree) {
 //                drawLine(start = Offset(-10f, -10f), end = Offset(10f, 10f), color = Color.Red)
@@ -105,16 +110,20 @@ fun App() {
 
             centerCoordinates.filterNotNull().onEach {
                 group(id = "center") {
-                    circle(center = it, color = Color.Blue, id = "circle", size = 1.dp)
-                    text(position = it, it.toShortString(), id = "text", color = Color.Blue)
+                    circle(center = it, id = "circle", size = 1.dp).color(Color.Blue)
+                    text(position = it, it.toShortString(), id = "text").color(Color.Blue)
                 }
             }.launchIn(scope)
 
-            features.forEach { (id, feature) ->
+            visit { id, feature ->
                 if (feature is PolygonFeature) {
                     (id as FeatureId<PolygonFeature<Gmc>>).onHover {
                         println("Hover on $id")
-                        points(feature.points, color = Color.Blue, id = "selected", attributes = Attributes(ZAttribute, 10f))
+                        points(
+                            feature.points,
+                            id = "selected",
+                            attributes = Attributes(ZAttribute, 10f)
+                        ).color(Color.Blue)
                     }
                 }
             }

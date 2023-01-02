@@ -11,7 +11,7 @@ import center.sciprog.maps.features.*
 @Composable
 public expect fun MapView(
     mapState: MapViewScope,
-    featuresState: FeatureCollection<Gmc>,
+    featuresState: FeatureGroup<Gmc>,
     modifier: Modifier = Modifier.fillMaxSize(),
 )
 
@@ -29,7 +29,7 @@ public fun MapView(
 ) {
 
     val featureState = remember(featureMap) {
-        FeatureCollection.build(WebMercatorSpace) {
+        FeatureGroup.build(WebMercatorSpace) {
             featureMap.forEach { feature(it.key.id, it.value) }
         }
     }
@@ -38,7 +38,7 @@ public fun MapView(
         mapTileProvider,
         config,
         initialViewPoint = initialViewPoint,
-        initialRectangle = initialRectangle ?: featureState.features.values.computeBoundingBox(WebMercatorSpace, Float.MAX_VALUE),
+        initialRectangle = initialRectangle ?: featureState.features.computeBoundingBox(WebMercatorSpace, Float.MAX_VALUE),
     )
 
     MapView(mapState, featureState, modifier)
@@ -58,16 +58,16 @@ public fun MapView(
     initialRectangle: Rectangle<Gmc>? = null,
     config: ViewConfig<Gmc> = ViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
-    buildFeatures: FeatureCollection<Gmc>.() -> Unit = {},
+    buildFeatures: FeatureGroup<Gmc>.() -> Unit = {},
 ) {
 
-    val featureState = FeatureCollection.remember(WebMercatorSpace, buildFeatures)
+    val featureState = FeatureGroup.remember(WebMercatorSpace, buildFeatures)
 
     val mapState: MapViewScope = rememberMapState(
         mapTileProvider,
         config,
         initialViewPoint = initialViewPoint,
-        initialRectangle = initialRectangle ?: featureState.features.values.computeBoundingBox(WebMercatorSpace, Float.MAX_VALUE),
+        initialRectangle = initialRectangle ?: featureState.features.computeBoundingBox(WebMercatorSpace, Float.MAX_VALUE),
     )
 
     MapView(mapState, featureState, modifier)

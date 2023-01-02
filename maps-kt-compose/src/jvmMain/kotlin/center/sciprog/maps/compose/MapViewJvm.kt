@@ -15,10 +15,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import center.sciprog.maps.coordinates.Gmc
-import center.sciprog.maps.features.FeatureCollection
+import center.sciprog.maps.features.FeatureGroup
 import center.sciprog.maps.features.PainterFeature
 import center.sciprog.maps.features.drawFeature
-import center.sciprog.maps.features.z
+import center.sciprog.maps.features.zoomRange
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
@@ -44,7 +44,7 @@ private val logger = KotlinLogging.logger("MapView")
 @Composable
 public actual fun MapView(
     mapState: MapViewScope,
-    featuresState: FeatureCollection<Gmc>,
+    featuresState: FeatureGroup<Gmc>,
     modifier: Modifier,
 ): Unit = with(mapState) {
 
@@ -90,8 +90,9 @@ public actual fun MapView(
     }
 
     val painterCache: Map<PainterFeature<Gmc>, Painter> = key(featuresState) {
-        featuresState.features.values.filterIsInstance<PainterFeature<Gmc>>().associateWith { it.getPainter() }
+        featuresState.features.filterIsInstance<PainterFeature<Gmc>>().associateWith { it.getPainter() }
     }
+
 
     Canvas(modifier = modifier.mapControls(mapState, featuresState.features).fillMaxSize()) {
 
@@ -119,7 +120,7 @@ public actual fun MapView(
                 )
             }
 
-            featuresState.features.values.filter { viewPoint.zoom in it.zoomRange }.sortedBy { it.z }
+            featuresState.features.filter { viewPoint.zoom in it.zoomRange }
                 .forEach { feature ->
                     drawFeature(mapState, painterCache, feature)
                 }

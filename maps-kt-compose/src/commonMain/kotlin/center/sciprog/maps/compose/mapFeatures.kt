@@ -1,6 +1,5 @@
 package center.sciprog.maps.compose
 
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -11,73 +10,62 @@ import center.sciprog.maps.coordinates.*
 import center.sciprog.maps.features.*
 
 
-internal fun FeatureBuilder<Gmc>.coordinatesOf(pair: Pair<Number, Number>) =
+internal fun FeatureGroup<Gmc>.coordinatesOf(pair: Pair<Number, Number>) =
     GeodeticMapCoordinates.ofDegrees(pair.first.toDouble(), pair.second.toDouble())
 
 public typealias MapFeature = Feature<Gmc>
 
-public fun FeatureBuilder<Gmc>.circle(
+public fun FeatureGroup<Gmc>.circle(
     centerCoordinates: Pair<Number, Number>,
-    zoomRange: FloatRange = defaultZoomRange,
     size: Dp = 5.dp,
-    color: Color = defaultColor,
     id: String? = null,
 ): FeatureId<CircleFeature<Gmc>> = feature(
-    id, CircleFeature(space, coordinatesOf(centerCoordinates), zoomRange, size, color)
+    id, CircleFeature(space, coordinatesOf(centerCoordinates), size)
 )
 
-public fun FeatureBuilder<Gmc>.rectangle(
+public fun FeatureGroup<Gmc>.rectangle(
     centerCoordinates: Pair<Number, Number>,
-    zoomRange: FloatRange = defaultZoomRange,
     size: DpSize = DpSize(5.dp, 5.dp),
-    color: Color = defaultColor,
     id: String? = null,
 ): FeatureId<RectangleFeature<Gmc>> = feature(
-    id, RectangleFeature(space, coordinatesOf(centerCoordinates), zoomRange, size, color)
+    id, RectangleFeature(space, coordinatesOf(centerCoordinates),  size)
 )
 
 
-public fun FeatureBuilder<Gmc>.draw(
+public fun FeatureGroup<Gmc>.draw(
     position: Pair<Number, Number>,
-    zoomRange: FloatRange = defaultZoomRange,
     id: String? = null,
     draw: DrawScope.() -> Unit,
 ): FeatureId<DrawFeature<Gmc>> = feature(
     id,
-    DrawFeature(space, coordinatesOf(position), zoomRange, drawFeature = draw)
+    DrawFeature(space, coordinatesOf(position), drawFeature = draw)
 )
 
 
-public fun FeatureBuilder<Gmc>.line(
+public fun FeatureGroup<Gmc>.line(
     curve: GmcCurve,
-    zoomRange: FloatRange = defaultZoomRange,
-    color: Color = defaultColor,
     id: String? = null,
 ): FeatureId<LineFeature<Gmc>> = feature(
     id,
-    LineFeature(space, curve.forward.coordinates, curve.backward.coordinates, zoomRange, color)
+    LineFeature(space, curve.forward.coordinates, curve.backward.coordinates)
 )
 
 
-public fun FeatureBuilder<Gmc>.line(
+public fun FeatureGroup<Gmc>.line(
     aCoordinates: Pair<Double, Double>,
     bCoordinates: Pair<Double, Double>,
-    zoomRange: FloatRange = defaultZoomRange,
-    color: Color = defaultColor,
     id: String? = null,
 ): FeatureId<LineFeature<Gmc>> = feature(
     id,
-    LineFeature(space, coordinatesOf(aCoordinates), coordinatesOf(bCoordinates), zoomRange, color)
+    LineFeature(space, coordinatesOf(aCoordinates), coordinatesOf(bCoordinates))
 )
 
 
-public fun FeatureBuilder<Gmc>.arc(
+public fun FeatureGroup<Gmc>.arc(
     center: Pair<Double, Double>,
     radius: Distance,
     startAngle: Angle,
     arcLength: Angle,
-    zoomRange: FloatRange = defaultZoomRange,
-    color: Color = defaultColor,
     id: String? = null,
 ): FeatureId<ArcFeature<Gmc>> = feature(
     id,
@@ -86,26 +74,21 @@ public fun FeatureBuilder<Gmc>.arc(
         oval = space.Rectangle(coordinatesOf(center), radius, radius),
         startAngle = startAngle.radians.toFloat(),
         arcLength = arcLength.radians.toFloat(),
-        zoomRange = zoomRange,
-        color = color
     )
 )
 
-public fun FeatureBuilder<Gmc>.points(
+public fun FeatureGroup<Gmc>.points(
     points: List<Pair<Double, Double>>,
-    zoomRange: FloatRange = defaultZoomRange,
     stroke: Float = 2f,
-    color: Color = defaultColor,
     pointMode: PointMode = PointMode.Points,
     id: String? = null,
 ): FeatureId<PointsFeature<Gmc>> =
-    feature(id, PointsFeature(space, points.map(::coordinatesOf), zoomRange, stroke, color, pointMode))
+    feature(id, PointsFeature(space, points.map(::coordinatesOf),  stroke,  pointMode))
 
-public fun FeatureBuilder<Gmc>.image(
+public fun FeatureGroup<Gmc>.image(
     position: Pair<Double, Double>,
     image: ImageVector,
     size: DpSize = DpSize(20.dp, 20.dp),
-    zoomRange: FloatRange = defaultZoomRange,
     id: String? = null,
 ): FeatureId<VectorImageFeature<Gmc>> = feature(
     id,
@@ -114,18 +97,15 @@ public fun FeatureBuilder<Gmc>.image(
         coordinatesOf(position),
         size,
         image,
-        zoomRange
     )
 )
 
-public fun FeatureBuilder<Gmc>.text(
+public fun FeatureGroup<Gmc>.text(
     position: Pair<Double, Double>,
     text: String,
-    zoomRange: FloatRange = defaultZoomRange,
-    color: Color = defaultColor,
     font: FeatureFont.() -> Unit = { size = 16f },
     id: String? = null,
 ): FeatureId<TextFeature<Gmc>> = feature(
     id,
-    TextFeature(space, coordinatesOf(position), text, zoomRange, color, fontConfig = font)
+    TextFeature(space, coordinatesOf(position), text, fontConfig = font)
 )

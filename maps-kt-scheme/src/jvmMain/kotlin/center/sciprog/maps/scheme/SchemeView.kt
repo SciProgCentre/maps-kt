@@ -22,12 +22,12 @@ private val logger = KotlinLogging.logger("SchemeView")
 @Composable
 public fun SchemeView(
     state: XYViewScope,
-    featuresState: FeatureCollection<XY>,
+    featuresState: FeatureGroup<XY>,
     modifier: Modifier = Modifier.fillMaxSize(),
 ) {
     with(state) {
         val painterCache: Map<PainterFeature<XY>, Painter> = key(featuresState) {
-            featuresState.features.values.filterIsInstance<PainterFeature<XY>>().associateWith { it.getPainter() }
+            featuresState.features.filterIsInstance<PainterFeature<XY>>().associateWith { it.getPainter() }
         }
 
         Canvas(modifier = modifier.mapControls(state, featuresState.features).fillMaxSize()) {
@@ -38,9 +38,8 @@ public fun SchemeView(
             }
 
             clipRect {
-                featuresState.features.values
+                featuresState.features
                     .filter { viewPoint.zoom in it.zoomRange }
-                    .sortedBy { it.z }
                     .forEach { background ->
                         drawFeature(state, painterCache, background)
                     }
@@ -88,7 +87,7 @@ public fun SchemeView(
 
 
     val featureState = key(featureMap) {
-        FeatureCollection.build(XYCoordinateSpace) {
+        FeatureGroup.build(XYCoordinateSpace) {
             featureMap.forEach { feature(it.key.id, it.value) }
         }
     }
@@ -96,7 +95,7 @@ public fun SchemeView(
     val state = rememberMapState(
         config,
         initialViewPoint = initialViewPoint,
-        initialRectangle = initialRectangle ?: featureState.features.values.computeBoundingBox(XYCoordinateSpace, Float.MAX_VALUE),
+        initialRectangle = initialRectangle ?: featureState.features.computeBoundingBox(XYCoordinateSpace, Float.MAX_VALUE),
     )
 
     SchemeView(state, featureState, modifier)
@@ -115,13 +114,13 @@ public fun SchemeView(
     initialRectangle: Rectangle<XY>? = null,
     config: ViewConfig<XY> = ViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
-    buildFeatures: FeatureCollection<XY>.() -> Unit = {},
+    buildFeatures: FeatureGroup<XY>.() -> Unit = {},
 ) {
-    val featureState = FeatureCollection.remember(XYCoordinateSpace, buildFeatures)
+    val featureState = FeatureGroup.remember(XYCoordinateSpace, buildFeatures)
     val mapState: XYViewScope = rememberMapState(
         config,
         initialViewPoint = initialViewPoint,
-        initialRectangle = initialRectangle ?: featureState.features.values.computeBoundingBox(XYCoordinateSpace, Float.MAX_VALUE),
+        initialRectangle = initialRectangle ?: featureState.features.computeBoundingBox(XYCoordinateSpace, Float.MAX_VALUE),
     )
 
     SchemeView(mapState, featureState, modifier)

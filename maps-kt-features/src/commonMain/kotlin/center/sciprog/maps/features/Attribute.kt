@@ -18,4 +18,6 @@ public object VisibleAttribute : Attribute<Boolean>
 
 public object ColorAttribute : Attribute<Color>
 
+public object ZoomRangeAttribute : Attribute<FloatRange>
+
 public object AlphaAttribute : Attribute<Float>

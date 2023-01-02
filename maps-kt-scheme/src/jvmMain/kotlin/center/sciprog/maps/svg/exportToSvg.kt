@@ -17,14 +17,14 @@ import kotlin.math.abs
 
 
 class FeatureStateSnapshot<T : Any>(
-    val features: Map<FeatureId<*>, Feature<T>>,
+    val features: Map<String, Feature<T>>,
     val painterCache: Map<PainterFeature<T>, Painter>,
 )
 
 @Composable
-fun <T: Any> FeatureCollection<T>.snapshot(): FeatureStateSnapshot<T> = FeatureStateSnapshot(
-    features,
-    features.values.filterIsInstance<PainterFeature<T>>().associateWith { it.getPainter() }
+fun <T: Any> FeatureGroup<T>.snapshot(): FeatureStateSnapshot<T> = FeatureStateSnapshot(
+    featureMap,
+    features.filterIsInstance<PainterFeature<T>>().associateWith { it.getPainter() }
 )
 
 fun FeatureStateSnapshot<XY>.generateSvg(
@@ -114,7 +114,7 @@ fun FeatureStateSnapshot<XY>.generateSvg(
             }
 
             is FeatureGroup -> {
-                feature.children.values.forEach {
+                feature.featureMap.values.forEach {
                     drawFeature(scale, it)
                 }
             }

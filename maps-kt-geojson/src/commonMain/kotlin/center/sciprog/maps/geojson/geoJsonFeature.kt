@@ -12,14 +12,12 @@ import kotlinx.serialization.json.jsonPrimitive
 /**
  * Add a single Json geometry to a feature builder
  */
-public fun FeatureBuilder<Gmc>.geoJsonGeometry(
+public fun FeatureGroup<Gmc>.geoJsonGeometry(
     geometry: GeoJsonGeometry,
-    color: Color = defaultColor,
     id: String? = null,
 ): FeatureId<Feature<Gmc>> = when (geometry) {
     is GeoJsonLineString -> points(
         geometry.coordinates,
-        color = color,
         pointMode = PointMode.Lines
     )
 
@@ -27,7 +25,6 @@ public fun FeatureBuilder<Gmc>.geoJsonGeometry(
         geometry.coordinates.forEach {
             points(
                 it,
-                color = color,
                 pointMode = PointMode.Lines
             )
         }
@@ -35,7 +32,6 @@ public fun FeatureBuilder<Gmc>.geoJsonGeometry(
 
     is GeoJsonMultiPoint -> points(
         geometry.coordinates,
-        color = color,
         pointMode = PointMode.Points
     )
 
@@ -43,15 +39,13 @@ public fun FeatureBuilder<Gmc>.geoJsonGeometry(
         geometry.coordinates.forEach {
             polygon(
                 it.first(),
-                color = color,
             )
         }
     }
 
-    is GeoJsonPoint -> circle(geometry.coordinates, color = color, id = id)
+    is GeoJsonPoint -> circle(geometry.coordinates, id = id)
     is GeoJsonPolygon -> polygon(
         geometry.coordinates.first(),
-        color = color,
     )
 
     is GeoJsonGeometryCollection -> group(id = id) {
@@ -63,18 +57,22 @@ public fun FeatureBuilder<Gmc>.geoJsonGeometry(
     withAttribute(AlphaAttribute, 0.5f)
 }
 
-public fun FeatureBuilder<Gmc>.geoJsonFeature(
+public fun FeatureGroup<Gmc>.geoJsonFeature(
     geoJson: GeoJsonFeature,
-    color: Color = defaultColor,
     id: String? = null,
 ): FeatureId<Feature<Gmc>>? {
     val geometry = geoJson.geometry ?: return null
     val idOverride = geoJson.properties?.get("id")?.jsonPrimitive?.contentOrNull ?: id
-    val colorOverride = geoJson.properties?.get("color")?.jsonPrimitive?.intOrNull?.let { Color(it) } ?: color
-    return geoJsonGeometry(geometry, colorOverride, idOverride)
+    val colorOverride = geoJson.properties?.get("color")?.jsonPrimitive?.intOrNull?.let { Color(it) }
+    val jsonGeometry =  geoJsonGeometry(geometry, idOverride)
+    return if( colorOverride!= null){
+        jsonGeometry.color(colorOverride)
+    } else{
+        jsonGeometry
+    }
 }
 
-public fun FeatureBuilder<Gmc>.geoJson(
+public fun FeatureGroup<Gmc>.geoJson(
     geoJson: GeoJson,
     id: String? = null,
 ): FeatureId<Feature<Gmc>>? = when (geoJson) {

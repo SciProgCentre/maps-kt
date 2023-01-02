@@ -1,7 +1,7 @@
 package center.sciprog.maps.geojson
 
 import center.sciprog.maps.coordinates.Gmc
-import center.sciprog.maps.features.FeatureBuilder
+import center.sciprog.maps.features.FeatureGroup
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import java.net.URL
@@ -9,7 +9,7 @@ import java.net.URL
 /**
  * Add geojson features from url
  */
-public fun FeatureBuilder<Gmc>.geoJson(
+public fun FeatureGroup<Gmc>.geoJson(
     geoJsonUrl: URL,
     id: String? = null,
 ) {

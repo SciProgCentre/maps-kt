@@ -21,14 +21,17 @@ public interface Feature<T : Any> {
 
     public val space: CoordinateSpace<T>
 
-    public val zoomRange: FloatRange
-
     public val attributes: Attributes
 
     public fun getBoundingBox(zoom: Float): Rectangle<T>?
 
     public fun withAttributes(modify: Attributes.() -> Attributes): Feature<T>
 }
+
+public val Feature<*>.color: Color? get() = attributes[ColorAttribute]
+
+public val Feature<*>.zoomRange: FloatRange
+    get() = attributes[ZoomRangeAttribute] ?: Float.NEGATIVE_INFINITY..Float.POSITIVE_INFINITY
 
 public interface PainterFeature<T : Any> : Feature<T> {
     @Composable
@@ -65,7 +68,6 @@ public fun <T : Any> Iterable<Feature<T>>.computeBoundingBox(
 @Stable
 public data class FeatureSelector<T : Any>(
     override val space: CoordinateSpace<T>,
-    override val zoomRange: FloatRange,
     override val attributes: Attributes = Attributes.EMPTY,
     public val selector: (zoom: Float) -> Feature<T>,
 ) : Feature<T> {
@@ -81,7 +83,6 @@ public data class PathFeature<T : Any>(
     public val rectangle: Rectangle<T>,
     public val path: Path,
     public val brush: Brush,
-    override val zoomRange: FloatRange,
     public val style: DrawStyle = Fill,
     public val targetRect: Rect = path.getBounds(),
     override val attributes: Attributes = Attributes.EMPTY,
@@ -94,7 +95,6 @@ public data class PathFeature<T : Any>(
             brush = brush,
             style = style,
             targetRect = targetRect,
-            zoomRange = zoomRange
         )
     }
 
@@ -106,9 +106,7 @@ public data class PathFeature<T : Any>(
 public data class PointsFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     public val points: List<T>,
-    override val zoomRange: FloatRange,
     public val stroke: Float = 2f,
-    public val color: Color = Color.Red,
     public val pointMode: PointMode = PointMode.Points,
     override val attributes: Attributes = Attributes.EMPTY,
 ) : Feature<T> {
@@ -125,8 +123,6 @@ public data class PointsFeature<T : Any>(
 public data class PolygonFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     public val points: List<T>,
-    override val zoomRange: FloatRange,
-    public val color: Color = Color.Red,
     override val attributes: Attributes = Attributes.EMPTY,
 ) : DomainFeature<T> {
 
@@ -136,7 +132,8 @@ public data class PolygonFeature<T : Any>(
 
     override fun getBoundingBox(zoom: Float): Rectangle<T>? = boundingBox
 
-    override fun contains(viewPoint: ViewPoint<T>): Boolean =  viewPoint.focus in boundingBox!!//with(space) { viewPoint.focus.isInsidePolygon(points) }
+    override fun contains(viewPoint: ViewPoint<T>): Boolean =
+        viewPoint.focus in boundingBox!!//with(space) { viewPoint.focus.isInsidePolygon(points) }
 
     override fun withAttributes(modify: (Attributes) -> Attributes): Feature<T> = copy(attributes = modify(attributes))
 }
@@ -145,9 +142,7 @@ public data class PolygonFeature<T : Any>(
 public data class CircleFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     override val center: T,
-    override val zoomRange: FloatRange,
     public val size: Dp = 5.dp,
-    public val color: Color = Color.Red,
     override val attributes: Attributes = Attributes.EMPTY,
 ) : MarkerFeature<T> {
     override fun getBoundingBox(zoom: Float): Rectangle<T> =
@@ -162,9 +157,7 @@ public data class CircleFeature<T : Any>(
 public data class RectangleFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     override val center: T,
-    override val zoomRange: FloatRange,
     public val size: DpSize = DpSize(5.dp, 5.dp),
-    public val color: Color = Color.Red,
     override val attributes: Attributes = Attributes.EMPTY,
 ) : MarkerFeature<T> {
     override fun getBoundingBox(zoom: Float): Rectangle<T> =
@@ -180,8 +173,6 @@ public data class LineFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     public val a: T,
     public val b: T,
-    override val zoomRange: FloatRange,
-    public val color: Color = Color.Red,
     override val attributes: Attributes = Attributes.EMPTY,
 ) : DomainFeature<T> {
     override fun getBoundingBox(zoom: Float): Rectangle<T> =
@@ -208,8 +199,6 @@ public data class ArcFeature<T : Any>(
     public val oval: Rectangle<T>,
     public val startAngle: Float,
     public val arcLength: Float,
-    override val zoomRange: FloatRange,
-    public val color: Color = Color.Red,
     override val attributes: Attributes = Attributes.EMPTY,
 ) : DraggableFeature<T> {
     override fun getBoundingBox(zoom: Float): Rectangle<T> = oval
@@ -223,7 +212,6 @@ public data class ArcFeature<T : Any>(
 public data class DrawFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     public val position: T,
-    override val zoomRange: FloatRange,
     override val attributes: Attributes = Attributes.EMPTY,
     public val drawFeature: DrawScope.() -> Unit,
 ) : DraggableFeature<T> {
@@ -240,7 +228,6 @@ public data class BitmapImageFeature<T : Any>(
     override val center: T,
     public val size: DpSize,
     public val image: ImageBitmap,
-    override val zoomRange: FloatRange,
     override val attributes: Attributes = Attributes.EMPTY,
 ) : MarkerFeature<T> {
     override fun getBoundingBox(zoom: Float): Rectangle<T> = space.Rectangle(center, zoom, size)
@@ -256,7 +243,6 @@ public data class VectorImageFeature<T : Any>(
     override val center: T,
     public val size: DpSize,
     public val image: ImageVector,
-    override val zoomRange: FloatRange,
     override val attributes: Attributes = Attributes.EMPTY,
 ) : MarkerFeature<T>, PainterFeature<T> {
     override fun getBoundingBox(zoom: Float): Rectangle<T> = space.Rectangle(center, zoom, size)
@@ -277,7 +263,6 @@ public data class VectorImageFeature<T : Any>(
 public data class ScalableImageFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     public val rectangle: Rectangle<T>,
-    override val zoomRange: FloatRange,
     override val attributes: Attributes = Attributes.EMPTY,
     public val painter: @Composable () -> Painter,
 ) : Feature<T>, PainterFeature<T> {
@@ -290,28 +275,10 @@ public data class ScalableImageFeature<T : Any>(
 }
 
 
-/**
- * A group of other features
- */
-public data class FeatureGroup<T : Any>(
-    override val space: CoordinateSpace<T>,
-    public val children: Map<FeatureId<*>, Feature<T>>,
-    override val zoomRange: FloatRange,
-    override val attributes: Attributes = Attributes.EMPTY,
-) : Feature<T> {
-    override fun getBoundingBox(zoom: Float): Rectangle<T>? = with(space) {
-        children.values.mapNotNull { it.getBoundingBox(zoom) }.wrapRectangles()
-    }
-
-    override fun withAttributes(modify: Attributes.() -> Attributes): Feature<T> = copy(attributes = attributes)
-}
-
 public data class TextFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     public val position: T,
     public val text: String,
-    override val zoomRange: FloatRange,
-    public val color: Color = Color.Black,
     override val attributes: Attributes = Attributes.EMPTY,
     public val fontConfig: FeatureFont.() -> Unit,
 ) : DraggableFeature<T> {

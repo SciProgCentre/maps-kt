@@ -25,21 +25,21 @@ public fun <T : Any> DrawScope.drawFeature(
     state: CoordinateViewScope<T>,
     painterCache: Map<PainterFeature<T>, Painter>,
     feature: Feature<T>,
-
 ): Unit = with(state) {
+    val color = feature.color ?: Color.Red
     val alpha = feature.attributes[AlphaAttribute]?:1f
     fun T.toOffset(): Offset = toOffset(this@drawFeature)
 
     when (feature) {
         is FeatureSelector -> drawFeature(state, painterCache, feature.selector(state.zoom))
         is CircleFeature -> drawCircle(
-            feature.color,
+            color,
             feature.size.toPx(),
             center = feature.center.toOffset()
         )
 
         is RectangleFeature -> drawRect(
-            feature.color,
+            color,
             topLeft = feature.center.toOffset() - Offset(
                 feature.size.width.toPx() / 2,
                 feature.size.height.toPx() / 2
@@ -47,14 +47,14 @@ public fun <T : Any> DrawScope.drawFeature(
             size = feature.size.toSize()
         )
 
-        is LineFeature -> drawLine(feature.color, feature.a.toOffset(), feature.b.toOffset())
+        is LineFeature -> drawLine(color, feature.a.toOffset(), feature.b.toOffset())
         is ArcFeature -> {
             val dpRect = feature.oval.toDpRect().toRect()
 
             val size = Size(dpRect.width, dpRect.height)
 
             drawArc(
-                color = feature.color,
+                color = color,
                 startAngle = feature.startAngle / PI.toFloat() * 180f,
                 sweepAngle = feature.arcLength / PI.toFloat() * 180f,
                 useCenter = false,
@@ -85,7 +85,7 @@ public fun <T : Any> DrawScope.drawFeature(
                 offset.x + 5,
                 offset.y - 5,
                 Font().apply(feature.fontConfig),
-                feature.color.toPaint()
+                (feature.color ?: Color.Black).toPaint()
             )
         }
 
@@ -97,8 +97,7 @@ public fun <T : Any> DrawScope.drawFeature(
         }
 
         is FeatureGroup -> {
-            //do nothing
-            feature.children.values.forEach {
+            feature.featureMap.values.forEach {
                 drawFeature(state, painterCache, it)
             }
         }
@@ -116,7 +115,7 @@ public fun <T : Any> DrawScope.drawFeature(
             val points = feature.points.map { it.toOffset() }
             drawPoints(
                 points = points,
-                color = feature.color,
+                color = color,
                 strokeWidth = feature.stroke,
                 pointMode = feature.pointMode,
                 alpha = alpha
@@ -133,7 +132,7 @@ public fun <T : Any> DrawScope.drawFeature(
             }
             drawPath(
                 path = polygonPath,
-                color = feature.color,
+                color = color,
                 alpha = alpha
             )
         }
