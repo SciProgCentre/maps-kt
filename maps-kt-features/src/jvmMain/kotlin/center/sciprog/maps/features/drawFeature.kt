@@ -98,7 +98,9 @@ public fun <T : Any> DrawScope.drawFeature(
 
         is FeatureGroup -> {
             feature.featureMap.values.forEach {
-                drawFeature(state, painterCache, it)
+                drawFeature(state, painterCache, it.withAttributes {
+                    feature.attributes + this
+                })
             }
         }
 

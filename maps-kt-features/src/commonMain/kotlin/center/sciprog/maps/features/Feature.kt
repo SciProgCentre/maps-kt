@@ -132,8 +132,10 @@ public data class PolygonFeature<T : Any>(
 
     override fun getBoundingBox(zoom: Float): Rectangle<T>? = boundingBox
 
-    override fun contains(viewPoint: ViewPoint<T>): Boolean =
-        viewPoint.focus in boundingBox!!//with(space) { viewPoint.focus.isInsidePolygon(points) }
+    override fun contains(viewPoint: ViewPoint<T>): Boolean {
+        val boundingBox = boundingBox ?: return false
+        return viewPoint.focus in boundingBox && with(space) { viewPoint.focus.isInsidePolygon(points) }
+    }
 
     override fun withAttributes(modify: (Attributes) -> Attributes): Feature<T> = copy(attributes = modify(attributes))
 }

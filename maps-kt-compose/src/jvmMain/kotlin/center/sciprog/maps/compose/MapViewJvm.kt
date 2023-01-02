@@ -120,7 +120,8 @@ public actual fun MapView(
                 )
             }
 
-            featuresState.features.filter { viewPoint.zoom in it.zoomRange }
+            featuresState.features
+                .filter { viewPoint.zoom in it.zoomRange }
                 .forEach { feature ->
                     drawFeature(mapState, painterCache, feature)
                 }

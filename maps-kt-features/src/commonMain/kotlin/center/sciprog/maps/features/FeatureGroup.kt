@@ -81,6 +81,11 @@ public data class FeatureGroup<T : Any>(
         feature(this, get(this).withAttributes(modify))
     }
 
+    public fun <F : Feature<T>> FeatureId<F>.withAttributes(modify: Attributes.() -> Attributes): FeatureId<F> {
+        feature(this, get(this).withAttributes(modify))
+        return this
+    }
+
     public fun <F : Feature<T>, V> FeatureId<F>.withAttribute(key: Attribute<V>, value: V?): FeatureId<F> {
         feature(this, get(this).withAttributes { withAttribute(key, value) })
         return this
@@ -174,6 +179,7 @@ public data class FeatureGroup<T : Any>(
 
     public fun <F : Feature<T>> FeatureId<F>.color(color: Color): FeatureId<F> =
         withAttribute(ColorAttribute, color)
+
     public fun <F : Feature<T>> FeatureId<F>.zoomRange(range: FloatRange): FeatureId<F> =
         withAttribute(ZoomRangeAttribute, range)
 
@@ -181,7 +187,7 @@ public data class FeatureGroup<T : Any>(
         featureMap.values.mapNotNull { it.getBoundingBox(zoom) }.wrapRectangles()
     }
 
-    override fun withAttributes(modify: Attributes.() -> Attributes): Feature<T> = copy(attributes = attributes)
+    override fun withAttributes(modify: Attributes.() -> Attributes): Feature<T> = copy(attributes = modify(attributes))
 
     public companion object {
 

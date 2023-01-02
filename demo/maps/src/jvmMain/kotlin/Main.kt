@@ -63,6 +63,8 @@ fun App() {
         ) {
 
             geoJson(URL("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json"))
+                .withAttribute(ColorAttribute, Color.Blue)
+                .withAttribute(AlphaAttribute, 0.4f)
 
             image(pointOne, Icons.Filled.Home)
 
@@ -117,7 +119,16 @@ fun App() {
 
             visit { id, feature ->
                 if (feature is PolygonFeature) {
-                    (id as FeatureId<PolygonFeature<Gmc>>).onHover {
+                    id as FeatureId<PolygonFeature<Gmc>>
+                    id.onClick {
+                        println("Click on $id")
+                        points(
+                            feature.points,
+                            id = "selected",
+                            attributes = Attributes(ZAttribute, 10f)
+                        ).color(Color.Blue)
+                    }
+                    id.onHover {
                         println("Hover on $id")
                         points(
                             feature.points,

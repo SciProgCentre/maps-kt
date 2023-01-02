@@ -9,7 +9,7 @@ public value class Attributes internal constructor(internal val map: Map<Attribu
     @Suppress("UNCHECKED_CAST")
     public operator fun <T> get(attribute: Attribute<T>): T? = map[attribute] as? T
 
-    public fun <T> Attribute<T>.invoke(value: T?): Attributes = withAttribute(this, value)
+    public operator fun <T> Attribute<T>.invoke(value: T?): Attributes = withAttribute(this, value)
 
     override fun toString(): String = "AttributeMap(value=${map.entries})"
 

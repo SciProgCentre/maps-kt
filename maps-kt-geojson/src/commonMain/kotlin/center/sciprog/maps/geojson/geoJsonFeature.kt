@@ -53,15 +53,13 @@ public fun FeatureGroup<Gmc>.geoJsonGeometry(
             geoJsonGeometry(it)
         }
     }
-}.apply {
-    withAttribute(AlphaAttribute, 0.5f)
 }
 
 public fun FeatureGroup<Gmc>.geoJsonFeature(
     geoJson: GeoJsonFeature,
     id: String? = null,
-): FeatureId<Feature<Gmc>>? {
-    val geometry = geoJson.geometry ?: return null
+): FeatureId<Feature<Gmc>> {
+    val geometry = geoJson.geometry ?: return group{}
     val idOverride = geoJson.properties?.get("id")?.jsonPrimitive?.contentOrNull ?: id
     val colorOverride = geoJson.properties?.get("color")?.jsonPrimitive?.intOrNull?.let { Color(it) }
     val jsonGeometry =  geoJsonGeometry(geometry, idOverride)
@@ -75,7 +73,7 @@ public fun FeatureGroup<Gmc>.geoJsonFeature(
 public fun FeatureGroup<Gmc>.geoJson(
     geoJson: GeoJson,
     id: String? = null,
-): FeatureId<Feature<Gmc>>? = when (geoJson) {
+): FeatureId<Feature<Gmc>> = when (geoJson) {
     is GeoJsonFeature -> geoJsonFeature(geoJson, id = id)
     is GeoJsonFeatureCollection -> group(id = id) {
         geoJson.features.forEach {
