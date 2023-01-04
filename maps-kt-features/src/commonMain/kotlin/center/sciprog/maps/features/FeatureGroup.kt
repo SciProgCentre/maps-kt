@@ -49,12 +49,22 @@ public data class FeatureGroup<T : Any>(
 
     public val features: Collection<Feature<T>> get() = featureMap.values.sortedByDescending { it.z }
 
-    public fun visit(visitor: FeatureGroup<T>.(id: FeatureId<Feature<T>>, feature: Feature<T>) -> Unit) {
-        featureMap.forEach { (key, feature) ->
+    public fun visit(visitor: FeatureGroup<T>.(id: String, feature: Feature<T>) -> Unit) {
+        featureMap.entries.sortedByDescending { it.value.z }.forEach { (key, feature) ->
             if (feature is FeatureGroup<T>) {
                 feature.visit(visitor)
             } else {
-                visitor(this, FeatureId(key), feature)
+                visitor(this, key, feature)
+            }
+        }
+    }
+
+    public fun visitUntil(visitor: FeatureGroup<T>.(id: String, feature: Feature<T>) -> Boolean) {
+        featureMap.entries.sortedByDescending { it.value.z }.forEach { (key, feature) ->
+            if (feature is FeatureGroup<T>) {
+                feature.visitUntil(visitor)
+            } else {
+                if (!visitor(this, key, feature)) return@forEach
             }
         }
     }
@@ -63,30 +73,12 @@ public data class FeatureGroup<T : Any>(
     public fun <A> getAttribute(id: FeatureId<Feature<T>>, key: Attribute<A>): A? =
         get(id).attributes[key]
 
-    /**
-     * Process all features with a given attribute from the one with highest [z] to lowest
-     */
-    public inline fun <A> forEachWithAttribute(
-        key: Attribute<A>,
-        block: (id: FeatureId<*>, feature: Feature<T>, attributeValue: A) -> Unit,
-    ) {
-        featureMap.entries.sortedByDescending { it.value.z }.forEach { (id, feature) ->
-            feature.attributes[key]?.let {
-                block(FeatureId<Feature<T>>(id), feature, it)
-            }
-        }
-    }
-
-    public fun <F : Feature<T>, V> FeatureId<F>.modifyAttributes(modify: Attributes.() -> Attributes) {
-        feature(this, get(this).withAttributes(modify))
-    }
-
-    public fun <F : Feature<T>> FeatureId<F>.withAttributes(modify: Attributes.() -> Attributes): FeatureId<F> {
+    public fun <F : Feature<T>> FeatureId<F>.modifyAttributes(modify: Attributes.() -> Attributes): FeatureId<F> {
         feature(this, get(this).withAttributes(modify))
         return this
     }
 
-    public fun <F : Feature<T>, V> FeatureId<F>.withAttribute(key: Attribute<V>, value: V?): FeatureId<F> {
+    public fun <F : Feature<T>, V> FeatureId<F>.attribute(key: Attribute<V>, value: V?): FeatureId<F> {
         feature(this, get(this).withAttributes { withAttribute(key, value) })
         return this
     }
@@ -120,7 +112,7 @@ public data class FeatureGroup<T : Any>(
                     DragResult(end, true)
                 }
             }
-            this.withAttribute(DraggableAttribute, handle)
+            this.attribute(DraggableAttribute, handle)
         }
 
         //Apply callback
@@ -134,7 +126,7 @@ public data class FeatureGroup<T : Any>(
     public fun FeatureId<DraggableFeature<T>>.onDrag(
         listener: PointerEvent.(from: ViewPoint<T>, to: ViewPoint<T>) -> Unit,
     ) {
-        withAttribute(
+        attribute(
             DragListenerAttribute,
             (getAttribute(this, DragListenerAttribute) ?: emptySet()) +
                     DragListener { event, from, to ->
@@ -147,7 +139,7 @@ public data class FeatureGroup<T : Any>(
     public fun <F : DomainFeature<T>> FeatureId<F>.onClick(
         onClick: PointerEvent.(click: ViewPoint<T>) -> Unit,
     ) {
-        withAttribute(
+        attribute(
             ClickListenerAttribute,
             (getAttribute(this, ClickListenerAttribute) ?: emptySet()) +
                     MouseListener { event, point -> event.onClick(point as ViewPoint<T>) }
@@ -158,7 +150,7 @@ public data class FeatureGroup<T : Any>(
     public fun <F : DomainFeature<T>> FeatureId<F>.onHover(
         onClick: PointerEvent.(move: ViewPoint<T>) -> Unit,
     ) {
-        withAttribute(
+        attribute(
             HoverListenerAttribute,
             (getAttribute(this, HoverListenerAttribute) ?: emptySet()) +
                     MouseListener { event, point -> event.onClick(point as ViewPoint<T>) }
@@ -178,10 +170,10 @@ public data class FeatureGroup<T : Any>(
 //    }
 
     public fun <F : Feature<T>> FeatureId<F>.color(color: Color): FeatureId<F> =
-        withAttribute(ColorAttribute, color)
+        attribute(ColorAttribute, color)
 
     public fun <F : Feature<T>> FeatureId<F>.zoomRange(range: FloatRange): FeatureId<F> =
-        withAttribute(ZoomRangeAttribute, range)
+        attribute(ZoomRangeAttribute, range)
 
     override fun getBoundingBox(zoom: Float): Rectangle<T>? = with(space) {
         featureMap.values.mapNotNull { it.getBoundingBox(zoom) }.wrapRectangles()
@@ -210,6 +202,47 @@ public data class FeatureGroup<T : Any>(
             build(coordinateSpace, builder)
         }
 
+    }
+}
+
+/**
+ * Process all features with a given attribute from the one with highest [z] to lowest
+ */
+public fun <T : Any, A> FeatureGroup<T>.forEachWithAttribute(
+    key: Attribute<A>,
+    block: FeatureGroup<T>.(id: String, feature: Feature<T>, attributeValue: A) -> Unit,
+) {
+    visit { id, feature ->
+        feature.attributes[key]?.let {
+            block(id, feature, it)
+        }
+    }
+}
+
+public fun <T : Any, A> FeatureGroup<T>.forEachWithAttributeUntil(
+    key: Attribute<A>,
+    block: FeatureGroup<T>.(id: String, feature: Feature<T>, attributeValue: A) -> Boolean,
+) {
+    visitUntil { id, feature ->
+        feature.attributes[key]?.let {
+            block(id, feature, it)
+        } ?: true
+    }
+}
+
+public inline fun <T : Any, reified F : Feature<T>> FeatureGroup<T>.forEachWithType(
+    crossinline block: FeatureGroup<T>.(FeatureId<F>, feature: F) -> Unit,
+) {
+    visit { id, feature ->
+        if (feature is F) block(FeatureId(id), feature)
+    }
+}
+
+public inline fun <T : Any, reified F : Feature<T>> FeatureGroup<T>.forEachWithTypeUntil(
+    crossinline block: FeatureGroup<T>.(FeatureId<F>, feature: F) -> Boolean,
+) {
+    visitUntil { id, feature ->
+        if (feature is F) block(FeatureId(id), feature) else true
     }
 }
 

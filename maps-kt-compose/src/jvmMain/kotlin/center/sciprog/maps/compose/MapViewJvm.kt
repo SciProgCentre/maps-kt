@@ -94,7 +94,7 @@ public actual fun MapView(
     }
 
 
-    Canvas(modifier = modifier.mapControls(mapState, featuresState.features).fillMaxSize()) {
+    Canvas(modifier = modifier.mapControls(mapState, featuresState).fillMaxSize()) {
 
         if (canvasSize != size.toDpSize()) {
             logger.debug { "Recalculate canvas. Size: $size" }

@@ -58,13 +58,15 @@ fun App() {
             mapTileProvider = mapTileProvider,
             config = ViewConfig(
                 onViewChange = { centerCoordinates.value = focus },
-                onClick = { _, viewPoint -> println(viewPoint) }
+                onClick = { _, viewPoint ->
+                    println(viewPoint)
+                }
             )
         ) {
 
             geoJson(URL("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json"))
-                .withAttribute(ColorAttribute, Color.Blue)
-                .withAttribute(AlphaAttribute, 0.4f)
+                .attribute(ColorAttribute, Color.Blue)
+                .attribute(AlphaAttribute, 0.4f)
 
             image(pointOne, Icons.Filled.Home)
 
@@ -117,30 +119,26 @@ fun App() {
                 }
             }.launchIn(scope)
 
-            visit { id, feature ->
-                if (feature is PolygonFeature) {
-                    id as FeatureId<PolygonFeature<Gmc>>
-                    id.onClick {
-                        println("Click on $id")
+
+            forEachWithType<Gmc, PolygonFeature<Gmc>> { id, feature ->
+                id.onClick {
+                    println("Click on $id")
+                    //draw in top-level scope
+                    with(this@MapView) {
                         points(
                             feature.points,
+                            stroke = 4f,
+                            pointMode = PointMode.Polygon,
+                            attributes = Attributes(ZAttribute, 10f),
                             id = "selected",
-                            attributes = Attributes(ZAttribute, 10f)
-                        ).color(Color.Blue)
-                    }
-                    id.onHover {
-                        println("Hover on $id")
-                        points(
-                            feature.points,
-                            id = "selected",
-                            attributes = Attributes(ZAttribute, 10f)
-                        ).color(Color.Blue)
+                        ).color(Color.Magenta)
                     }
                 }
             }
         }
     }
 }
+
 
 fun main() = application {
     Window(onCloseRequest = ::exitApplication) {

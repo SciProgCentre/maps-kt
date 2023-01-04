@@ -18,7 +18,7 @@ import kotlin.math.min
  */
 public fun <T : Any> Modifier.mapControls(
     state: CoordinateViewScope<T>,
-    features: Collection<Feature<T>>,
+    features: FeatureGroup<T>,
 ): Modifier = with(state) {
     pointerInput(Unit) {
         fun Offset.toDpOffset() = DpOffset(x.toDp(), y.toDp())
@@ -29,11 +29,10 @@ public fun <T : Any> Modifier.mapControls(
                 val point = space.ViewPoint(coordinates, zoom)
 
                 if (event.type == PointerEventType.Move) {
-                    for (feature in features) {
-                        val listeners = (feature as? DomainFeature)?.attributes?.get(HoverListenerAttribute)
-                        if (listeners != null && point in feature) {
+                    features.forEachWithAttribute(HoverListenerAttribute) { _, feature, listeners ->
+                        if (point in feature as DomainFeature) {
                             listeners.forEach { it.handle(event, point) }
-                            break
+                            return@forEachWithAttribute
                         }
                     }
                 }
@@ -42,11 +41,10 @@ public fun <T : Any> Modifier.mapControls(
                         event,
                         point
                     )
-                    for (feature in features) {
-                        val listeners = (feature as? DomainFeature)?.attributes?.get(ClickListenerAttribute)
-                        if (listeners != null && point in feature) {
+                    features.forEachWithAttribute(ClickListenerAttribute) { _, feature, listeners ->
+                        if (point in feature as DomainFeature) {
                             listeners.forEach { it.handle(event, point) }
-                            break
+                            return@forEachWithAttribute
                         }
                     }
                 }
@@ -96,13 +94,9 @@ public fun <T : Any> Modifier.mapControls(
                             val dragResult = config.dragHandle?.handle(event, dragStart, dragEnd)
                             if (dragResult?.handleNext == false) return@drag
 
-                            features.asSequence()
-                                .filterIsInstance<DraggableFeature<T>>()
-                                .mapNotNull {
-                                    it.attributes[DraggableAttribute]
-                                }.forEach { handler ->
-                                    if (!handler.handle(event, dragStart, dragEnd).handleNext) return@drag
-                                }
+                            features.forEachWithAttributeUntil(DraggableAttribute) { _, _, handler ->
+                                handler.handle(event, dragStart, dragEnd).handleNext
+                            }
                         }
 
                         if (event.buttons.isPrimaryPressed) {

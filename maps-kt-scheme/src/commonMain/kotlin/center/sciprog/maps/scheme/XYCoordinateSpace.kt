@@ -73,9 +73,17 @@ object XYCoordinateSpace : CoordinateSpace<XY> {
     )
 
     override fun XY.isInsidePolygon(points: List<XY>): Boolean = points.zipWithNext().count { (left, right) ->
-        val dist = right.y - left.y
-        val intersection = left.y * abs((right.x - x) / dist) +
-                right.y * abs((x - left.x) / dist)
-        x in left.x..right.x && intersection >= y
-    } % 2 == 0
+        val yRange = if(right.x >= left.x) {
+            left.y..right.y
+        } else {
+            right.y..left.y
+        }
+
+        if(y !in yRange) return@count false
+
+        val longitudeDelta = right.y - left.y
+
+        left.x * abs((right.y - y) / longitudeDelta) +
+                right.x * abs((y - left.y) / longitudeDelta) >= x
+    } % 2 == 1
 }

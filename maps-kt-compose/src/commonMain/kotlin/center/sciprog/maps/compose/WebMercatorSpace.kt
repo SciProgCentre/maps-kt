@@ -85,11 +85,19 @@ public object WebMercatorSpace : CoordinateSpace<Gmc> {
     }
 
     override fun Gmc.isInsidePolygon(points: List<Gmc>): Boolean = points.zipWithNext().count { (left, right) ->
-        val dist = right.latitude - left.latitude
-        val intersection = left.latitude * abs((right.longitude - longitude) / dist) +
-                right.latitude * abs((longitude - left.longitude) / dist)
-        longitude in left.longitude..right.longitude && intersection >= latitude
-    } % 2 == 0
+        val longitudeRange = if(right.longitude >= left.longitude) {
+            left.longitude..right.longitude
+        } else {
+            right.longitude..left.longitude
+        }
+
+        if(longitude !in longitudeRange) return@count false
+
+        val longitudeDelta = right.longitude - left.longitude
+
+        left.latitude * abs((right.longitude - longitude) / longitudeDelta) +
+                right.latitude * abs((longitude - left.longitude) / longitudeDelta) >= latitude
+    } % 2 == 1
 }
 
 /**
