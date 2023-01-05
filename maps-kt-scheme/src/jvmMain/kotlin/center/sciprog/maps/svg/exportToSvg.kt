@@ -3,10 +3,12 @@ package center.sciprog.maps.svg
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
+import center.sciprog.attributes.AlphaAttribute
 import center.sciprog.maps.features.*
 import center.sciprog.maps.scheme.*
 import org.jfree.svg.SVGGraphics2D
@@ -41,6 +43,10 @@ fun FeatureStateSnapshot<XY>.generateSvg(
 
 
     fun SvgDrawScope.drawFeature(scale: Float, feature: Feature<XY>) {
+
+        val color = feature.color ?: Color.Red
+        val alpha = feature.attributes[AlphaAttribute]?:1f
+
         when (feature) {
             is ScalableImageFeature -> {
                 val offset = XY(feature.rectangle.left, feature.rectangle.top).toOffset()
@@ -59,12 +65,12 @@ fun FeatureStateSnapshot<XY>.generateSvg(
             is FeatureSelector -> drawFeature(scale, feature.selector(scale))
 
             is CircleFeature -> drawCircle(
-                feature.color,
+                color,
                 feature.size.toPx(),
                 center = feature.center.toOffset()
             )
 
-            is LineFeature -> drawLine(feature.color, feature.a.toOffset(), feature.b.toOffset())
+            is LineFeature -> drawLine(color, feature.a.toOffset(), feature.b.toOffset())
 
             is ArcFeature -> {
                 val topLeft = feature.oval.leftTop.toOffset()
@@ -73,7 +79,7 @@ fun FeatureStateSnapshot<XY>.generateSvg(
                 val size = Size(abs(topLeft.x - bottomRight.x), abs(topLeft.y - bottomRight.y))
 
                 drawArc(
-                    color = feature.color,
+                    color = color,
                     startAngle = (feature.startAngle * 180 / PI).toFloat(),
                     sweepAngle = (feature.arcLength * 180 / PI).toFloat(),
                     useCenter = false,
@@ -102,7 +108,7 @@ fun FeatureStateSnapshot<XY>.generateSvg(
                     offset.x + 5,
                     offset.y - 5,
                     java.awt.Font(null, PLAIN, 16),
-                    feature.color
+                    color
                 )
             }
 

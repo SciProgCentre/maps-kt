@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import center.sciprog.attributes.z
 import center.sciprog.maps.coordinates.Gmc
 import center.sciprog.maps.features.FeatureGroup
 import center.sciprog.maps.features.PainterFeature
@@ -120,7 +121,7 @@ public actual fun MapView(
                 )
             }
 
-            featuresState.features
+            featuresState.featureMap.values.sortedBy { it.z }
                 .filter { viewPoint.zoom in it.zoomRange }
                 .forEach { feature ->
                     drawFeature(mapState, painterCache, feature)

@@ -1,7 +1,6 @@
 package center.sciprog.maps.scheme
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -30,7 +29,6 @@ fun FeatureGroup<XY>.background(
         ScalableImageFeature(
             space,
             box,
-            zoomRange = defaultZoomRange,
             painter = painter,
             attributes = Attributes(ZAttribute, -100f)
         )
@@ -39,26 +37,21 @@ fun FeatureGroup<XY>.background(
 
 fun FeatureGroup<XY>.circle(
     centerCoordinates: Pair<Number, Number>,
-    zoomRange: FloatRange = defaultZoomRange,
     size: Dp = 5.dp,
-    color: Color = Color.Red,
     id: String? = null,
-): FeatureId<CircleFeature<XY>> = circle(centerCoordinates.toCoordinates(), zoomRange, size, color, id = id)
+): FeatureId<CircleFeature<XY>> = circle(centerCoordinates.toCoordinates(),  size,  id = id)
 
 fun FeatureGroup<XY>.draw(
     position: Pair<Number, Number>,
-    zoomRange: FloatRange = defaultZoomRange,
     id: String? = null,
     draw: DrawScope.() -> Unit,
-): FeatureId<DrawFeature<XY>> = draw(position.toCoordinates(), zoomRange = zoomRange, id = id, draw = draw)
+): FeatureId<DrawFeature<XY>> = draw(position.toCoordinates(), id = id, draw = draw)
 
 fun FeatureGroup<XY>.line(
     aCoordinates: Pair<Number, Number>,
     bCoordinates: Pair<Number, Number>,
-    scaleRange: FloatRange = defaultZoomRange,
-    color: Color = Color.Red,
     id: String? = null,
-): FeatureId<LineFeature<XY>> = line(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), scaleRange, color, id)
+): FeatureId<LineFeature<XY>> = line(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), id)
 
 
 public fun FeatureGroup<XY>.arc(
@@ -66,15 +59,11 @@ public fun FeatureGroup<XY>.arc(
     radius: Float,
     startAngle: Float,
     arcLength: Float,
-    zoomRange: FloatRange = defaultZoomRange,
-    color: Color = Color.Red,
     id: String? = null,
 ): FeatureId<ArcFeature<XY>> = arc(
     oval = XYCoordinateSpace.Rectangle(center.toCoordinates(), radius, radius),
     startAngle = startAngle,
     arcLength = arcLength,
-    zoomRange = zoomRange,
-    color = color,
     id = id
 )
 
@@ -82,16 +71,13 @@ fun FeatureGroup<XY>.image(
     position: Pair<Number, Number>,
     image: ImageVector,
     size: DpSize = DpSize(image.defaultWidth, image.defaultHeight),
-    zoomRange: FloatRange = defaultZoomRange,
     id: String? = null,
 ): FeatureId<VectorImageFeature<XY>> =
-    image(position.toCoordinates(), image, size = size, zoomRange = zoomRange, id = id)
+    image(position.toCoordinates(), image, size = size, id = id)
 
 fun FeatureGroup<XY>.text(
     position: Pair<Number, Number>,
     text: String,
-    zoomRange: FloatRange = defaultZoomRange,
-    color: Color = Color.Red,
     id: String? = null,
-): FeatureId<TextFeature<XY>> = text(position.toCoordinates(), text, zoomRange, color, id = id)
+): FeatureId<TextFeature<XY>> = text(position.toCoordinates(), text, id = id)
 

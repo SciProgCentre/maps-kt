@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.DpSize
+import center.sciprog.attributes.z
 import center.sciprog.maps.compose.mapControls
 import center.sciprog.maps.features.*
 import mu.KotlinLogging
@@ -30,7 +31,7 @@ public fun SchemeView(
             featuresState.features.filterIsInstance<PainterFeature<XY>>().associateWith { it.getPainter() }
         }
 
-        Canvas(modifier = modifier.mapControls(state, featuresState.features).fillMaxSize()) {
+        Canvas(modifier = modifier.mapControls(state, featuresState).fillMaxSize()) {
 
             if (canvasSize != size.toDpSize()) {
                 canvasSize = size.toDpSize()
@@ -38,7 +39,7 @@ public fun SchemeView(
             }
 
             clipRect {
-                featuresState.features
+                featuresState.featureMap.values.sortedBy { it.z }
                     .filter { viewPoint.zoom in it.zoomRange }
                     .forEach { background ->
                         drawFeature(state, painterCache, background)
