@@ -1,5 +1,9 @@
 package center.sciprog.maps.features
 
+import center.sciprog.attributes.Attributes
+import center.sciprog.attributes.ZAttribute
+import center.sciprog.attributes.attribute
+
 
 public fun <T : Any> FeatureGroup<T>.draggableLine(
     aId: FeatureId<MarkerFeature<T>>,
@@ -16,7 +20,7 @@ public fun <T : Any> FeatureGroup<T>.draggableLine(
             get(bId).center,
             lineId?.id ?: id
         )
-        if (attributes != null) currentId.modifyAttributes { attributes.withAttribute(ZAttribute, -10f) }
+        if (attributes != null) currentId.modifyAttributes { attributes.attribute(ZAttribute, -10f) }
         lineId = currentId
         return currentId
     }

@@ -11,6 +11,8 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
+import center.sciprog.attributes.AlphaAttribute
+import center.sciprog.attributes.plus
 import org.jetbrains.skia.Font
 import org.jetbrains.skia.Paint
 import kotlin.math.PI

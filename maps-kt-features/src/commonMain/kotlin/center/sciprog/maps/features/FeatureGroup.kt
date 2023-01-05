@@ -13,6 +13,7 @@ import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import center.sciprog.attributes.*
 import kotlin.jvm.JvmInline
 
 @JvmInline
@@ -64,7 +65,7 @@ public data class FeatureGroup<T : Any>(
             if (feature is FeatureGroup<T>) {
                 feature.visitUntil(visitor)
             } else {
-                if (!visitor(this, key, feature)) return@forEach
+                if (!visitor(this, key, feature)) return@visitUntil
             }
         }
     }
@@ -79,7 +80,15 @@ public data class FeatureGroup<T : Any>(
     }
 
     public fun <F : Feature<T>, V> FeatureId<F>.attribute(key: Attribute<V>, value: V?): FeatureId<F> {
-        feature(this, get(this).withAttributes { withAttribute(key, value) })
+        feature(this, get(this).withAttributes { attribute(key, value) })
+        return this
+    }
+
+    /**
+     * Add multi-entry [SetAttribute] value
+     */
+    public fun <F : Feature<T>, V> FeatureId<F>.addAttribute(key: SetAttribute<V>, value: V): FeatureId<F> {
+        feature(this, get(this).withAttributes { addValue(key, value) })
         return this
     }
 
@@ -126,12 +135,9 @@ public data class FeatureGroup<T : Any>(
     public fun FeatureId<DraggableFeature<T>>.onDrag(
         listener: PointerEvent.(from: ViewPoint<T>, to: ViewPoint<T>) -> Unit,
     ) {
-        attribute(
+        addAttribute(
             DragListenerAttribute,
-            (getAttribute(this, DragListenerAttribute) ?: emptySet()) +
-                    DragListener { event, from, to ->
-                        event.listener(from as ViewPoint<T>, to as ViewPoint<T>)
-                    }
+            DragListener { event, from, to -> event.listener(from as ViewPoint<T>, to as ViewPoint<T>) }
         )
     }
 
@@ -139,21 +145,20 @@ public data class FeatureGroup<T : Any>(
     public fun <F : DomainFeature<T>> FeatureId<F>.onClick(
         onClick: PointerEvent.(click: ViewPoint<T>) -> Unit,
     ) {
-        attribute(
+        addAttribute(
             ClickListenerAttribute,
-            (getAttribute(this, ClickListenerAttribute) ?: emptySet()) +
-                    MouseListener { event, point -> event.onClick(point as ViewPoint<T>) }
+            MouseListener { event, point -> event.onClick(point as ViewPoint<T>) }
         )
+
     }
 
     @Suppress("UNCHECKED_CAST")
     public fun <F : DomainFeature<T>> FeatureId<F>.onHover(
         onClick: PointerEvent.(move: ViewPoint<T>) -> Unit,
     ) {
-        attribute(
+        addAttribute(
             HoverListenerAttribute,
-            (getAttribute(this, HoverListenerAttribute) ?: emptySet()) +
-                    MouseListener { event, point -> event.onClick(point as ViewPoint<T>) }
+            MouseListener { event, point -> event.onClick(point as ViewPoint<T>) }
         )
     }
 

@@ -85,6 +85,7 @@ public object WebMercatorSpace : CoordinateSpace<Gmc> {
     }
 
     override fun Gmc.isInsidePolygon(points: List<Gmc>): Boolean = points.zipWithNext().count { (left, right) ->
+        //using raytracing algorithm with the ray pointing "up"
         val longitudeRange = if(right.longitude >= left.longitude) {
             left.longitude..right.longitude
         } else {

@@ -14,6 +14,9 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import center.sciprog.attributes.Attributes
+import center.sciprog.attributes.ColorAttribute
+import center.sciprog.attributes.ZoomRangeAttribute
 
 public typealias FloatRange = ClosedFloatingPointRange<Float>
 

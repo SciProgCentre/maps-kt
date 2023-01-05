@@ -7,6 +7,9 @@ import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
+import center.sciprog.attributes.ClickListenerAttribute
+import center.sciprog.attributes.DraggableAttribute
+import center.sciprog.attributes.HoverListenerAttribute
 import center.sciprog.maps.features.*
 import kotlin.math.max
 import kotlin.math.min
@@ -94,9 +97,15 @@ public fun <T : Any> Modifier.mapControls(
                             val dragResult = config.dragHandle?.handle(event, dragStart, dragEnd)
                             if (dragResult?.handleNext == false) return@drag
 
+                            var continueAfter = true
+
                             features.forEachWithAttributeUntil(DraggableAttribute) { _, _, handler ->
-                                handler.handle(event, dragStart, dragEnd).handleNext
+                                handler.handle(event, dragStart, dragEnd).handleNext.also {
+                                    if (!it) continueAfter = false
+                                }
                             }
+
+                            if (!continueAfter) return@drag
                         }
 
                         if (event.buttons.isPrimaryPressed) {
