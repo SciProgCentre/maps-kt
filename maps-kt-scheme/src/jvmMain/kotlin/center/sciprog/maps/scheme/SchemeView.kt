@@ -93,7 +93,7 @@ public fun SchemeView(
         }
     }
 
-    val state = rememberMapState(
+    val state = XYViewScope.remember(
         config,
         initialViewPoint = initialViewPoint,
         initialRectangle = initialRectangle ?: featureState.features.computeBoundingBox(XYCoordinateSpace, Float.MAX_VALUE),
@@ -118,7 +118,7 @@ public fun SchemeView(
     buildFeatures: FeatureGroup<XY>.() -> Unit = {},
 ) {
     val featureState = FeatureGroup.remember(XYCoordinateSpace, buildFeatures)
-    val mapState: XYViewScope = rememberMapState(
+    val mapState: XYViewScope = XYViewScope.remember(
         config,
         initialViewPoint = initialViewPoint,
         initialRectangle = initialRectangle ?: featureState.features.computeBoundingBox(XYCoordinateSpace, Float.MAX_VALUE),

@@ -37,7 +37,7 @@ fun App() {
             text(1132.0881 to 394.99127, "Ordruin").color(Color.Red)
             arc(center = 1132.0881 to 394.99127, radius = 20f, startAngle = 0f, 2 * PI.toFloat())
 
-            circle(410.52737 to 868.7676, id = "hobbit")
+            //circle(410.52737 to 868.7676, id = "hobbit")
 
             scope.launch {
                 var t = 0.0

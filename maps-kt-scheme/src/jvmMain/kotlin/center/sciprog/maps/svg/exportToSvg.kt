@@ -8,7 +8,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
-import center.sciprog.attributes.AlphaAttribute
 import center.sciprog.maps.features.*
 import center.sciprog.maps.scheme.*
 import org.jfree.svg.SVGGraphics2D

@@ -187,7 +187,7 @@ public data class FeatureGroup<T : Any>(
         public fun <T : Any> remember(
             coordinateSpace: CoordinateSpace<T>,
             builder: FeatureGroup<T>.() -> Unit = {},
-        ): FeatureGroup<T> = remember(builder) {
+        ): FeatureGroup<T> = remember{
             build(coordinateSpace, builder)
         }
 
