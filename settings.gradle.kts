@@ -49,8 +49,9 @@ include(
     ":maps-kt-geojson",
     ":maps-kt-features",
     ":maps-kt-compose",
-    ":demo:maps",
     ":maps-kt-scheme",
-    ":demo:scheme"
+    ":demo:maps",
+    ":demo:scheme",
+    ":demo:polygon-editor"
 )
 

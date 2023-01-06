@@ -47,7 +47,7 @@ class XYViewScope(
     companion object{
         @Composable
         public fun remember(
-            config: ViewConfig<XY>,
+            config: ViewConfig<XY> = ViewConfig(),
             initialViewPoint: ViewPoint<XY>? = null,
             initialRectangle: Rectangle<XY>? = null,
         ): XYViewScope = remember {
