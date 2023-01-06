@@ -1,11 +1,9 @@
 package center.sciprog.attributes
 
-import androidx.compose.runtime.Stable
 import center.sciprog.maps.features.Feature
 import center.sciprog.maps.features.ZAttribute
 import kotlin.jvm.JvmInline
 
-@Stable
 @JvmInline
 public value class Attributes internal constructor(internal val map: Map<Attribute<*>, Any>) {
     @Suppress("UNCHECKED_CAST")

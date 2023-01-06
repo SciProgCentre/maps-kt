@@ -60,7 +60,7 @@ public class MapViewScope internal constructor(
                 canvasSize.height.value / rectangle.latitudeDelta.radians.value
             ) * PI / mapTileProvider.tileSize
         )
-        return MapViewPoint(rectangle.center, zoom.toFloat())
+        return space.ViewPoint(rectangle.center, zoom.toFloat())
     }
 
     override fun ViewPoint<Gmc>.moveBy(x: Dp, y: Dp): ViewPoint<Gmc> {
@@ -73,22 +73,24 @@ public class MapViewScope internal constructor(
             ),
             focus.longitude + (deltaX / scaleFactor).radians
         )
-        return MapViewPoint(newCoordinates, zoom)
+        return space.ViewPoint(newCoordinates, zoom)
     }
-}
 
-@Composable
-internal fun rememberMapState(
-    mapTileProvider: MapTileProvider,
-    config: ViewConfig<Gmc>,
-    initialViewPoint: MapViewPoint? = null,
-    initialRectangle: Rectangle<Gmc>? = null,
-): MapViewScope = remember {
-    MapViewScope(mapTileProvider, config).also { mapState->
-        if (initialViewPoint != null) {
-            mapState.viewPoint = initialViewPoint
-        } else if (initialRectangle != null) {
-            mapState.viewPoint = mapState.computeViewPoint(initialRectangle)
+    public companion object {
+        @Composable
+        public fun remember(
+            mapTileProvider: MapTileProvider,
+            config: ViewConfig<Gmc> = ViewConfig(),
+            initialViewPoint: ViewPoint<Gmc>? = null,
+            initialRectangle: Rectangle<Gmc>? = null,
+        ): MapViewScope = remember {
+            MapViewScope(mapTileProvider, config).also { mapState ->
+                if (initialViewPoint != null) {
+                    mapState.viewPoint = initialViewPoint
+                } else if (initialRectangle != null) {
+                    mapState.viewPoint = mapState.computeViewPoint(initialRectangle)
+                }
+            }
         }
     }
 }

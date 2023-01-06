@@ -23,15 +23,15 @@ private val logger = KotlinLogging.logger("SchemeView")
 @Composable
 public fun SchemeView(
     state: XYViewScope,
-    featuresState: FeatureGroup<XY>,
-    modifier: Modifier = Modifier,
-) = key(state, featuresState) {
+    features: FeatureGroup<XY>,
+    modifier: Modifier = Modifier.fillMaxSize(),
+) = key(state, features) {
     with(state) {
         //Can't do that inside canvas
         val painterCache: Map<PainterFeature<XY>, Painter> =
-            featuresState.features.filterIsInstance<PainterFeature<XY>>().associateWith { it.getPainter() }
+            features.features.filterIsInstance<PainterFeature<XY>>().associateWith { it.getPainter() }
 
-        Canvas(modifier = modifier.mapControls(state, featuresState).fillMaxSize()) {
+        Canvas(modifier = modifier.mapControls(state, features)) {
 
             if (canvasSize != size.toDpSize()) {
                 canvasSize = size.toDpSize()
@@ -39,7 +39,7 @@ public fun SchemeView(
             }
 
             clipRect {
-                featuresState.featureMap.values.sortedBy { it.z }
+                features.featureMap.values.sortedBy { it.z }
                     .filter { viewPoint.zoom in it.zoomRange }
                     .forEach { feature ->
                         drawFeature(state, painterCache, feature)
@@ -80,30 +80,20 @@ public fun Rectangle<XY>.computeViewPoint(
  */
 @Composable
 public fun SchemeView(
+    features: FeatureGroup<XY>,
     initialViewPoint: ViewPoint<XY>? = null,
     initialRectangle: Rectangle<XY>? = null,
-    featureMap: Map<FeatureId<*>, Feature<XY>>,
     config: ViewConfig<XY> = ViewConfig(),
     modifier: Modifier = Modifier.fillMaxSize(),
 ) {
 
-
-    val featureState = key(featureMap) {
-        FeatureGroup.build(XYCoordinateSpace) {
-            featureMap.forEach { feature(it.key.id, it.value) }
-        }
-    }
-
     val state = XYViewScope.remember(
         config,
         initialViewPoint = initialViewPoint,
-        initialRectangle = initialRectangle ?: featureState.features.computeBoundingBox(
-            XYCoordinateSpace,
-            Float.MAX_VALUE
-        ),
+        initialRectangle = initialRectangle ?: features.getBoundingBox(Float.MAX_VALUE),
     )
 
-    SchemeView(state, featureState, modifier)
+    SchemeView(state, features, modifier)
 }
 
 /**

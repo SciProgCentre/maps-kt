@@ -1,7 +1,6 @@
 package center.sciprog.maps.compose
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,11 +43,10 @@ private val logger = KotlinLogging.logger("MapView")
  */
 @Composable
 public actual fun MapView(
-    mapState: MapViewScope,
-    featuresState: FeatureGroup<Gmc>,
+    viewScope: MapViewScope,
+    features: FeatureGroup<Gmc>,
     modifier: Modifier,
-): Unit = with(mapState) {
-
+): Unit = with(viewScope) {
     val mapTiles = remember(mapTileProvider) { mutableStateListOf<MapTile>() }
 
     // Load tiles asynchronously
@@ -89,57 +87,56 @@ public actual fun MapView(
             }
         }
     }
+    key(viewScope, features) {
+        val painterCache: Map<PainterFeature<Gmc>, Painter> =
+            features.features.filterIsInstance<PainterFeature<Gmc>>().associateWith { it.getPainter() }
 
-    val painterCache: Map<PainterFeature<Gmc>, Painter> = key(featuresState) {
-        featuresState.features.filterIsInstance<PainterFeature<Gmc>>().associateWith { it.getPainter() }
-    }
+        Canvas(modifier = modifier.mapControls(viewScope, features)) {
 
-
-    Canvas(modifier = modifier.mapControls(mapState, featuresState).fillMaxSize()) {
-
-        if (canvasSize != size.toDpSize()) {
-            logger.debug { "Recalculate canvas. Size: $size" }
-            config.onCanvasSizeChange(canvasSize)
-            canvasSize = size.toDpSize()
-        }
-
-        clipRect {
-            val tileSize = IntSize(
-                ceil((mapTileProvider.tileSize.dp * tileScale).toPx()).toInt(),
-                ceil((mapTileProvider.tileSize.dp * tileScale).toPx()).toInt()
-            )
-            mapTiles.forEach { (id, image) ->
-                //converting back from tile index to screen offset
-                val offset = IntOffset(
-                    (canvasSize.width / 2 + (mapTileProvider.toCoordinate(id.i).dp - centerCoordinates.x.dp) * tileScale).roundToPx(),
-                    (canvasSize.height / 2 + (mapTileProvider.toCoordinate(id.j).dp - centerCoordinates.y.dp) * tileScale).roundToPx()
-                )
-                drawImage(
-                    image = image.toComposeImageBitmap(),
-                    dstOffset = offset,
-                    dstSize = tileSize
-                )
+            if (canvasSize != size.toDpSize()) {
+                logger.debug { "Recalculate canvas. Size: $size" }
+                config.onCanvasSizeChange(canvasSize)
+                canvasSize = size.toDpSize()
             }
 
-            featuresState.featureMap.values.sortedBy { it.z }
-                .filter { viewPoint.zoom in it.zoomRange }
-                .forEach { feature ->
-                    drawFeature(mapState, painterCache, feature)
-                }
-        }
-
-        selectRect?.let { dpRect ->
-            val rect = dpRect.toRect()
-            drawRect(
-                color = Color.Blue,
-                topLeft = rect.topLeft,
-                size = rect.size,
-                alpha = 0.5f,
-                style = Stroke(
-                    width = 2f,
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+            clipRect {
+                val tileSize = IntSize(
+                    ceil((mapTileProvider.tileSize.dp * tileScale).toPx()).toInt(),
+                    ceil((mapTileProvider.tileSize.dp * tileScale).toPx()).toInt()
                 )
-            )
+                mapTiles.forEach { (id, image) ->
+                    //converting back from tile index to screen offset
+                    val offset = IntOffset(
+                        (canvasSize.width / 2 + (mapTileProvider.toCoordinate(id.i).dp - centerCoordinates.x.dp) * tileScale).roundToPx(),
+                        (canvasSize.height / 2 + (mapTileProvider.toCoordinate(id.j).dp - centerCoordinates.y.dp) * tileScale).roundToPx()
+                    )
+                    drawImage(
+                        image = image.toComposeImageBitmap(),
+                        dstOffset = offset,
+                        dstSize = tileSize
+                    )
+                }
+
+                features.featureMap.values.sortedBy { it.z }
+                    .filter { viewPoint.zoom in it.zoomRange }
+                    .forEach { feature ->
+                        drawFeature(viewScope, painterCache, feature)
+                    }
+            }
+
+            selectRect?.let { dpRect ->
+                val rect = dpRect.toRect()
+                drawRect(
+                    color = Color.Blue,
+                    topLeft = rect.topLeft,
+                    size = rect.size,
+                    alpha = 0.5f,
+                    style = Stroke(
+                        width = 2f,
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+                    )
+                )
+            }
         }
     }
 }
