@@ -14,6 +14,8 @@ public object ClickListenerAttribute : SetAttribute<MouseListener<Any>>
 
 public object HoverListenerAttribute : SetAttribute<MouseListener<Any>>
 
+//public object TapListenerAttribute : SetAttribute<TapListener<Any>>
+
 public object VisibleAttribute : Attribute<Boolean>
 
 public object ColorAttribute : Attribute<Color>

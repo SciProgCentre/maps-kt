@@ -1,4 +1,6 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.PointerMatcher
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -34,6 +36,7 @@ private fun GeodeticMapCoordinates.toShortString(): String =
     "${(latitude.degrees.value).toString().take(6)}:${(longitude.degrees.value).toString().take(6)}"
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Preview
 fun App() {
@@ -120,9 +123,9 @@ fun App() {
                 }
             }.launchIn(scope)
 
-
+            //Add click listeners for all polygons
             forEachWithType<Gmc, PolygonFeature<Gmc>> { id, feature ->
-                id.onClick {
+                id.onClick(PointerMatcher.Primary) {
                     println("Click on $id")
                     //draw in top-level scope
                     with(this@MapView) {

@@ -37,11 +37,17 @@ public abstract class CoordinateViewScope<T : Any>(
 
     public abstract fun DpOffset.toCoordinates(): T
 
+
     public abstract fun T.toDpOffset(): DpOffset
 
     public fun T.toOffset(density: Density): Offset = with(density) {
         val dpOffset = this@toOffset.toDpOffset()
         Offset(dpOffset.x.toPx(), dpOffset.y.toPx())
+    }
+
+    public fun Offset.toCoordinates(density: Density): T = with(density) {
+        val dpOffset = DpOffset(x.toDp(), y.toDp())
+        dpOffset.toCoordinates()
     }
 
     public abstract fun Rectangle<T>.toDpRect(): DpRect

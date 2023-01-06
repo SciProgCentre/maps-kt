@@ -1,5 +1,7 @@
 package center.sciprog.maps.features
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.PointerMatcher
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
@@ -10,6 +12,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -144,13 +147,30 @@ public data class FeatureGroup<T : Any>(
         )
     }
 
-
     @Suppress("UNCHECKED_CAST")
     public fun <F : DomainFeature<T>> FeatureId<F>.onClick(
         onClick: PointerEvent.(click: ViewPoint<T>) -> Unit,
     ): FeatureId<F> = modifyAttributes {
         ClickListenerAttribute.add(
-            MouseListener { event, point -> event.onClick(point as ViewPoint<T>) }
+            MouseListener { event, point ->
+                event.onClick(point as ViewPoint<T>)
+            }
+        )
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Suppress("UNCHECKED_CAST")
+    public fun <F : DomainFeature<T>> FeatureId<F>.onClick(
+        pointerMatcher: PointerMatcher,
+        keyboardModifiers: PointerKeyboardModifiers.() -> Boolean = {true},
+        onClick: PointerEvent.(click: ViewPoint<T>) -> Unit,
+    ): FeatureId<F> = modifyAttributes {
+        ClickListenerAttribute.add(
+            MouseListener { event, point ->
+                if (pointerMatcher.matches(event) && keyboardModifiers(event.keyboardModifiers)) {
+                    event.onClick(point as ViewPoint<T>)
+                }
+            }
         )
     }
 
@@ -162,6 +182,18 @@ public data class FeatureGroup<T : Any>(
             MouseListener { event, point -> event.onClick(point as ViewPoint<T>) }
         )
     }
+
+//    @Suppress("UNCHECKED_CAST")
+//    @OptIn(ExperimentalFoundationApi::class)
+//    public fun <F : DomainFeature<T>> FeatureId<F>.onTap(
+//        pointerMatcher: PointerMatcher = PointerMatcher.Primary,
+//        keyboardFilter: PointerKeyboardModifiers.() -> Boolean = { true },
+//        onTap: (point: ViewPoint<T>) -> Unit,
+//    ): FeatureId<F> = modifyAttributes {
+//        TapListenerAttribute.add(
+//            TapListener(pointerMatcher, keyboardFilter) { point -> onTap(point as ViewPoint<T>) }
+//        )
+//    }
 
     public fun <F : Feature<T>> FeatureId<F>.color(color: Color): FeatureId<F> =
         modifyAttribute(ColorAttribute, color)
@@ -187,7 +219,7 @@ public data class FeatureGroup<T : Any>(
         public fun <T : Any> remember(
             coordinateSpace: CoordinateSpace<T>,
             builder: FeatureGroup<T>.() -> Unit = {},
-        ): FeatureGroup<T> = remember{
+        ): FeatureGroup<T> = remember {
             build(coordinateSpace, builder)
         }
 

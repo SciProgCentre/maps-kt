@@ -1,5 +1,6 @@
 package center.sciprog.maps.compose
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -16,16 +17,24 @@ import kotlin.math.min
  * Create a modifier for Map/Scheme canvas controls on desktop
  * @param features a collection of features to be rendered in descending [ZAttribute] order
  */
+@OptIn(ExperimentalFoundationApi::class)
 public fun <T : Any> Modifier.mapControls(
     state: CoordinateViewScope<T>,
     features: FeatureGroup<T>,
 ): Modifier = with(state) {
+
+//    //selecting all tapabales ahead of time
+//    val allTapable = buildMap {
+//        features.forEachWithAttribute(TapListenerAttribute) { _, feature, listeners ->
+//            put(feature, listeners)
+//        }
+//    }
+
     pointerInput(Unit) {
-        fun Offset.toDpOffset() = DpOffset(x.toDp(), y.toDp())
         awaitPointerEventScope {
             while (true) {
                 val event = awaitPointerEvent()
-                val coordinates = event.changes.first().position.toDpOffset().toCoordinates()
+                val coordinates = event.changes.first().position.toCoordinates(this)
                 val point = space.ViewPoint(coordinates, zoom)
 
                 if (event.type == PointerEventType.Move) {
@@ -36,22 +45,31 @@ public fun <T : Any> Modifier.mapControls(
                         }
                     }
                 }
-                if (event.type == PointerEventType.Release) {
-                    config.onClick?.handle(
-                        event,
-                        point
-                    )
-                    features.forEachWithAttribute(ClickListenerAttribute) { _, feature, listeners ->
-                        if (point in feature as DomainFeature) {
-                            listeners.forEach { it.handle(event, point) }
-                            return@forEachWithAttribute
+
+                if (event.type == PointerEventType.Press) {
+                    withTimeoutOrNull(500) {
+                        while (true) {
+                            if (awaitPointerEvent().type == PointerEventType.Release) {
+                                config.onClick?.handle(
+                                    event,
+                                    point
+                                )
+                                features.forEachWithAttributeUntil(ClickListenerAttribute) { _, feature, listeners ->
+                                    if (point in feature as DomainFeature) {
+                                        listeners.forEach { it.handle(event, point) }
+                                        false
+                                    } else {
+                                        true
+                                    }
+                                }
+                                break
+                            }
                         }
                     }
                 }
             }
         }
     }.pointerInput(Unit) {
-        fun Offset.toDpOffset() = DpOffset(x.toDp(), y.toDp())
         awaitPointerEventScope {
             while (true) {
                 val event: PointerEvent = awaitPointerEvent()
@@ -84,11 +102,11 @@ public fun <T : Any> Modifier.mapControls(
                         //apply drag handle and check if it prohibits the drag even propagation
                         if (selectionStart == null) {
                             val dragStart = space.ViewPoint(
-                                dragChange.previousPosition.toDpOffset().toCoordinates(),
+                                dragChange.previousPosition.toCoordinates(this),
                                 zoom
                             )
                             val dragEnd = space.ViewPoint(
-                                dragChange.position.toDpOffset().toCoordinates(),
+                                dragChange.position.toCoordinates(this),
                                 zoom
                             )
                             val dragResult = config.dragHandle?.handle(event, dragStart, dragEnd)
@@ -146,3 +164,18 @@ public fun <T : Any> Modifier.mapControls(
         }
     }
 }
+
+/*
+.pointerInput(Unit) {
+        allTapable.forEach { (feature, listeners) ->
+            listeners.forEach { listener ->
+                detectTapGestures(listener.pointerMatcher, listener.keyboardFilter) { offset ->
+                    val point = space.ViewPoint(offset.toCoordinates(this@pointerInput), zoom)
+                    if (point in feature as DomainFeature) {
+                        listener.onTap(point)
+                    }
+                }
+            }
+        }
+    }
+ */
