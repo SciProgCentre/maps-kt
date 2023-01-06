@@ -12,10 +12,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import center.sciprog.attributes.AlphaAttribute
 import center.sciprog.attributes.Attributes
-import center.sciprog.attributes.ColorAttribute
-import center.sciprog.attributes.ZAttribute
 import center.sciprog.maps.compose.*
 import center.sciprog.maps.coordinates.*
 import center.sciprog.maps.features.*

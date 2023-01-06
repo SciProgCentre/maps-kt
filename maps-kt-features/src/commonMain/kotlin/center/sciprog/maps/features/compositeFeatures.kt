@@ -1,7 +1,6 @@
 package center.sciprog.maps.features
 
 import center.sciprog.attributes.Attributes
-import center.sciprog.attributes.ZAttribute
 
 
 public fun <T : Any> FeatureGroup<T>.draggableLine(

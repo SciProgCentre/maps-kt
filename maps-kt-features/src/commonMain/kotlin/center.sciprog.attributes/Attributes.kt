@@ -2,6 +2,7 @@ package center.sciprog.attributes
 
 import androidx.compose.runtime.Stable
 import center.sciprog.maps.features.Feature
+import center.sciprog.maps.features.ZAttribute
 import kotlin.jvm.JvmInline
 
 @Stable

@@ -15,8 +15,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import center.sciprog.attributes.Attributes
-import center.sciprog.attributes.ColorAttribute
-import center.sciprog.attributes.ZoomRangeAttribute
+import center.sciprog.attributes.NameAttribute
 
 public typealias FloatRange = ClosedFloatingPointRange<Float>
 
@@ -35,6 +34,9 @@ public val Feature<*>.color: Color? get() = attributes[ColorAttribute]
 
 public val Feature<*>.zoomRange: FloatRange
     get() = attributes[ZoomRangeAttribute] ?: Float.NEGATIVE_INFINITY..Float.POSITIVE_INFINITY
+
+public val Feature<*>.name: String?
+    get() = attributes[NameAttribute]
 
 public interface PainterFeature<T : Any> : Feature<T> {
     @Composable

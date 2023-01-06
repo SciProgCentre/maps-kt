@@ -7,9 +7,6 @@ import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
-import center.sciprog.attributes.ClickListenerAttribute
-import center.sciprog.attributes.DraggableAttribute
-import center.sciprog.attributes.HoverListenerAttribute
 import center.sciprog.maps.features.*
 import kotlin.math.max
 import kotlin.math.min

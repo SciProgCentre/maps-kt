@@ -34,6 +34,8 @@ public value class GeoJsonFeature(override val json: JsonObject) : GeoJson {
     }
 }
 
+public fun GeoJsonFeature.getProperty(key: String): JsonElement? = json[key] ?: properties?.get(key)
+
 @JvmInline
 public value class GeoJsonFeatureCollection(override val json: JsonObject) : GeoJson, Iterable<GeoJsonFeature> {
     init {

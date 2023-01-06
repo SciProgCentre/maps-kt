@@ -2,6 +2,7 @@ package center.sciprog.maps.geojson
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
+import center.sciprog.attributes.NameAttribute
 import center.sciprog.maps.coordinates.Gmc
 import center.sciprog.maps.features.*
 import kotlinx.serialization.json.contentOrNull
@@ -59,14 +60,21 @@ public fun FeatureGroup<Gmc>.geoJsonFeature(
     geoJson: GeoJsonFeature,
     id: String? = null,
 ): FeatureId<Feature<Gmc>> {
-    val geometry = geoJson.geometry ?: return group{}
-    val idOverride = geoJson.json["id"]?.jsonPrimitive?.contentOrNull ?: geoJson.properties?.get("id")?.jsonPrimitive?.contentOrNull ?: id
-    val colorOverride = geoJson.properties?.get("color")?.jsonPrimitive?.intOrNull?.let { Color(it) }
-    val jsonGeometry =  geoJsonGeometry(geometry, idOverride)
-    return if( colorOverride!= null){
-        jsonGeometry.color(colorOverride)
-    } else{
-        jsonGeometry
+    val geometry = geoJson.geometry ?: return group {}
+    val idOverride = id ?: geoJson.getProperty("id")?.jsonPrimitive?.contentOrNull
+
+    return geoJsonGeometry(geometry, idOverride).modifyAttributes {
+        geoJson.properties?.let {
+            GeoJsonPropertiesAttribute(it)
+        }
+
+        geoJson.getProperty("name")?.jsonPrimitive?.contentOrNull?.let {
+            NameAttribute(it)
+        }
+
+        geoJson.getProperty("color")?.jsonPrimitive?.intOrNull?.let {
+            ColorAttribute(Color(it))
+        }
     }
 }
 
