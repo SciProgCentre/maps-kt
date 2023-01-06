@@ -79,7 +79,7 @@ fun App() {
                 )
             }
         ) {
-            val mapState: XYViewScope = rememberMapState(
+            val mapState: XYViewScope = XYViewScope.remember(
                 ViewConfig(
                     onClick = {_, click ->
                         println("${click.focus.x}, ${click.focus.y}")

@@ -74,24 +74,27 @@ public data class FeatureGroup<T : Any>(
     public fun <A> getAttribute(id: FeatureId<Feature<T>>, key: Attribute<A>): A? =
         get(id).attributes[key]
 
-    public fun <F : Feature<T>> FeatureId<F>.modifyAttributes(modify: Attributes.() -> Attributes): FeatureId<F> {
-        feature(this, get(this).withAttributes(modify))
+
+    override fun getBoundingBox(zoom: Float): Rectangle<T>? = with(space) {
+        featureMap.values.mapNotNull { it.getBoundingBox(zoom) }.wrapRectangles()
+    }
+
+    override fun withAttributes(modify: Attributes.() -> Attributes): Feature<T> = copy(attributes = modify(attributes))
+
+    public fun <F : Feature<T>> FeatureId<F>.modifyAttributes(modify: AttributesBuilder.() -> Unit): FeatureId<F> {
+        feature(
+            this,
+            get(this).withAttributes {
+                AttributesBuilder(this).apply(modify).build()
+            }
+        )
         return this
     }
 
-    public fun <F : Feature<T>, V> FeatureId<F>.attribute(key: Attribute<V>, value: V?): FeatureId<F> {
-        feature(this, get(this).withAttributes { attribute(key, value) })
+    public fun <F : Feature<T>, V> FeatureId<F>.modifyAttribute(key: Attribute<V>, value: V?): FeatureId<F> {
+        feature(this, get(this).withAttributes { withAttribute(key, value) })
         return this
     }
-
-    /**
-     * Add multi-entry [SetAttribute] value
-     */
-    public fun <F : Feature<T>, V> FeatureId<F>.addAttribute(key: SetAttribute<V>, value: V): FeatureId<F> {
-        feature(this, get(this).withAttributes { addValue(key, value) })
-        return this
-    }
-
 
     /**
      * Add drag to this feature
@@ -101,10 +104,10 @@ public data class FeatureGroup<T : Any>(
      * TODO use context receiver for that
      */
     @Suppress("UNCHECKED_CAST")
-    public fun FeatureId<DraggableFeature<T>>.draggable(
+    public fun <F : DraggableFeature<T>> FeatureId<F>.draggable(
         constraint: ((T) -> T)? = null,
         listener: (PointerEvent.(from: ViewPoint<T>, to: ViewPoint<T>) -> Unit)? = null,
-    ) {
+    ): FeatureId<F> {
         if (getAttribute(this, DraggableAttribute) == null) {
             val handle = DragHandle.withPrimaryButton<Any> { event, start, end ->
                 val feature = featureMap[id] as? DraggableFeature<T> ?: return@withPrimaryButton DragResult(end)
@@ -121,70 +124,51 @@ public data class FeatureGroup<T : Any>(
                     DragResult(end, true)
                 }
             }
-            this.attribute(DraggableAttribute, handle)
+            modifyAttribute(DraggableAttribute, handle)
         }
 
         //Apply callback
         if (listener != null) {
             onDrag(listener)
         }
+        return this
     }
 
 
     @Suppress("UNCHECKED_CAST")
-    public fun FeatureId<DraggableFeature<T>>.onDrag(
+    public fun <F : DraggableFeature<T>> FeatureId<F>.onDrag(
         listener: PointerEvent.(from: ViewPoint<T>, to: ViewPoint<T>) -> Unit,
-    ) {
-        addAttribute(
-            DragListenerAttribute,
+    ): FeatureId<F> = modifyAttributes {
+        DragListenerAttribute.add(
             DragListener { event, from, to -> event.listener(from as ViewPoint<T>, to as ViewPoint<T>) }
         )
     }
 
+
     @Suppress("UNCHECKED_CAST")
     public fun <F : DomainFeature<T>> FeatureId<F>.onClick(
         onClick: PointerEvent.(click: ViewPoint<T>) -> Unit,
-    ) {
-        addAttribute(
-            ClickListenerAttribute,
+    ): FeatureId<F> = modifyAttributes {
+        ClickListenerAttribute.add(
             MouseListener { event, point -> event.onClick(point as ViewPoint<T>) }
         )
-
     }
 
     @Suppress("UNCHECKED_CAST")
     public fun <F : DomainFeature<T>> FeatureId<F>.onHover(
         onClick: PointerEvent.(move: ViewPoint<T>) -> Unit,
-    ) {
-        addAttribute(
-            HoverListenerAttribute,
+    ): FeatureId<F> = modifyAttributes {
+        HoverListenerAttribute.add(
             MouseListener { event, point -> event.onClick(point as ViewPoint<T>) }
         )
     }
 
-//    /**
-//     * Cyclic update of a feature. Called infinitely until canceled.
-//     */
-//    public fun <F : Feature<T>> FeatureId<F>.updated(
-//        scope: CoroutineScope,
-//        update: suspend (F) -> F,
-//    ): Job = scope.launch {
-//        while (isActive) {
-//            feature(this@updated, update(get(this@updated)))
-//        }
-//    }
-
     public fun <F : Feature<T>> FeatureId<F>.color(color: Color): FeatureId<F> =
-        attribute(ColorAttribute, color)
+        modifyAttribute(ColorAttribute, color)
 
     public fun <F : Feature<T>> FeatureId<F>.zoomRange(range: FloatRange): FeatureId<F> =
-        attribute(ZoomRangeAttribute, range)
+        modifyAttribute(ZoomRangeAttribute, range)
 
-    override fun getBoundingBox(zoom: Float): Rectangle<T>? = with(space) {
-        featureMap.values.mapNotNull { it.getBoundingBox(zoom) }.wrapRectangles()
-    }
-
-    override fun withAttributes(modify: Attributes.() -> Attributes): Feature<T> = copy(attributes = modify(attributes))
 
     public companion object {
 

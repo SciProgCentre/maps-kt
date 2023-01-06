@@ -19,7 +19,7 @@ public value class Attributes internal constructor(internal val map: Map<Attribu
     }
 }
 
-public fun <T, A : Attribute<T>> Attributes.attribute(
+public fun <T, A : Attribute<T>> Attributes.withAttribute(
     attribute: A,
     attrValue: T?,
 ): Attributes = Attributes(
@@ -33,7 +33,7 @@ public fun <T, A : Attribute<T>> Attributes.attribute(
 /**
  * Add an element to a [SetAttribute]
  */
-public fun <T, A : SetAttribute<T>> Attributes.addValue(
+public fun <T, A : SetAttribute<T>> Attributes.withAttributeElement(
     attribute: A,
     attrValue: T,
 ): Attributes {
@@ -46,7 +46,7 @@ public fun <T, A : SetAttribute<T>> Attributes.addValue(
 /**
  * Remove an element from [SetAttribute]
  */
-public fun <T, A : SetAttribute<T>> Attributes.removeValue(
+public fun <T, A : SetAttribute<T>> Attributes.withoutAttributeElement(
     attribute: A,
     attrValue: T,
 ): Attributes {
@@ -55,8 +55,6 @@ public fun <T, A : SetAttribute<T>> Attributes.removeValue(
         map + (attribute to (currentSet - attrValue))
     )
 }
-
-
 
 public fun <T : Any, A : Attribute<T>> Attributes(
     attribute: A,

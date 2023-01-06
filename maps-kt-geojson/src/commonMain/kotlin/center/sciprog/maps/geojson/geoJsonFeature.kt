@@ -60,7 +60,7 @@ public fun FeatureGroup<Gmc>.geoJsonFeature(
     id: String? = null,
 ): FeatureId<Feature<Gmc>> {
     val geometry = geoJson.geometry ?: return group{}
-    val idOverride = geoJson.properties?.get("id")?.jsonPrimitive?.contentOrNull ?: id
+    val idOverride = geoJson.json["id"]?.jsonPrimitive?.contentOrNull ?: geoJson.properties?.get("id")?.jsonPrimitive?.contentOrNull ?: id
     val colorOverride = geoJson.properties?.get("color")?.jsonPrimitive?.intOrNull?.let { Color(it) }
     val jsonGeometry =  geoJsonGeometry(geometry, idOverride)
     return if( colorOverride!= null){

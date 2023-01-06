@@ -43,19 +43,22 @@ class XYViewScope(
         val bottomRight = rightBottom.toDpOffset()
         return DpRect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y)
     }
-}
 
-@Composable
-public fun rememberMapState(
-    config: ViewConfig<XY>,
-    initialViewPoint: ViewPoint<XY>? = null,
-    initialRectangle: Rectangle<XY>? = null,
-): XYViewScope = remember {
-    XYViewScope(config).also { mapState->
-        if (initialViewPoint != null) {
-            mapState.viewPoint = initialViewPoint
-        } else if (initialRectangle != null) {
-            mapState.viewPoint = mapState.computeViewPoint(initialRectangle)
+    companion object{
+        @Composable
+        public fun remember(
+            config: ViewConfig<XY>,
+            initialViewPoint: ViewPoint<XY>? = null,
+            initialRectangle: Rectangle<XY>? = null,
+        ): XYViewScope = remember {
+            XYViewScope(config).also { mapState->
+                if (initialViewPoint != null) {
+                    mapState.viewPoint = initialViewPoint
+                } else if (initialRectangle != null) {
+                    mapState.viewPoint = mapState.computeViewPoint(initialRectangle)
+                }
+            }
         }
     }
 }
+

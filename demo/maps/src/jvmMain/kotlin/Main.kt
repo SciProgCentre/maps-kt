@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.net.URL
 import java.nio.file.Path
 import kotlin.math.PI
 import kotlin.random.Random
@@ -69,9 +68,9 @@ fun App() {
             )
         ) {
 
-            geoJson(URL("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json"))
-                .attribute(ColorAttribute, Color.Blue)
-                .attribute(AlphaAttribute, 0.4f)
+            geoJson(javaClass.getResource("/moscow.geo.json")!!)
+                .modifyAttribute(ColorAttribute, Color.Blue)
+                .modifyAttribute(AlphaAttribute, 0.4f)
 
             image(pointOne, Icons.Filled.Home)
 
