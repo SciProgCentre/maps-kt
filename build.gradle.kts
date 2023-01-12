@@ -8,7 +8,7 @@ plugins {
 
 allprojects {
     group = "center.sciprog"
-    version = "0.2.1-dev-1"
+    version = "0.2.1-dev-2"
 }
 
 apiValidation{
@@ -40,6 +40,8 @@ subprojects {
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 }
+
+readme.readmeTemplate = file("docs/templates/README-TEMPLATE.md")
 
 
 

@@ -17,7 +17,7 @@ public class AttributesBuilder internal constructor(private val map: MutableMap<
     }
 
     public fun from(attributes: Attributes) {
-        map.putAll(attributes.map)
+        map.putAll(attributes.content)
     }
 
     public fun <V> SetAttribute<V>.add(
@@ -42,4 +42,6 @@ public class AttributesBuilder internal constructor(private val map: MutableMap<
 
 public fun AttributesBuilder(
     attributes: Attributes,
-): AttributesBuilder = AttributesBuilder(attributes.map.toMutableMap())
+): AttributesBuilder = AttributesBuilder(attributes.content.toMutableMap())
+
+public fun Attributes(builder: AttributesBuilder.() -> Unit): Attributes = AttributesBuilder().apply(builder).build()

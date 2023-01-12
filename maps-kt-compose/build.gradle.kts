@@ -47,3 +47,13 @@ java {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+readme {
+    description = "Compose-multiplaform implementation for web-mercator tiled maps"
+    maturity = space.kscience.gradle.Maturity.EXPERIMENTAL
+    propertyByTemplate("artifact", rootProject.file("docs/templates/ARTIFACT-TEMPLATE.md"))
+
+    feature(
+        id = "osm",
+    ) { "OpenStreetMap tile provider." }
+}

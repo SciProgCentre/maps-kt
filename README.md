@@ -1,13 +1,63 @@
+# Maps-kt
+
 This repository is a work-in-progress implementation of Map-with-markers component for Compose-Multiplatform
 
-## [maps-kt-core](maps-kt-core)
-A multiplatform coordinates representation and conversion.
+![](docs/images/Screenshot%202023-01-12%20110429.png)
 
-## [maps-kt-compose](maps-kt-compose)
-A compose multiplatform (currently desktop only, contributions of android target are welcome) implementation of a map component, features and builder.
+## Modules
 
-## [maps-kt-scheme](maps-kt-scheme)
-An alternative component used for the same functionality on 2D schemes. Not all features from maps could be ported because it requires some code duplication (ideas for common API are welcome).
 
-## [demo](demo)
-Demonstration projects for different features
+### [demo](demo)
+> 
+>
+> **Maturity**: EXPERIMENTAL
+
+### [maps-kt-compose](maps-kt-compose)
+> Compose-multiplaform implementation for web-mercator tiled maps
+>
+> **Maturity**: DEVELOPMENT
+>
+> **Features:**
+> - [osm](maps-kt-compose/#) : OpenStreetMap tile provider.
+
+
+### [maps-kt-core](maps-kt-core)
+> Core cartography, UI-agnostic
+>
+> **Maturity**: DEVELOPMENT
+>
+> **Features:**
+> - [angles and distances](maps-kt-core/#) : Type-safe angle and distance measurements.
+> - [ellipsoid](maps-kt-core/#) : Ellipsoid geometry and distances
+> - [mercator](maps-kt-core/#) : Mercator and web-mercator projections
+
+
+### [maps-kt-features](maps-kt-features)
+> 
+>
+> **Maturity**: EXPERIMENTAL
+
+### [maps-kt-geojson](maps-kt-geojson)
+> 
+>
+> **Maturity**: EXPERIMENTAL
+
+### [maps-kt-scheme](maps-kt-scheme)
+> 
+>
+> **Maturity**: EXPERIMENTAL
+
+### [maps](demo/maps)
+> 
+>
+> **Maturity**: EXPERIMENTAL
+
+### [polygon-editor](demo/polygon-editor)
+> 
+>
+> **Maturity**: EXPERIMENTAL
+
+### [scheme](demo/scheme)
+> 
+>
+> **Maturity**: EXPERIMENTAL
