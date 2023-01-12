@@ -65,10 +65,14 @@ public value class GeoJsonPoint(override val json: JsonObject) : GeoJsonGeometry
             ?: error("Coordinates are not provided")
 }
 
-public fun GeoJsonPoint(coordinates: Gmc): GeoJsonPoint = GeoJsonPoint(
+public fun GeoJsonPoint(
+    coordinates: Gmc,
+    modification: JsonObjectBuilder.() -> Unit = {},
+): GeoJsonPoint = GeoJsonPoint(
     buildJsonObject {
         put(GeoJson.TYPE_KEY, "Point")
         put(COORDINATES_KEY, coordinates.toJsonArray())
+        modification()
     }
 )
 
@@ -84,10 +88,14 @@ public value class GeoJsonMultiPoint(override val json: JsonObject) : GeoJsonGeo
             ?: error("Coordinates are not provided")
 }
 
-public fun GeoJsonMultiPoint(coordinates: List<Gmc>): GeoJsonMultiPoint = GeoJsonMultiPoint(
+public fun GeoJsonMultiPoint(
+    coordinates: List<Gmc>,
+    modification: JsonObjectBuilder.() -> Unit = {},
+): GeoJsonMultiPoint = GeoJsonMultiPoint(
     buildJsonObject {
         put(GeoJson.TYPE_KEY, "MultiPoint")
         put(COORDINATES_KEY, coordinates.listToJsonArray())
+        modification()
     }
 )
 
@@ -103,10 +111,14 @@ public value class GeoJsonLineString(override val json: JsonObject) : GeoJsonGeo
             ?: error("Coordinates are not provided")
 }
 
-public fun GeoJsonLineString(coordinates: List<Gmc>): GeoJsonLineString = GeoJsonLineString(
+public fun GeoJsonLineString(
+    coordinates: List<Gmc>,
+    modification: JsonObjectBuilder.() -> Unit = {},
+): GeoJsonLineString = GeoJsonLineString(
     buildJsonObject {
         put(GeoJson.TYPE_KEY, "LineString")
         put(COORDINATES_KEY, coordinates.listToJsonArray())
+        modification()
     }
 )
 
@@ -124,10 +136,14 @@ public value class GeoJsonMultiLineString(override val json: JsonObject) : GeoJs
         } ?: error("Coordinates are not provided")
 }
 
-public fun GeoJsonMultiLineString(coordinates: List<List<Gmc>>): GeoJsonMultiLineString = GeoJsonMultiLineString(
+public fun GeoJsonMultiLineString(
+    coordinates: List<List<Gmc>>,
+    modification: JsonObjectBuilder.() -> Unit = {},
+): GeoJsonMultiLineString = GeoJsonMultiLineString(
     buildJsonObject {
         put(GeoJson.TYPE_KEY, "MultiLineString")
         put(COORDINATES_KEY, coordinates.listOfListsToJsonArray())
+        modification()
     }
 )
 
@@ -145,10 +161,14 @@ public value class GeoJsonPolygon(override val json: JsonObject) : GeoJsonGeomet
         } ?: error("Coordinates are not provided")
 }
 
-public fun GeoJsonPolygon(coordinates: List<List<Gmc>>): GeoJsonPolygon = GeoJsonPolygon(
+public fun GeoJsonPolygon(
+    coordinates: List<List<Gmc>>,
+    modification: JsonObjectBuilder.() -> Unit
+): GeoJsonPolygon = GeoJsonPolygon(
     buildJsonObject {
         put(GeoJson.TYPE_KEY, "Polygon")
         put(COORDINATES_KEY, coordinates.listOfListsToJsonArray())
+        modification()
     }
 )
 
@@ -168,10 +188,14 @@ public value class GeoJsonMultiPolygon(override val json: JsonObject) : GeoJsonG
         } ?: error("Coordinates are not provided")
 }
 
-public fun GeoJsonMultiPolygon(coordinates: List<List<List<Gmc>>>): GeoJsonMultiPolygon = GeoJsonMultiPolygon(
+public fun GeoJsonMultiPolygon(
+    coordinates: List<List<List<Gmc>>>,
+    modification: JsonObjectBuilder.() -> Unit
+): GeoJsonMultiPolygon = GeoJsonMultiPolygon(
     buildJsonObject {
         put(GeoJson.TYPE_KEY, "MultiPolygon")
         put(COORDINATES_KEY, buildJsonArray { coordinates.forEach { add(it.listOfListsToJsonArray()) } })
+        modification()
     }
 )
 
@@ -185,7 +209,10 @@ public value class GeoJsonGeometryCollection(override val json: JsonObject) : Ge
         get() = json["geometries"]?.jsonArray?.map { GeoJsonGeometry(it.jsonObject) } ?: emptyList()
 }
 
-public fun GeoJsonGeometryCollection(geometries: List<GeoJsonGeometry>): GeoJsonGeometryCollection =
+public fun GeoJsonGeometryCollection(
+    geometries: List<GeoJsonGeometry>,
+    modification: JsonObjectBuilder.() -> Unit
+): GeoJsonGeometryCollection =
     GeoJsonGeometryCollection(
         buildJsonObject {
             put(GeoJson.TYPE_KEY, "GeometryCollection")
@@ -194,5 +221,6 @@ public fun GeoJsonGeometryCollection(geometries: List<GeoJsonGeometry>): GeoJson
                     add(it.json)
                 }
             })
+            modification()
         }
     )
