@@ -1,6 +1,8 @@
 package center.sciprog.maps.geojson
 
 import center.sciprog.maps.coordinates.Gmc
+import center.sciprog.maps.coordinates.kilometers
+import center.sciprog.maps.coordinates.meters
 import center.sciprog.maps.geojson.GeoJsonGeometry.Companion.COORDINATES_KEY
 import kotlinx.serialization.json.*
 import kotlin.jvm.JvmInline
@@ -25,7 +27,31 @@ public fun GeoJsonGeometry(json: JsonObject): GeoJsonGeometry {
 }
 
 internal fun JsonElement.toGmc() = jsonArray.run {
-    Gmc.ofDegrees(get(1).jsonPrimitive.double, get(0).jsonPrimitive.double)
+    Gmc.ofDegrees(
+        get(1).jsonPrimitive.double,
+        get(0).jsonPrimitive.double,
+        get(2).jsonPrimitive.doubleOrNull?.meters ?: 0.kilometers
+    )
+}
+
+internal fun Gmc.toJsonArray(): JsonArray = buildJsonArray {
+    add(longitude.degrees.value)
+    add(latitude.degrees.value)
+    if (elevation.kilometers != 0.0) {
+        add(elevation.meters)
+    }
+}
+
+private fun List<Gmc>.listToJsonArray(): JsonArray = buildJsonArray {
+    forEach {
+        add(it.toJsonArray())
+    }
+}
+
+private fun List<List<Gmc>>.listOfListsToJsonArray(): JsonArray = buildJsonArray {
+    forEach {
+        add(it.listToJsonArray())
+    }
 }
 
 @JvmInline
@@ -39,6 +65,13 @@ public value class GeoJsonPoint(override val json: JsonObject) : GeoJsonGeometry
             ?: error("Coordinates are not provided")
 }
 
+public fun GeoJsonPoint(coordinates: Gmc): GeoJsonPoint = GeoJsonPoint(
+    buildJsonObject {
+        put(GeoJson.TYPE_KEY, "Point")
+        put(COORDINATES_KEY, coordinates.toJsonArray())
+    }
+)
+
 @JvmInline
 public value class GeoJsonMultiPoint(override val json: JsonObject) : GeoJsonGeometry {
     init {
@@ -51,6 +84,13 @@ public value class GeoJsonMultiPoint(override val json: JsonObject) : GeoJsonGeo
             ?: error("Coordinates are not provided")
 }
 
+public fun GeoJsonMultiPoint(coordinates: List<Gmc>): GeoJsonMultiPoint = GeoJsonMultiPoint(
+    buildJsonObject {
+        put(GeoJson.TYPE_KEY, "MultiPoint")
+        put(COORDINATES_KEY, coordinates.listToJsonArray())
+    }
+)
+
 @JvmInline
 public value class GeoJsonLineString(override val json: JsonObject) : GeoJsonGeometry {
     init {
@@ -62,6 +102,13 @@ public value class GeoJsonLineString(override val json: JsonObject) : GeoJsonGeo
             ?.map { it.toGmc() }
             ?: error("Coordinates are not provided")
 }
+
+public fun GeoJsonLineString(coordinates: List<Gmc>): GeoJsonLineString = GeoJsonLineString(
+    buildJsonObject {
+        put(GeoJson.TYPE_KEY, "LineString")
+        put(COORDINATES_KEY, coordinates.listToJsonArray())
+    }
+)
 
 @JvmInline
 public value class GeoJsonMultiLineString(override val json: JsonObject) : GeoJsonGeometry {
@@ -77,6 +124,13 @@ public value class GeoJsonMultiLineString(override val json: JsonObject) : GeoJs
         } ?: error("Coordinates are not provided")
 }
 
+public fun GeoJsonMultiLineString(coordinates: List<List<Gmc>>): GeoJsonMultiLineString = GeoJsonMultiLineString(
+    buildJsonObject {
+        put(GeoJson.TYPE_KEY, "MultiLineString")
+        put(COORDINATES_KEY, coordinates.listOfListsToJsonArray())
+    }
+)
+
 @JvmInline
 public value class GeoJsonPolygon(override val json: JsonObject) : GeoJsonGeometry {
     init {
@@ -90,6 +144,13 @@ public value class GeoJsonPolygon(override val json: JsonObject) : GeoJsonGeomet
             }
         } ?: error("Coordinates are not provided")
 }
+
+public fun GeoJsonPolygon(coordinates: List<List<Gmc>>): GeoJsonPolygon = GeoJsonPolygon(
+    buildJsonObject {
+        put(GeoJson.TYPE_KEY, "Polygon")
+        put(COORDINATES_KEY, coordinates.listOfListsToJsonArray())
+    }
+)
 
 @JvmInline
 public value class GeoJsonMultiPolygon(override val json: JsonObject) : GeoJsonGeometry {
@@ -107,11 +168,31 @@ public value class GeoJsonMultiPolygon(override val json: JsonObject) : GeoJsonG
         } ?: error("Coordinates are not provided")
 }
 
+public fun GeoJsonMultiPolygon(coordinates: List<List<List<Gmc>>>): GeoJsonMultiPolygon = GeoJsonMultiPolygon(
+    buildJsonObject {
+        put(GeoJson.TYPE_KEY, "MultiPolygon")
+        put(COORDINATES_KEY, buildJsonArray { coordinates.forEach { add(it.listOfListsToJsonArray()) } })
+    }
+)
+
 @JvmInline
 public value class GeoJsonGeometryCollection(override val json: JsonObject) : GeoJsonGeometry {
     init {
         require(type == "GeometryCollection") { "Not a GeoJson GeometryCollection geometry" }
     }
 
-    public val geometries: List<GeoJsonGeometry> get() = json.jsonArray.map { GeoJsonGeometry(it.jsonObject) }
+    public val geometries: List<GeoJsonGeometry>
+        get() = json["geometries"]?.jsonArray?.map { GeoJsonGeometry(it.jsonObject) } ?: emptyList()
 }
+
+public fun GeoJsonGeometryCollection(geometries: List<GeoJsonGeometry>): GeoJsonGeometryCollection =
+    GeoJsonGeometryCollection(
+        buildJsonObject {
+            put(GeoJson.TYPE_KEY, "GeometryCollection")
+            put("geometries", buildJsonArray {
+                geometries.forEach {
+                    add(it.json)
+                }
+            })
+        }
+    )

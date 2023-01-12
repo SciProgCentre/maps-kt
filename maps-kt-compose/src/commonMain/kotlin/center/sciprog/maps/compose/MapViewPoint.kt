@@ -3,7 +3,6 @@ package center.sciprog.maps.compose
 import center.sciprog.maps.coordinates.GeodeticMapCoordinates
 import center.sciprog.maps.coordinates.Gmc
 import center.sciprog.maps.coordinates.WebMercatorProjection
-import center.sciprog.maps.coordinates.radians
 import center.sciprog.maps.features.ViewPoint
 
 /**
@@ -16,6 +15,6 @@ internal data class MapViewPoint(
     val scaleFactor: Float by lazy { WebMercatorProjection.scaleFactor(zoom) }
 
     public companion object{
-        public val globe: MapViewPoint = MapViewPoint(GeodeticMapCoordinates(0.0.radians, 0.0.radians), 1f)
+        public val globe: MapViewPoint = MapViewPoint(Gmc.ofRadians(0.0, 0.0), 1f)
     }
 }

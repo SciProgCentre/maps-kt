@@ -14,3 +14,9 @@ kotlin {
         }
     }
 }
+
+kscience{
+    useSerialization {
+        json()
+    }
+}

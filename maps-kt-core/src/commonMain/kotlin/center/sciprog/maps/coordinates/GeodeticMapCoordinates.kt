@@ -5,13 +5,12 @@ package center.sciprog.maps.coordinates
  */
 public class GeodeticMapCoordinates(
     public val latitude: Angle,
-    longitude: Angle,
-    public val elevation: Distance = 0.kilometers
+    public val longitude: Angle,
+    public val elevation: Distance = 0.kilometers,
 ) {
-    public val longitude: Angle = longitude.normalized(Angle.zero)
-
     init {
         require(latitude in (-Angle.piDiv2)..(Angle.piDiv2)) { "Latitude $latitude is not in (-PI/2)..(PI/2)" }
+        require(longitude in (-Angle.pi..Angle.pi)) { "Longitude $longitude is not in (-PI..PI) range" }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -38,13 +37,28 @@ public class GeodeticMapCoordinates(
 
 
     public companion object {
-        public fun ofRadians(latitude: Double, longitude: Double): GeodeticMapCoordinates =
-            GeodeticMapCoordinates(latitude.radians, longitude.radians)
+        public fun normalized(
+            latitude: Angle,
+            longitude: Angle,
+            elevation: Distance = 0.kilometers,
+        ): GeodeticMapCoordinates = GeodeticMapCoordinates(
+            latitude, longitude.normalized(Angle.zero), elevation
+        )
 
-        public fun ofDegrees(latitude: Double, longitude: Double): GeodeticMapCoordinates =
-            GeodeticMapCoordinates(latitude.degrees.radians, longitude.degrees.radians)
+        public fun ofRadians(
+            latitude: Double,
+            longitude: Double,
+            elevation: Distance = 0.kilometers,
+        ): GeodeticMapCoordinates = normalized(latitude.radians, longitude.radians, elevation)
+
+        public fun ofDegrees(
+            latitude: Double,
+            longitude: Double,
+            elevation: Distance = 0.kilometers,
+        ): GeodeticMapCoordinates = normalized(latitude.degrees.radians, longitude.degrees.radians, elevation)
     }
 }
+
 
 /**
  * Short name for GeodeticMapCoordinates

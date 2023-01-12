@@ -66,7 +66,7 @@ public class MapViewScope internal constructor(
     override fun ViewPoint<Gmc>.moveBy(x: Dp, y: Dp): ViewPoint<Gmc> {
         val deltaX = x.value / tileScale
         val deltaY = y.value / tileScale
-        val newCoordinates = GeodeticMapCoordinates(
+        val newCoordinates = Gmc.normalized(
             (focus.latitude + (deltaY / scaleFactor).radians).coerceIn(
                 -MercatorProjection.MAXIMUM_LATITUDE,
                 MercatorProjection.MAXIMUM_LATITUDE

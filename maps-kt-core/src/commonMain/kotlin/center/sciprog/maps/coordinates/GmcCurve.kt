@@ -64,8 +64,8 @@ public fun GeoEllipsoid.meridianCurve(
     }
 
     return GmcCurve(
-        forward = GmcPose(Gmc(fromLatitude, longitude), if (up) zero else pi),
-        backward = GmcPose(Gmc(toLatitude, longitude), if (up) pi else zero),
+        forward = GmcPose(Gmc.normalized(fromLatitude, longitude), if (up) zero else pi),
+        backward = GmcPose(Gmc.normalized(toLatitude, longitude), if (up) pi else zero),
         distance = s
     )
 }
@@ -77,8 +77,8 @@ public fun GeoEllipsoid.parallelCurve(latitude: Angle, fromLongitude: Angle, toL
     require(latitude in (-piDiv2)..(piDiv2)) { "Latitude must be in (-90, 90) degrees range" }
     val right = toLongitude > fromLongitude
     return GmcCurve(
-        forward = GmcPose(Gmc(latitude, fromLongitude), if (right) piDiv2.radians else -piDiv2.radians),
-        backward = GmcPose(Gmc(latitude, toLongitude), if (right) -piDiv2.radians else piDiv2.radians),
+        forward = GmcPose(Gmc.normalized(latitude, fromLongitude), if (right) piDiv2.radians else -piDiv2.radians),
+        backward = GmcPose(Gmc.normalized(latitude, toLongitude), if (right) -piDiv2.radians else piDiv2.radians),
         distance = reducedRadius(latitude) * abs((fromLongitude - toLongitude).radians.value)
     )
 }
@@ -193,7 +193,7 @@ public fun GeoEllipsoid.curveInDirection(
     val L = lambda - (1 - C) * f * sinAlpha *
             (sigma.value + C * sinSigma * (cosSigmaM2 + C * cosSigma * (-1 + 2 * cos2SigmaM2)))
 
-    val endPoint = Gmc(phi2, start.longitude + L.radians)
+    val endPoint = Gmc.normalized(phi2, start.longitude + L.radians)
 
     // eq. 12
 

@@ -8,11 +8,7 @@ plugins {
 
 allprojects {
     group = "center.sciprog"
-    version = "0.2.1-dev-2"
-}
-
-apiValidation{
-    validationDisabled = true
+    version = "0.2.1-dev-3"
 }
 
 ksciencePublish{

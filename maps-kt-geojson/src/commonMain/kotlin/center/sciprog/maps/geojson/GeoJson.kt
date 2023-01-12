@@ -3,12 +3,14 @@ package center.sciprog.maps.geojson
 import center.sciprog.maps.geojson.GeoJson.Companion.PROPERTIES_KEY
 import center.sciprog.maps.geojson.GeoJson.Companion.TYPE_KEY
 import center.sciprog.maps.geojson.GeoJsonFeatureCollection.Companion.FEATURES_KEY
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import kotlin.jvm.JvmInline
 
 /**
  * A utility class to work with GeoJson (https://geojson.org/)
  */
+@Serializable(GeoJsonSerializer::class)
 public sealed interface GeoJson {
     public val json: JsonObject
     public val type: String get() = json[TYPE_KEY]?.jsonPrimitive?.content ?: error("Not a GeoJson")
@@ -33,6 +35,23 @@ public value class GeoJsonFeature(override val json: JsonObject) : GeoJson {
         public const val GEOMETRY_KEY: String = "geometry"
     }
 }
+
+/**
+ * A builder function for [GeoJsonFeature]
+ */
+public fun GeoJsonFeature(
+    geometry: GeoJsonGeometry?,
+    properties: JsonObject? = null,
+    builder: JsonObjectBuilder.() -> Unit = {},
+): GeoJsonFeature = GeoJsonFeature(
+    buildJsonObject {
+        put(TYPE_KEY, "Feature")
+        geometry?.json?.let { put(GeoJsonFeature.GEOMETRY_KEY, it) }
+        properties?.let { put(PROPERTIES_KEY, it) }
+
+        builder()
+    }
+)
 
 public fun GeoJsonFeature.getProperty(key: String): JsonElement? = json[key] ?: properties?.get(key)
 
@@ -60,20 +79,33 @@ public value class GeoJsonFeatureCollection(override val json: JsonObject) : Geo
     }
 }
 
+/**
+ * A builder for [GeoJsonFeatureCollection]
+ */
+public fun GeoJsonFeatureCollection(
+    features: List<GeoJsonFeature>,
+    properties: JsonObject? = null,
+    builder: JsonObjectBuilder.() -> Unit = {},
+): GeoJsonFeatureCollection = GeoJsonFeatureCollection(
+    buildJsonObject {
+        put(TYPE_KEY, "FeatureCollection")
+        putJsonArray(FEATURES_KEY) {
+            features.forEach {
+                add(it.json)
+            }
+        }
+        properties?.let { put(PROPERTIES_KEY, it) }
+        builder()
+    }
+)
+
+
+/**
+ * Generic Json to GeoJson converter
+ */
 public fun GeoJson(json: JsonObject): GeoJson =
     when (json[TYPE_KEY]?.jsonPrimitive?.contentOrNull ?: error("Not a GeoJson")) {
         "Feature" -> GeoJsonFeature(json)
         "FeatureCollection" -> GeoJsonFeatureCollection(json)
         else -> GeoJsonGeometry(json)
     }
-
-/**
- * Combine a collection of features to a new [GeoJsonFeatureCollection]
- */
-public fun GeoJsonFeatureCollection(features: Collection<GeoJsonFeature>): GeoJsonFeatureCollection =
-    GeoJsonFeatureCollection(
-        buildJsonObject {
-            put(TYPE_KEY, "FeatureCollection")
-            put(FEATURES_KEY, JsonArray(features.map { it.json }))
-        }
-    )

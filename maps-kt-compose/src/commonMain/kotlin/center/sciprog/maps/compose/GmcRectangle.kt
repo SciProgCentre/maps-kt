@@ -23,7 +23,7 @@ internal data class GmcRectangle(
 }
 
 public val Rectangle<Gmc>.center: GeodeticMapCoordinates
-    get() = GeodeticMapCoordinates(
+    get() = GeodeticMapCoordinates.normalized(
         (a.latitude + b.latitude) / 2,
         (a.longitude + b.longitude) / 2
     )
@@ -51,8 +51,8 @@ public val Rectangle<Gmc>.bottom: Angle get() = minOf(a.latitude, b.latitude)
 public val Rectangle<Gmc>.longitudeDelta: Angle get() = abs(a.longitude - b.longitude)
 public val Rectangle<Gmc>.latitudeDelta: Angle get() = abs(a.latitude - b.latitude)
 
-public val Rectangle<Gmc>.topLeft: GeodeticMapCoordinates get() = GeodeticMapCoordinates(top, left)
-public val Rectangle<Gmc>.bottomRight: GeodeticMapCoordinates get() = GeodeticMapCoordinates(bottom, right)
+public val Rectangle<Gmc>.topLeft: Gmc get() = Gmc.normalized(top, left)
+public val Rectangle<Gmc>.bottomRight: Gmc get() = Gmc.normalized(bottom, right)
 
 //public fun GmcRectangle.enlarge(
 //    top: Distance,

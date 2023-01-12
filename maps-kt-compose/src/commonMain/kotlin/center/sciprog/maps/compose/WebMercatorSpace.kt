@@ -29,7 +29,7 @@ public object WebMercatorSpace : CoordinateSpace<Gmc> {
     override fun ViewPoint(center: Gmc, zoom: Float): ViewPoint<Gmc> = MapViewPoint(center, zoom)
 
     override fun ViewPoint<Gmc>.moveBy(delta: Gmc): ViewPoint<Gmc> {
-        val newCoordinates = GeodeticMapCoordinates(
+        val newCoordinates = Gmc.normalized(
             (focus.latitude + delta.latitude).coerceIn(
                 -MercatorProjection.MAXIMUM_LATITUDE,
                 MercatorProjection.MAXIMUM_LATITUDE
@@ -43,7 +43,7 @@ public object WebMercatorSpace : CoordinateSpace<Gmc> {
         ViewPoint(focus, (zoom + zoomDelta).coerceIn(2f, 18f))
     } else {
         val difScale = (1 - 2f.pow(-zoomDelta))
-        val newCenter = GeodeticMapCoordinates(
+        val newCenter = Gmc.normalized(
             focus.latitude + (invariant.latitude - focus.latitude) * difScale,
             focus.longitude + (invariant.longitude - focus.longitude) * difScale
         )
@@ -60,7 +60,7 @@ public object WebMercatorSpace : CoordinateSpace<Gmc> {
         val maxLat = maxOf { it.top }
         val minLong = minOf { it.left }
         val maxLong = maxOf { it.right }
-        return GmcRectangle(GeodeticMapCoordinates(minLat, minLong), GeodeticMapCoordinates(maxLat, maxLong))
+        return GmcRectangle(Gmc.normalized(minLat, minLong), Gmc.normalized(maxLat, maxLong))
     }
 
     override fun Collection<Gmc>.wrapPoints(): Rectangle<Gmc>? {
@@ -70,7 +70,7 @@ public object WebMercatorSpace : CoordinateSpace<Gmc> {
         val maxLat = maxOf { it.latitude }
         val minLong = minOf { it.longitude }
         val maxLong = maxOf { it.longitude }
-        return GmcRectangle(GeodeticMapCoordinates(minLat, minLong), GeodeticMapCoordinates(maxLat, maxLong))
+        return GmcRectangle(Gmc.normalized(minLat, minLong), Gmc.normalized(maxLat, maxLong))
     }
 
     override fun Gmc.offsetTo(b: Gmc, zoom: Float): DpOffset {
@@ -122,11 +122,11 @@ public fun CoordinateSpace<Gmc>.Rectangle(
     height: Angle,
     width: Angle,
 ): Rectangle<Gmc> {
-    val a = GeodeticMapCoordinates(
+    val a = Gmc.normalized(
         center.latitude - (height / 2),
         center.longitude - (width / 2)
     )
-    val b = GeodeticMapCoordinates(
+    val b = Gmc.normalized(
         center.latitude + (height / 2),
         center.longitude + (width / 2)
     )
