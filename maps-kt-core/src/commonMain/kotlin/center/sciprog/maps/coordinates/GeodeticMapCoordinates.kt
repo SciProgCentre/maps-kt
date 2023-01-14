@@ -2,11 +2,13 @@ package center.sciprog.maps.coordinates
 
 /**
  * Geodetic coordinated
+ *
+ * @param elevation is optional
  */
 public class GeodeticMapCoordinates(
     public val latitude: Angle,
     public val longitude: Angle,
-    public val elevation: Distance = 0.kilometers,
+    public val elevation: Distance? = null,
 ) {
     init {
         require(latitude in (-Angle.piDiv2)..(Angle.piDiv2)) { "Latitude $latitude is not in (-PI/2)..(PI/2)" }

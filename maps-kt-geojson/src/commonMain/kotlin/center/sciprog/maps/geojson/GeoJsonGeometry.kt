@@ -37,8 +37,8 @@ internal fun JsonElement.toGmc() = jsonArray.run {
 internal fun Gmc.toJsonArray(): JsonArray = buildJsonArray {
     add(longitude.degrees.value)
     add(latitude.degrees.value)
-    if (elevation.kilometers != 0.0) {
-        add(elevation.meters)
+    elevation?.let {
+        add(it.meters)
     }
 }
 

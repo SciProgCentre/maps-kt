@@ -24,6 +24,7 @@ class XYViewScope(
         (canvasSize.width / 2 + (x.dp - viewPoint.focus.x.dp) * viewPoint.zoom),
         (canvasSize.height / 2 + (viewPoint.focus.y.dp - y.dp) * viewPoint.zoom)
     )
+
     override fun computeViewPoint(rectangle: Rectangle<XY>): ViewPoint<XY> {
         val scale = min(
             canvasSize.width.value / rectangle.width,
