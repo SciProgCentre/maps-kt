@@ -7,6 +7,8 @@ import center.sciprog.maps.coordinates.*
 import center.sciprog.maps.features.CoordinateSpace
 import center.sciprog.maps.features.Rectangle
 import center.sciprog.maps.features.ViewPoint
+import space.kscience.kmath.geometry.Angle
+import space.kscience.kmath.geometry.radians
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.pow

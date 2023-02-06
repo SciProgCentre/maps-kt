@@ -1,26 +1,28 @@
 package center.sciprog.maps.features
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.PointerMatcher
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateMap
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.PointerEvent
-import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import center.sciprog.attributes.*
-import kotlin.jvm.JvmInline
 
-@JvmInline
-public value class FeatureId<out F : Feature<*>>(public val id: String)
+//@JvmInline
+//public value class FeatureId<out F : Feature<*>>(public val id: String)
+
+public class FeatureRef<T : Any, out F : Feature<T>>(public val id: String, public val parent: FeatureGroup<T>)
+
+@Suppress("UNCHECKED_CAST")
+public fun <T : Any, F : Feature<T>> FeatureRef<T, F>.resolve(): F =
+    parent.featureMap[id]?.let { it as F } ?: error("Feature with id=$id not found")
+
+public val <T : Any, F : Feature<T>> FeatureRef<T, F>.attributes: Attributes get() = resolve().attributes
 
 /**
  * A group of other features
@@ -30,10 +32,10 @@ public data class FeatureGroup<T : Any>(
     public val featureMap: SnapshotStateMap<String, Feature<T>> = mutableStateMapOf(),
     override val attributes: Attributes = Attributes.EMPTY,
 ) : CoordinateSpace<T> by space, Feature<T> {
-
-    @Suppress("UNCHECKED_CAST")
-    public operator fun <F : Feature<T>> get(id: FeatureId<F>): F =
-        featureMap[id.id]?.let { it as F } ?: error("Feature with id=$id not found")
+//
+//    @Suppress("UNCHECKED_CAST")
+//    public operator fun <F : Feature<T>> get(id: FeatureId<F>): F =
+//        featureMap[id.id]?.let { it as F } ?: error("Feature with id=$id not found")
 
     private var uidCounter = 0
 
@@ -43,13 +45,13 @@ public data class FeatureGroup<T : Any>(
         "@${feature::class.simpleName}[${uidCounter++}]"
     }
 
-    public fun <F : Feature<T>> feature(id: String?, feature: F): FeatureId<F> {
+    public fun <F : Feature<T>> feature(id: String?, feature: F): FeatureRef<T, F> {
         val safeId = id ?: generateUID(feature)
         featureMap[safeId] = feature
-        return FeatureId(safeId)
+        return FeatureRef(safeId, this)
     }
 
-    public fun <F : Feature<T>> feature(id: FeatureId<F>, feature: F): FeatureId<F> = feature(id.id, feature)
+//    public fun <F : Feature<T>> feature(id: FeatureId<F>, feature: F): FeatureId<F> = feature(id.id, feature)
 
     public val features: Collection<Feature<T>> get() = featureMap.values.sortedByDescending { it.z }
 
@@ -72,10 +74,10 @@ public data class FeatureGroup<T : Any>(
             }
         }
     }
-
-    @Suppress("UNCHECKED_CAST")
-    public fun <A> getAttribute(id: FeatureId<Feature<T>>, key: Attribute<A>): A? =
-        get(id).attributes[key]
+//
+//    @Suppress("UNCHECKED_CAST")
+//    public fun <A> getAttribute(id: FeatureId<Feature<T>>, key: Attribute<A>): A? =
+//        get(id).attributes[key]
 
 
     override fun getBoundingBox(zoom: Float): Rectangle<T>? = with(space) {
@@ -83,123 +85,6 @@ public data class FeatureGroup<T : Any>(
     }
 
     override fun withAttributes(modify: Attributes.() -> Attributes): Feature<T> = copy(attributes = modify(attributes))
-
-    public fun <F : Feature<T>> FeatureId<F>.modifyAttributes(modify: AttributesBuilder.() -> Unit): FeatureId<F> {
-        feature(
-            this,
-            get(this).withAttributes {
-                AttributesBuilder(this).apply(modify).build()
-            }
-        )
-        return this
-    }
-
-    public fun <F : Feature<T>, V> FeatureId<F>.modifyAttribute(key: Attribute<V>, value: V?): FeatureId<F> {
-        feature(this, get(this).withAttributes { withAttribute(key, value) })
-        return this
-    }
-
-    /**
-     * Add drag to this feature
-     *
-     * @param constraint optional drag constraint
-     *
-     * TODO use context receiver for that
-     */
-    @Suppress("UNCHECKED_CAST")
-    public fun <F : DraggableFeature<T>> FeatureId<F>.draggable(
-        constraint: ((T) -> T)? = null,
-        listener: (PointerEvent.(from: ViewPoint<T>, to: ViewPoint<T>) -> Unit)? = null,
-    ): FeatureId<F> {
-        if (getAttribute(this, DraggableAttribute) == null) {
-            val handle = DragHandle.withPrimaryButton<Any> { event, start, end ->
-                val feature = featureMap[id] as? DraggableFeature<T> ?: return@withPrimaryButton DragResult(end)
-                start as ViewPoint<T>
-                end as ViewPoint<T>
-                if (start in feature) {
-                    val finalPosition = constraint?.invoke(end.focus) ?: end.focus
-                    feature(id, feature.withCoordinates(finalPosition))
-                    feature.attributes[DragListenerAttribute]?.forEach {
-                        it.handle(event, start, ViewPoint(finalPosition, end.zoom))
-                    }
-                    DragResult(ViewPoint(finalPosition, end.zoom), false)
-                } else {
-                    DragResult(end, true)
-                }
-            }
-            modifyAttribute(DraggableAttribute, handle)
-        }
-
-        //Apply callback
-        if (listener != null) {
-            onDrag(listener)
-        }
-        return this
-    }
-
-
-    @Suppress("UNCHECKED_CAST")
-    public fun <F : DraggableFeature<T>> FeatureId<F>.onDrag(
-        listener: PointerEvent.(from: ViewPoint<T>, to: ViewPoint<T>) -> Unit,
-    ): FeatureId<F> = modifyAttributes {
-        DragListenerAttribute.add(
-            DragListener { event, from, to -> event.listener(from as ViewPoint<T>, to as ViewPoint<T>) }
-        )
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    public fun <F : DomainFeature<T>> FeatureId<F>.onClick(
-        onClick: PointerEvent.(click: ViewPoint<T>) -> Unit,
-    ): FeatureId<F> = modifyAttributes {
-        ClickListenerAttribute.add(
-            MouseListener { event, point ->
-                event.onClick(point as ViewPoint<T>)
-            }
-        )
-    }
-
-    @OptIn(ExperimentalFoundationApi::class)
-    @Suppress("UNCHECKED_CAST")
-    public fun <F : DomainFeature<T>> FeatureId<F>.onClick(
-        pointerMatcher: PointerMatcher,
-        keyboardModifiers: PointerKeyboardModifiers.() -> Boolean = {true},
-        onClick: PointerEvent.(click: ViewPoint<T>) -> Unit,
-    ): FeatureId<F> = modifyAttributes {
-        ClickListenerAttribute.add(
-            MouseListener { event, point ->
-                if (pointerMatcher.matches(event) && keyboardModifiers(event.keyboardModifiers)) {
-                    event.onClick(point as ViewPoint<T>)
-                }
-            }
-        )
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    public fun <F : DomainFeature<T>> FeatureId<F>.onHover(
-        onClick: PointerEvent.(move: ViewPoint<T>) -> Unit,
-    ): FeatureId<F> = modifyAttributes {
-        HoverListenerAttribute.add(
-            MouseListener { event, point -> event.onClick(point as ViewPoint<T>) }
-        )
-    }
-
-//    @Suppress("UNCHECKED_CAST")
-//    @OptIn(ExperimentalFoundationApi::class)
-//    public fun <F : DomainFeature<T>> FeatureId<F>.onTap(
-//        pointerMatcher: PointerMatcher = PointerMatcher.Primary,
-//        keyboardFilter: PointerKeyboardModifiers.() -> Boolean = { true },
-//        onTap: (point: ViewPoint<T>) -> Unit,
-//    ): FeatureId<F> = modifyAttributes {
-//        TapListenerAttribute.add(
-//            TapListener(pointerMatcher, keyboardFilter) { point -> onTap(point as ViewPoint<T>) }
-//        )
-//    }
-
-    public fun <F : Feature<T>> FeatureId<F>.color(color: Color): FeatureId<F> =
-        modifyAttribute(ColorAttribute, color)
-
-    public fun <F : Feature<T>> FeatureId<F>.zoomRange(range: FloatRange): FeatureId<F> =
-        modifyAttribute(ZoomRangeAttribute, range)
 
 
     public companion object {
@@ -252,18 +137,18 @@ public fun <T : Any, A> FeatureGroup<T>.forEachWithAttributeUntil(
 }
 
 public inline fun <T : Any, reified F : Feature<T>> FeatureGroup<T>.forEachWithType(
-    crossinline block: FeatureGroup<T>.(FeatureId<F>, feature: F) -> Unit,
+    crossinline block: (FeatureRef<T, F>) -> Unit,
 ) {
     visit { id, feature ->
-        if (feature is F) block(FeatureId(id), feature)
+        if (feature is F) block(FeatureRef(id, this))
     }
 }
 
 public inline fun <T : Any, reified F : Feature<T>> FeatureGroup<T>.forEachWithTypeUntil(
-    crossinline block: FeatureGroup<T>.(FeatureId<F>, feature: F) -> Boolean,
+    crossinline block: (FeatureRef<T, F>) -> Boolean,
 ) {
     visitUntil { id, feature ->
-        if (feature is F) block(FeatureId(id), feature) else true
+        if (feature is F) block(FeatureRef(id, this)) else true
     }
 }
 
@@ -271,7 +156,7 @@ public fun <T : Any> FeatureGroup<T>.circle(
     center: T,
     size: Dp = 5.dp,
     id: String? = null,
-): FeatureId<CircleFeature<T>> = feature(
+): FeatureRef<T, CircleFeature<T>> = feature(
     id, CircleFeature(space, center, size)
 )
 
@@ -279,7 +164,7 @@ public fun <T : Any> FeatureGroup<T>.rectangle(
     centerCoordinates: T,
     size: DpSize = DpSize(5.dp, 5.dp),
     id: String? = null,
-): FeatureId<RectangleFeature<T>> = feature(
+): FeatureRef<T, RectangleFeature<T>> = feature(
     id, RectangleFeature(space, centerCoordinates, size)
 )
 
@@ -287,7 +172,7 @@ public fun <T : Any> FeatureGroup<T>.draw(
     position: T,
     id: String? = null,
     draw: DrawScope.() -> Unit,
-): FeatureId<DrawFeature<T>> = feature(
+): FeatureRef<T, DrawFeature<T>> = feature(
     id,
     DrawFeature(space, position, drawFeature = draw)
 )
@@ -296,7 +181,7 @@ public fun <T : Any> FeatureGroup<T>.line(
     aCoordinates: T,
     bCoordinates: T,
     id: String? = null,
-): FeatureId<LineFeature<T>> = feature(
+): FeatureRef<T, LineFeature<T>> = feature(
     id,
     LineFeature(space, aCoordinates, bCoordinates)
 )
@@ -306,7 +191,7 @@ public fun <T : Any> FeatureGroup<T>.arc(
     startAngle: Float,
     arcLength: Float,
     id: String? = null,
-): FeatureId<ArcFeature<T>> = feature(
+): FeatureRef<T, ArcFeature<T>> = feature(
     id,
     ArcFeature(space, oval, startAngle, arcLength)
 )
@@ -317,7 +202,7 @@ public fun <T : Any> FeatureGroup<T>.points(
     pointMode: PointMode = PointMode.Points,
     attributes: Attributes = Attributes.EMPTY,
     id: String? = null,
-): FeatureId<PointsFeature<T>> = feature(
+): FeatureRef<T, PointsFeature<T>> = feature(
     id,
     PointsFeature(space, points, stroke, pointMode, attributes)
 )
@@ -325,7 +210,7 @@ public fun <T : Any> FeatureGroup<T>.points(
 public fun <T : Any> FeatureGroup<T>.polygon(
     points: List<T>,
     id: String? = null,
-): FeatureId<PolygonFeature<T>> = feature(
+): FeatureRef<T, PolygonFeature<T>> = feature(
     id,
     PolygonFeature(space, points)
 )
@@ -335,7 +220,7 @@ public fun <T : Any> FeatureGroup<T>.image(
     image: ImageVector,
     size: DpSize = DpSize(image.defaultWidth, image.defaultHeight),
     id: String? = null,
-): FeatureId<VectorImageFeature<T>> =
+): FeatureRef<T, VectorImageFeature<T>> =
     feature(
         id,
         VectorImageFeature(
@@ -349,7 +234,7 @@ public fun <T : Any> FeatureGroup<T>.image(
 public fun <T : Any> FeatureGroup<T>.group(
     id: String? = null,
     builder: FeatureGroup<T>.() -> Unit,
-): FeatureId<FeatureGroup<T>> {
+): FeatureRef<T, FeatureGroup<T>> {
     val collection = FeatureGroup(space).apply(builder)
     val feature = FeatureGroup(space, collection.featureMap)
     return feature(id, feature)
@@ -359,7 +244,7 @@ public fun <T : Any> FeatureGroup<T>.scalableImage(
     box: Rectangle<T>,
     id: String? = null,
     painter: @Composable () -> Painter,
-): FeatureId<ScalableImageFeature<T>> = feature(
+): FeatureRef<T, ScalableImageFeature<T>> = feature(
     id,
     ScalableImageFeature<T>(space, box, painter = painter)
 )
@@ -369,7 +254,7 @@ public fun <T : Any> FeatureGroup<T>.text(
     text: String,
     font: FeatureFont.() -> Unit = { size = 16f },
     id: String? = null,
-): FeatureId<TextFeature<T>> = feature(
+): FeatureRef<T, TextFeature<T>> = feature(
     id,
     TextFeature(space, position, text, fontConfig = font)
 )

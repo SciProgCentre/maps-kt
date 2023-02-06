@@ -3,6 +3,16 @@ plugins {
     `maven-publish`
 }
 
+val kmathVersion: String by rootProject.extra("0.3.1-dev-10")
+
+kscience{
+    useSerialization()
+
+    dependencies{
+        api("space.kscience:kmath-trajectory:$kmathVersion")
+    }
+}
+
 readme {
     description = "Core cartography, UI-agnostic"
     maturity = space.kscience.gradle.Maturity.DEVELOPMENT

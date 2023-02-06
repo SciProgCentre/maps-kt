@@ -5,7 +5,7 @@
 
 package center.sciprog.maps.coordinates
 
-import center.sciprog.maps.coordinates.Angle.Companion.pi
+import space.kscience.kmath.geometry.*
 import kotlin.math.*
 
 public data class ProjectionCoordinates(val x: Distance, val y: Distance)
@@ -17,7 +17,7 @@ public interface MapProjection<T : Any> {
     public fun toGeodetic(pc: T): GeodeticMapCoordinates
     public fun toProjection(gmc: GeodeticMapCoordinates): T
 
-    public companion object{
+    public companion object {
         public val epsg3857: MercatorProjection = MercatorProjection()
     }
 }
@@ -35,7 +35,7 @@ public open class MercatorProjection(
     override fun toGeodetic(pc: ProjectionCoordinates): GeodeticMapCoordinates {
         val res = GeodeticMapCoordinates.ofRadians(
             atan(sinh(pc.y / ellipsoid.equatorRadius)),
-            baseLongitude.radians.value + (pc.x / ellipsoid.equatorRadius),
+            baseLongitude.radians + (pc.x / ellipsoid.equatorRadius),
         )
 
         return if (ellipsoid === GeoEllipsoid.sphere) {
@@ -58,15 +58,15 @@ public open class MercatorProjection(
 
         return if (ellipsoid === GeoEllipsoid.sphere) {
             ProjectionCoordinates(
-                x = ellipsoid.equatorRadius * (gmc.longitude - baseLongitude).radians.value,
-                y = ellipsoid.equatorRadius * ln(tan(pi / 4 + gmc.latitude / 2))
+                x = ellipsoid.equatorRadius * (gmc.longitude - baseLongitude).radians,
+                y = ellipsoid.equatorRadius * ln(tan(Angle.pi / 4 + gmc.latitude / 2))
             )
         } else {
             val sinPhi = sin(gmc.latitude)
             ProjectionCoordinates(
-                x = ellipsoid.equatorRadius * (gmc.longitude - baseLongitude).radians.value,
+                x = ellipsoid.equatorRadius * (gmc.longitude - baseLongitude).radians,
                 y = ellipsoid.equatorRadius * ln(
-                    tan(pi / 4 + gmc.latitude / 2) * ((1 - e * sinPhi) / (1 + e * sinPhi)).pow(e / 2)
+                    tan(Angle.pi / 4 + gmc.latitude / 2) * ((1 - e * sinPhi) / (1 + e * sinPhi)).pow(e / 2)
                 )
             )
         }

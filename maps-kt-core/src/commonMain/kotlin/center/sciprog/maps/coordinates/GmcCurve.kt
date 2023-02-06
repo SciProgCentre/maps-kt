@@ -1,8 +1,6 @@
 package center.sciprog.maps.coordinates
 
-import center.sciprog.maps.coordinates.Angle.Companion.pi
-import center.sciprog.maps.coordinates.Angle.Companion.piDiv2
-import center.sciprog.maps.coordinates.Angle.Companion.zero
+import space.kscience.kmath.geometry.*
 import kotlin.math.*
 
 /**
@@ -20,6 +18,8 @@ public class GmcCurve(
     }
 }
 
+public operator fun  ClosedRange<Radians>.contains(angle: Angle): Boolean = contains(angle.toRadians())
+
 /**
  * Reverse direction and order of ends
  */
@@ -34,8 +34,8 @@ public fun GeoEllipsoid.meridianCurve(
     toLatitude: Angle,
     step: Radians = 0.015.radians,
 ): GmcCurve {
-    require(fromLatitude in (-piDiv2)..(piDiv2)) { "Latitude must be in (-90, 90) degrees range" }
-    require(toLatitude in (-piDiv2)..(piDiv2)) { "Latitude must be in (-90, 90) degrees range" }
+    require(fromLatitude in (-Angle.piDiv2)..(Angle.piDiv2)) { "Latitude must be in (-90, 90) degrees range" }
+    require(toLatitude in (-Angle.piDiv2)..(Angle.piDiv2)) { "Latitude must be in (-90, 90) degrees range" }
 
     fun smallDistance(from: Radians, to: Radians): Distance = equatorRadius *
             (1 - eSquared) *
@@ -48,14 +48,14 @@ public fun GeoEllipsoid.meridianCurve(
     val integrateTo: Radians
 
     if (up) {
-        integrateFrom = fromLatitude.radians
-        integrateTo = toLatitude.radians
+        integrateFrom = fromLatitude.toRadians()
+        integrateTo = toLatitude.toRadians()
     } else {
-        integrateTo = fromLatitude.radians
-        integrateFrom = toLatitude.radians
+        integrateTo = fromLatitude.toRadians()
+        integrateFrom = toLatitude.toRadians()
     }
 
-    var current = integrateFrom
+    var current: Radians = integrateFrom
     var s = Distance(0.0)
     while (current < integrateTo) {
         val next = minOf(current + step, integrateTo)
@@ -64,8 +64,8 @@ public fun GeoEllipsoid.meridianCurve(
     }
 
     return GmcCurve(
-        forward = GmcPose(Gmc.normalized(fromLatitude, longitude), if (up) zero else pi),
-        backward = GmcPose(Gmc.normalized(toLatitude, longitude), if (up) pi else zero),
+        forward = GmcPose(Gmc.normalized(fromLatitude, longitude), if (up) Angle.zero else Angle.pi),
+        backward = GmcPose(Gmc.normalized(toLatitude, longitude), if (up) Angle.pi else Angle.zero),
         distance = s
     )
 }
@@ -74,12 +74,12 @@ public fun GeoEllipsoid.meridianCurve(
  * Compute a curve alongside a parallel
  */
 public fun GeoEllipsoid.parallelCurve(latitude: Angle, fromLongitude: Angle, toLongitude: Angle): GmcCurve {
-    require(latitude in (-piDiv2)..(piDiv2)) { "Latitude must be in (-90, 90) degrees range" }
+    require(latitude in (-Angle.piDiv2)..(Angle.piDiv2)) { "Latitude must be in (-90, 90) degrees range" }
     val right = toLongitude > fromLongitude
     return GmcCurve(
-        forward = GmcPose(Gmc.normalized(latitude, fromLongitude), if (right) piDiv2.radians else -piDiv2.radians),
-        backward = GmcPose(Gmc.normalized(latitude, toLongitude), if (right) -piDiv2.radians else piDiv2.radians),
-        distance = reducedRadius(latitude) * abs((fromLongitude - toLongitude).radians.value)
+        forward = GmcPose(Gmc.normalized(latitude, fromLongitude), if (right) Angle.piDiv2 else -Angle.piDiv2),
+        backward = GmcPose(Gmc.normalized(latitude, toLongitude), if (right) -Angle.piDiv2 else Angle.piDiv2),
+        distance = reducedRadius(latitude) * abs((fromLongitude - toLongitude).radians)
     )
 }
 
@@ -258,7 +258,7 @@ public fun GeoEllipsoid.curveBetween(start: Gmc, end: Gmc, precision: Double = 1
     val cosU1cosU2 = cosU1 * cosU2
 
     // eq. 13
-    var lambda = omega
+    var lambda: Angle = omega
 
     // intermediates we'll need to compute 's'
     var A = 0.0
@@ -329,11 +329,11 @@ public fun GeoEllipsoid.curveBetween(start: Gmc, end: Gmc, precision: Double = 1
     // didn't converge? must be N/S
     if (!converged) {
         if (phi1 > phi2) {
-            alpha1 = pi.radians
+            alpha1 = Angle.pi.toRadians()
             alpha2 = 0.0.radians
         } else if (phi1 < phi2) {
             alpha1 = 0.0.radians
-            alpha2 = pi.radians
+            alpha2 = Angle.pi.toRadians()
         } else {
             error("Start and end point coinside.")
         }
@@ -348,7 +348,7 @@ public fun GeoEllipsoid.curveBetween(start: Gmc, end: Gmc, precision: Double = 1
         alpha2 = atan2(
             cosU1 * sin(lambda),
             -sinU1cosU2 + cosU1sinU2 * cos(lambda)
-        ).radians + pi
+        ).radians + Angle.pi
     }
     return GmcCurve(
         GmcPose(start, alpha1),

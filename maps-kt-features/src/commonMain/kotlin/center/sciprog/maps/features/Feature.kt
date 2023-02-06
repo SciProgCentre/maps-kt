@@ -185,12 +185,14 @@ public data class LineFeature<T : Any>(
     override fun getBoundingBox(zoom: Float): Rectangle<T> =
         space.Rectangle(a, b)
 
+    private val clickRadius get() = attributes[ClickRadius] ?: 20f
+
     override fun contains(viewPoint: ViewPoint<T>): Boolean = with(space) {
         viewPoint.focus in getBoundingBox(viewPoint.zoom) && viewPoint.focus.distanceToLine(
             a,
             b,
             viewPoint.zoom
-        ).value < 5f
+        ).value < clickRadius
     }
 
     override fun withAttributes(modify: (Attributes) -> Attributes): Feature<T> = copy(attributes = modify(attributes))

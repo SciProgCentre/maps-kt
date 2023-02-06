@@ -6,8 +6,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import center.sciprog.maps.coordinates.*
+import center.sciprog.maps.coordinates.Distance
+import center.sciprog.maps.coordinates.GeodeticMapCoordinates
+import center.sciprog.maps.coordinates.Gmc
+import center.sciprog.maps.coordinates.GmcCurve
 import center.sciprog.maps.features.*
+import space.kscience.kmath.geometry.Angle
+import space.kscience.kmath.geometry.radians
 
 
 internal fun FeatureGroup<Gmc>.coordinatesOf(pair: Pair<Number, Number>) =
@@ -19,7 +24,7 @@ public fun FeatureGroup<Gmc>.circle(
     centerCoordinates: Pair<Number, Number>,
     size: Dp = 5.dp,
     id: String? = null,
-): FeatureId<CircleFeature<Gmc>> = feature(
+): FeatureRef<Gmc, CircleFeature<Gmc>> = feature(
     id, CircleFeature(space, coordinatesOf(centerCoordinates), size)
 )
 
@@ -27,7 +32,7 @@ public fun FeatureGroup<Gmc>.rectangle(
     centerCoordinates: Pair<Number, Number>,
     size: DpSize = DpSize(5.dp, 5.dp),
     id: String? = null,
-): FeatureId<RectangleFeature<Gmc>> = feature(
+): FeatureRef<Gmc, RectangleFeature<Gmc>> = feature(
     id, RectangleFeature(space, coordinatesOf(centerCoordinates),  size)
 )
 
@@ -36,7 +41,7 @@ public fun FeatureGroup<Gmc>.draw(
     position: Pair<Number, Number>,
     id: String? = null,
     draw: DrawScope.() -> Unit,
-): FeatureId<DrawFeature<Gmc>> = feature(
+): FeatureRef<Gmc, DrawFeature<Gmc>> = feature(
     id,
     DrawFeature(space, coordinatesOf(position), drawFeature = draw)
 )
@@ -45,7 +50,7 @@ public fun FeatureGroup<Gmc>.draw(
 public fun FeatureGroup<Gmc>.line(
     curve: GmcCurve,
     id: String? = null,
-): FeatureId<LineFeature<Gmc>> = feature(
+): FeatureRef<Gmc, LineFeature<Gmc>> = feature(
     id,
     LineFeature(space, curve.forward.coordinates, curve.backward.coordinates)
 )
@@ -55,7 +60,7 @@ public fun FeatureGroup<Gmc>.line(
     aCoordinates: Pair<Double, Double>,
     bCoordinates: Pair<Double, Double>,
     id: String? = null,
-): FeatureId<LineFeature<Gmc>> = feature(
+): FeatureRef<Gmc, LineFeature<Gmc>> = feature(
     id,
     LineFeature(space, coordinatesOf(aCoordinates), coordinatesOf(bCoordinates))
 )
@@ -67,7 +72,7 @@ public fun FeatureGroup<Gmc>.arc(
     startAngle: Angle,
     arcLength: Angle,
     id: String? = null,
-): FeatureId<ArcFeature<Gmc>> = feature(
+): FeatureRef<Gmc, ArcFeature<Gmc>> = feature(
     id,
     ArcFeature(
         space,
@@ -82,7 +87,7 @@ public fun FeatureGroup<Gmc>.points(
     stroke: Float = 2f,
     pointMode: PointMode = PointMode.Points,
     id: String? = null,
-): FeatureId<PointsFeature<Gmc>> =
+): FeatureRef<Gmc, PointsFeature<Gmc>> =
     feature(id, PointsFeature(space, points.map(::coordinatesOf),  stroke,  pointMode))
 
 public fun FeatureGroup<Gmc>.image(
@@ -90,7 +95,7 @@ public fun FeatureGroup<Gmc>.image(
     image: ImageVector,
     size: DpSize = DpSize(20.dp, 20.dp),
     id: String? = null,
-): FeatureId<VectorImageFeature<Gmc>> = feature(
+): FeatureRef<Gmc, VectorImageFeature<Gmc>> = feature(
     id,
     VectorImageFeature(
         space,
@@ -105,7 +110,7 @@ public fun FeatureGroup<Gmc>.text(
     text: String,
     font: FeatureFont.() -> Unit = { size = 16f },
     id: String? = null,
-): FeatureId<TextFeature<Gmc>> = feature(
+): FeatureRef<Gmc, TextFeature<Gmc>> = feature(
     id,
     TextFeature(space, coordinatesOf(position), text, fontConfig = font)
 )

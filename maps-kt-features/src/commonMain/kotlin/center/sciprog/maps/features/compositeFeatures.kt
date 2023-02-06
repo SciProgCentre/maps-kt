@@ -4,18 +4,18 @@ import center.sciprog.attributes.Attributes
 
 
 public fun <T : Any> FeatureGroup<T>.draggableLine(
-    aId: FeatureId<MarkerFeature<T>>,
-    bId: FeatureId<MarkerFeature<T>>,
+    aId: FeatureRef<T, MarkerFeature<T>>,
+    bId: FeatureRef<T, MarkerFeature<T>>,
     id: String? = null,
-): FeatureId<LineFeature<T>> {
-    var lineId: FeatureId<LineFeature<T>>? = null
+): FeatureRef<T, LineFeature<T>> {
+    var lineId: FeatureRef<T, LineFeature<T>>? = null
 
-    fun drawLine(): FeatureId<LineFeature<T>> {
+    fun drawLine(): FeatureRef<T, LineFeature<T>> {
         //save attributes before update
-        val attributes: Attributes? = lineId?.let(::get)?.attributes
+        val attributes: Attributes? = lineId?.attributes
         val currentId = line(
-            get(aId).center,
-            get(bId).center,
+            aId.resolve().center,
+            bId.resolve().center,
             lineId?.id ?: id
         )
         currentId.modifyAttributes {

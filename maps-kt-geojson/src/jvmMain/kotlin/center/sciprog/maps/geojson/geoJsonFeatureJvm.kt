@@ -3,7 +3,7 @@ package center.sciprog.maps.geojson
 import center.sciprog.maps.coordinates.Gmc
 import center.sciprog.maps.features.Feature
 import center.sciprog.maps.features.FeatureGroup
-import center.sciprog.maps.features.FeatureId
+import center.sciprog.maps.features.FeatureRef
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import java.net.URL
@@ -14,7 +14,7 @@ import java.net.URL
 public fun FeatureGroup<Gmc>.geoJson(
     geoJsonUrl: URL,
     id: String? = null,
-): FeatureId<Feature<Gmc>> {
+): FeatureRef<Gmc, Feature<Gmc>> {
     val jsonString = geoJsonUrl.readText()
     val json = Json.parseToJsonElement(jsonString).jsonObject
     val geoJson = GeoJson(json)

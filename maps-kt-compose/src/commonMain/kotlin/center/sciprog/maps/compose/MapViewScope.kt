@@ -6,8 +6,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
-import center.sciprog.maps.coordinates.*
+import center.sciprog.maps.coordinates.Gmc
+import center.sciprog.maps.coordinates.MercatorProjection
+import center.sciprog.maps.coordinates.WebMercatorCoordinates
+import center.sciprog.maps.coordinates.WebMercatorProjection
 import center.sciprog.maps.features.*
+import space.kscience.kmath.geometry.radians
 import kotlin.math.*
 
 public class MapViewScope internal constructor(
@@ -56,8 +60,8 @@ public class MapViewScope internal constructor(
     override fun computeViewPoint(rectangle: Rectangle<Gmc>): ViewPoint<Gmc> {
         val zoom = log2(
             min(
-                canvasSize.width.value / rectangle.longitudeDelta.radians.value,
-                canvasSize.height.value / rectangle.latitudeDelta.radians.value
+                canvasSize.width.value / rectangle.longitudeDelta.radians,
+                canvasSize.height.value / rectangle.latitudeDelta.radians
             ) * PI / mapTileProvider.tileSize
         )
         return space.ViewPoint(rectangle.center, zoom.toFloat())

@@ -18,7 +18,7 @@ fun FeatureGroup<XY>.background(
     offset: XY = XY(0f, 0f),
     id: String? = null,
     painter: @Composable () -> Painter,
-): FeatureId<ScalableImageFeature<XY>> {
+): FeatureRef<XY, ScalableImageFeature<XY>> {
     val box = XYRectangle(
         offset,
         XY(width + offset.x, height + offset.y)
@@ -38,19 +38,19 @@ fun FeatureGroup<XY>.circle(
     centerCoordinates: Pair<Number, Number>,
     size: Dp = 5.dp,
     id: String? = null,
-): FeatureId<CircleFeature<XY>> = circle(centerCoordinates.toCoordinates(),  size,  id = id)
+): FeatureRef<XY, CircleFeature<XY>> = circle(centerCoordinates.toCoordinates(),  size,  id = id)
 
 fun FeatureGroup<XY>.draw(
     position: Pair<Number, Number>,
     id: String? = null,
     draw: DrawScope.() -> Unit,
-): FeatureId<DrawFeature<XY>> = draw(position.toCoordinates(), id = id, draw = draw)
+): FeatureRef<XY, DrawFeature<XY>> = draw(position.toCoordinates(), id = id, draw = draw)
 
 fun FeatureGroup<XY>.line(
     aCoordinates: Pair<Number, Number>,
     bCoordinates: Pair<Number, Number>,
     id: String? = null,
-): FeatureId<LineFeature<XY>> = line(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), id)
+): FeatureRef<XY, LineFeature<XY>> = line(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), id)
 
 
 public fun FeatureGroup<XY>.arc(
@@ -59,7 +59,7 @@ public fun FeatureGroup<XY>.arc(
     startAngle: Float,
     arcLength: Float,
     id: String? = null,
-): FeatureId<ArcFeature<XY>> = arc(
+): FeatureRef<XY, ArcFeature<XY>> = arc(
     oval = XYCoordinateSpace.Rectangle(center.toCoordinates(), radius, radius),
     startAngle = startAngle,
     arcLength = arcLength,
@@ -71,12 +71,12 @@ fun FeatureGroup<XY>.image(
     image: ImageVector,
     size: DpSize = DpSize(image.defaultWidth, image.defaultHeight),
     id: String? = null,
-): FeatureId<VectorImageFeature<XY>> =
+): FeatureRef<XY, VectorImageFeature<XY>> =
     image(position.toCoordinates(), image, size = size, id = id)
 
 fun FeatureGroup<XY>.text(
     position: Pair<Number, Number>,
     text: String,
     id: String? = null,
-): FeatureId<TextFeature<XY>> = text(position.toCoordinates(), text, id = id)
+): FeatureRef<XY, TextFeature<XY>> = text(position.toCoordinates(), text, id = id)
 

@@ -40,10 +40,6 @@ kotlin {
     }
 }
 
-java {
-    targetCompatibility = space.kscience.gradle.KScienceVersions.JVM_TARGET
-}
-
 tasks.withType<Test> {
     useJUnitPlatform()
 }

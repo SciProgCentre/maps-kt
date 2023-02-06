@@ -1,5 +1,6 @@
 package center.sciprog.maps.coordinates
 
+import space.kscience.kmath.geometry.degrees
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -12,7 +13,7 @@ class MercatorTest {
         assertEquals(4186.0120709, mercator.x.kilometers, 1e-4)
         assertEquals(7510.9013658, mercator.y.kilometers, 1e-4)
         val backwards = MapProjection.epsg3857.toGeodetic(mercator)
-        assertEquals(moscow.latitude.degrees.value, backwards.latitude.degrees.value, 0.001)
-        assertEquals(moscow.longitude.degrees.value, backwards.longitude.degrees.value, 0.001)
+        assertEquals(moscow.latitude.degrees, backwards.latitude.degrees, 0.001)
+        assertEquals(moscow.longitude.degrees, backwards.longitude.degrees, 0.001)
     }
 }

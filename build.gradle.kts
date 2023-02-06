@@ -8,7 +8,12 @@ plugins {
 
 allprojects {
     group = "center.sciprog"
-    version = "0.2.1-dev-4"
+    version = "0.2.2-dev-1"
+
+    repositories {
+        mavenLocal()
+        maven("https://maven.pkg.jetbrains.space/spc/p/sci/dev")
+    }
 }
 
 ksciencePublish{

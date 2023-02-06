@@ -1,5 +1,8 @@
 package center.sciprog.maps.coordinates
 
+import space.kscience.kmath.geometry.Angle
+import space.kscience.kmath.geometry.normalized
+
 /**
  * A coordinate-bearing pair
  */

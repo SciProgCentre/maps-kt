@@ -5,6 +5,8 @@
 
 package center.sciprog.maps.coordinates
 
+import space.kscience.kmath.geometry.abs
+import space.kscience.kmath.geometry.radians
 import kotlin.math.*
 
 public data class WebMercatorCoordinates(val zoom: Int, val x: Float, val y: Float)
@@ -32,8 +34,8 @@ public object WebMercatorProjection {
         val scaleFactor = scaleFactor(zoom.toFloat())
         return WebMercatorCoordinates(
             zoom = zoom,
-            x = scaleFactor * (gmc.longitude.radians.value + PI).toFloat(),
-            y = scaleFactor * (PI - ln(tan(PI / 4 + gmc.latitude.radians.value / 2))).toFloat()
+            x = scaleFactor * (gmc.longitude.radians + PI).toFloat(),
+            y = scaleFactor * (PI - ln(tan(PI / 4 + gmc.latitude.radians / 2))).toFloat()
         )
     }
 

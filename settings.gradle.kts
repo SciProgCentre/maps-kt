@@ -8,6 +8,7 @@ pluginManagement {
     val toolsVersion: String by extra
 
     repositories {
+        mavenLocal()
         google()
         gradlePluginPortal()
         mavenCentral()

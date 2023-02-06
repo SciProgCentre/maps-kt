@@ -1,10 +1,10 @@
 package center.sciprog.maps.compose
 
-import center.sciprog.maps.coordinates.Angle
 import center.sciprog.maps.coordinates.GeodeticMapCoordinates
 import center.sciprog.maps.coordinates.Gmc
-import center.sciprog.maps.coordinates.abs
 import center.sciprog.maps.features.Rectangle
+import space.kscience.kmath.geometry.Angle
+import space.kscience.kmath.geometry.abs
 
 /**
  * A section of the map between two parallels and two meridians. The figure represents a square in a Mercator projection.

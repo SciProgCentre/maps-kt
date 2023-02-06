@@ -1,10 +1,10 @@
 package center.sciprog.maps.geojson
 
 import center.sciprog.maps.coordinates.Gmc
-import center.sciprog.maps.coordinates.kilometers
 import center.sciprog.maps.coordinates.meters
 import center.sciprog.maps.geojson.GeoJsonGeometry.Companion.COORDINATES_KEY
 import kotlinx.serialization.json.*
+import space.kscience.kmath.geometry.degrees
 import kotlin.jvm.JvmInline
 
 public sealed interface GeoJsonGeometry : GeoJson {
@@ -30,13 +30,13 @@ internal fun JsonElement.toGmc() = jsonArray.run {
     Gmc.ofDegrees(
         get(1).jsonPrimitive.double,
         get(0).jsonPrimitive.double,
-        get(2).jsonPrimitive.doubleOrNull?.meters ?: 0.kilometers
+        getOrNull(2)?.jsonPrimitive?.doubleOrNull?.meters
     )
 }
 
 internal fun Gmc.toJsonArray(): JsonArray = buildJsonArray {
-    add(longitude.degrees.value)
-    add(latitude.degrees.value)
+    add(longitude.degrees)
+    add(latitude.degrees)
     elevation?.let {
         add(it.meters)
     }

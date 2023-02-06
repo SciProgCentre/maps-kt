@@ -11,6 +11,7 @@ import androidx.compose.ui.window.application
 import center.sciprog.maps.features.FeatureGroup
 import center.sciprog.maps.features.ViewConfig
 import center.sciprog.maps.features.ViewPoint
+import center.sciprog.maps.features.color
 import center.sciprog.maps.scheme.*
 import center.sciprog.maps.svg.FeatureStateSnapshot
 import center.sciprog.maps.svg.exportToSvg

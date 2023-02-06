@@ -28,12 +28,15 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import space.kscience.kmath.geometry.Angle
+import space.kscience.kmath.geometry.degrees
+import space.kscience.kmath.geometry.radians
 import java.nio.file.Path
 import kotlin.math.PI
 import kotlin.random.Random
 
-private fun GeodeticMapCoordinates.toShortString(): String =
-    "${(latitude.degrees.value).toString().take(6)}:${(longitude.degrees.value).toString().take(6)}"
+public fun GeodeticMapCoordinates.toShortString(): String =
+    "${(latitude.degrees).toString().take(6)}:${(longitude.degrees).toString().take(6)}"
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -124,13 +127,13 @@ fun App() {
             }.launchIn(scope)
 
             //Add click listeners for all polygons
-            forEachWithType<Gmc, PolygonFeature<Gmc>> { id, feature ->
-                id.onClick(PointerMatcher.Primary) {
-                    println("Click on $id")
+            forEachWithType<Gmc, PolygonFeature<Gmc>> { ref ->
+                ref.onClick(PointerMatcher.Primary) {
+                    println("Click on ${ref.id}")
                     //draw in top-level scope
                     with(this@MapView) {
                         points(
-                            feature.points,
+                            ref.resolve().points,
                             stroke = 4f,
                             pointMode = PointMode.Polygon,
                             attributes = Attributes(ZAttribute, 10f),

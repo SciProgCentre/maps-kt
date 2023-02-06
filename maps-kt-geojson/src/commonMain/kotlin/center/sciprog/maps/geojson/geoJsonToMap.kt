@@ -16,7 +16,7 @@ import kotlinx.serialization.json.jsonPrimitive
 public fun FeatureGroup<Gmc>.geoJsonGeometry(
     geometry: GeoJsonGeometry,
     id: String? = null,
-): FeatureId<Feature<Gmc>> = when (geometry) {
+): FeatureRef<Gmc, Feature<Gmc>> = when (geometry) {
     is GeoJsonLineString -> points(
         geometry.coordinates,
         pointMode = PointMode.Lines
@@ -59,7 +59,7 @@ public fun FeatureGroup<Gmc>.geoJsonGeometry(
 public fun FeatureGroup<Gmc>.geoJsonFeature(
     geoJson: GeoJsonFeature,
     id: String? = null,
-): FeatureId<Feature<Gmc>> {
+): FeatureRef<Gmc, Feature<Gmc>> {
     val geometry = geoJson.geometry ?: return group {}
     val idOverride = id ?: geoJson.getProperty("id")?.jsonPrimitive?.contentOrNull
 
@@ -81,7 +81,7 @@ public fun FeatureGroup<Gmc>.geoJsonFeature(
 public fun FeatureGroup<Gmc>.geoJson(
     geoJson: GeoJson,
     id: String? = null,
-): FeatureId<Feature<Gmc>> = when (geoJson) {
+): FeatureRef<Gmc, Feature<Gmc>> = when (geoJson) {
     is GeoJsonFeature -> geoJsonFeature(geoJson, id = id)
     is GeoJsonFeatureCollection -> group(id = id) {
         geoJson.features.forEach {

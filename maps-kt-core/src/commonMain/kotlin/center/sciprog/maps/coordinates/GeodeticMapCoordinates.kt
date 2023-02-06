@@ -1,5 +1,10 @@
 package center.sciprog.maps.coordinates
 
+import space.kscience.kmath.geometry.Angle
+import space.kscience.kmath.geometry.degrees
+import space.kscience.kmath.geometry.normalized
+import space.kscience.kmath.geometry.radians
+
 /**
  * Geodetic coordinated
  *
@@ -11,8 +16,12 @@ public class GeodeticMapCoordinates(
     public val elevation: Distance? = null,
 ) {
     init {
-        require(latitude in (-Angle.piDiv2)..(Angle.piDiv2)) { "Latitude $latitude is not in (-PI/2)..(PI/2)" }
-        require(longitude in (-Angle.pi..Angle.pi)) { "Longitude $longitude is not in (-PI..PI) range" }
+        require(latitude in (-Angle.piDiv2)..(Angle.piDiv2)) {
+            "Latitude $latitude is not in (-PI/2)..(PI/2)"
+        }
+        require(longitude in (-Angle.pi..Angle.pi)) {
+            "Longitude $longitude is not in (-PI..PI) range"
+        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -34,7 +43,7 @@ public class GeodeticMapCoordinates(
     }
 
     override fun toString(): String {
-        return "GMC(latitude=${latitude.degrees.value} deg, longitude=${longitude.degrees.value} deg)"
+        return "GMC(latitude=${latitude.degrees} deg, longitude=${longitude.degrees} deg)"
     }
 
 
@@ -42,7 +51,7 @@ public class GeodeticMapCoordinates(
         public fun normalized(
             latitude: Angle,
             longitude: Angle,
-            elevation: Distance = 0.kilometers,
+            elevation: Distance? = null,
         ): GeodeticMapCoordinates = GeodeticMapCoordinates(
             latitude, longitude.normalized(Angle.zero), elevation
         )
@@ -50,14 +59,14 @@ public class GeodeticMapCoordinates(
         public fun ofRadians(
             latitude: Double,
             longitude: Double,
-            elevation: Distance = 0.kilometers,
+            elevation: Distance? = null,
         ): GeodeticMapCoordinates = normalized(latitude.radians, longitude.radians, elevation)
 
         public fun ofDegrees(
             latitude: Double,
             longitude: Double,
-            elevation: Distance = 0.kilometers,
-        ): GeodeticMapCoordinates = normalized(latitude.degrees.radians, longitude.degrees.radians, elevation)
+            elevation: Distance? = null,
+        ): GeodeticMapCoordinates = normalized(latitude.degrees, longitude.degrees, elevation)
     }
 }
 

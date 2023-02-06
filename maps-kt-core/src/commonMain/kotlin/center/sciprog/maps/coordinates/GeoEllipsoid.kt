@@ -1,5 +1,7 @@
 package center.sciprog.maps.coordinates
 
+import space.kscience.kmath.geometry.Angle
+import space.kscience.kmath.geometry.tan
 import kotlin.math.pow
 import kotlin.math.sqrt
 
