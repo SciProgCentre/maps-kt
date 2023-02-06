@@ -6,6 +6,8 @@ import center.sciprog.maps.features.Rectangle
 import space.kscience.kmath.geometry.Angle
 import space.kscience.kmath.geometry.abs
 
+internal fun Angle.isBetween(a: Angle, b: Angle) = this in a..b || this in b..a
+
 /**
  * A section of the map between two parallels and two meridians. The figure represents a square in a Mercator projection.
  * Params are two opposing "corners" of  quasi-square.
@@ -18,8 +20,7 @@ internal data class GmcRectangle(
 ) : Rectangle<Gmc> {
 
     override fun contains(point: Gmc): Boolean =
-        point.latitude in a.latitude..b.latitude
-                && point.longitude in a.longitude..b.longitude
+        point.latitude.isBetween(a.latitude, b.latitude) && point.longitude.isBetween(a.longitude, b.longitude)
 }
 
 public val Rectangle<Gmc>.center: GeodeticMapCoordinates

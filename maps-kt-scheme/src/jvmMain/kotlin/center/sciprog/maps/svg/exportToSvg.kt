@@ -12,8 +12,8 @@ import center.sciprog.maps.features.*
 import center.sciprog.maps.scheme.*
 import org.jfree.svg.SVGGraphics2D
 import org.jfree.svg.SVGUtils
+import space.kscience.kmath.geometry.degrees
 import java.awt.Font.PLAIN
-import kotlin.math.PI
 import kotlin.math.abs
 
 
@@ -23,7 +23,7 @@ class FeatureStateSnapshot<T : Any>(
 )
 
 @Composable
-fun <T: Any> FeatureGroup<T>.snapshot(): FeatureStateSnapshot<T> = FeatureStateSnapshot(
+fun <T : Any> FeatureGroup<T>.snapshot(): FeatureStateSnapshot<T> = FeatureStateSnapshot(
     featureMap,
     features.filterIsInstance<PainterFeature<T>>().associateWith { it.getPainter() }
 )
@@ -44,7 +44,7 @@ fun FeatureStateSnapshot<XY>.generateSvg(
     fun SvgDrawScope.drawFeature(scale: Float, feature: Feature<XY>) {
 
         val color = feature.color ?: Color.Red
-        val alpha = feature.attributes[AlphaAttribute]?:1f
+        val alpha = feature.attributes[AlphaAttribute] ?: 1f
 
         when (feature) {
             is ScalableImageFeature -> {
@@ -66,10 +66,16 @@ fun FeatureStateSnapshot<XY>.generateSvg(
             is CircleFeature -> drawCircle(
                 color,
                 feature.size.toPx(),
-                center = feature.center.toOffset()
+                center = feature.center.toOffset(),
+                alpha = alpha
             )
 
-            is LineFeature -> drawLine(color, feature.a.toOffset(), feature.b.toOffset())
+            is LineFeature -> drawLine(
+                color,
+                feature.a.toOffset(),
+                feature.b.toOffset(),
+                alpha = alpha
+            )
 
             is ArcFeature -> {
                 val topLeft = feature.oval.leftTop.toOffset()
@@ -79,12 +85,13 @@ fun FeatureStateSnapshot<XY>.generateSvg(
 
                 drawArc(
                     color = color,
-                    startAngle = (feature.startAngle * 180 / PI).toFloat(),
-                    sweepAngle = (feature.arcLength * 180 / PI).toFloat(),
+                    startAngle = feature.startAngle.degrees.toFloat(),
+                    sweepAngle = feature.arcLength.degrees.toFloat(),
                     useCenter = false,
                     topLeft = topLeft,
                     size = size,
-                    style = Stroke()
+                    style = Stroke(),
+                    alpha = alpha
                 )
             }
 
@@ -95,12 +102,12 @@ fun FeatureStateSnapshot<XY>.generateSvg(
                 val imageSize = feature.size.toSize()
                 translate(offset.x - imageSize.width / 2, offset.y - imageSize.height / 2) {
                     with(painterCache[feature]!!) {
-                        draw(imageSize)
+                        draw(imageSize, alpha = alpha)
                     }
                 }
             }
 
-            is TextFeature -> drawIntoCanvas { canvas ->
+            is TextFeature -> drawIntoCanvas { _ ->
                 val offset = feature.position.toOffset()
                 drawText(
                     feature.text,

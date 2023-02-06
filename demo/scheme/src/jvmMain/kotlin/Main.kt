@@ -19,9 +19,9 @@ import center.sciprog.maps.svg.snapshot
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import space.kscience.kmath.geometry.Angle
 import java.awt.Desktop
 import java.nio.file.Files
-import kotlin.math.PI
 
 @Composable
 @Preview
@@ -35,7 +35,7 @@ fun App() {
             text(410.52737 to 868.7676, "Shire").color(Color.Blue)
             circle(1132.0881 to 394.99127).color(Color.Red)
             text(1132.0881 to 394.99127, "Ordruin").color(Color.Red)
-            arc(center = 1132.0881 to 394.99127, radius = 20f, startAngle = 0f, 2 * PI.toFloat())
+            arc(center = 1132.0881 to 394.99127, radius = 20f, startAngle = Angle.zero, Angle.piTimes2)
 
             //circle(410.52737 to 868.7676, id = "hobbit")
 

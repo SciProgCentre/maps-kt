@@ -11,17 +11,18 @@ public fun <T : Any> FeatureGroup<T>.draggableLine(
     var lineId: FeatureRef<T, LineFeature<T>>? = null
 
     fun drawLine(): FeatureRef<T, LineFeature<T>> {
-        //save attributes before update
-        val attributes: Attributes? = lineId?.attributes
-        val currentId = line(
-            aId.resolve().center,
-            bId.resolve().center,
-            lineId?.id ?: id
+        val currentId = feature(
+            lineId?.id ?: id,
+            LineFeature(
+                space,
+                aId.resolve().center,
+                bId.resolve().center,
+                Attributes {
+                    ZAttribute(-10f)
+                    lineId?.attributes?.let { from(it) }
+                }
+            )
         )
-        currentId.modifyAttributes {
-            ZAttribute(-10f)
-            if (attributes != null) from(attributes)
-        }
         lineId = currentId
         return currentId
     }

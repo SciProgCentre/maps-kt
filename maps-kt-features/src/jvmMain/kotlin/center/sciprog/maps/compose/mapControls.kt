@@ -1,6 +1,5 @@
 package center.sciprog.maps.compose
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -17,7 +16,6 @@ import kotlin.math.min
  * Create a modifier for Map/Scheme canvas controls on desktop
  * @param features a collection of features to be rendered in descending [ZAttribute] order
  */
-@OptIn(ExperimentalFoundationApi::class)
 public fun <T : Any> Modifier.mapControls(
     state: CoordinateViewScope<T>,
     features: FeatureGroup<T>,
@@ -55,7 +53,7 @@ public fun <T : Any> Modifier.mapControls(
                                     point
                                 )
                                 features.forEachWithAttributeUntil(ClickListenerAttribute) { _, feature, listeners ->
-                                    if (point in feature as DomainFeature) {
+                                    if (point in (feature as DomainFeature)) {
                                         listeners.forEach { it.handle(event, point) }
                                         false
                                     } else {

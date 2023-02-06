@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import center.sciprog.attributes.Attributes
 import center.sciprog.attributes.NameAttribute
+import space.kscience.kmath.geometry.Angle
 
 public typealias FloatRange = ClosedFloatingPointRange<Float>
 
@@ -185,7 +186,7 @@ public data class LineFeature<T : Any>(
     override fun getBoundingBox(zoom: Float): Rectangle<T> =
         space.Rectangle(a, b)
 
-    private val clickRadius get() = attributes[ClickRadius] ?: 20f
+    private val clickRadius get() = attributes[ClickRadius] ?: 10f
 
     override fun contains(viewPoint: ViewPoint<T>): Boolean = with(space) {
         viewPoint.focus in getBoundingBox(viewPoint.zoom) && viewPoint.focus.distanceToLine(
@@ -206,8 +207,8 @@ public data class LineFeature<T : Any>(
 public data class ArcFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     public val oval: Rectangle<T>,
-    public val startAngle: Float,
-    public val arcLength: Float,
+    public val startAngle: Angle,
+    public val arcLength: Angle,
     override val attributes: Attributes = Attributes.EMPTY,
 ) : DraggableFeature<T> {
     override fun getBoundingBox(zoom: Float): Rectangle<T> = oval

@@ -57,8 +57,6 @@ public fun <T : Any, F : Feature<T>, V>  FeatureRef<T, F>.modifyAttribute(key: A
  * Add drag to this feature
  *
  * @param constraint optional drag constraint
- *
- * TODO use context receiver for that
  */
 @Suppress("UNCHECKED_CAST")
 public fun <T: Any, F : DraggableFeature<T>> FeatureRef<T, F>.draggable(

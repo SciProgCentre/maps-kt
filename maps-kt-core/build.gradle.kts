@@ -3,7 +3,7 @@ plugins {
     `maven-publish`
 }
 
-val kmathVersion: String by rootProject.extra("0.3.1-dev-10")
+val kmathVersion: String by rootProject.extra
 
 kscience{
     useSerialization()

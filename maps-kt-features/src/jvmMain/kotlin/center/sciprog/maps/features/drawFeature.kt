@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.toArgb
 import center.sciprog.attributes.plus
 import org.jetbrains.skia.Font
 import org.jetbrains.skia.Paint
+import space.kscience.kmath.geometry.degrees
 import kotlin.math.PI
 
 
@@ -56,8 +57,8 @@ public fun <T : Any> DrawScope.drawFeature(
 
             drawArc(
                 color = color,
-                startAngle = feature.startAngle / PI.toFloat() * 180f,
-                sweepAngle = feature.arcLength / PI.toFloat() * 180f,
+                startAngle = (feature.startAngle.degrees / PI * 180).toFloat(),
+                sweepAngle = (feature.arcLength.degrees / PI * 180).toFloat(),
                 useCenter = false,
                 topLeft = dpRect.topLeft,
                 size = size,

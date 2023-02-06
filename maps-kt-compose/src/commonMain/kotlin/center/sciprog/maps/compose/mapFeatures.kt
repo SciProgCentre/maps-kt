@@ -12,7 +12,6 @@ import center.sciprog.maps.coordinates.Gmc
 import center.sciprog.maps.coordinates.GmcCurve
 import center.sciprog.maps.features.*
 import space.kscience.kmath.geometry.Angle
-import space.kscience.kmath.geometry.radians
 
 
 internal fun FeatureGroup<Gmc>.coordinatesOf(pair: Pair<Number, Number>) =
@@ -77,8 +76,8 @@ public fun FeatureGroup<Gmc>.arc(
     ArcFeature(
         space,
         oval = space.Rectangle(coordinatesOf(center), radius, radius),
-        startAngle = startAngle.radians.toFloat(),
-        arcLength = arcLength.radians.toFloat(),
+        startAngle = startAngle,
+        arcLength = arcLength,
     )
 )
 

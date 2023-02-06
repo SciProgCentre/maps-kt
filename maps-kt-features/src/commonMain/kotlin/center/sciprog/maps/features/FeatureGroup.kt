@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import center.sciprog.attributes.*
+import space.kscience.kmath.geometry.Angle
 
 //@JvmInline
 //public value class FeatureId<out F : Feature<*>>(public val id: String)
@@ -188,8 +189,8 @@ public fun <T : Any> FeatureGroup<T>.line(
 
 public fun <T : Any> FeatureGroup<T>.arc(
     oval: Rectangle<T>,
-    startAngle: Float,
-    arcLength: Float,
+    startAngle: Angle,
+    arcLength: Angle,
     id: String? = null,
 ): FeatureRef<T, ArcFeature<T>> = feature(
     id,

@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import center.sciprog.attributes.Attributes
 import center.sciprog.maps.features.*
+import space.kscience.kmath.geometry.Angle
 
 internal fun Pair<Number, Number>.toCoordinates(): XY = XY(first.toFloat(), second.toFloat())
 
@@ -56,8 +57,8 @@ fun FeatureGroup<XY>.line(
 public fun FeatureGroup<XY>.arc(
     center: Pair<Double, Double>,
     radius: Float,
-    startAngle: Float,
-    arcLength: Float,
+    startAngle: Angle,
+    arcLength: Angle,
     id: String? = null,
 ): FeatureRef<XY, ArcFeature<XY>> = arc(
     oval = XYCoordinateSpace.Rectangle(center.toCoordinates(), radius, radius),

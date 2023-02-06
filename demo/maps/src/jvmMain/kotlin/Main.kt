@@ -59,7 +59,7 @@ fun App() {
 
         val pointOne = 55.568548 to 37.568604
         val pointTwo = 55.929444 to 37.518434
-        val pointThree = 60.929444 to 37.518434
+//        val pointThree = 60.929444 to 37.518434
 
         MapView(
             mapTileProvider = mapTileProvider,
@@ -81,9 +81,15 @@ fun App() {
             val marker2 = rectangle(55.8 to 38.5, size = DpSize(10.dp, 10.dp)).color(Color.Magenta)
             val marker3 = rectangle(56.0 to 38.5, size = DpSize(10.dp, 10.dp)).color(Color.Magenta)
 
-            draggableLine(marker1, marker2).color(Color.Blue)
-            draggableLine(marker2, marker3).color(Color.Blue)
-            draggableLine(marker3, marker1).color(Color.Blue)
+            draggableLine(marker1, marker2, id = "line 1").color(Color.Red).onClick {
+                println("line 1 clicked")
+            }
+            draggableLine(marker2, marker3, id = "line 2").color(Color.DarkGray).onClick {
+                println("line 2 clicked")
+            }
+            draggableLine(marker3, marker1, id = "line 3").color(Color.Blue).onClick {
+                println("line 3 clicked")
+            }
 
             points(
                 points = listOf(
