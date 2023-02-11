@@ -7,10 +7,18 @@ import kotlin.test.assertEquals
 
 internal class AttributesSerializationTest {
 
+    internal class TestAttributeContainer(val attributes: Attributes)
+
+//    internal object TestContainerAttribute: SerializableAttribute<TestAttributeContainer>("container", se)
+
     internal object TestAttribute : SerializableAttribute<Map<String, String>>("test", serializer())
 
     @Test
     fun restore() {
+//
+//        val serializersModule = SerializersModule {
+//            contextual(AttributesSerializer(setOf()))
+//        }
         val serializer = AttributesSerializer(setOf(NameAttribute, TestAttribute))
 
 
