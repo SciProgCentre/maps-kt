@@ -21,4 +21,8 @@ kscience{
     useSerialization{
         json()
     }
+
+    useSerialization(sourceSet = space.kscience.gradle.DependencySourceSet.TEST){
+        protobuf()
+    }
 }

@@ -1,36 +1,86 @@
 package center.sciprog.attributes
 
+import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.serializer
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
+import kotlinx.serialization.protobuf.ProtoBuf
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 internal class AttributesSerializationTest {
 
-    internal class TestAttributeContainer(val attributes: Attributes)
+    @Serializable
+    internal class Container(@Contextual val attributes: Attributes) {
+        override fun equals(other: Any?): Boolean = (other as? Container)?.attributes?.equals(attributes) ?: false
+        override fun hashCode(): Int = attributes.hashCode()
 
-//    internal object TestContainerAttribute: SerializableAttribute<TestAttributeContainer>("container", se)
+        override fun toString(): String = attributes.toString()
+    }
 
-    internal object TestAttribute : SerializableAttribute<Map<String, String>>("test", serializer())
+    internal object ContainerAttribute : SerializableAttribute<Container>("container", serializer()) {
+        override fun toString(): String = "container"
+
+    }
+
+    internal object TestAttribute : SerializableAttribute<Map<String, String>>("test", serializer()) {
+        override fun toString(): String = "test"
+    }
 
     @Test
-    fun restore() {
-//
-//        val serializersModule = SerializersModule {
-//            contextual(AttributesSerializer(setOf()))
-//        }
-        val serializer = AttributesSerializer(setOf(NameAttribute, TestAttribute))
-
+    fun restoreFromJson() {
+        val json = Json {
+            serializersModule = SerializersModule {
+                contextual(AttributesSerializer(setOf(NameAttribute, TestAttribute, ContainerAttribute)))
+            }
+        }
 
         val attributes = Attributes {
             NameAttribute("myTest")
             TestAttribute(mapOf("a" to "aa", "b" to "bb"))
+            ContainerAttribute(
+                Container(
+                    Attributes {
+                        TestAttribute(mapOf("a" to "aa", "b" to "bb"))
+                    }
+                )
+            )
         }
 
-        val serialized = Json.encodeToString(serializer, attributes)
+        val serialized: String = json.encodeToString(attributes)
         println(serialized)
 
-        val restored = Json.decodeFromString(serializer, serialized)
+        val restored: Attributes = json.decodeFromString(serialized)
+
+        assertEquals(attributes, restored)
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    @Test
+    @Ignore
+    fun restoreFromProtoBuf() {
+        val protoBuf = ProtoBuf {
+            serializersModule = SerializersModule {
+                contextual(AttributesSerializer(setOf(NameAttribute, TestAttribute, ContainerAttribute)))
+            }
+        }
+
+        val attributes = Attributes {
+            NameAttribute("myTest")
+            TestAttribute(mapOf("a" to "aa", "b" to "bb"))
+            ContainerAttribute(
+                Container(
+                    Attributes {
+                        TestAttribute(mapOf("a" to "aa", "b" to "bb"))
+                    }
+                )
+            )
+        }
+
+        val serialized = protoBuf.encodeToByteArray(attributes)
+
+        val restored: Attributes = protoBuf.decodeFromByteArray(serialized)
 
         assertEquals(attributes, restored)
     }

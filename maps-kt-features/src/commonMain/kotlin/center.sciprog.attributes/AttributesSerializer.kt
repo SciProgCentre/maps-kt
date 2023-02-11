@@ -34,8 +34,8 @@ public class AttributesSerializer(
 
     override fun serialize(encoder: Encoder, value: Attributes) {
         val json = buildJsonObject {
-            value.content.forEach { (key, value) ->
-                if (key !in serializableAttributes) error("An attribute key $key is not in the list of allowed attributes for this serializer")
+            value.content.forEach { (key: Attribute<*>, value: Any) ->
+                if (key !in serializableAttributes) error("An attribute key '$key' is not in the list of allowed attributes for this serializer")
                 val serializableKey = key as SerializableAttribute
 
                 val json = if (encoder is JsonEncoder) {

@@ -8,7 +8,9 @@ public interface Attribute<T>
 public abstract class SerializableAttribute<T>(
     public val serialId: String,
     public val serializer: KSerializer<T>,
-) : Attribute<T>
+) : Attribute<T> {
+    override fun toString(): String = serialId
+}
 
 public interface AttributeWithDefault<T> : Attribute<T> {
     public val default: T
