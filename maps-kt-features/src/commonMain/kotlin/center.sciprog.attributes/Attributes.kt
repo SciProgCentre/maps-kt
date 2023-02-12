@@ -19,6 +19,8 @@ public value class Attributes internal constructor(public val content: Map<out A
     }
 }
 
+public fun Attributes.isEmpty(): Boolean = content.isEmpty()
+
 public fun <T> Attributes.getOrDefault(attribute: AttributeWithDefault<T>): T = get(attribute) ?: attribute.default
 
 public fun <T, A : Attribute<T>> Attributes.withAttribute(
