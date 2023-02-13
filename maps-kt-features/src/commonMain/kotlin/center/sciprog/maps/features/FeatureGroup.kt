@@ -51,6 +51,10 @@ public data class FeatureGroup<T : Any>(
         return FeatureRef(safeId, this)
     }
 
+    public fun removeFeature(id: String) {
+        featureMap.remove(id)
+    }
+
 //    public fun <F : Feature<T>> feature(id: FeatureId<F>, feature: F): FeatureId<F> = feature(id.id, feature)
 
     public val features: Collection<Feature<T>> get() = featureMap.values.sortedByDescending { it.z }
