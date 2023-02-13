@@ -19,7 +19,6 @@ import kotlin.math.min
 public fun <T : Any> Modifier.mapControls(
     state: CoordinateViewScope<T>,
     features: FeatureGroup<T>,
-    zoomOnDoubleClick: Boolean = true,
 ): Modifier = with(state) {
 
 //    //selecting all tapabales ahead of time
@@ -48,8 +47,8 @@ public fun <T : Any> Modifier.mapControls(
         }
     }.pointerInput(Unit) {
         detectClicks(
-            onDoubleClick = { event ->
-                if (zoomOnDoubleClick) {
+            onDoubleClick = if (state.config.zoomOnDoubleClick) {
+                { event ->
                     val invariant = event.position.toCoordinates(this)
                     viewPoint = with(space) {
                         viewPoint.zoomBy(
@@ -58,7 +57,7 @@ public fun <T : Any> Modifier.mapControls(
                         )
                     }
                 }
-            },
+            } else null,
             onClick = { event ->
                 val coordinates = event.position.toCoordinates(this)
                 val point = space.ViewPoint(coordinates, zoom)

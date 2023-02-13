@@ -8,6 +8,7 @@ public data class ViewConfig<T : Any>(
     val dragHandle: DragHandle<T>? = null,
     val onViewChange: ViewPoint<T>.() -> Unit = {},
     val onSelect: (Rectangle<T>) -> Unit = {},
-    val zoomOnSelect: Boolean = true,
     val onCanvasSizeChange: (DpSize) -> Unit = {},
+    val zoomOnSelect: Boolean = true,
+    val zoomOnDoubleClick: Boolean = true
 )
