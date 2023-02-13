@@ -3,6 +3,7 @@ package center.sciprog.maps.features
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.PointerMatcher
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import center.sciprog.attributes.Attribute
@@ -34,7 +35,6 @@ public object ColorAttribute : Attribute<Color>
 public object ZoomRangeAttribute : Attribute<FloatRange>
 
 public object AlphaAttribute : Attribute<Float>
-
 
 public fun <T : Any, F : Feature<T>> FeatureRef<T, F>.modifyAttributes(modify: AttributesBuilder.() -> Unit): FeatureRef<T, F> {
     @Suppress("UNCHECKED_CAST")
@@ -152,3 +152,10 @@ public fun <T: Any, F : Feature<T>> FeatureRef<T, F>.color(color: Color): Featur
 
 public fun <T: Any, F : Feature<T>> FeatureRef<T, F>.zoomRange(range: FloatRange): FeatureRef<T, F> =
     modifyAttribute(ZoomRangeAttribute, range)
+
+
+
+public object PathEffectAttribute: Attribute<PathEffect>
+
+public fun <T: Any> FeatureRef<T, PointsFeature<T>>.pathEffect(effect: PathEffect): FeatureRef<T, PointsFeature<T>> =
+    modifyAttribute(PathEffectAttribute, effect)

@@ -121,6 +121,7 @@ public fun <T : Any> DrawScope.drawFeature(
                 color = color,
                 strokeWidth = feature.stroke,
                 pointMode = feature.pointMode,
+                pathEffect = feature.attributes[PathEffectAttribute],
                 alpha = alpha
             )
         }

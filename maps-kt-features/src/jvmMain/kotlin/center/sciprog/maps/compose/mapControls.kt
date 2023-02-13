@@ -19,6 +19,7 @@ import kotlin.math.min
 public fun <T : Any> Modifier.mapControls(
     state: CoordinateViewScope<T>,
     features: FeatureGroup<T>,
+    zoomOnDoubleClick: Boolean = true,
 ): Modifier = with(state) {
 
 //    //selecting all tapabales ahead of time
@@ -43,30 +44,40 @@ public fun <T : Any> Modifier.mapControls(
                         }
                     }
                 }
+            }
+        }
+    }.pointerInput(Unit) {
+        detectClicks(
+            onDoubleClick = { event ->
+                if (zoomOnDoubleClick) {
+                    val invariant = event.position.toCoordinates(this)
+                    viewPoint = with(space) {
+                        viewPoint.zoomBy(
+                            if (event.buttons.isPrimaryPressed) 1f else if (event.buttons.isSecondaryPressed) -1f else 0f,
+                            invariant
+                        )
+                    }
+                }
+            },
+            onClick = { event ->
+                val coordinates = event.position.toCoordinates(this)
+                val point = space.ViewPoint(coordinates, zoom)
 
-                if (event.type == PointerEventType.Press) {
-                    withTimeoutOrNull(500) {
-                        while (true) {
-                            if (awaitPointerEvent().type == PointerEventType.Release) {
-                                config.onClick?.handle(
-                                    event,
-                                    point
-                                )
-                                features.forEachWithAttributeUntil(ClickListenerAttribute) { _, feature, listeners ->
-                                    if (point in (feature as DomainFeature)) {
-                                        listeners.forEach { it.handle(event, point) }
-                                        false
-                                    } else {
-                                        true
-                                    }
-                                }
-                                break
-                            }
-                        }
+                config.onClick?.handle(
+                    event,
+                    point
+                )
+
+                features.forEachWithAttributeUntil(ClickListenerAttribute) { _, feature, listeners ->
+                    if (point in (feature as DomainFeature)) {
+                        listeners.forEach { it.handle(event, point) }
+                        false
+                    } else {
+                        true
                     }
                 }
             }
-        }
+        )
     }.pointerInput(Unit) {
         awaitPointerEventScope {
             while (true) {
