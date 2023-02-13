@@ -15,7 +15,6 @@ import center.sciprog.attributes.plus
 import org.jetbrains.skia.Font
 import org.jetbrains.skia.Paint
 import space.kscience.kmath.geometry.degrees
-import kotlin.math.PI
 
 
 internal fun Color.toPaint(): Paint = Paint().apply {
@@ -57,8 +56,8 @@ public fun <T : Any> DrawScope.drawFeature(
 
             drawArc(
                 color = color,
-                startAngle = (feature.startAngle.degrees / PI * 180).toFloat(),
-                sweepAngle = (feature.arcLength.degrees / PI * 180).toFloat(),
+                startAngle = (feature.startAngle.degrees).toFloat(),
+                sweepAngle = (feature.arcLength.degrees).toFloat(),
                 useCenter = false,
                 topLeft = dpRect.topLeft,
                 size = size,
