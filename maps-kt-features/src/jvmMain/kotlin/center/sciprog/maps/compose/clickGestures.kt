@@ -94,13 +94,13 @@ public suspend fun PointerInputScope.detectClicks(
             if (upOrCancel != null) {
                 // tap was successful.
                 if (onDoubleClick == null) {
-                    onClick?.invoke(this, upOrCancel) // no need to check for double-tap.
+                    onClick?.invoke(this, down) // no need to check for double-tap.
                 } else {
                     // check for second tap
                     val secondDown = awaitSecondDown(upOrCancel.firstChange)
 
                     if (secondDown == null) {
-                        onClick?.invoke(this, upOrCancel) // no valid second tap started
+                        onClick?.invoke(this, down) // no valid second tap started
                     } else {
                         // Second tap down detected
                         pressScope.reset()
@@ -115,16 +115,16 @@ public suspend fun PointerInputScope.detectClicks(
                                 if (secondUp != null) {
                                     secondUp.consume()
                                     pressScope.release()
-                                    onDoubleClick(down)
+                                    onDoubleClick(secondDown)
                                 } else {
                                     pressScope.cancel()
-                                    onClick?.invoke(this, upOrCancel)
+                                    onClick?.invoke(this, down)
                                 }
                             }
                         } catch (e: PointerEventTimeoutCancellationException) {
                             // The first tap was valid, but the second tap is a long press.
                             // notify for the first tap
-                            onClick?.invoke(this, upOrCancel)
+                            onClick?.invoke(this, down)
 
                             // notify for the long press
                             onLongClick?.invoke(this, secondDown)
@@ -209,7 +209,6 @@ private suspend fun AwaitPointerEventScope.awaitSecondDown(
 /**
  * Reads events until the first down is received. If [requireUnconsumed] is `true` and the first
  * down is consumed in the [PointerEventPass.Main] pass, that gesture is ignored.
- * If it was down caused by [PointerType.Mouse], this function reacts only on primary button.
  */
 internal suspend fun AwaitPointerEventScope.awaitFirstDownEvent(
     requireUnconsumed: Boolean = true,

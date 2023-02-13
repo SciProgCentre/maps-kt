@@ -51,7 +51,7 @@ fun FeatureGroup<XY>.line(
     aCoordinates: Pair<Number, Number>,
     bCoordinates: Pair<Number, Number>,
     id: String? = null,
-): FeatureRef<XY, LineFeature<XY>> = line(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), id)
+): FeatureRef<XY, LineFeature<XY>> = line(aCoordinates.toCoordinates(), bCoordinates.toCoordinates(), id = id)
 
 
 public fun FeatureGroup<XY>.arc(

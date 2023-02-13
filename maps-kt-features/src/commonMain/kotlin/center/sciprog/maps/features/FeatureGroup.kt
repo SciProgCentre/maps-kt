@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateMap
-import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -156,56 +155,68 @@ public inline fun <T : Any, reified F : Feature<T>> FeatureGroup<T>.forEachWithT
 public fun <T : Any> FeatureGroup<T>.circle(
     center: T,
     size: Dp = 5.dp,
+    attributes: Attributes = Attributes.EMPTY,
     id: String? = null,
 ): FeatureRef<T, CircleFeature<T>> = feature(
-    id, CircleFeature(space, center, size)
+    id, CircleFeature(space, center, size, attributes)
 )
 
 public fun <T : Any> FeatureGroup<T>.rectangle(
     centerCoordinates: T,
     size: DpSize = DpSize(5.dp, 5.dp),
+    attributes: Attributes = Attributes.EMPTY,
     id: String? = null,
 ): FeatureRef<T, RectangleFeature<T>> = feature(
-    id, RectangleFeature(space, centerCoordinates, size)
+    id, RectangleFeature(space, centerCoordinates, size, attributes)
 )
 
 public fun <T : Any> FeatureGroup<T>.draw(
     position: T,
+    attributes: Attributes = Attributes.EMPTY,
     id: String? = null,
     draw: DrawScope.() -> Unit,
 ): FeatureRef<T, DrawFeature<T>> = feature(
     id,
-    DrawFeature(space, position, drawFeature = draw)
+    DrawFeature(space, position, drawFeature = draw, attributes = attributes)
 )
 
 public fun <T : Any> FeatureGroup<T>.line(
     aCoordinates: T,
     bCoordinates: T,
+    attributes: Attributes = Attributes.EMPTY,
     id: String? = null,
 ): FeatureRef<T, LineFeature<T>> = feature(
     id,
-    LineFeature(space, aCoordinates, bCoordinates)
+    LineFeature(space, aCoordinates, bCoordinates, attributes)
 )
 
 public fun <T : Any> FeatureGroup<T>.arc(
     oval: Rectangle<T>,
     startAngle: Angle,
     arcLength: Angle,
+    attributes: Attributes = Attributes.EMPTY,
     id: String? = null,
 ): FeatureRef<T, ArcFeature<T>> = feature(
     id,
-    ArcFeature(space, oval, startAngle, arcLength)
+    ArcFeature(space, oval, startAngle, arcLength, attributes)
 )
 
 public fun <T : Any> FeatureGroup<T>.points(
     points: List<T>,
-    stroke: Float = 2f,
-    pointMode: PointMode = PointMode.Points,
     attributes: Attributes = Attributes.EMPTY,
     id: String? = null,
 ): FeatureRef<T, PointsFeature<T>> = feature(
     id,
-    PointsFeature(space, points, stroke, pointMode, attributes)
+    PointsFeature(space, points, attributes)
+)
+
+public fun <T : Any> FeatureGroup<T>.multiLine(
+    points: List<T>,
+    attributes: Attributes = Attributes.EMPTY,
+    id: String? = null,
+): FeatureRef<T, MultiLineFeature<T>> = feature(
+    id,
+    MultiLineFeature(space, points, attributes)
 )
 
 public fun <T : Any> FeatureGroup<T>.polygon(

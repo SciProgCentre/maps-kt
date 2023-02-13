@@ -2,15 +2,12 @@ package center.sciprog.maps.features
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.toArgb
 import center.sciprog.attributes.plus
 import org.jetbrains.skia.Font
 import org.jetbrains.skia.Paint
@@ -28,7 +25,7 @@ public fun <T : Any> DrawScope.drawFeature(
     feature: Feature<T>,
 ): Unit = with(state) {
     val color = feature.color ?: Color.Red
-    val alpha = feature.attributes[AlphaAttribute]?:1f
+    val alpha = feature.attributes[AlphaAttribute] ?: 1f
     fun T.toOffset(): Offset = toOffset(this@drawFeature)
 
     when (feature) {
@@ -48,7 +45,14 @@ public fun <T : Any> DrawScope.drawFeature(
             size = feature.size.toSize()
         )
 
-        is LineFeature -> drawLine(color, feature.a.toOffset(), feature.b.toOffset())
+        is LineFeature -> drawLine(
+            color,
+            feature.a.toOffset(),
+            feature.b.toOffset(),
+            strokeWidth = feature.attributes[StrokeAttribute] ?: Stroke.HairlineWidth,
+            pathEffect = feature.attributes[PathEffectAttribute]
+        )
+
         is ArcFeature -> {
             val dpRect = feature.oval.toDpRect().toRect()
 
@@ -119,8 +123,20 @@ public fun <T : Any> DrawScope.drawFeature(
             drawPoints(
                 points = points,
                 color = color,
-                strokeWidth = feature.stroke,
-                pointMode = feature.pointMode,
+                strokeWidth = feature.attributes[StrokeAttribute] ?: Stroke.HairlineWidth,
+                pointMode = PointMode.Points,
+                pathEffect = feature.attributes[PathEffectAttribute],
+                alpha = alpha
+            )
+        }
+
+        is MultiLineFeature -> {
+            val points = feature.points.map { it.toOffset() }
+            drawPoints(
+                points = points,
+                color = color,
+                strokeWidth = feature.attributes[StrokeAttribute] ?: Stroke.HairlineWidth,
+                pointMode = PointMode.Polygon,
                 pathEffect = feature.attributes[PathEffectAttribute],
                 alpha = alpha
             )
@@ -131,8 +147,8 @@ public fun <T : Any> DrawScope.drawFeature(
             val last = points.last()
             val polygonPath = Path()
             polygonPath.moveTo(last.x, last.y)
-            for ((x,y) in points){
-                polygonPath.lineTo(x,y)
+            for ((x, y) in points) {
+                polygonPath.lineTo(x, y)
             }
             drawPath(
                 path = polygonPath,

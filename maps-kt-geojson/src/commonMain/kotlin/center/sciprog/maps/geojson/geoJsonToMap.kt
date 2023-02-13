@@ -1,7 +1,6 @@
 package center.sciprog.maps.geojson
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PointMode
 import center.sciprog.attributes.NameAttribute
 import center.sciprog.maps.coordinates.Gmc
 import center.sciprog.maps.features.*
@@ -17,23 +16,18 @@ public fun FeatureGroup<Gmc>.geoJsonGeometry(
     geometry: GeoJsonGeometry,
     id: String? = null,
 ): FeatureRef<Gmc, Feature<Gmc>> = when (geometry) {
-    is GeoJsonLineString -> points(
+    is GeoJsonLineString -> multiLine(
         geometry.coordinates,
-        pointMode = PointMode.Lines
     )
 
     is GeoJsonMultiLineString -> group(id = id) {
         geometry.coordinates.forEach {
-            points(
-                it,
-                pointMode = PointMode.Lines
-            )
+            multiLine(it)
         }
     }
 
     is GeoJsonMultiPoint -> points(
         geometry.coordinates,
-        pointMode = PointMode.Points
     )
 
     is GeoJsonMultiPolygon -> group(id = id) {

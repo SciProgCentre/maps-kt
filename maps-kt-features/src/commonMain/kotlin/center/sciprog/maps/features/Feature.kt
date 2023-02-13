@@ -3,7 +3,10 @@ package center.sciprog.maps.features
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -112,8 +115,6 @@ public data class PathFeature<T : Any>(
 public data class PointsFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     public val points: List<T>,
-    public val stroke: Float = 2f,
-    public val pointMode: PointMode = PointMode.Points,
     override val attributes: Attributes = Attributes.EMPTY,
 ) : Feature<T> {
 
@@ -124,6 +125,59 @@ public data class PointsFeature<T : Any>(
     override fun getBoundingBox(zoom: Float): Rectangle<T>? = boundingBox
     override fun withAttributes(modify: (Attributes) -> Attributes): Feature<T> = copy(attributes = modify(attributes))
 }
+
+
+public interface LineSegmentFeature<T : Any> : Feature<T>
+
+@Stable
+public data class LineFeature<T : Any>(
+    override val space: CoordinateSpace<T>,
+    public val a: T,
+    public val b: T,
+    override val attributes: Attributes = Attributes.EMPTY,
+) : DomainFeature<T>, LineSegmentFeature<T> {
+    override fun getBoundingBox(zoom: Float): Rectangle<T> =
+        space.Rectangle(a, b)
+
+    override fun contains(viewPoint: ViewPoint<T>): Boolean = with(space) {
+        viewPoint.focus in getBoundingBox(viewPoint.zoom) && viewPoint.focus.distanceToLine(
+            a,
+            b,
+            viewPoint.zoom
+        ).value < clickRadius
+    }
+
+    override fun withAttributes(modify: (Attributes) -> Attributes): Feature<T> = copy(attributes = modify(attributes))
+}
+
+public data class MultiLineFeature<T : Any>(
+    override val space: CoordinateSpace<T>,
+    public val points: List<T>,
+    override val attributes: Attributes = Attributes.EMPTY,
+) : DomainFeature<T>, LineSegmentFeature<T> {
+
+    private val boundingBox by lazy {
+        with(space) { points.wrapPoints() }
+    }
+
+    override fun getBoundingBox(zoom: Float): Rectangle<T>? = boundingBox
+    override fun withAttributes(modify: (Attributes) -> Attributes): Feature<T> = copy(attributes = modify(attributes))
+
+    override fun contains(viewPoint: ViewPoint<T>): Boolean = with(space) {
+        val boundingBox = getBoundingBox(viewPoint.zoom) ?: return@with false
+        viewPoint.focus in boundingBox && points.zipWithNext().minOf { (a, b) ->
+            viewPoint.focus.distanceToLine(
+                a,
+                b,
+                viewPoint.zoom
+            ).value
+        } < clickRadius
+    }
+}
+
+
+private val <T : Any, F : LineSegmentFeature<T>> F.clickRadius get() = attributes[ClickRadius] ?: 10f
+
 
 @Stable
 public data class PolygonFeature<T : Any>(
@@ -172,29 +226,6 @@ public data class RectangleFeature<T : Any>(
         space.Rectangle(center, zoom, size)
 
     override fun withCoordinates(newCoordinates: T): Feature<T> = copy(center = newCoordinates)
-
-    override fun withAttributes(modify: (Attributes) -> Attributes): Feature<T> = copy(attributes = modify(attributes))
-}
-
-@Stable
-public data class LineFeature<T : Any>(
-    override val space: CoordinateSpace<T>,
-    public val a: T,
-    public val b: T,
-    override val attributes: Attributes = Attributes.EMPTY,
-) : DomainFeature<T> {
-    override fun getBoundingBox(zoom: Float): Rectangle<T> =
-        space.Rectangle(a, b)
-
-    private val clickRadius get() = attributes[ClickRadius] ?: 10f
-
-    override fun contains(viewPoint: ViewPoint<T>): Boolean = with(space) {
-        viewPoint.focus in getBoundingBox(viewPoint.zoom) && viewPoint.focus.distanceToLine(
-            a,
-            b,
-            viewPoint.zoom
-        ).value < clickRadius
-    }
 
     override fun withAttributes(modify: (Attributes) -> Attributes): Feature<T> = copy(attributes = modify(attributes))
 }

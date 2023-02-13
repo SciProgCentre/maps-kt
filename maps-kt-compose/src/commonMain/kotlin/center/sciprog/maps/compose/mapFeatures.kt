@@ -1,6 +1,5 @@
 package center.sciprog.maps.compose
 
-import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
@@ -32,7 +31,7 @@ public fun FeatureGroup<Gmc>.rectangle(
     size: DpSize = DpSize(5.dp, 5.dp),
     id: String? = null,
 ): FeatureRef<Gmc, RectangleFeature<Gmc>> = feature(
-    id, RectangleFeature(space, coordinatesOf(centerCoordinates),  size)
+    id, RectangleFeature(space, coordinatesOf(centerCoordinates), size)
 )
 
 
@@ -83,11 +82,13 @@ public fun FeatureGroup<Gmc>.arc(
 
 public fun FeatureGroup<Gmc>.points(
     points: List<Pair<Double, Double>>,
-    stroke: Float = 2f,
-    pointMode: PointMode = PointMode.Points,
     id: String? = null,
-): FeatureRef<Gmc, PointsFeature<Gmc>> =
-    feature(id, PointsFeature(space, points.map(::coordinatesOf),  stroke,  pointMode))
+): FeatureRef<Gmc, PointsFeature<Gmc>> = feature(id, PointsFeature(space, points.map(::coordinatesOf)))
+
+public fun FeatureGroup<Gmc>.multiLine(
+    points: List<Pair<Double, Double>>,
+    id: String? = null,
+): FeatureRef<Gmc, MultiLineFeature<Gmc>> = feature(id, MultiLineFeature(space, points.map(::coordinatesOf)))
 
 public fun FeatureGroup<Gmc>.image(
     position: Pair<Double, Double>,

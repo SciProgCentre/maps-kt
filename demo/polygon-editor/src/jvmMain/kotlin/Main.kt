@@ -6,7 +6,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -26,9 +25,8 @@ fun App() {
         val myPolygon: SnapshotStateList<XY> = remember { mutableStateListOf<XY>() }
 
         val featureState: FeatureGroup<XY> = FeatureGroup.remember(XYCoordinateSpace) {
-            points(
+            multiLine(
                 listOf(XY(0f, 0f), XY(0f, 1f), XY(1f, 1f), XY(1f, 0f), XY(0f, 0f)),
-                pointMode = PointMode.Polygon,
                 id = "frame"
             )
         }
@@ -36,9 +34,8 @@ fun App() {
 
         if(myPolygon.isNotEmpty()) {
             featureState.group("polygon") {
-                points(
+                multiLine(
                     myPolygon + myPolygon.first(),
-                    pointMode = PointMode.Polygon,
                 )
                 myPolygon.forEachIndexed { index, xy ->
                     circle(xy, id = "point[$index]").draggable { _, to ->

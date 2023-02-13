@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
@@ -76,6 +77,30 @@ fun FeatureStateSnapshot<XY>.generateSvg(
                 feature.b.toOffset(),
                 alpha = alpha
             )
+
+            is PointsFeature -> {
+                val points = feature.points.map { it.toOffset() }
+                drawPoints(
+                    points = points,
+                    color = color,
+                    strokeWidth = feature.attributes[StrokeAttribute] ?: Stroke.HairlineWidth,
+                    pointMode = PointMode.Points,
+                    pathEffect = feature.attributes[PathEffectAttribute],
+                    alpha = alpha
+                )
+            }
+
+            is MultiLineFeature -> {
+                val points = feature.points.map { it.toOffset() }
+                drawPoints(
+                    points = points,
+                    color = color,
+                    strokeWidth = feature.attributes[StrokeAttribute] ?: Stroke.HairlineWidth,
+                    pointMode = PointMode.Polygon,
+                    pathEffect = feature.attributes[PathEffectAttribute],
+                    alpha = alpha
+                )
+            }
 
             is ArcFeature -> {
                 val topLeft = feature.oval.leftTop.toOffset()

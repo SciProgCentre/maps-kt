@@ -32,7 +32,17 @@ public object VisibleAttribute : Attribute<Boolean>
 
 public object ColorAttribute : Attribute<Color>
 
+
+public fun <T : Any, F : Feature<T>> FeatureRef<T, F>.color(color: Color): FeatureRef<T, F> =
+    modifyAttribute(ColorAttribute, color)
+
+
 public object ZoomRangeAttribute : Attribute<FloatRange>
+
+
+public fun <T : Any, F : Feature<T>> FeatureRef<T, F>.zoomRange(range: FloatRange): FeatureRef<T, F> =
+    modifyAttribute(ZoomRangeAttribute, range)
+
 
 public object AlphaAttribute : Attribute<Float>
 
@@ -47,7 +57,10 @@ public fun <T : Any, F : Feature<T>> FeatureRef<T, F>.modifyAttributes(modify: A
     return this
 }
 
-public fun <T : Any, F : Feature<T>, V>  FeatureRef<T, F>.modifyAttribute(key: Attribute<V>, value: V?): FeatureRef<T, F>{
+public fun <T : Any, F : Feature<T>, V> FeatureRef<T, F>.modifyAttribute(
+    key: Attribute<V>,
+    value: V?,
+): FeatureRef<T, F> {
     @Suppress("UNCHECKED_CAST")
     parent.feature(id, resolve().withAttributes { withAttribute(key, value) } as F)
     return this
@@ -59,10 +72,10 @@ public fun <T : Any, F : Feature<T>, V>  FeatureRef<T, F>.modifyAttribute(key: A
  * @param constraint optional drag constraint
  */
 @Suppress("UNCHECKED_CAST")
-public fun <T: Any, F : DraggableFeature<T>> FeatureRef<T, F>.draggable(
+public fun <T : Any, F : DraggableFeature<T>> FeatureRef<T, F>.draggable(
     constraint: ((T) -> T)? = null,
     listener: (PointerEvent.(from: ViewPoint<T>, to: ViewPoint<T>) -> Unit)? = null,
-): FeatureRef<T, F> = with(parent){
+): FeatureRef<T, F> = with(parent) {
     if (attributes[DraggableAttribute] == null) {
         val handle = DragHandle.withPrimaryButton<Any> { event, start, end ->
             val feature = featureMap[id] as? DraggableFeature<T> ?: return@withPrimaryButton DragResult(end)
@@ -112,7 +125,7 @@ public fun <T : Any, F : DomainFeature<T>> FeatureRef<T, F>.onClick(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Suppress("UNCHECKED_CAST")
-public fun <T: Any, F : DomainFeature<T>> FeatureRef<T, F>.onClick(
+public fun <T : Any, F : DomainFeature<T>> FeatureRef<T, F>.onClick(
     pointerMatcher: PointerMatcher,
     keyboardModifiers: PointerKeyboardModifiers.() -> Boolean = { true },
     onClick: PointerEvent.(click: ViewPoint<T>) -> Unit,
@@ -127,7 +140,7 @@ public fun <T: Any, F : DomainFeature<T>> FeatureRef<T, F>.onClick(
 }
 
 @Suppress("UNCHECKED_CAST")
-public fun <T: Any, F : DomainFeature<T>> FeatureRef<T, F>.onHover(
+public fun <T : Any, F : DomainFeature<T>> FeatureRef<T, F>.onHover(
     onClick: PointerEvent.(move: ViewPoint<T>) -> Unit,
 ): FeatureRef<T, F> = modifyAttributes {
     HoverListenerAttribute.add(
@@ -147,15 +160,13 @@ public fun <T: Any, F : DomainFeature<T>> FeatureRef<T, F>.onHover(
 //        )
 //    }
 
-public fun <T: Any, F : Feature<T>> FeatureRef<T, F>.color(color: Color): FeatureRef<T, F> =
-    modifyAttribute(ColorAttribute, color)
 
-public fun <T: Any, F : Feature<T>> FeatureRef<T, F>.zoomRange(range: FloatRange): FeatureRef<T, F> =
-    modifyAttribute(ZoomRangeAttribute, range)
+public object PathEffectAttribute : Attribute<PathEffect>
 
-
-
-public object PathEffectAttribute: Attribute<PathEffect>
-
-public fun <T: Any> FeatureRef<T, PointsFeature<T>>.pathEffect(effect: PathEffect): FeatureRef<T, PointsFeature<T>> =
+public fun <T : Any> FeatureRef<T, LineSegmentFeature<T>>.pathEffect(effect: PathEffect): FeatureRef<T, LineSegmentFeature<T>> =
     modifyAttribute(PathEffectAttribute, effect)
+
+public object StrokeAttribute : Attribute<Float>
+
+public fun <T : Any, F : LineSegmentFeature<T>> FeatureRef<T, F>.stroke(width: Float): FeatureRef<T, F> =
+    modifyAttribute(StrokeAttribute, width)

@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -91,7 +90,7 @@ fun App() {
                 println("line 3 clicked")
             }
 
-            points(
+            multiLine(
                 points = listOf(
                     55.742465 to 37.615812,
                     55.742713 to 37.616370,
@@ -100,7 +99,6 @@ fun App() {
                     55.742086 to 37.616566,
                     55.741715 to 37.616716
                 ),
-                pointMode = PointMode.Polygon
             )
 
             //remember feature ID
@@ -138,13 +136,11 @@ fun App() {
                     println("Click on ${ref.id}")
                     //draw in top-level scope
                     with(this@MapView) {
-                        points(
+                        multiLine(
                             ref.resolve().points,
-                            stroke = 4f,
-                            pointMode = PointMode.Polygon,
                             attributes = Attributes(ZAttribute, 10f),
                             id = "selected",
-                        ).color(Color.Magenta)
+                        ).modifyAttribute(StrokeAttribute, 4f).color(Color.Magenta)
                     }
                 }
             }
