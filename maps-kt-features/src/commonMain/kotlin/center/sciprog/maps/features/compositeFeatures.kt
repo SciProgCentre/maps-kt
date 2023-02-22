@@ -1,6 +1,7 @@
 package center.sciprog.maps.features
 
 import center.sciprog.attributes.Attributes
+import kotlin.jvm.JvmName
 
 
 public fun <T : Any> FeatureGroup<T>.draggableLine(
@@ -67,4 +68,15 @@ public fun <T : Any> FeatureGroup<T>.draggableMultiLine(
     }
 
     return drawLines()
+}
+
+@JvmName("draggableMultiLineFromPoints")
+public fun <T : Any> FeatureGroup<T>.draggableMultiLine(
+    points: List<T>,
+    id: String? = null,
+): FeatureRef<T, MultiLineFeature<T>> {
+    val pointRefs = points.map {
+        circle(it)
+    }
+    return draggableMultiLine(pointRefs, id)
 }

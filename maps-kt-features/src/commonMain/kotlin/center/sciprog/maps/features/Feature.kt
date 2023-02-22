@@ -203,11 +203,15 @@ public data class PolygonFeature<T : Any>(
 public data class CircleFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     override val center: T,
-    public val size: Dp = 5.dp,
+    public val radius: Dp = 5.dp,
     override val attributes: Attributes = Attributes.EMPTY,
 ) : MarkerFeature<T> {
     override fun getBoundingBox(zoom: Float): Rectangle<T> =
-        space.Rectangle(center, zoom, DpSize(size, size))
+        space.Rectangle(center, zoom, DpSize(radius * 2, radius * 2))
+
+    override fun contains(viewPoint: ViewPoint<T>): Boolean = with(space) {
+        viewPoint.focus.distanceTo(center, viewPoint.zoom) < radius
+    }
 
     override fun withCoordinates(newCoordinates: T): Feature<T> = copy(center = newCoordinates)
 

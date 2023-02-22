@@ -32,7 +32,7 @@ public fun <T : Any> DrawScope.drawFeature(
         is FeatureSelector -> drawFeature(state, painterCache, feature.selector(state.zoom))
         is CircleFeature -> drawCircle(
             color,
-            feature.size.toPx(),
+            feature.radius.toPx(),
             center = feature.center.toOffset()
         )
 

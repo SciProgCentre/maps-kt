@@ -66,7 +66,7 @@ fun FeatureStateSnapshot<XY>.generateSvg(
 
             is CircleFeature -> drawCircle(
                 color,
-                feature.size.toPx(),
+                feature.radius.toPx(),
                 center = feature.center.toOffset(),
                 alpha = alpha
             )

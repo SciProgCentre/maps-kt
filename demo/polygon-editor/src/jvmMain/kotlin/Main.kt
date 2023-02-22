@@ -1,9 +1,9 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.material.Button
 import androidx.compose.material.CursorDropdownMenu
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.input.pointer.isSecondaryPressed
@@ -31,21 +31,6 @@ fun App() {
             )
         }
 
-
-        if(myPolygon.isNotEmpty()) {
-            featureState.group("polygon") {
-                multiLine(
-                    myPolygon + myPolygon.first(),
-                )
-                myPolygon.forEachIndexed { index, xy ->
-                    circle(xy, id = "point[$index]").draggable { _, to ->
-                        myPolygon[index] = to.focus
-                    }
-                }
-            }
-        }
-
-
         val mapState: XYViewScope = XYViewScope.remember(
             config = ViewConfig<XY>(
                 onClick = { event, point ->
@@ -59,8 +44,20 @@ fun App() {
 
         CursorDropdownMenu(clickPoint != null, { clickPoint = null }) {
             clickPoint?.let { point ->
-                Button({
+                TextButton({
                     myPolygon.add(point)
+                    if (myPolygon.isNotEmpty()) {
+                        featureState.group(id = "polygon") {
+                            val pointRefs = myPolygon.mapIndexed { index, xy ->
+                                circle(xy, id = "point[$index]").draggable { _, to ->
+                                    myPolygon[index] = to.focus
+                                }
+                            }
+                            draggableMultiLine(
+                                pointRefs + pointRefs.first(),
+                            )
+                        }
+                    }
                     clickPoint = null
                 }) {
                     Text("Create node")
