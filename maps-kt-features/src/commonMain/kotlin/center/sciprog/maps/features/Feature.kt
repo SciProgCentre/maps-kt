@@ -140,10 +140,9 @@ public data class LineFeature<T : Any>(
 
     val center: T by lazy { getBoundingBox().center }
 
-    val length: Dp by lazy { with(space) { a.distanceTo(b) } }
-
     override fun contains(viewPoint: ViewPoint<T>): Boolean = with(space) {
-        viewPoint.focus.distanceTo(center) <= length / 2 &&
+        val length = a.distanceTo(b, viewPoint.zoom)
+        viewPoint.focus.distanceTo(center, viewPoint.zoom) <= length / 2 &&
                 viewPoint.focus.distanceToLine(a, b, viewPoint.zoom).value <= clickRadius
     }
 
