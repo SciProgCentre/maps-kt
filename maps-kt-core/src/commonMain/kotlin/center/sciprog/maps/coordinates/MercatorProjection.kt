@@ -5,6 +5,7 @@
 
 package center.sciprog.maps.coordinates
 
+import kotlinx.serialization.Serializable
 import space.kscience.kmath.geometry.*
 import kotlin.math.*
 
@@ -27,25 +28,42 @@ public interface MapProjection<T : Any> {
  * @param baseLongitude the longitude offset in radians
  * @param ellipsoid - a [GeoEllipsoid] to be used for conversion
  */
+@Serializable
 public open class MercatorProjection(
     public val baseLongitude: Angle = Angle.zero,
     public val ellipsoid: GeoEllipsoid = GeoEllipsoid.sphere,
 ) : MapProjection<ProjectionCoordinates> {
 
-    override fun toGeodetic(pc: ProjectionCoordinates): GeodeticMapCoordinates {
-        val res = GeodeticMapCoordinates.ofRadians(
-            atan(sinh(pc.y / ellipsoid.equatorRadius)),
-            baseLongitude.radians + (pc.x / ellipsoid.equatorRadius),
-        )
 
+    /**
+     * Taken from https://github.com/geotools/geotools/blob/main/modules/library/referencing/src/main/java/org/geotools/referencing/operation/projection/Mercator.java#L164
+     */
+    private fun cphi2(ts: Double): Double {
+        val eccnth: Double = 0.5 * ellipsoid.eccentricity
+        var phi: Double = PI / 2 - 2.0 * atan(ts)
+        for (i in 0 until 15) {
+            val con: Double = ellipsoid.eccentricity * sin(phi)
+            val dphi: Double = PI / 2 - 2.0 * atan(ts * ((1 - con) / (1 + con)).pow(eccnth)) - phi
+            phi += dphi
+            if (abs(dphi) <= 1e-10) {
+                return phi
+            }
+        }
+        error("Inverse mercator projection transformation failed to converge")
+    }
+
+
+    override fun toGeodetic(pc: ProjectionCoordinates): GeodeticMapCoordinates {
         return if (ellipsoid === GeoEllipsoid.sphere) {
-            res
+            GeodeticMapCoordinates.ofRadians(
+                atan(sinh(pc.y / ellipsoid.equatorRadius)),
+                baseLongitude.radians + (pc.x / ellipsoid.equatorRadius),
+            )
         } else {
-            TODO("Elliptical mercator projection not implemented")
-//            GeodeticMapCoordinates(
-//                atan(sinh(pc.y / ellipsoid.polarRadius)).radians,
-//                res.longitude,
-//            )
+            GeodeticMapCoordinates.ofRadians(
+                cphi2(exp(-(pc.y / ellipsoid.equatorRadius))),
+                baseLongitude.radians + (pc.x / ellipsoid.equatorRadius)
+            )
         }
     }
 

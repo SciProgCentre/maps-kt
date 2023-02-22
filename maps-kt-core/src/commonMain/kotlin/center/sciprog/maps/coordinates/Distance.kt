@@ -1,7 +1,9 @@
 package center.sciprog.maps.coordinates
 
+import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
+@Serializable
 @JvmInline
 public value class Distance internal constructor(public val kilometers: Double) : Comparable<Distance> {
     override fun compareTo(other: Distance): Int = this.kilometers.compareTo(other.kilometers)

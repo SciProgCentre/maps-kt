@@ -1,11 +1,12 @@
 package center.sciprog.maps.coordinates
 
+import kotlinx.serialization.Serializable
 import space.kscience.kmath.geometry.Angle
 import space.kscience.kmath.geometry.tan
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-
+@Serializable
 public class GeoEllipsoid(public val equatorRadius: Distance, public val polarRadius: Distance) {
 
     /**
@@ -18,7 +19,12 @@ public class GeoEllipsoid(public val equatorRadius: Distance, public val polarRa
      */
     public val inverseF: Double = equatorRadius.kilometers / (equatorRadius.kilometers - polarRadius.kilometers)
 
+    /**
+     *  Eccentricity squared
+     */
     public val eSquared: Double = 2 * f - f * f
+
+    public val eccentricity: Double = sqrt(eSquared)
 
     public companion object {
 

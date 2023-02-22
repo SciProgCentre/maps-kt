@@ -1,5 +1,6 @@
 package center.sciprog.maps.coordinates
 
+import kotlinx.serialization.Serializable
 import space.kscience.kmath.geometry.Angle
 import space.kscience.kmath.geometry.degrees
 import space.kscience.kmath.geometry.normalized
@@ -10,6 +11,7 @@ import space.kscience.kmath.geometry.radians
  *
  * @param elevation is optional
  */
+@Serializable
 public class GeodeticMapCoordinates(
     public val latitude: Angle,
     public val longitude: Angle,
