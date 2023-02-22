@@ -37,3 +37,34 @@ public fun <T : Any> FeatureGroup<T>.draggableLine(
 
     return drawLine()
 }
+
+public fun <T : Any> FeatureGroup<T>.draggableMultiLine(
+    points: List<FeatureRef<T, MarkerFeature<T>>>,
+    id: String? = null,
+): FeatureRef<T, MultiLineFeature<T>> {
+    var polygonId: FeatureRef<T, MultiLineFeature<T>>? = null
+
+    fun drawLines(): FeatureRef<T, MultiLineFeature<T>> {
+        val currentId = feature(
+            polygonId?.id ?: id,
+            MultiLineFeature(
+                space,
+                points.map { it.resolve().center },
+                Attributes {
+                    ZAttribute(-10f)
+                    polygonId?.attributes?.let { from(it) }
+                }
+            )
+        )
+        polygonId = currentId
+        return currentId
+    }
+
+    points.forEach {
+        it.draggable { _, _ ->
+            drawLines()
+        }
+    }
+
+    return drawLines()
+}

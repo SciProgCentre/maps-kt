@@ -29,7 +29,7 @@ public interface Feature<T : Any> {
 
     public val attributes: Attributes
 
-    public fun getBoundingBox(zoom: Float): Rectangle<T>?
+    public fun getBoundingBox(zoom: Float = Float.MAX_VALUE): Rectangle<T>?
 
     public fun withAttributes(modify: Attributes.() -> Attributes): Feature<T>
 }
@@ -136,15 +136,15 @@ public data class LineFeature<T : Any>(
     public val b: T,
     override val attributes: Attributes = Attributes.EMPTY,
 ) : DomainFeature<T>, LineSegmentFeature<T> {
-    override fun getBoundingBox(zoom: Float): Rectangle<T> =
-        space.Rectangle(a, b)
+    override fun getBoundingBox(zoom: Float): Rectangle<T> = space.Rectangle(a, b)
+
+    val center: T by lazy { getBoundingBox().center }
+
+    val length: Dp by lazy { with(space) { a.distanceTo(b) } }
 
     override fun contains(viewPoint: ViewPoint<T>): Boolean = with(space) {
-        viewPoint.focus in getBoundingBox(viewPoint.zoom) && viewPoint.focus.distanceToLine(
-            a,
-            b,
-            viewPoint.zoom
-        ).value < clickRadius
+        viewPoint.focus.distanceTo(center) <= length / 2 &&
+                viewPoint.focus.distanceToLine(a, b, viewPoint.zoom).value <= clickRadius
     }
 
     override fun withAttributes(modify: (Attributes) -> Attributes): Feature<T> = copy(attributes = modify(attributes))

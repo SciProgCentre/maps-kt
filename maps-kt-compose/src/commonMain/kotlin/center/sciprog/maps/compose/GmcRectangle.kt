@@ -18,16 +18,16 @@ internal data class GmcRectangle(
     override val a: GeodeticMapCoordinates,
     override val b: GeodeticMapCoordinates,
 ) : Rectangle<Gmc> {
+    override val center: GeodeticMapCoordinates
+        get() = GeodeticMapCoordinates.normalized(
+            (a.latitude + b.latitude) / 2,
+            (a.longitude + b.longitude) / 2
+        )
+
 
     override fun contains(point: Gmc): Boolean =
         point.latitude.isBetween(a.latitude, b.latitude) && point.longitude.isBetween(a.longitude, b.longitude)
 }
-
-public val Rectangle<Gmc>.center: GeodeticMapCoordinates
-    get() = GeodeticMapCoordinates.normalized(
-        (a.latitude + b.latitude) / 2,
-        (a.longitude + b.longitude) / 2
-    )
 
 /**
  * Minimum longitude

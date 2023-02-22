@@ -19,6 +19,8 @@ public interface Area<T : Any> {
 public interface Rectangle<T : Any> : Area<T> {
     public val a: T
     public val b: T
+
+    public val center: T
 }
 
 /**
@@ -64,12 +66,12 @@ public interface CoordinateSpace<T : Any> {
 
     public fun T.offsetTo(b: T, zoom: Float): DpOffset
 
-    public fun T.distanceTo(b: T, zoom: Float): Dp {
+    public fun T.distanceTo(b: T, zoom: Float = Float.MAX_VALUE): Dp {
         val offset = offsetTo(b, zoom)
         return sqrt(offset.x.value * offset.x.value + offset.y.value * offset.y.value).dp
     }
 
-    public fun T.distanceToLine(a: T, b: T, zoom: Float): Dp {
+    public fun T.distanceToLine(a: T, b: T, zoom: Float = Float.MAX_VALUE): Dp {
         val d12 = a.offsetTo(b, zoom)
         val d01 = offsetTo(a, zoom)
         val distanceVale = abs(d12.x.value * d01.y.value - d12.y.value * d01.x.value) / a.distanceTo(b, zoom).value
