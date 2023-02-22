@@ -62,7 +62,7 @@ public class MapViewScope internal constructor(
             min(
                 canvasSize.width.value / rectangle.longitudeDelta.radians,
                 canvasSize.height.value / rectangle.latitudeDelta.radians
-            ) * PI / mapTileProvider.tileSize
+            ) * 2 * PI / mapTileProvider.tileSize
         )
         return space.ViewPoint(rectangle.center, zoom.toFloat())
     }
