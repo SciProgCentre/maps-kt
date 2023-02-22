@@ -151,7 +151,7 @@ private suspend fun AwaitPointerEventScope.consumeUntilUp() {
 
 /**
  * Waits for [ViewConfiguration.doubleTapTimeoutMillis] for a second press event. If a
- * second press event is received before the time out, it is returned or `null` is returned
+ * second press event is received before the time-out, it is returned or `null` is returned
  * if no second press is received.
  */
 private suspend fun AwaitPointerEventScope.awaitSecondDown(

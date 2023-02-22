@@ -225,16 +225,18 @@ public fun <T : Any> FeatureGroup<T>.multiLine(
 
 public fun <T : Any> FeatureGroup<T>.polygon(
     points: List<T>,
+    attributes: Attributes = Attributes.EMPTY,
     id: String? = null,
 ): FeatureRef<T, PolygonFeature<T>> = feature(
     id,
-    PolygonFeature(space, points)
+    PolygonFeature(space, points, attributes)
 )
 
 public fun <T : Any> FeatureGroup<T>.image(
     position: T,
     image: ImageVector,
     size: DpSize = DpSize(image.defaultWidth, image.defaultHeight),
+    attributes: Attributes = Attributes.EMPTY,
     id: String? = null,
 ): FeatureRef<T, VectorImageFeature<T>> =
     feature(
@@ -244,33 +246,37 @@ public fun <T : Any> FeatureGroup<T>.image(
             position,
             size,
             image,
+            attributes
         )
     )
 
 public fun <T : Any> FeatureGroup<T>.group(
+    attributes: Attributes = Attributes.EMPTY,
     id: String? = null,
     builder: FeatureGroup<T>.() -> Unit,
 ): FeatureRef<T, FeatureGroup<T>> {
     val collection = FeatureGroup(space).apply(builder)
-    val feature = FeatureGroup(space, collection.featureMap)
+    val feature = FeatureGroup(space, collection.featureMap, attributes)
     return feature(id, feature)
 }
 
 public fun <T : Any> FeatureGroup<T>.scalableImage(
     box: Rectangle<T>,
+    attributes: Attributes = Attributes.EMPTY,
     id: String? = null,
     painter: @Composable () -> Painter,
 ): FeatureRef<T, ScalableImageFeature<T>> = feature(
     id,
-    ScalableImageFeature<T>(space, box, painter = painter)
+    ScalableImageFeature<T>(space, box, painter = painter, attributes = attributes)
 )
 
 public fun <T : Any> FeatureGroup<T>.text(
     position: T,
     text: String,
     font: FeatureFont.() -> Unit = { size = 16f },
+    attributes: Attributes = Attributes.EMPTY,
     id: String? = null,
 ): FeatureRef<T, TextFeature<T>> = feature(
     id,
-    TextFeature(space, position, text, fontConfig = font)
+    TextFeature(space, position, text, fontConfig = font, attributes = attributes)
 )
