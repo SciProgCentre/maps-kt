@@ -123,6 +123,21 @@ fun App() {
             line(pointOne, pointTwo, id = "line")
             text(pointOne, "Home", font = { size = 32f })
 
+            pixelMap(
+                space.Rectangle(
+                    Gmc(latitude = 55.58461879539754.degrees, longitude = 37.8746197303493.degrees),
+                    Gmc(latitude = 55.442792937592415.degrees, longitude = 38.132240805463844.degrees)
+                ),
+                0.005.degrees,
+                0.005.degrees
+            ) { gmc ->
+                Color(
+                    red = ((gmc.latitude + Angle.piDiv2).degrees*10 % 1f).toFloat(),
+                    green = ((gmc.longitude + Angle.pi).degrees*10 % 1f).toFloat(),
+                    blue = 0f
+                ).copy(alpha = 0.3f)
+            }
+
             centerCoordinates.filterNotNull().onEach {
                 group(id = "center") {
                     circle(center = it, id = "circle", size = 1.dp).color(Color.Blue)

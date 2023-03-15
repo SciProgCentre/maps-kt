@@ -26,7 +26,7 @@ public class MapViewScope internal constructor(
     public val intZoom: Int get() = floor(zoom).toInt()
 
     public val centerCoordinates: WebMercatorCoordinates
-        get() = WebMercatorProjection.toMercator(viewPoint.focus, intZoom)
+        get() = WebMercatorProjection.toMercator(viewPoint.focus, intZoom) ?: WebMercatorCoordinates(intZoom, 0f, 0f)
 
     public val tileScale: Float
         get() = 2f.pow(zoom - floor(zoom))
@@ -44,7 +44,7 @@ public class MapViewScope internal constructor(
     }
 
     override fun Gmc.toDpOffset(): DpOffset {
-        val mercator = WebMercatorProjection.toMercator(this, intZoom)
+        val mercator = WebMercatorProjection.toMercator(this, intZoom) ?: WebMercatorCoordinates(intZoom, 0f, 0f)
         return DpOffset(
             (canvasSize.width / 2 + (mercator.x.dp - centerCoordinates.x.dp) * tileScale),
             (canvasSize.height / 2 + (mercator.y.dp - centerCoordinates.y.dp) * tileScale)

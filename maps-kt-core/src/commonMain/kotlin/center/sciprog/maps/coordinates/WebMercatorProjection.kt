@@ -27,9 +27,11 @@ public object WebMercatorProjection {
 
     /**
      * https://en.wikipedia.org/wiki/Web_Mercator_projection#Formulas
+     *
+     * return null if gmc is outside of possible coordinate scope for WebMercator
      */
-    public fun toMercator(gmc: GeodeticMapCoordinates, zoom: Int): WebMercatorCoordinates {
-        require(abs(gmc.latitude) <= MercatorProjection.MAXIMUM_LATITUDE) { "Latitude exceeds the maximum latitude for mercator coordinates" }
+    public fun toMercator(gmc: GeodeticMapCoordinates, zoom: Int): WebMercatorCoordinates? {
+        if (abs(gmc.latitude) > MercatorProjection.MAXIMUM_LATITUDE) return null
 
         val scaleFactor = scaleFactor(zoom.toFloat())
         return WebMercatorCoordinates(

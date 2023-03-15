@@ -55,7 +55,7 @@ public class GeodeticMapCoordinates(
             longitude: Angle,
             elevation: Distance? = null,
         ): GeodeticMapCoordinates = GeodeticMapCoordinates(
-            latitude, longitude.normalized(Angle.zero), elevation
+            latitude.coerceIn(-Angle.piDiv2..Angle.piDiv2), longitude.normalized(Angle.zero), elevation
         )
 
         public fun ofRadians(

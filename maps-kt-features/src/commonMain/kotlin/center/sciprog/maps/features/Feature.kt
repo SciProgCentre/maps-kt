@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import center.sciprog.attributes.Attributes
 import center.sciprog.attributes.NameAttribute
 import space.kscience.kmath.geometry.Angle
+import space.kscience.kmath.nd.Structure2D
 
 public typealias FloatRange = ClosedFloatingPointRange<Float>
 
@@ -331,4 +332,27 @@ public data class TextFeature<T : Any>(
     override fun withCoordinates(newCoordinates: T): Feature<T> = copy(position = newCoordinates)
 
     override fun withAttributes(modify: (Attributes) -> Attributes): Feature<T> = copy(attributes = modify(attributes))
+}
+
+/**
+ * A pixel map representation on the map/scheme.
+ * [rectangle] describes the boundary of the pixel map.
+ * [pixelMap] contained indexed color of pixels. Minimal indices correspond to bottom-left corner of the rectangle.
+ * Maximal indices - top-right.
+ */
+public data class PixelMapFeature<T : Any>(
+    override val space: CoordinateSpace<T>,
+    val rectangle: Rectangle<T>,
+    val pixelMap: Structure2D<Color?>,
+    override val attributes: Attributes = Attributes.EMPTY,
+) : Feature<T> {
+
+    init {
+        require(pixelMap.shape[0] > 0) { "Empty dimensions in pixel map are not allowed" }
+        require(pixelMap.shape[1] > 0) { "Empty dimensions in pixel map are not allowed" }
+    }
+
+    override fun getBoundingBox(zoom: Float): Rectangle<T> = rectangle
+
+    override fun withAttributes(modify: Attributes.() -> Attributes): Feature<T> = copy(attributes = modify(attributes))
 }

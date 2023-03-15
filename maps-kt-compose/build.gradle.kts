@@ -4,14 +4,10 @@ plugins {
     `maven-publish`
 }
 
-
 kotlin {
     explicitApi = org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Warning
-    jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = space.kscience.gradle.KScienceVersions.JVM_TARGET.toString()
-        }
-    }
+    jvmToolchain(11)
+    jvm()
     sourceSets {
         commonMain {
             dependencies {

@@ -77,8 +77,8 @@ public object WebMercatorSpace : CoordinateSpace<Gmc> {
 
     override fun Gmc.offsetTo(b: Gmc, zoom: Float): DpOffset {
         val intZoom = intZoom(zoom)
-        val mercatorA = WebMercatorProjection.toMercator(this, intZoom)
-        val mercatorB = WebMercatorProjection.toMercator(b, intZoom)
+        val mercatorA = WebMercatorProjection.toMercator(this, intZoom) ?: WebMercatorCoordinates(intZoom, 0f, 0f)
+        val mercatorB = WebMercatorProjection.toMercator(b, intZoom) ?: WebMercatorCoordinates(intZoom, 0f, 0f)
         val tileScale = tileScale(zoom)
         return DpOffset(
             (mercatorA.x - mercatorB.x).dp * tileScale,
@@ -88,13 +88,13 @@ public object WebMercatorSpace : CoordinateSpace<Gmc> {
 
     override fun Gmc.isInsidePolygon(points: List<Gmc>): Boolean = points.zipWithNext().count { (left, right) ->
         //using raytracing algorithm with the ray pointing "up"
-        val longitudeRange = if(right.longitude >= left.longitude) {
+        val longitudeRange = if (right.longitude >= left.longitude) {
             left.longitude..right.longitude
         } else {
             right.longitude..left.longitude
         }
 
-        if(longitude !in longitudeRange) return@count false
+        if (longitude !in longitudeRange) return@count false
 
         val longitudeDelta = right.longitude - left.longitude
 

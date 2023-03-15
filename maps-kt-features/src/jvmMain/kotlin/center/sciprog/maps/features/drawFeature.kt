@@ -12,6 +12,7 @@ import center.sciprog.attributes.plus
 import org.jetbrains.skia.Font
 import org.jetbrains.skia.Paint
 import space.kscience.kmath.geometry.degrees
+import space.kscience.kmath.misc.PerformancePitfall
 
 
 internal fun Color.toPaint(): Paint = Paint().apply {
@@ -164,6 +165,31 @@ public fun <T : Any> DrawScope.drawFeature(
             translate(offset.x, offset.y) {
                 with(painterCache[feature]!!) {
                     draw(rect.size)
+                }
+            }
+        }
+
+        is PixelMapFeature -> {
+            val rect = feature.rectangle.toDpRect().toRect()
+            val xStep = rect.size.width / feature.pixelMap.shape[0]
+            val yStep = rect.size.height / feature.pixelMap.shape[1]
+            val pixelSize = Size(xStep, yStep)
+            //TODO add re-clasterization for small pixel scales
+            val offset = rect.topLeft
+            translate(offset.x, offset.y) {
+                @OptIn(PerformancePitfall::class)
+                feature.pixelMap.elements().forEach { (index, color: Color?) ->
+                    val (i, j) = index
+                    if (color != null) {
+                        drawRect(
+                            color,
+                            topLeft = Offset(
+                                x = i * xStep,
+                                y = rect.height - j * yStep
+                            ),
+                            size = pixelSize
+                        )
+                    }
                 }
             }
         }

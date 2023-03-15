@@ -1,5 +1,6 @@
 package center.sciprog.maps.compose
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
@@ -11,6 +12,12 @@ import center.sciprog.maps.coordinates.Gmc
 import center.sciprog.maps.coordinates.GmcCurve
 import center.sciprog.maps.features.*
 import space.kscience.kmath.geometry.Angle
+import space.kscience.kmath.nd.BufferND
+import space.kscience.kmath.nd.ShapeND
+import space.kscience.kmath.nd.Strides
+import space.kscience.kmath.nd.as2D
+import space.kscience.kmath.structures.Buffer
+import kotlin.math.ceil
 
 
 internal fun FeatureGroup<Gmc>.coordinatesOf(pair: Pair<Number, Number>) =
@@ -114,3 +121,36 @@ public fun FeatureGroup<Gmc>.text(
     id,
     TextFeature(space, coordinatesOf(position), text, fontConfig = font)
 )
+
+public fun <T> BufferND(shape: ShapeND, initializer: (IntArray) -> T): BufferND<T> {
+    val strides = Strides(shape)
+    return BufferND(strides, Buffer.boxing(strides.linearSize) { initializer(strides.index(it)) })
+}
+
+public fun FeatureGroup<Gmc>.pixelMap(
+    rectangle: Rectangle<Gmc>,
+    latitudeDelta: Angle,
+    longitudeDelta: Angle,
+    id: String? = null,
+    builder: (Gmc) -> Color?,
+): FeatureRef<Gmc, PixelMapFeature<Gmc>> {
+    val shape = ShapeND(
+        ceil(rectangle.longitudeDelta / latitudeDelta).toInt(),
+        ceil(rectangle.latitudeDelta / longitudeDelta).toInt()
+    )
+
+    return feature(
+        id,
+        PixelMapFeature(
+            space,
+            rectangle,
+            BufferND(shape) { (i, j) ->
+                val longitude = rectangle.left + longitudeDelta * i
+                val latitude = rectangle.bottom + latitudeDelta * j
+                builder(
+                    Gmc(latitude, longitude)
+                )
+            }.as2D()
+        )
+    )
+}
