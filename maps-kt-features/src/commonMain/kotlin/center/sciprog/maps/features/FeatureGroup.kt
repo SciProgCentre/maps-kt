@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateMap
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -12,6 +13,8 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import center.sciprog.attributes.*
 import space.kscience.kmath.geometry.Angle
+import space.kscience.kmath.nd.*
+import space.kscience.kmath.structures.Buffer
 
 //@JvmInline
 //public value class FeatureId<out F : Feature<*>>(public val id: String)
@@ -279,4 +282,24 @@ public fun <T : Any> FeatureGroup<T>.text(
 ): FeatureRef<T, TextFeature<T>> = feature(
     id,
     TextFeature(space, position, text, fontConfig = font, attributes = attributes)
+)
+
+public fun <T> StructureND(shape: ShapeND, initializer: (IntArray) -> T): StructureND<T> {
+    val strides = Strides(shape)
+    return BufferND(strides, Buffer.boxing(strides.linearSize) { initializer(strides.index(it)) })
+}
+
+public fun <T> Structure2D(rows: Int, columns: Int, initializer: (IntArray) -> T): Structure2D<T> {
+    val strides = Strides(ShapeND(rows, columns))
+    return BufferND(strides, Buffer.boxing(strides.linearSize) { initializer(strides.index(it)) }).as2D()
+}
+
+public fun <T : Any> FeatureGroup<T>.pixelMap(
+    rectangle: Rectangle<T>,
+    pixelMap: Structure2D<Color?>,
+    attributes: Attributes = Attributes.EMPTY,
+    id: String? = null,
+): FeatureRef<T, PixelMapFeature<T>> = feature(
+    id,
+    PixelMapFeature(space, rectangle, pixelMap, attributes = attributes)
 )

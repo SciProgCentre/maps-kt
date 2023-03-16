@@ -1,6 +1,7 @@
 package center.sciprog.maps.scheme
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -10,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import center.sciprog.attributes.Attributes
 import center.sciprog.maps.features.*
 import space.kscience.kmath.geometry.Angle
+import kotlin.math.ceil
 
 internal fun Pair<Number, Number>.toCoordinates(): XY = XY(first.toFloat(), second.toFloat())
 
@@ -80,4 +82,30 @@ fun FeatureGroup<XY>.text(
     text: String,
     id: String? = null,
 ): FeatureRef<XY, TextFeature<XY>> = text(position.toCoordinates(), text, id = id)
+
+public fun FeatureGroup<XY>.pixelMap(
+    rectangle: Rectangle<XY>,
+    xSize: Float,
+    ySize: Float,
+    id: String? = null,
+    builder: (XY) -> Color?,
+): FeatureRef<XY, PixelMapFeature<XY>> = feature(
+    id,
+    PixelMapFeature(
+        space,
+        rectangle,
+        Structure2D(
+            ceil(rectangle.width / xSize).toInt(),
+            ceil(rectangle.height / ySize).toInt()
+
+        ) { (i, j) ->
+            val longitude = rectangle.left + xSize * i
+            val latitude = rectangle.bottom + ySize * j
+            builder(
+                XY(latitude, longitude)
+            )
+        }
+    )
+)
+
 
