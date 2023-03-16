@@ -22,6 +22,7 @@ import center.sciprog.maps.features.zoomRange
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
+import org.jetbrains.skia.Image
 import org.jetbrains.skia.Paint
 import kotlin.math.ceil
 import kotlin.math.max
@@ -47,7 +48,7 @@ public actual fun MapView(
     features: FeatureGroup<Gmc>,
     modifier: Modifier,
 ): Unit = with(viewScope) {
-    val mapTiles = remember(mapTileProvider) { mutableStateListOf<MapTile>() }
+    val mapTiles = remember(mapTileProvider) { mutableStateMapOf<TileId, Image>() }
 
     // Load tiles asynchronously
     LaunchedEffect(viewPoint, canvasSize) {
@@ -62,8 +63,6 @@ public actual fun MapView(
             val bottom = (centerCoordinates.y - canvasSize.height.value / 2 / tileScale)
             val verticalIndices: IntRange = (toIndex(bottom)..toIndex(top)).intersect(indexRange)
 
-            mapTiles.clear()
-
             for (j in verticalIndices) {
                 for (i in horizontalIndices) {
                     val id = TileId(intZoom, i, j)
@@ -74,16 +73,20 @@ public actual fun MapView(
                         //wait asynchronously for it to finish
                         launch {
                             try {
-                                mapTiles += deferred.await()
+                                val tile = deferred.await()
+                                mapTiles[tile.id] = tile.image
                             } catch (ex: Exception) {
                                 //displaying the error is maps responsibility
                                 logger.error(ex) { "Failed to load tile with id=$id" }
                             }
                         }
                     }
-
+                    mapTiles.keys.filter {
+                        it.zoom != intZoom || it.j !in verticalIndices || it.i !in horizontalIndices
+                    }.forEach {
+                        mapTiles.remove(it)
+                    }
                 }
-
             }
         }
     }
