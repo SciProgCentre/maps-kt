@@ -27,10 +27,10 @@ kotlin {
                 implementation(compose.desktop.currentOs)
                 implementation(spclibs.kotlinx.coroutines.test)
 
-                implementation("ch.qos.logback:logback-classic:1.2.11")
+                implementation(spclibs.logback.classic)
 
                 implementation(kotlin("test-junit5"))
-                implementation("org.junit.jupiter:junit-jupiter:5.8.2")
+                implementation("org.junit.jupiter:junit-jupiter:${spclibs.versions.junit.get()}")
             }
         }
     }

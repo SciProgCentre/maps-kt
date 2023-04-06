@@ -6,10 +6,12 @@ plugins {
 val kmathVersion: String by rootProject.extra
 
 kscience{
+    jvm()
+    js()
     useSerialization()
 
     dependencies{
-        api("space.kscience:kmath-trajectory:$kmathVersion")
+        api(projects.trajectoryKt)
     }
 }
 

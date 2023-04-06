@@ -46,6 +46,7 @@ dependencyResolutionManagement {
 
 
 include(
+    ":trajectory-kt",
     ":maps-kt-core",
     ":maps-kt-geojson",
     ":maps-kt-features",

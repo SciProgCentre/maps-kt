@@ -3,20 +3,16 @@ plugins {
     `maven-publish`
 }
 
-kotlin {
-    sourceSets {
-        commonMain {
-            dependencies {
-                api(projects.mapsKtCore)
-                api(projects.mapsKtFeatures)
-                api(spclibs.kotlinx.serialization.json)
-            }
-        }
-    }
-}
 
 kscience{
+    jvm()
+    js()
     useSerialization {
         json()
+    }
+    dependencies{
+        api(projects.mapsKtCore)
+        api(projects.mapsKtFeatures)
+        api(spclibs.kotlinx.serialization.json)
     }
 }

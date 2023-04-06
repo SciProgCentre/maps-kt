@@ -15,7 +15,7 @@ This repository is a work-in-progress implementation of Map-with-markers compone
 ### [maps-kt-compose](maps-kt-compose)
 > Compose-multiplaform implementation for web-mercator tiled maps
 >
-> **Maturity**: DEVELOPMENT
+> **Maturity**: EXPERIMENTAL
 >
 > **Features:**
 > - [osm](maps-kt-compose/#) : OpenStreetMap tile provider.
@@ -47,17 +47,22 @@ This repository is a work-in-progress implementation of Map-with-markers compone
 >
 > **Maturity**: EXPERIMENTAL
 
-### [maps](demo/maps)
+### [trajectory-kt](trajectory-kt)
+> Path and trajectory optimization (to be moved to a separate project)
+>
+> **Maturity**: DEPRECATED
+
+### [demo/maps](demo/maps)
 > 
 >
 > **Maturity**: EXPERIMENTAL
 
-### [polygon-editor](demo/polygon-editor)
+### [demo/polygon-editor](demo/polygon-editor)
 > 
 >
 > **Maturity**: EXPERIMENTAL
 
-### [scheme](demo/scheme)
+### [demo/scheme](demo/scheme)
 > 
 >
 > **Maturity**: EXPERIMENTAL

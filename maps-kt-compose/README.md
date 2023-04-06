@@ -7,7 +7,7 @@ The core interfaces of KMath.
 
 ## Artifact:
 
-The Maven coordinates of this project are `center.sciprog:maps-kt-compose:0.2.1-dev-2`.
+The Maven coordinates of this project are `center.sciprog:maps-kt-compose:0.2.2-dev-10`.
 
 **Gradle Groovy:**
 ```groovy
@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'center.sciprog:maps-kt-compose:0.2.1-dev-2'
+    implementation 'center.sciprog:maps-kt-compose:0.2.2-dev-10'
 }
 ```
 **Gradle Kotlin DSL:**
@@ -28,6 +28,6 @@ repositories {
 }
 
 dependencies {
-    implementation("center.sciprog:maps-kt-compose:0.2.1-dev-2")
+    implementation("center.sciprog:maps-kt-compose:0.2.2-dev-10")
 }
 ```

@@ -26,13 +26,15 @@ kotlin {
     }
 }
 
-compose.desktop {
-    application {
-        mainClass = "MainKt"
-        nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "polygon-editor-demo"
-            packageVersion = "1.0.0"
+compose{
+    desktop {
+        application {
+            mainClass = "MainKt"
+            nativeDistributions {
+                targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+                packageName = "polygon-editor-demo"
+                packageVersion = "1.0.0"
+            }
         }
     }
 }

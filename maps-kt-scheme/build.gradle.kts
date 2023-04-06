@@ -1,6 +1,3 @@
-import space.kscience.gradle.KScienceVersions.JVM_TARGET
-
-
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
@@ -8,11 +5,7 @@ plugins {
 }
 
 kotlin {
-    jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = JVM_TARGET.toString()
-        }
-    }
+    jvm()
     sourceSets {
         commonMain {
             dependencies {
@@ -30,6 +23,6 @@ kotlin {
     }
 }
 
-java {
-    targetCompatibility = JVM_TARGET
-}
+//java {
+//    targetCompatibility = JVM_TARGET
+//}
