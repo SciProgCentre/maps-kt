@@ -210,6 +210,7 @@ public class SvgDrawScope(
 
     }
 
+    @Suppress("OVERRIDE_DEPRECATION")
     override fun drawImage(
         image: ImageBitmap,
         srcOffset: IntOffset,

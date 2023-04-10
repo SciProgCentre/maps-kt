@@ -11,8 +11,8 @@ import androidx.compose.ui.graphics.painter.Painter
 import center.sciprog.attributes.plus
 import org.jetbrains.skia.Font
 import org.jetbrains.skia.Paint
+import space.kscience.kmath.PerformancePitfall
 import space.kscience.kmath.geometry.degrees
-import space.kscience.kmath.misc.PerformancePitfall
 
 
 internal fun Color.toPaint(): Paint = Paint().apply {
