@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 import center.sciprog.maps.features.*
 import kotlin.math.min
 
-class XYViewScope(
+public class XYViewScope(
     config: ViewConfig<XY>,
 ) : CoordinateViewScope<XY>(config) {
     override val space: CoordinateSpace<XY>
@@ -45,7 +45,7 @@ class XYViewScope(
         return DpRect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y)
     }
 
-    companion object{
+    public companion object{
         @Composable
         public fun remember(
             config: ViewConfig<XY> = ViewConfig(),

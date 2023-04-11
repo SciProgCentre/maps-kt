@@ -235,16 +235,16 @@ public fun <T : Any> FeatureGroup<T>.polygon(
     PolygonFeature(space, points, attributes)
 )
 
-public fun <T : Any> FeatureGroup<T>.image(
+public fun <T : Any> FeatureGroup<T>.icon(
     position: T,
     image: ImageVector,
     size: DpSize = DpSize(image.defaultWidth, image.defaultHeight),
     attributes: Attributes = Attributes.EMPTY,
     id: String? = null,
-): FeatureRef<T, VectorImageFeature<T>> =
+): FeatureRef<T, VectorIconFeature<T>> =
     feature(
         id,
-        VectorImageFeature(
+        VectorIconFeature(
             space,
             position,
             size,

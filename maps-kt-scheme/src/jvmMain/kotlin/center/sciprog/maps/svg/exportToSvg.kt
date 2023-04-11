@@ -120,9 +120,9 @@ fun FeatureStateSnapshot<XY>.generateSvg(
                 )
             }
 
-            is BitmapImageFeature -> drawImage(feature.image, feature.center.toOffset())
+            is BitmapIconFeature -> drawImage(feature.image, feature.center.toOffset())
 
-            is VectorImageFeature -> {
+            is VectorIconFeature -> {
                 val offset = feature.center.toOffset()
                 val imageSize = feature.size.toSize()
                 translate(offset.x - imageSize.width / 2, offset.y - imageSize.height / 2) {

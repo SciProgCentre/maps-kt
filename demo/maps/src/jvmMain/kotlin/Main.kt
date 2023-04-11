@@ -74,7 +74,7 @@ fun App() {
                 .modifyAttribute(ColorAttribute, Color.Blue)
                 .modifyAttribute(AlphaAttribute, 0.4f)
 
-            image(pointOne, Icons.Filled.Home)
+            icon(pointOne, Icons.Filled.Home)
 
             val marker1 = rectangle(55.744 to 38.614, size = DpSize(10.dp, 10.dp)).color(Color.Magenta)
             val marker2 = rectangle(55.8 to 38.5, size = DpSize(10.dp, 10.dp)).color(Color.Magenta)

@@ -1,11 +1,14 @@
 plugins {
-    kotlin("multiplatform")
+    id("space.kscience.gradle.mpp")
     id("org.jetbrains.compose")
     `maven-publish`
 }
 
-kotlin {
+kscience{
     jvm()
+}
+
+kotlin {
     sourceSets {
         commonMain {
             dependencies {

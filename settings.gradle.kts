@@ -48,6 +48,7 @@ include(
     ":trajectory-kt",
     ":maps-kt-core",
     ":maps-kt-geojson",
+//    ":maps-kt-geotiff",
     ":maps-kt-features",
     ":maps-kt-compose",
     ":maps-kt-scheme",

@@ -92,14 +92,14 @@ public fun FeatureGroup<Gmc>.multiLine(
     id: String? = null,
 ): FeatureRef<Gmc, MultiLineFeature<Gmc>> = feature(id, MultiLineFeature(space, points.map(::coordinatesOf)))
 
-public fun FeatureGroup<Gmc>.image(
+public fun FeatureGroup<Gmc>.icon(
     position: Pair<Double, Double>,
     image: ImageVector,
     size: DpSize = DpSize(20.dp, 20.dp),
     id: String? = null,
-): FeatureRef<Gmc, VectorImageFeature<Gmc>> = feature(
+): FeatureRef<Gmc, VectorIconFeature<Gmc>> = feature(
     id,
-    VectorImageFeature(
+    VectorIconFeature(
         space,
         coordinatesOf(position),
         size,

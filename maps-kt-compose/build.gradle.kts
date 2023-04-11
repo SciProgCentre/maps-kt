@@ -1,13 +1,14 @@
 plugins {
-    kotlin("multiplatform")
+    id("space.kscience.gradle.mpp")
     id("org.jetbrains.compose")
     `maven-publish`
 }
 
-kotlin {
-    explicitApi = org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Warning
-    jvmToolchain(11)
+kscience{
     jvm()
+}
+
+kotlin {
     sourceSets {
         commonMain {
             dependencies {
@@ -19,8 +20,6 @@ kotlin {
                 api("io.github.microutils:kotlin-logging:2.1.23")
             }
         }
-        val jvmMain by getting {
-        }
         val jvmTest by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-cio")
@@ -28,16 +27,9 @@ kotlin {
                 implementation(spclibs.kotlinx.coroutines.test)
 
                 implementation(spclibs.logback.classic)
-
-                implementation(kotlin("test-junit5"))
-                implementation("org.junit.jupiter:junit-jupiter:${spclibs.versions.junit.get()}")
             }
         }
     }
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
 }
 
 readme {

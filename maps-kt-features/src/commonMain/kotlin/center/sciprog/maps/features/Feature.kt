@@ -267,8 +267,11 @@ public data class DrawFeature<T : Any>(
     override fun withAttributes(modify: (Attributes) -> Attributes): Feature<T> = copy(attributes = modify(attributes))
 }
 
+/**
+ * Fixed size bitmap icon
+ */
 @Stable
-public data class BitmapImageFeature<T : Any>(
+public data class BitmapIconFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     override val center: T,
     public val size: DpSize,
@@ -282,8 +285,11 @@ public data class BitmapImageFeature<T : Any>(
     override fun withAttributes(modify: (Attributes) -> Attributes): Feature<T> = copy(attributes = modify(attributes))
 }
 
+/**
+ * Fixed size vector icon
+ */
 @Stable
-public data class VectorImageFeature<T : Any>(
+public data class VectorIconFeature<T : Any>(
     override val space: CoordinateSpace<T>,
     override val center: T,
     public val size: DpSize,
@@ -301,7 +307,7 @@ public data class VectorImageFeature<T : Any>(
 }
 
 /**
- * An image that is bound to coordinates and is scaled together with them
+ * An image that is bound to coordinates and is scaled (and possibly warped) together with them
  *
  * @param rectangle the size of background in scheme size units. The screen units to scheme units ratio equals scale.
  */

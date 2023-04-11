@@ -15,7 +15,7 @@ import kotlin.math.ceil
 
 internal fun Pair<Number, Number>.toCoordinates(): XY = XY(first.toFloat(), second.toFloat())
 
-fun FeatureGroup<XY>.background(
+public fun FeatureGroup<XY>.background(
     width: Float,
     height: Float,
     offset: XY = XY(0f, 0f),
@@ -37,19 +37,19 @@ fun FeatureGroup<XY>.background(
     )
 }
 
-fun FeatureGroup<XY>.circle(
+public fun FeatureGroup<XY>.circle(
     centerCoordinates: Pair<Number, Number>,
     size: Dp = 5.dp,
     id: String? = null,
 ): FeatureRef<XY, CircleFeature<XY>> = circle(centerCoordinates.toCoordinates(),  size,  id = id)
 
-fun FeatureGroup<XY>.draw(
+public fun FeatureGroup<XY>.draw(
     position: Pair<Number, Number>,
     id: String? = null,
     draw: DrawScope.() -> Unit,
 ): FeatureRef<XY, DrawFeature<XY>> = draw(position.toCoordinates(), id = id, draw = draw)
 
-fun FeatureGroup<XY>.line(
+public fun FeatureGroup<XY>.line(
     aCoordinates: Pair<Number, Number>,
     bCoordinates: Pair<Number, Number>,
     id: String? = null,
@@ -69,15 +69,15 @@ public fun FeatureGroup<XY>.arc(
     id = id
 )
 
-fun FeatureGroup<XY>.image(
+public fun FeatureGroup<XY>.image(
     position: Pair<Number, Number>,
     image: ImageVector,
     size: DpSize = DpSize(image.defaultWidth, image.defaultHeight),
     id: String? = null,
-): FeatureRef<XY, VectorImageFeature<XY>> =
-    image(position.toCoordinates(), image, size = size, id = id)
+): FeatureRef<XY, VectorIconFeature<XY>> =
+    icon(position.toCoordinates(), image, size = size, id = id)
 
-fun FeatureGroup<XY>.text(
+public fun FeatureGroup<XY>.text(
     position: Pair<Number, Number>,
     text: String,
     id: String? = null,

@@ -35,113 +35,113 @@ private fun TangentPath(vararg tangents: Tangent) = TangentPath(listOf(*tangents
  * Create inner and outer tangents between two circles.
  * This method returns a map of segments using [DubinsPath] connection type notation.
  */
-internal fun Circle2D.tangentsToCircle(
-    other: Circle2D,
+internal fun tangentsToCircle(
+    first: Circle2D,
+    second: Circle2D,
 ): Map<DubinsPath.Type, LineSegment2D> = with(Euclidean2DSpace) {
     //return empty map for concentric circles
-    if (center.equalsVector(other.center)) return emptyMap()
+    if (first.center.equalsVector(second.center)) return emptyMap()
 
     // A line connecting centers
-    val line = LineSegment(center, other.center)
+    val line = LineSegment(first.center, second.center)
     // Distance between centers
     val distance = line.begin.distanceTo(line.end)
-    val angle1 = atan2(other.center.x - center.x, other.center.y - center.y)
+    val angle1 = atan2(second.center.x - first.center.x, second.center.y - first.center.y)
     var angle2: Double
-    val routes = mapOf(
-        DubinsPath.Type.RSR to Pair(radius, other.radius),
-        DubinsPath.Type.RSL to Pair(radius, -other.radius),
-        DubinsPath.Type.LSR to Pair(-radius, other.radius),
-        DubinsPath.Type.LSL to Pair(-radius, -other.radius)
-    )
-    return buildMap {
-        for ((route, r1r2) in routes) {
-            val r1 = r1r2.first
-            val r2 = r1r2.second
-            val r = if (r1.sign == r2.sign) {
-                r1.absoluteValue - r2.absoluteValue
-            } else {
-                r1.absoluteValue + r2.absoluteValue
-            }
-            if (distance * distance >= r * r) {
-                val l = sqrt(distance * distance - r * r)
-                angle2 = if (r1.absoluteValue > r2.absoluteValue) {
-                    angle1 + r1.sign * atan2(r.absoluteValue, l)
-                } else {
-                    angle1 - r2.sign * atan2(r.absoluteValue, l)
-                }
-                val w = vector(-cos(angle2), sin(angle2))
-                put(
-                    route,
-                    LineSegment(
-                        center + w * r1,
-                        other.center + w * r2
-                    )
-                )
-            } else {
-                throw Exception("Circles should not intersect")
-            }
+    return listOf(
+        DubinsPath.Type.RSR,
+        DubinsPath.Type.RSL,
+        DubinsPath.Type.LSR,
+        DubinsPath.Type.LSL
+    ).associateWith { route ->
+        val r1 = when (route.first) {
+            Trajectory2D.L -> -first.radius
+            Trajectory2D.R -> first.radius
         }
-    }
-}
+        val r2 = when (route.third) {
+            Trajectory2D.L -> -second.radius
+            Trajectory2D.R -> second.radius
+        }
+        val r = if (r1.sign == r2.sign) {
+            r1.absoluteValue - r2.absoluteValue
+        } else {
+            r1.absoluteValue + r2.absoluteValue
+        }
+        if (distance * distance < r * r) error("Circles should not intersect")
 
-private fun dubinsTangentsToCircles(
-    firstCircle: Circle2D,
-    secondCircle: Circle2D,
-    firstObstacle: Obstacle,
-    secondObstacle: Obstacle,
-): Map<DubinsPath.Type, Tangent> = with(Euclidean2DSpace) {
-    val line = LineSegment(firstCircle.center, secondCircle.center)
-    val distance = line.begin.distanceTo(line.end)
-    val angle1 = atan2(
-        secondCircle.center.x - firstCircle.center.x,
-        secondCircle.center.y - firstCircle.center.y
-    )
-    var r: Double
-    var angle2: Double
-    val routes = mapOf(
-        DubinsPath.Type.RSR to Pair(firstCircle.radius, secondCircle.radius),
-        DubinsPath.Type.RSL to Pair(firstCircle.radius, -secondCircle.radius),
-        DubinsPath.Type.LSR to Pair(-firstCircle.radius, secondCircle.radius),
-        DubinsPath.Type.LSL to Pair(-firstCircle.radius, -secondCircle.radius)
-    )
-    return buildMap {
-        for ((route: DubinsPath.Type, r1r2) in routes) {
-            val r1 = r1r2.first
-            val r2 = r1r2.second
-            r = if (r1.sign == r2.sign) {
-                r1.absoluteValue - r2.absoluteValue
-            } else {
-                r1.absoluteValue + r2.absoluteValue
-            }
-            if (distance * distance >= r * r) {
-                val l = sqrt(distance * distance - r * r)
-                angle2 = if (r1.absoluteValue > r2.absoluteValue) {
-                    angle1 + r1.sign * atan2(r.absoluteValue, l)
-                } else {
-                    angle1 - r2.sign * atan2(r.absoluteValue, l)
-                }
-                val w = vector(-cos(angle2), sin(angle2))
-                put(
-                    route,
-                    Tangent(
-                        startCircle = Circle2D(firstCircle.center, firstCircle.radius),
-                        endCircle = secondCircle,
-                        startObstacle = firstObstacle,
-                        endObstacle = secondObstacle,
-                        lineSegment = LineSegment(
-                            firstCircle.center + w * r1,
-                            secondCircle.center + w * r2
-                        ),
-                        startDirection = route.first,
-                        endDirection = route.third
-                    )
-                )
-            } else {
-                throw Exception("Circles should not intersect")
-            }
+        val l = sqrt(distance * distance - r * r)
+        angle2 = if (r1.absoluteValue > r2.absoluteValue) {
+            angle1 + r1.sign * atan2(r.absoluteValue, l)
+        } else {
+            angle1 - r2.sign * atan2(r.absoluteValue, l)
         }
+        val w = vector(-cos(angle2), sin(angle2))
+
+        LineSegment(
+            first.center + w * r1,
+            second.center + w * r2
+        )
     }
 }
+//
+//private fun dubinsTangentsToCircles(
+//    firstCircle: Circle2D,
+//    secondCircle: Circle2D,
+//    firstObstacle: Obstacle,
+//    secondObstacle: Obstacle,
+//): Map<DubinsPath.Type, Tangent> = with(Euclidean2DSpace) {
+//    val line = LineSegment(firstCircle.center, secondCircle.center)
+//    val distance = line.begin.distanceTo(line.end)
+//    val angle1 = atan2(
+//        secondCircle.center.x - firstCircle.center.x,
+//        secondCircle.center.y - firstCircle.center.y
+//    )
+//    var r: Double
+//    var angle2: Double
+//    val routes = mapOf(
+//        DubinsPath.Type.RSR to Pair(firstCircle.radius, secondCircle.radius),
+//        DubinsPath.Type.RSL to Pair(firstCircle.radius, -secondCircle.radius),
+//        DubinsPath.Type.LSR to Pair(-firstCircle.radius, secondCircle.radius),
+//        DubinsPath.Type.LSL to Pair(-firstCircle.radius, -secondCircle.radius)
+//    )
+//    return buildMap {
+//        for ((route: DubinsPath.Type, r1r2) in routes) {
+//            val r1 = r1r2.first
+//            val r2 = r1r2.second
+//            r = if (r1.sign == r2.sign) {
+//                r1.absoluteValue - r2.absoluteValue
+//            } else {
+//                r1.absoluteValue + r2.absoluteValue
+//            }
+//            if (distance * distance >= r * r) {
+//                val l = sqrt(distance * distance - r * r)
+//                angle2 = if (r1.absoluteValue > r2.absoluteValue) {
+//                    angle1 + r1.sign * atan2(r.absoluteValue, l)
+//                } else {
+//                    angle1 - r2.sign * atan2(r.absoluteValue, l)
+//                }
+//                val w = vector(-cos(angle2), sin(angle2))
+//                put(
+//                    route,
+//                    Tangent(
+//                        startCircle = Circle2D(firstCircle.center, firstCircle.radius),
+//                        endCircle = secondCircle,
+//                        startObstacle = firstObstacle,
+//                        endObstacle = secondObstacle,
+//                        lineSegment = LineSegment(
+//                            firstCircle.center + w * r1,
+//                            secondCircle.center + w * r2
+//                        ),
+//                        startDirection = route.first,
+//                        endDirection = route.third
+//                    )
+//                )
+//            } else {
+//                throw Exception("Circles should not intersect")
+//            }
+//        }
+//    }
+//}
 
 internal class Obstacle(
     public val circles: List<Circle2D>,
@@ -335,13 +335,23 @@ private fun Tangent.intersectObstacle(obstacle: Obstacle): Boolean {
 private fun outerTangents(first: Obstacle, second: Obstacle): Map<DubinsPath.Type, Tangent> = buildMap {
     for (circle1 in first.circles) {
         for (circle2 in second.circles) {
-            for (tangent in dubinsTangentsToCircles(circle1, circle2, first, second)) {
-                if (!(tangent.value.intersectObstacle(first))
-                    and !(tangent.value.intersectObstacle(second))
+            for ((pathType, segment) in tangentsToCircle(circle1, circle2)) {
+                val tangent = Tangent(
+                    circle1,
+                    circle2,
+                    first,
+                    second,
+                    segment,
+                    pathType.first,
+                    pathType.third
+                )
+
+                if (!(tangent.intersectObstacle(first))
+                    and !(tangent.intersectObstacle(second))
                 ) {
                     put(
-                        tangent.key,
-                        tangent.value
+                        pathType,
+                        tangent
                     )
                 }
             }
@@ -506,7 +516,7 @@ internal fun findAllPaths(
                     val currentObstacle = tangentPath.last().endObstacle
                     var nextObstacle: Obstacle? = null
                     if (currentObstacle != finalObstacle) {
-                        val tangentToFinal = outerTangents(currentObstacle, finalObstacle)[DubinsPath.Type(
+                        val tangentToFinal: Tangent? = outerTangents(currentObstacle, finalObstacle)[DubinsPath.Type(
                             currentDirection,
                             Trajectory2D.S,
                             j

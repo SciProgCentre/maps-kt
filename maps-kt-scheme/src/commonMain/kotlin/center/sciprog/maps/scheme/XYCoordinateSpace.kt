@@ -9,7 +9,7 @@ import center.sciprog.maps.features.ViewPoint
 import kotlin.math.abs
 import kotlin.math.pow
 
-object XYCoordinateSpace : CoordinateSpace<XY> {
+public object XYCoordinateSpace : CoordinateSpace<XY> {
     override fun Rectangle(first: XY, second: XY): Rectangle<XY> =
         XYRectangle(first, second)
 

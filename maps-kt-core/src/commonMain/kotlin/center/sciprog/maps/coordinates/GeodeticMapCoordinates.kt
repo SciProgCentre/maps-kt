@@ -1,10 +1,7 @@
 package center.sciprog.maps.coordinates
 
 import kotlinx.serialization.Serializable
-import space.kscience.kmath.geometry.Angle
-import space.kscience.kmath.geometry.degrees
-import space.kscience.kmath.geometry.normalized
-import space.kscience.kmath.geometry.radians
+import space.kscience.kmath.geometry.*
 
 /**
  * Geodetic coordinated
@@ -16,7 +13,7 @@ public class GeodeticMapCoordinates(
     public val latitude: Angle,
     public val longitude: Angle,
     public val elevation: Distance? = null,
-) {
+) : Vector2D<Angle> {
     init {
         require(latitude in (-Angle.piDiv2)..(Angle.piDiv2)) {
             "Latitude $latitude is not in (-PI/2)..(PI/2)"
@@ -26,16 +23,17 @@ public class GeodeticMapCoordinates(
         }
     }
 
+    override val x: Angle get() = longitude
+
+    override val y: Angle get() = latitude
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
         other as GeodeticMapCoordinates
 
-        if (latitude != other.latitude) return false
-        if (longitude != other.longitude) return false
-
-        return true
+        return latitude == other.latitude && longitude == other.longitude
     }
 
     override fun hashCode(): Int {
