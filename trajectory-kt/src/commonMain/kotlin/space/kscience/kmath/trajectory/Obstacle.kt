@@ -107,58 +107,6 @@ internal class Obstacle(
     public val direction: Trajectory2D.Direction
 
     init {
-        // outer tangents for a polygon circles can be either lsl or rsr
-
-//        fun dubinsTangentsToCircles(
-//            firstCircle: Circle2D,
-//            secondCircle: Circle2D,
-//        ): LR<Tangent> = with(Euclidean2DSpace) {
-//            val line = LineSegment(firstCircle.center, secondCircle.center)
-//            val d = line.begin.distanceTo(line.end)
-//            val angle1 = atan2(secondCircle.center.x - firstCircle.center.x, secondCircle.center.y - firstCircle.center.y)
-//            var r: Double
-//            var angle2: Double
-//            val routes = mapOf(
-//                Trajectory2D.R to Pair(firstCircle.radius, secondCircle.radius),
-//                Trajectory2D.L to Pair(-firstCircle.radius, -secondCircle.radius)
-//            )
-//            return buildMap {
-//                for ((routeType, r1r2) in routes) {
-//                    val r1 = r1r2.first
-//                    val r2 = r1r2.second
-//                    r = if (r1.sign == r2.sign) {
-//                        r1.absoluteValue - r2.absoluteValue
-//                    } else {
-//                        r1.absoluteValue + r2.absoluteValue
-//                    }
-//                    if (d * d >= r * r) {
-//                        val l = (d * d - r * r).pow(0.5)
-//                        angle2 = if (r1.absoluteValue > r2.absoluteValue) {
-//                            angle1 + r1.sign * atan2(r.absoluteValue, l)
-//                        } else {
-//                            angle1 - r2.sign * atan2(r.absoluteValue, l)
-//                        }
-//                        val w = this.vector(-cos(angle2), sin(angle2))
-//                        this.put(
-//                            routeType, Tangent(
-//                                Circle2D(firstCircle.center, firstCircle.radius),
-//                                secondCircle,
-//                                this@Obstacle,
-//                                this@Obstacle,
-//                                LineSegment(
-//                                    firstCircle.center + w * r1,
-//                                    secondCircle.center + w * r2
-//                                ),
-//                                startDirection = routeType.first,
-//                                endDirection = routeType.third
-//                            )
-//                        )
-//                    } else {
-//                        throw Exception("Circles should not intersect")
-//                    }
-//                }
-//            }
-//        }
         if (circles.size < 2) {
             tangents = emptyList()
             direction = Trajectory2D.R
@@ -500,6 +448,7 @@ internal fun findAllPaths(
                             val tangentsAlong = if (tangent.startCircle == tangentPath.last().endCircle) {
                                 //if the previous segment last circle is the same as first circle of the next segment
 
+                                //If obstacle consists of single circle, do not walk around
                                 if (tangent.startObstacle.circles.size < 2){
                                     emptyList()
                                 } else {
@@ -519,6 +468,7 @@ internal fun findAllPaths(
                                         tangent.lineSegment.begin,
                                         currentDirection
                                     )
+                                    // ensure that path does not go inside the obstacle
                                     if (lengthCalculated > lengthMaxPossible) {
                                         tangentsAlongTheObstacle(
                                             currentCircle,
