@@ -44,7 +44,7 @@ class TangentTest {
             )
         )
 
-        val tangentMap = tangentsToCircle(c1, c2)
+        val tangentMap = tangentsBetweenCircles(c1, c2)
         val tangentMapKeys = tangentMap.keys.toList()
         val tangentMapValues = tangentMap.values.toList()
 
@@ -58,6 +58,6 @@ class TangentTest {
     fun concentric(){
         val c1 = Circle2D(vector(0.0, 0.0), 10.0)
         val c2 = Circle2D(vector(0.0, 0.0), 1.0)
-        assertEquals(emptyMap(), tangentsToCircle(c1, c2))
+        assertEquals(emptyMap(), tangentsBetweenCircles(c1, c2))
     }
 }

@@ -21,11 +21,7 @@ class ObstacleTest {
         val finalRadius = 0.5
 
         val obstacles = listOf(
-            Obstacle(
-                listOf(
-                    Circle2D(vector(7.0, 1.0), 5.0)
-                )
-            )
+            Obstacle(Circle2D(vector(7.0, 1.0), 5.0))
         )
 
         val outputTangents = findAllPaths(
