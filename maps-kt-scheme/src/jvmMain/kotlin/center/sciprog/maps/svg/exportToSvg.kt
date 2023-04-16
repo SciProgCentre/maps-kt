@@ -18,18 +18,18 @@ import java.awt.Font.PLAIN
 import kotlin.math.abs
 
 
-class FeatureStateSnapshot<T : Any>(
-    val features: Map<String, Feature<T>>,
-    val painterCache: Map<PainterFeature<T>, Painter>,
+public class FeatureStateSnapshot<T : Any>(
+    public val features: Map<String, Feature<T>>,
+    internal val painterCache: Map<PainterFeature<T>, Painter>,
 )
 
 @Composable
-fun <T : Any> FeatureGroup<T>.snapshot(): FeatureStateSnapshot<T> = FeatureStateSnapshot(
+public fun <T : Any> FeatureGroup<T>.snapshot(): FeatureStateSnapshot<T> = FeatureStateSnapshot(
     featureMap,
     features.filterIsInstance<PainterFeature<T>>().associateWith { it.getPainter() }
 )
 
-fun FeatureStateSnapshot<XY>.generateSvg(
+public fun FeatureStateSnapshot<XY>.generateSvg(
     viewPoint: ViewPoint<XY>,
     width: Double,
     height: Double,
@@ -174,7 +174,7 @@ fun FeatureStateSnapshot<XY>.generateSvg(
     return svgGraphics2D.getSVGElement(id)
 }
 
-fun FeatureStateSnapshot<XY>.exportToSvg(
+public fun FeatureStateSnapshot<XY>.exportToSvg(
     viewPoint: ViewPoint<XY>,
     width: Double,
     height: Double,

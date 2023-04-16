@@ -25,7 +25,7 @@ public fun SchemeView(
     state: XYViewScope,
     features: FeatureGroup<XY>,
     modifier: Modifier = Modifier.fillMaxSize(),
-) = key(state, features) {
+): Unit = key(state, features) {
     with(state) {
         //Can't do that inside canvas
         val painterCache: Map<PainterFeature<XY>, Painter> =

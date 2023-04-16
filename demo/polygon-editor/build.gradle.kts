@@ -8,12 +8,8 @@ plugins {
 val ktorVersion: String by rootProject.extra
 
 kotlin {
-    jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = "11"
-        }
-        withJava()
-    }
+    jvm()
+    jvmToolchain(11)
     sourceSets {
         val jvmMain by getting {
             dependencies {

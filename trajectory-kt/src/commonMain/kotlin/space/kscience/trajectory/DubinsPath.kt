@@ -3,11 +3,11 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package space.kscience.kmath.trajectory
+package space.kscience.trajectory
 
 import space.kscience.kmath.geometry.*
 import space.kscience.kmath.geometry.Euclidean2DSpace.distanceTo
-import space.kscience.kmath.trajectory.Trajectory2D.*
+import space.kscience.trajectory.Trajectory2D.*
 import kotlin.math.acos
 
 internal fun DubinsPose2D.getLeftCircle(radius: Double): Circle2D = getTangentCircles(radius).first

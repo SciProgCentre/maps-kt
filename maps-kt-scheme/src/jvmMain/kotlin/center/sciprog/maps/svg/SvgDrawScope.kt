@@ -18,7 +18,7 @@ import java.awt.Color as AWTColor
 public class SvgDrawScope(
     private val graphics: SVGGraphics2D,
     size: Size,
-    val defaultStrokeWidth: Float = 1f,
+    private val defaultStrokeWidth: Float = 1f,
 ) : DrawScope {
 
     override val layoutDirection: LayoutDirection
@@ -459,7 +459,7 @@ public class SvgDrawScope(
         }
     }
 
-    fun drawText(
+    public fun drawText(
         text: String,
         x: Float,
         y: Float,

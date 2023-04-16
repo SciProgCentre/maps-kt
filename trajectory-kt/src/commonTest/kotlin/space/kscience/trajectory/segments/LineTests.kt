@@ -3,11 +3,11 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package space.kscience.kmath.trajectory.segments
+package space.kscience.trajectory.segments
 
 import space.kscience.kmath.geometry.Euclidean2DSpace
 import space.kscience.kmath.geometry.degrees
-import space.kscience.kmath.trajectory.StraightTrajectory2D
+import space.kscience.trajectory.StraightTrajectory2D
 import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.test.Test

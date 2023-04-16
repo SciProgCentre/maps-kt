@@ -4,7 +4,7 @@
  */
 @file:UseSerializers(Euclidean2DSpace.VectorSerializer::class)
 
-package space.kscience.kmath.trajectory
+package space.kscience.trajectory
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

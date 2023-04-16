@@ -3,14 +3,14 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package space.kscience.kmath.trajectory.segments
+package space.kscience.trajectory.segments
 
 import space.kscience.kmath.geometry.Circle2D
 import space.kscience.kmath.geometry.Euclidean2DSpace
 import space.kscience.kmath.geometry.circumference
 import space.kscience.kmath.geometry.degrees
-import space.kscience.kmath.trajectory.CircleTrajectory2D
-import space.kscience.kmath.trajectory.Trajectory2D
+import space.kscience.trajectory.CircleTrajectory2D
+import space.kscience.trajectory.Trajectory2D
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

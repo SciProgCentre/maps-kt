@@ -9,9 +9,7 @@ val ktorVersion: String by rootProject.extra
 
 kotlin {
     jvmToolchain(11)
-    jvm {
-        withJava()
-    }
+    jvm()
     sourceSets {
         val jvmMain by getting {
             dependencies {
