@@ -14,7 +14,7 @@ internal data class ObstacleNode(
     val obstacle: Obstacle,
     val nodeIndex: Int,
     val direction: Trajectory2D.Direction,
-){
+) {
     val circle get() = obstacle.circles[nodeIndex]
 }
 
@@ -22,7 +22,7 @@ internal data class ObstacleTangent(
     val lineSegment: LineSegment2D,
     val beginNode: ObstacleNode,
     val endNode: ObstacleNode,
-) : LineSegment2D by lineSegment{
+) : LineSegment2D by lineSegment {
     val startCircle get() = beginNode.circle
     val startDirection get() = beginNode.direction
     val endCircle get() = endNode.circle
@@ -164,10 +164,13 @@ internal class ObstacleShell(
         shell.any { tangent -> segment.intersectsSegment(tangent) }
                 || circles.any { circle -> segment.intersectsCircle(circle) }
 
+    override fun intersects(circle: Circle2D): Boolean =
+        shell.any{tangent -> tangent.intersectsCircle(circle) }
+
     /**
      * Tangent to next obstacle node in given direction
      */
-    fun nextTangent(circleIndex:Int, direction: Trajectory2D.Direction): ObstacleTangent {
+    fun nextTangent(circleIndex: Int, direction: Trajectory2D.Direction): ObstacleTangent {
         if (circleIndex == -1) error("Circle does not belong to this tangent")
 
         val nextCircleIndex = if (direction == this.shellDirection) {
@@ -181,15 +184,18 @@ internal class ObstacleShell(
                 shell[nextCircleIndex].end,
                 shell[nextCircleIndex].begin
             ),
-            ObstacleNode(this,circleIndex, direction),
-            ObstacleNode(this,nextCircleIndex, direction),
+            ObstacleNode(this, circleIndex, direction),
+            ObstacleNode(this, nextCircleIndex, direction),
         )
     }
 
+    /**
+     * All tangents in given direction
+     */
     internal fun tangentsAlong(
         initialCircleIndex: Int,
-        direction: Trajectory2D.Direction,
         finalCircleIndex: Int,
+        direction: Trajectory2D.Direction,
     ): List<ObstacleTangent> {
         return buildList {
             var currentIndex = initialCircleIndex
@@ -389,8 +395,7 @@ internal fun findAllPaths(
     finalRadius: Double,
     obstacles: List<ObstacleShell>,
 ): List<CompositeTrajectory2D> {
-    fun DubinsPose2D.direction() =
-        Euclidean2DSpace.vector(space.kscience.kmath.geometry.cos(bearing), space.kscience.kmath.geometry.sin(bearing))
+    fun DubinsPose2D.direction() = Euclidean2DSpace.vector(cos(bearing), sin(bearing))
 
     // two circles for the initial point
     val initialCircles = constructTangentCircles(
@@ -439,11 +444,12 @@ internal fun findAllPaths(
                     if (currentObstacle == finalObstacle) {
                         newPaths.add(tangentPath)
                     } else {
-                        val tangentToFinal: ObstacleTangent = outerTangents(currentObstacle, finalObstacle)[DubinsPath.Type(
-                            currentDirection,
-                            Trajectory2D.S,
-                            j
-                        )] ?: break
+                        val tangentToFinal: ObstacleTangent =
+                            outerTangents(currentObstacle, finalObstacle)[DubinsPath.Type(
+                                currentDirection,
+                                Trajectory2D.S,
+                                j
+                            )] ?: break
 
                         // searching for the nearest obstacle that intersects with the direct path
                         val nextObstacle = sortedObstacles(currentObstacle, obstacles).find { obstacle ->
@@ -463,7 +469,7 @@ internal fun findAllPaths(
                         }.values
 
                         for (tangent in nextTangents) {
-                            val tangentsAlong: List<ObstacleTangent> = if (tangent.startCircle === tangentPath.last().endCircle) {
+                            val tangentsAlong = if (tangent.startCircle === tangentPath.last().endCircle) {
                                 //if the previous segment last circle is the same as first circle of the next segment
 
                                 //If obstacle consists of single circle, do not walk around
@@ -490,8 +496,8 @@ internal fun findAllPaths(
                                     if (lengthCalculated > lengthMaxPossible) {
                                         currentObstacle.tangentsAlong(
                                             currentNode.nodeIndex,
-                                            currentDirection,
                                             tangent.beginNode.nodeIndex,
+                                            currentDirection,
                                         )
                                     } else {
                                         emptyList()
@@ -500,8 +506,8 @@ internal fun findAllPaths(
                             } else {
                                 currentObstacle.tangentsAlong(
                                     currentNode.nodeIndex,
-                                    currentDirection,
                                     tangent.beginNode.nodeIndex,
+                                    currentDirection,
                                 )
                             }
                             newPaths.add(TangentPath(tangentPath.tangents + tangentsAlong + tangent))
@@ -512,7 +518,7 @@ internal fun findAllPaths(
             }
 
             trajectories += currentPaths.map { tangentPath ->
-                val lastDirection: Trajectory2D.Direction = tangentPath.last().endDirection
+//                val lastDirection: Trajectory2D.Direction = tangentPath.last().endDirection
                 val end = Obstacle(finalCircles[j])
                 TangentPath(
                     tangentPath.tangents +

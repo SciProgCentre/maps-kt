@@ -32,9 +32,6 @@ public interface DubinsPose2D : DoubleVector2D {
             require(vector2D.x != 0.0 || vector2D.y != 0.0) { "Can't get bearing of zero vector" }
             return atan2(vector2D.y, vector2D.x).radians
         }
-
-        public fun of(point: DoubleVector2D, direction: DoubleVector2D): DubinsPose2D =
-            DubinsPose2D(point, vectorToBearing(direction))
     }
 }
 
@@ -72,4 +69,10 @@ public object DubinsPose2DSerializer : KSerializer<DubinsPose2D> {
     }
 }
 
-public fun DubinsPose2D(coordinate: DoubleVector2D, theta: Angle): DubinsPose2D = DubinsPose2DImpl(coordinate, theta)
+public fun DubinsPose2D(coordinate: DoubleVector2D, bearing: Angle): DubinsPose2D = DubinsPose2DImpl(coordinate, bearing)
+
+public fun DubinsPose2D(point: DoubleVector2D, direction: DoubleVector2D): DubinsPose2D =
+    DubinsPose2D(point, DubinsPose2D.vectorToBearing(direction))
+
+public fun DubinsPose2D(x: Number, y: Number, bearing: Angle): DubinsPose2D =
+    DubinsPose2DImpl(Euclidean2DSpace.vector(x, y), bearing)

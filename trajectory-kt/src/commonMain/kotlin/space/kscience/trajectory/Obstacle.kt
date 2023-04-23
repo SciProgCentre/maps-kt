@@ -17,8 +17,10 @@ public interface Obstacle {
 
     public fun intersects(segment: LineSegment2D): Boolean
 
+    public fun intersects(circle: Circle2D): Boolean
+
     public companion object {
-        public fun allPathsAvoiding(
+        public fun avoidObstacles(
             start: DubinsPose2D,
             finish: DubinsPose2D,
             trajectoryRadius: Double,
@@ -30,7 +32,7 @@ public interface Obstacle {
             return findAllPaths(start, trajectoryRadius, finish, trajectoryRadius, obstacleShells)
         }
 
-        public fun allPathsAvoiding(
+        public fun avoidPolygons(
             start: DubinsPose2D,
             finish: DubinsPose2D,
             trajectoryRadius: Double,
@@ -42,10 +44,42 @@ public interface Obstacle {
             return findAllPaths(start, trajectoryRadius, finish, trajectoryRadius, obstacleShells)
         }
 
+        public fun avoidObstacles(
+            start: DubinsPose2D,
+            finish: DubinsPose2D,
+            trajectoryRadius: Double,
+            obstacles: Collection<Obstacle>,
+        ): List<CompositeTrajectory2D> {
+            val obstacleShells: List<ObstacleShell> = obstacles.map { polygon ->
+                ObstacleShell(polygon.circles)
+            }
+            return findAllPaths(start, trajectoryRadius, finish, trajectoryRadius, obstacleShells)
+        }
+
+        public fun avoidPolygons(
+            start: DubinsPose2D,
+            finish: DubinsPose2D,
+            trajectoryRadius: Double,
+            obstacles: Collection<Polygon<Double>>,
+        ): List<CompositeTrajectory2D> {
+            val obstacleShells: List<ObstacleShell> = obstacles.map { polygon ->
+                ObstacleShell(polygon.points.map { Circle2D(it, trajectoryRadius) })
+            }
+            return findAllPaths(start, trajectoryRadius, finish, trajectoryRadius, obstacleShells)
+        }
     }
 }
 
+public fun Obstacle.intersectsTrajectory(trajectory: Trajectory2D): Boolean = when (trajectory) {
+    is CircleTrajectory2D -> intersects(trajectory.circle)
+    is StraightTrajectory2D -> intersects(trajectory)
+    is CompositeTrajectory2D -> trajectory.segments.any { intersectsTrajectory(it) }
+}
+
 public fun Obstacle(vararg circles: Circle2D): Obstacle = ObstacleShell(listOf(*circles))
+
+public fun Obstacle(points: List<Vector2D<Double>>, radius: Double): Obstacle =
+    ObstacleShell(points.map { Circle2D(it, radius) })
 
 //public fun Trajectory2D.intersects(
 //    polygon: Polygon<Double>,
