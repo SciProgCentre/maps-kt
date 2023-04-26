@@ -10,7 +10,7 @@ import space.kscience.kmath.operations.DoubleField.pow
 import kotlin.math.*
 
 
-internal data class ObstacleNode(
+internal data class ObstacleConnection(
     val obstacle: Obstacle,
     val nodeIndex: Int,
     val direction: Trajectory2D.Direction,
@@ -20,8 +20,8 @@ internal data class ObstacleNode(
 
 internal data class ObstacleTangent(
     val lineSegment: LineSegment2D,
-    val beginNode: ObstacleNode,
-    val endNode: ObstacleNode,
+    val beginNode: ObstacleConnection,
+    val endNode: ObstacleConnection,
 ) : LineSegment2D by lineSegment {
     val startCircle get() = beginNode.circle
     val startDirection get() = beginNode.direction
@@ -165,7 +165,7 @@ internal class ObstacleShell(
                 || circles.any { circle -> segment.intersectsCircle(circle) }
 
     override fun intersects(circle: Circle2D): Boolean =
-        shell.any{tangent -> tangent.intersectsCircle(circle) }
+        shell.any { tangent -> tangent.intersectsCircle(circle) }
 
     /**
      * Tangent to next obstacle node in given direction
@@ -184,8 +184,8 @@ internal class ObstacleShell(
                 shell[nextCircleIndex].end,
                 shell[nextCircleIndex].begin
             ),
-            ObstacleNode(this, circleIndex, direction),
-            ObstacleNode(this, nextCircleIndex, direction),
+            ObstacleConnection(this, circleIndex, direction),
+            ObstacleConnection(this, nextCircleIndex, direction),
         )
     }
 
@@ -221,18 +221,14 @@ internal fun ObstacleShell(vararg circles: Circle2D): ObstacleShell = ObstacleSh
 
 
 private fun LineSegment2D.intersectsSegment(other: LineSegment2D): Boolean {
-    fun crossProduct(v1: DoubleVector2D, v2: DoubleVector2D): Double {
-        return v1.x * v2.y - v1.y * v2.x
-    }
-    return if (crossProduct(other.begin - begin, other.end - begin).sign ==
-        crossProduct(other.begin - end, other.end - end).sign
-    ) {
-        false
-    } else {
-        crossProduct(begin - other.begin, end - other.begin).sign != crossProduct(
-            begin - other.end,
-            end - other.end
-        ).sign
+    infix fun DoubleVector2D.cross(v2: DoubleVector2D): Double = x * v2.y - y * v2.x
+    infix fun DoubleVector2D.crossSign(v2: DoubleVector2D) = cross(v2).sign
+
+    return with(Euclidean2DSpace) {
+        (other.begin - begin) crossSign (other.end - begin) !=
+                (other.begin - end) crossSign (other.end - end) &&
+                (begin - other.begin) crossSign (end - other.begin) !=
+                (begin - other.end) crossSign (end - other.end)
     }
 }
 
@@ -272,8 +268,8 @@ private fun outerTangents(first: Obstacle, second: Obstacle): Map<DubinsPath.Typ
             )) {
                 val tangent = ObstacleTangent(
                     segment,
-                    ObstacleNode(first, firstCircleIndex, pathType.first),
-                    ObstacleNode(second, secondCircleIndex, pathType.third)
+                    ObstacleConnection(first, firstCircleIndex, pathType.first),
+                    ObstacleConnection(second, secondCircleIndex, pathType.third)
                 )
 
                 if (!(first.intersects(tangent)) && !(second.intersects(tangent))) {
@@ -425,8 +421,8 @@ internal fun findAllPaths(
                     //We need only the direction of the final segment from this
                     ObstacleTangent(
                         LineSegment(start, start),
-                        ObstacleNode(initialObstacle, 0, i),
-                        ObstacleNode(initialObstacle, 0, i),
+                        ObstacleConnection(initialObstacle, 0, i),
+                        ObstacleConnection(initialObstacle, 0, i),
                     )
                 )
             )
@@ -524,8 +520,8 @@ internal fun findAllPaths(
                     tangentPath.tangents +
                             ObstacleTangent(
                                 LineSegment(finish, finish),
-                                ObstacleNode(end, 0, j),
-                                ObstacleNode(end, 0, j)
+                                ObstacleConnection(end, 0, j),
+                                ObstacleConnection(end, 0, j)
                             )
                 )
             }.map { it.toTrajectory() }
