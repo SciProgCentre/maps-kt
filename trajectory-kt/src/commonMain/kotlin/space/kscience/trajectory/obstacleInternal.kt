@@ -242,12 +242,17 @@ private fun LineSegment2D.intersectsCircle(circle: Circle2D): Boolean {
             (begin.y - end.y) * (end.y - circle.center.y))
     val c = (end.x - circle.center.x).pow(2.0) + (end.y - circle.center.y).pow(2.0) -
             circle.radius.pow(2.0)
-    val d = b.pow(2.0) - 4 * a * c
+
+    val aNormalized = a / (a * a + b * b + c * c)
+    val bNormalized = b / (a * a + b * b + c * c)
+    val cNormalized = c / (a * a + b * b + c * c)
+
+    val d = bNormalized.pow(2.0) - 4 * aNormalized * cNormalized
     if (d < 1e-6) {
         return false
     } else {
-        val t1 = (-b - d.pow(0.5)) * 0.5 / a
-        val t2 = (-b + d.pow(0.5)) * 0.5 / a
+        val t1 = (-bNormalized - d.pow(0.5)) * 0.5 / aNormalized
+        val t2 = (-bNormalized + d.pow(0.5)) * 0.5 / aNormalized
         if (((0 < t1) and (t1 < 1)) or ((0 < t2) and (t2 < 1))) {
             return true
         }
