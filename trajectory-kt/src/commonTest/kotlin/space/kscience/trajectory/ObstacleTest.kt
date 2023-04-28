@@ -100,6 +100,23 @@ class ObstacleTest {
         assertTrue { paths.isNotEmpty() }
         val length = paths.minOf { it.length }
     }
+    @Test
+    fun fromMapLess() {
+
+        val paths = Obstacle.avoidObstacles(
+            DubinsPose2D(x = 48.4149535516561, y = 299.50862534208703, bearing = 3.401475378237137.degrees),
+            DubinsPose2D(x = 45.66638489126448, y = 283.00541087567504, bearing = 325.32183928982727.degrees),
+            0.5,
+            Obstacle(
+                Circle2D(vector(x=44.60882236175772, y=289.52640759535935), radius=0.5),
+                Circle2D(vector(x=45.558751549431164, y=289.71165594902174), radius=0.5),
+                Circle2D(vector(x=46.590308440141426, y=289.3897500160981), radius=0.5),
+                Circle2D(vector(x=46.242119397653354, y=287.94964842121634), radius=0.5),
+                Circle2D(vector(x=44.92318047505464, y=288.0132403305273), radius=0.5)
+            )
+        )
+        val length = paths.minOf { it.length }
+    }
 
     @Test
     fun equalObstacles() {
