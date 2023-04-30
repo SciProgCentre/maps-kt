@@ -45,16 +45,16 @@ class DubinsTests {
             val b = path.segments[1]
             val c = path.segments[2] as CircleTrajectory2D
 
-            assertTrue(start.equalsFloat(a.start))
-            assertTrue(end.equalsFloat(c.end))
+            assertEquals(start, a.begin)
+            assertEquals(end, c.end)
 
             // Not working, theta double precision inaccuracy
             if (b is CircleTrajectory2D) {
-                assertTrue(a.end.equalsFloat(b.start))
-                assertTrue(c.start.equalsFloat(b.end))
+                assertEquals(a.end, b.begin)
+                assertEquals(c.begin, b.end)
             } else if (b is StraightTrajectory2D) {
-                assertTrue(a.end.equalsFloat(DubinsPose2D(b.begin, b.bearing)))
-                assertTrue(c.start.equalsFloat(DubinsPose2D(b.end, b.bearing)))
+                assertEquals(a.end, DubinsPose2D(b.begin, b.bearing))
+                assertEquals(c.begin, DubinsPose2D(b.end, b.bearing))
             }
         }
     }

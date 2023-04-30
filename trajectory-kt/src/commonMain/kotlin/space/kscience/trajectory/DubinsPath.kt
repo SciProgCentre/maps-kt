@@ -74,6 +74,8 @@ public object DubinsPath {
 
         override fun toString(): String = "${first}${second}${third}"
 
+        public val last: Direction get() = third
+
         public companion object {
             public val RLR: Type = Type(R, L, R)
             public val LRL: Type = Type(L, R, L)
