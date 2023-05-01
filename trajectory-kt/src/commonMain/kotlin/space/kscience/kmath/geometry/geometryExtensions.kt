@@ -1,8 +1,7 @@
 package space.kscience.kmath.geometry
 
 import space.kscience.kmath.operations.DoubleField.pow
-import space.kscience.trajectory.Pose2D
-import space.kscience.trajectory.Trajectory2D
+import space.kscience.trajectory.*
 import kotlin.math.sign
 
 public fun Euclidean2DSpace.circle(x: Number, y: Number, radius: Number): Circle2D =
@@ -48,6 +47,15 @@ public fun Euclidean2DSpace.intersects(segment1: LineSegment2D, segment2: LineSe
                 (segment1.begin - segment2.end) crossSign (segment1.end - segment2.end)
     }
 }
+
+public fun Euclidean2DSpace.intersectsTrajectory(segment: LineSegment2D, trajectory: Trajectory2D): Boolean =
+    when (trajectory) {
+        is CircleTrajectory2D -> intersects(segment, trajectory.circle)
+        is StraightTrajectory2D -> intersects(segment, trajectory)
+        is CompositeTrajectory2D -> trajectory.segments.any { trajectorySegment ->
+            intersectsTrajectory(segment, trajectorySegment)
+        }
+    }
 
 /**
  * Compute tangent pose to a circle

@@ -1,11 +1,8 @@
 package space.kscience.trajectory
 
 import space.kscience.kmath.geometry.*
-import space.kscience.kmath.geometry.Euclidean2DSpace.distanceTo
 import kotlin.collections.component1
 import kotlin.collections.component2
-import kotlin.math.PI
-import kotlin.math.atan2
 
 
 public class Obstacles(public val obstacles: List<Obstacle>) {
@@ -16,7 +13,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
         val direction: Trajectory2D.Direction,
     ) {
         val obstacle: Obstacle get() = obstacles[obstacleIndex]
-        val circle: Circle2D get() = obstacle.circles[nodeIndex]
+        val circle: Circle2D get() = obstacle.arcs[nodeIndex].circle
     }
 
     private inner class ObstacleTangent(
@@ -47,18 +44,16 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
     ): Map<DubinsPath.Type, ObstacleTangent> = with(Euclidean2DSpace) {
         val first = obstacles[firstIndex]
         val second = obstacles[secondIndex]
-        val firstPolygon = polygon(first.circles.map { it.center })
-        val secondPolygon = polygon(second.circles.map { it.center })
         buildMap {
-            for (firstCircleIndex in first.circles.indices) {
-                val firstCircle = first.circles[firstCircleIndex]
-                for (secondCircleIndex in second.circles.indices) {
-                    val secondCircle = second.circles[secondCircleIndex]
-                    for ((pathType, segment) in tangentsBetweenCircles(
+            for (firstCircleIndex in first.arcs.indices) {
+                val firstCircle = first.arcs[firstCircleIndex]
+                for (secondCircleIndex in second.arcs.indices) {
+                    val secondCircle = second.arcs[secondCircleIndex]
+                    for ((pathType, segment) in tangentsBetweenArcs(
                         firstCircle,
                         secondCircle
                     )) {
-                        if (!intersects(firstPolygon, segment) && !intersects(secondPolygon, segment)) {
+                        if (!first.intersects(segment) && !second.intersects(segment)) {
                             put(
                                 pathType,
                                 ObstacleTangent(
@@ -75,21 +70,19 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
     }
 
 
-    private fun tangentsFromCircle(
-        circle: Circle2D,
-        direction: Trajectory2D.Direction,
+    private fun tangentsFromArc(
+        arc: CircleTrajectory2D,
         obstacleIndex: Int,
     ): Map<DubinsPath.Type, ObstacleTangent> = with(Euclidean2DSpace) {
         val obstacle = obstacles[obstacleIndex]
-        val polygon = polygon(obstacle.circles.map { it.center })
         buildMap {
-            for (circleIndex in obstacle.circles.indices) {
-                val obstacleCircle = obstacle.circles[circleIndex]
-                for ((pathType, segment) in tangentsBetweenCircles(
-                    circle,
-                    obstacleCircle
+            for (circleIndex in obstacle.arcs.indices) {
+                val obstacleArc = obstacle.arcs[circleIndex]
+                for ((pathType, segment) in tangentsBetweenArcs(
+                    arc.copy(arcAngle = Angle.piTimes2), //extend arc to full circle
+                    obstacleArc
                 )) {
-                    if (pathType.first == direction && !intersects(polygon, segment)) {
+                    if (pathType.first == arc.direction && !intersects(obstacle.polygon, segment)) {
                         put(
                             pathType,
                             ObstacleTangent(
@@ -104,21 +97,19 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
         }
     }
 
-    private fun tangentToCircle(
+    private fun tangentToArc(
         obstacleIndex: Int,
         obstacleDirection: Trajectory2D.Direction,
-        circle: Circle2D,
-        direction: Trajectory2D.Direction,
+        arc: CircleTrajectory2D
     ): ObstacleTangent? = with(Euclidean2DSpace) {
         val obstacle = obstacles[obstacleIndex]
-        val polygon = polygon(obstacle.circles.map { it.center })
-        for (circleIndex in obstacle.circles.indices) {
-            val obstacleCircle = obstacle.circles[circleIndex]
-            tangentsBetweenCircles(
-                obstacleCircle,
-                circle
-            ).get(DubinsPath.Type(obstacleDirection, Trajectory2D.S, direction))?.takeIf {
-                !intersects(polygon, it)
+        for (circleIndex in obstacle.arcs.indices) {
+            val obstacleArc = obstacle.arcs[circleIndex]
+            tangentsBetweenArcs(
+                obstacleArc,
+                arc.copy(arcAngle = Angle.piTimes2), //extend arc to full circle
+            )[DubinsPath.Type(obstacleDirection, Trajectory2D.S, arc.direction)]?.takeIf {
+                !obstacle.intersects(it)
             }?.let {
                 return ObstacleTangent(
                     it,
@@ -163,11 +154,13 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
             first.circle,
             tangent1.tangentTrajectory.endPose,
             first.endPose,
+            tangent1.to.direction
         )
         circumvention[circumvention.lastIndex] = CircleTrajectory2D(
             last.circle,
             last.beginPose,
-            tangent2.tangentTrajectory.beginPose
+            tangent2.tangentTrajectory.beginPose,
+            tangent2.from.direction
         )
         return CompositeTrajectory2D(circumvention)
     }
@@ -186,19 +179,18 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
         )
     }
 
-    public fun allTrajectoriesAvoiding(
-        startCircle: Circle2D,
-        startDirection: Trajectory2D.Direction,
-        endCircle: Circle2D,
-        endDirection: Trajectory2D.Direction,
-    ): Collection<Trajectory2D> {
-        val directTangent: StraightTrajectory2D = tangentsBetweenCircles(startCircle, endCircle).get(
-            DubinsPath.Type(startDirection, Trajectory2D.S, endDirection)
-        ) ?: return emptySet()
-
+    private fun avoiding(
+        dubinsPath: CompositeTrajectory2D,
+    ): Collection<Trajectory2D> = with(Euclidean2DSpace) {
         //fast return if no obstacles intersect direct path
-        if (obstacles.none { it.intersects(directTangent) }) return listOf(directTangent)
+        if (obstacles.none { it.intersects(dubinsPath) }) return listOf(dubinsPath)
 
+        val beginArc = dubinsPath.segments.first() as CircleTrajectory2D
+        val endArc = dubinsPath.segments.last() as CircleTrajectory2D
+
+        /**
+         * Continue current tangent to final point or to the next obstacle
+         */
         /**
          * Continue current tangent to final point or to the next obstacle
          */
@@ -207,14 +199,13 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
             require(connection != null)
 
             //indices of obstacles that are not on previous path
-            val remainingObstacleIndices = obstacles.indices - tangents.mapNotNull { it.to?.obstacleIndex }
+            val remainingObstacleIndices = obstacles.indices - tangents.mapNotNull { it.to?.obstacleIndex }.toSet()
 
             //a tangent to end point, null if tangent could not be constructed
-            val tangentToEnd: ObstacleTangent = tangentToCircle(
+            val tangentToEnd: ObstacleTangent = tangentToArc(
                 connection.obstacleIndex,
                 connection.direction,
-                endCircle,
-                endDirection
+                endArc
             ) ?: return emptySet()
 
             if (remainingObstacleIndices.none { obstacles[it].intersects(tangentToEnd.tangentTrajectory) }) return setOf(
@@ -239,125 +230,113 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
 
         //find nearest obstacle that has valid tangents to
         val tangentsToFirstObstacle: Collection<ObstacleTangent> = obstacles.indices.sortedWith(
-            compareByDescending<Int> { obstacles[it].intersects(directTangent) } //take intersecting obstacles
-                .thenBy { startCircle.center.distanceTo(obstacles[it].center) } //then nearest
-        ).firstNotNullOf { obstacleIndex ->
-            tangentsFromCircle(startCircle, startDirection, obstacleIndex).values
+            compareByDescending<Int> { obstacles[it].intersects(dubinsPath) } //take intersecting obstacles
+                .thenBy { beginArc.circle.center.distanceTo(obstacles[it].center) } //then nearest
+        ).firstNotNullOfOrNull { obstacleIndex ->
+            tangentsFromArc(beginArc, obstacleIndex).values
                 .filter { it.isValid }.takeIf { it.isNotEmpty() }
-        }
+        }?: return emptySet()
 
         var paths = tangentsToFirstObstacle.map { TangentPath(listOf(it)) }
 
         while (!paths.all { it.isFinished }) {
             paths = paths.flatMap { it.nextSteps() }
         }
-        return paths.map { it.toTrajectory() }
+        return paths.map {
+            CompositeTrajectory2D(
+                //arc from starting point
+                CircleTrajectory2D(
+                    beginArc.circle,
+                    beginArc.beginPose,
+                    it.tangents.first().tangentTrajectory.beginPose,
+                    beginArc.direction
+                ),
+                it.toTrajectory(),
+                //arc to the end point
+                CircleTrajectory2D(
+                    endArc.circle,
+                    it.tangents.last().tangentTrajectory.endPose,
+                    endArc.endPose,
+                    endArc.direction
+                ),
+            )
+        }
+    }
+
+    public fun allTrajectories(
+        start: Pose2D,
+        finish: Pose2D,
+        radius: Double,
+    ): List<Trajectory2D> {
+
+        val dubinsPaths: List<CompositeTrajectory2D> = DubinsPath.all(start, finish, radius)
+
+        return dubinsPaths.flatMap {
+            avoiding(it)
+        }
     }
 
 
     public companion object {
-        private data class LR<T>(val l: T, val r: T) {
-            operator fun get(direction: Trajectory2D.Direction) = when (direction) {
-                Trajectory2D.L -> l
-                Trajectory2D.R -> r
-            }
-        }
-
-        private fun normalVectors(v: DoubleVector2D, r: Double): Pair<DoubleVector2D, DoubleVector2D> =
-            with(Euclidean2DSpace) {
-                Pair(
-                    r * vector(v.y / norm(v), -v.x / norm(v)),
-                    r * vector(-v.y / norm(v), v.x / norm(v))
-                )
-            }
-
-        private fun constructTangentCircles(
-            pose: Pose2D,
-            r: Double,
-        ): LR<Circle2D> = with(Euclidean2DSpace) {
-            val direction = Pose2D.bearingToVector(pose.bearing)
-            //TODO optimize to use bearing
-            val center1 = pose + normalVectors(direction, r).first
-            val center2 = pose + normalVectors(direction, r).second
-            val p1 = center1 - pose
-            return if (atan2(p1.y, p1.x) - atan2(direction.y, direction.x) in listOf(PI / 2, -3 * PI / 2)) {
-                LR(
-                    Circle2D(center1, r),
-                    Circle2D(center2, r)
-                )
-            } else {
-                LR(
-                    Circle2D(center2, r),
-                    Circle2D(center1, r)
-                )
-            }
-        }
+//        private data class LR<T>(val l: T, val r: T) {
+//            operator fun get(direction: Trajectory2D.Direction) = when (direction) {
+//                Trajectory2D.L -> l
+//                Trajectory2D.R -> r
+//            }
+//        }
+//
+//        private fun constructTangentCircles(
+//            pose: Pose2D,
+//            r: Double,
+//        ): LR<Circle2D> = with(Euclidean2DSpace) {
+//            val center1 = pose + vector(r*sin(pose.bearing + Angle.piDiv2), r*cos(pose.bearing + Angle.piDiv2))
+//            val center2 = pose + vector(r*sin(pose.bearing - Angle.piDiv2), r*cos(pose.bearing - Angle.piDiv2))
+//            LR(
+//                Circle2D(center2, r),
+//                Circle2D(center1, r)
+//            )
+//        }
 
         public fun avoidObstacles(
             start: Pose2D,
             finish: Pose2D,
-            startingRadius: Double,
+            radius: Double,
             obstacleList: List<Obstacle>,
-            finalRadius: Double = startingRadius,
         ): List<Trajectory2D> {
             val obstacles = Obstacles(obstacleList)
-            val initialCircles = constructTangentCircles(
-                start,
-                startingRadius
-            )
-
-            //two circles for the final point
-            val finalCircles = constructTangentCircles(
-                finish,
-                finalRadius
-            )
-            val lr = listOf(Trajectory2D.L, Trajectory2D.R)
-            return buildList {
-                lr.forEach { beginDirection ->
-                    lr.forEach { endDirection ->
-                        addAll(
-                            obstacles.allTrajectoriesAvoiding(
-                                initialCircles[beginDirection],
-                                beginDirection,
-                                finalCircles[endDirection],
-                                endDirection
-                            )
-                        )
-                    }
-                }
-            }
+            return obstacles.allTrajectories(start, finish, radius)
         }
 
         public fun avoidObstacles(
             start: Pose2D,
             finish: Pose2D,
-            trajectoryRadius: Double,
+            radius: Double,
             vararg obstacles: Obstacle,
-        ): List<Trajectory2D> = avoidObstacles(start, finish, trajectoryRadius, obstacles.toList())
+        ): List<Trajectory2D> = avoidObstacles(start, finish, radius, obstacles.toList())
 
         public fun avoidPolygons(
             start: Pose2D,
             finish: Pose2D,
-            trajectoryRadius: Double,
+            radius: Double,
             vararg polygons: Polygon<Double>,
         ): List<Trajectory2D> {
             val obstacles: List<Obstacle> = polygons.map { polygon ->
-                Obstacle(polygon.points, trajectoryRadius)
+                Obstacle(polygon.points, radius)
             }
-            return avoidObstacles(start, finish, trajectoryRadius, obstacles)
+            return avoidObstacles(start, finish, radius, obstacles)
         }
 
 
         public fun avoidPolygons(
             start: Pose2D,
             finish: Pose2D,
-            trajectoryRadius: Double,
+            radius: Double,
             polygons: Collection<Polygon<Double>>,
         ): List<Trajectory2D> {
             val obstacles: List<Obstacle> = polygons.map { polygon ->
-                Obstacle(polygon.points, trajectoryRadius)
+                Obstacle(polygon.points, radius)
             }
-            return avoidObstacles(start, finish, trajectoryRadius, obstacles)
+            return avoidObstacles(start, finish, radius, obstacles)
         }
     }
 

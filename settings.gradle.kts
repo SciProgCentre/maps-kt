@@ -54,6 +54,7 @@ include(
     ":maps-kt-scheme",
     ":demo:maps",
     ":demo:scheme",
-    ":demo:polygon-editor"
+    ":demo:polygon-editor",
+    ":demo:trajectory-playground"
 )
 

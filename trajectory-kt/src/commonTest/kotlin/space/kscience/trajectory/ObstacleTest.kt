@@ -5,6 +5,7 @@
 
 package space.kscience.trajectory
 
+import space.kscience.kmath.geometry.Angle
 import space.kscience.kmath.geometry.Circle2D
 import space.kscience.kmath.geometry.Euclidean2DSpace.vector
 import space.kscience.kmath.geometry.degrees
@@ -27,16 +28,10 @@ class ObstacleTest {
 
     @Test
     fun singeObstacle() {
-        val startPoint = vector(-5.0, -1.0)
-        val startDirection = vector(1.0, 1.0)
-        val startRadius = 0.5
-        val finalPoint = vector(20.0, 4.0)
-        val finalDirection = vector(1.0, -1.0)
-
-        val outputTangents = Obstacles.avoidObstacles(
-            Pose2D(startPoint, startDirection),
-            Pose2D(finalPoint, finalDirection),
-            startRadius,
+        val outputTangents: List<Trajectory2D> = Obstacles.avoidObstacles(
+            Pose2D(-5,-1, Angle.pi/4),
+            Pose2D(20,4, Angle.pi*3/4),
+            0.5,
             Obstacle(Circle2D(vector(7.0, 1.0), 5.0))
         )
         assertTrue { outputTangents.isNotEmpty() }
@@ -46,16 +41,10 @@ class ObstacleTest {
 
     @Test
     fun twoObstacles() {
-        val startPoint = vector(-5.0, -1.0)
-        val startDirection = vector(1.0, 1.0)
-        val radius = 0.5
-        val finalPoint = vector(20.0, 4.0)
-        val finalDirection = vector(1.0, -1.0)
-
         val paths = Obstacles.avoidObstacles(
-            Pose2D(startPoint, startDirection),
-            Pose2D(finalPoint, finalDirection),
-            radius,
+            Pose2D(-5,-1, Angle.pi/4),
+            Pose2D(20,4, Angle.pi*3/4),
+            0.5,
             Obstacle(
                 Circle2D(vector(1.0, 6.5), 0.5),
                 Circle2D(vector(2.0, 1.0), 0.5),
@@ -74,7 +63,7 @@ class ObstacleTest {
     }
 
     @Test
-    fun circumvention(){
+    fun circumvention() {
         val obstacle = Obstacle(
             Circle2D(vector(0.0, 0.0), 1.0),
             Circle2D(vector(0.0, 1.0), 1.0),
@@ -86,32 +75,26 @@ class ObstacleTest {
 
         assertEquals(4, circumvention.segments.count { it is CircleTrajectory2D })
 
-        assertEquals(4 + 2* PI, circumvention.length, 1e-4)
+        assertEquals(4 + 2 * PI, circumvention.length, 1e-4)
     }
 
     @Test
     fun closePoints() {
-        val startPoint = vector(-1.0, -1.0)
-        val startDirection = vector(0.0, 1.0)
-        val startRadius = 1.0
-        val finalPoint = vector(-1, -1)
-        val finalDirection = vector(1.0, 0)
+        val obstacle = Obstacle(
+            Circle2D(vector(0.0, 0.0), 1.0),
+            Circle2D(vector(0.0, 1.0), 1.0),
+            Circle2D(vector(1.0, 1.0), 1.0),
+            Circle2D(vector(1.0, 0.0), 1.0)
+        )
 
-        val paths = Obstacles.avoidObstacles(
-            Pose2D(startPoint, startDirection),
-            Pose2D(finalPoint, finalDirection),
-            startRadius,
-            Obstacle(
-                Circle2D(vector(0.0, 0.0), 1.0),
-                Circle2D(vector(0.0, 1.0), 1.0),
-                Circle2D(vector(1.0, 1.0), 1.0),
-                Circle2D(vector(1.0, 0.0), 1.0)
-            )
+        val paths: List<Trajectory2D> = Obstacles.avoidObstacles(
+            Pose2D(-0.9, -0.9, Angle.pi),
+            Pose2D(-0.9, -0.9, Angle.piDiv2),
+            1.0,
+            obstacle
         )
         assertTrue { paths.isNotEmpty() }
-        val length = paths.minOf { it.length }
-        println(length)
-        //assertEquals(28.9678224, length, 1e-6)
+        assertEquals(18.37, paths.minOf { it.length }, 1e-2)
     }
 
     @Test

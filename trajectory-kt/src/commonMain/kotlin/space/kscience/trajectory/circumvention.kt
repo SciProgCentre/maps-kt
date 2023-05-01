@@ -1,6 +1,7 @@
 package space.kscience.trajectory
 
 import space.kscience.kmath.geometry.Circle2D
+import space.kscience.kmath.geometry.DoubleVector2D
 import space.kscience.kmath.geometry.Euclidean2DSpace
 import space.kscience.trajectory.DubinsPath.Type
 import kotlin.math.*
@@ -62,12 +63,30 @@ internal fun tangentsBetweenCircles(
     }
 }
 
+internal fun tangentsBetweenArcs(
+    first: CircleTrajectory2D,
+    second: CircleTrajectory2D,
+): Map<Type, StraightTrajectory2D> {
+
+    fun CircleTrajectory2D.containsPoint(point: DoubleVector2D): Boolean = with(Euclidean2DSpace){
+        val radiusVectorBearing = (point - center).bearing
+        return when(direction){
+            Trajectory2D.L -> radiusVectorBearing in arcEnd..arcStart
+            Trajectory2D.R -> radiusVectorBearing in arcStart..arcEnd
+        }
+    }
+
+    return tangentsBetweenCircles(first.circle, second.circle).filterValues {
+        first.containsPoint(it.begin) && second.containsPoint(it.end)
+    }
+}
+
 /**
  * Create an obstacle circumvention in given [direction] starting (including) from obstacle node with given [fromIndex]
  */
 public fun Obstacle.circumvention(direction: Trajectory2D.Direction, fromIndex: Int): CompositeTrajectory2D {
-    require(fromIndex in circles.indices) { "$fromIndex is not in ${circles.indices}" }
-    val startCircle = circles[fromIndex]
+    require(fromIndex in arcs.indices) { "$fromIndex is not in ${arcs.indices}" }
+    val startCircle = arcs[fromIndex]
     val segments = buildList {
         val reserve = mutableListOf<Trajectory2D>()
 
@@ -77,7 +96,7 @@ public fun Obstacle.circumvention(direction: Trajectory2D.Direction, fromIndex: 
         }
 
         var i = 0
-        while ((sourceSegments[i] as? CircleTrajectory2D)?.circle !== startCircle) {
+        while (sourceSegments[i] !== startCircle) {
             //put all segments before target circle on the reserve
             reserve.add(sourceSegments[i])
             i++
@@ -104,8 +123,8 @@ public fun Obstacle.circumvention(
     fromIndex: Int,
     toIndex: Int,
 ): CompositeTrajectory2D {
-    require(toIndex in circles.indices) { "$toIndex is not in ${circles.indices}" }
-    val toCircle = circles[toIndex]
+    require(toIndex in arcs.indices) { "$toIndex is not in ${arcs.indices}" }
+    val toCircle = arcs[toIndex]
     val fullCircumvention = circumvention(direction, fromIndex).segments
     return CompositeTrajectory2D(
         buildList {
@@ -114,7 +133,7 @@ public fun Obstacle.circumvention(
                 val segment = fullCircumvention[i]
                 add(segment)
                 i++
-            } while ((segment as? CircleTrajectory2D)?.circle != toCircle)
+            } while (segment !== toCircle)
         }
     )
 }

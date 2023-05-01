@@ -89,6 +89,8 @@ public data class CircleTrajectory2D(
         circle.radius * kotlin.math.abs(arcAngle.radians)
     }
 
+    val center: Vector2D<Double> get() = circle.center
+
 
     override fun reversed(): CircleTrajectory2D = CircleTrajectory2D(circle, arcEnd, -arcAngle)
 
@@ -101,25 +103,6 @@ public fun CircleTrajectory2D(
     end: DoubleVector2D,
     direction: Trajectory2D.Direction,
 ): CircleTrajectory2D = with(Euclidean2DSpace) {
-//    fun calculatePose(
-//        vector: DoubleVector2D,
-//        theta: Angle,
-//        direction: Trajectory2D.Direction,
-//    ): DubinsPose2D = DubinsPose2D(
-//        vector,
-//        when (direction) {
-//            Trajectory2D.L -> (theta - Angle.piDiv2).normalized()
-//            Trajectory2D.R -> (theta + Angle.piDiv2).normalized()
-//        }
-//    )
-//
-//    val s1 = StraightTrajectory2D(center, start)
-//    val s2 = StraightTrajectory2D(center, end)
-//    val pose1 = calculatePose(start, s1.bearing, direction)
-//    val pose2 = calculatePose(end, s2.bearing, direction)
-//    val trajectory = CircleTrajectory2D(Circle2D(center, s1.length), pose1, pose2)
-//    if (trajectory.direction != direction) error("Trajectory direction mismatch")
-//    return trajectory
     val startVector = start - center
     val endVector = end - center
     val startRadius = norm(startVector)
@@ -149,6 +132,36 @@ public fun CircleTrajectory2D(
 
 public fun CircleTrajectory2D(
     circle: Circle2D,
+    start: DoubleVector2D,
+    end: DoubleVector2D,
+    direction: Trajectory2D.Direction,
+): CircleTrajectory2D = with(Euclidean2DSpace) {
+    val startVector = start - circle.center
+    val endVector = end - circle.center
+    val startBearing = startVector.bearing
+    val endBearing = endVector.bearing
+    CircleTrajectory2D(
+        circle,
+        startBearing,
+        when (direction) {
+            Trajectory2D.L -> if (endBearing >= startBearing) {
+                endBearing - startBearing - Angle.piTimes2
+            } else {
+                endBearing - startBearing
+            }
+
+            Trajectory2D.R -> if (endBearing >= startBearing) {
+                endBearing - startBearing
+            } else {
+                endBearing + Angle.piTimes2 - startBearing
+            }
+        }
+    )
+}
+
+@Deprecated("Use angle notation instead")
+public fun CircleTrajectory2D(
+    circle: Circle2D,
     beginPose: Pose2D,
     endPose: Pose2D,
 ): CircleTrajectory2D = with(Euclidean2DSpace) {
@@ -172,18 +185,18 @@ public class CompositeTrajectory2D(public val segments: List<Trajectory2D>) : Tr
 public fun CompositeTrajectory2D(vararg segments: Trajectory2D): CompositeTrajectory2D =
     CompositeTrajectory2D(segments.toList())
 
-public fun Euclidean2DSpace.trajectoryIntersects(a: Trajectory2D, b: Trajectory2D): Boolean = when (a) {
+public fun Euclidean2DSpace.intersectsTrajectory(a: Trajectory2D, b: Trajectory2D): Boolean = when (a) {
     is CircleTrajectory2D -> when (b) {
         is CircleTrajectory2D -> intersectsOrInside(a.circle, b.circle)
         is StraightTrajectory2D -> intersects(a.circle, b)
-        is CompositeTrajectory2D -> b.segments.any { trajectoryIntersects(it, b) }
+        is CompositeTrajectory2D -> b.segments.any { intersectsTrajectory(it, a) }
     }
 
     is StraightTrajectory2D -> when (b) {
         is CircleTrajectory2D -> intersects(a, b.circle)
         is StraightTrajectory2D -> intersects(a, b)
-        is CompositeTrajectory2D -> b.segments.any { trajectoryIntersects(it, b) }
+        is CompositeTrajectory2D -> b.segments.any { intersectsTrajectory(it, a) }
     }
 
-    is CompositeTrajectory2D -> a.segments.any { trajectoryIntersects(it, b) }
+    is CompositeTrajectory2D -> a.segments.any { intersectsTrajectory(it, b) }
 }

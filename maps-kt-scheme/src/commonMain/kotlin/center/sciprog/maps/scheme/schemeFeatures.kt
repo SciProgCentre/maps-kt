@@ -63,7 +63,7 @@ public fun FeatureGroup<XY>.arc(
     arcLength: Angle,
     id: String? = null,
 ): FeatureRef<XY, ArcFeature<XY>> = arc(
-    oval = XYCoordinateSpace.Rectangle(center.toCoordinates(), radius, radius),
+    oval = XYCoordinateSpace.Rectangle(center.toCoordinates(), 2*radius, 2*radius),
     startAngle = startAngle,
     arcLength = arcLength,
     id = id
