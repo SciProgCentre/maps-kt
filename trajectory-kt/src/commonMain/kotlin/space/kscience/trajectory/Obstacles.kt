@@ -101,7 +101,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
         obstacleIndex: Int,
         obstacleDirection: Trajectory2D.Direction,
         arc: CircleTrajectory2D
-    ): ObstacleTangent? = with(Euclidean2DSpace) {
+    ): ObstacleTangent = with(Euclidean2DSpace) {
         val obstacle = obstacles[obstacleIndex]
         for (circleIndex in obstacle.arcs.indices) {
             val obstacleArc = obstacle.arcs[circleIndex]
@@ -118,7 +118,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
                 )
             }
         }
-        return null
+        error("Tangent from obstacle $obstacleIndex to circle ${arc.circle} not found")
     }
 
 
@@ -206,7 +206,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
                 connection.obstacleIndex,
                 connection.direction,
                 endArc
-            ) ?: return emptySet()
+            ) ?: error("No tangents between obstacle and endpoint")
 
             if (remainingObstacleIndices.none { obstacles[it].intersects(tangentToEnd.tangentTrajectory) }) return setOf(
                 TangentPath(tangents + tangentToEnd)

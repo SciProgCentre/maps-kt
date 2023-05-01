@@ -57,6 +57,10 @@ fun FeatureGroup<XY>.obstacle(obstacle: Obstacle, colorPicker: (Trajectory2D) ->
     polygon(obstacle.arcs.map { it.center.toXY() }).color(Color.Gray)
 }
 
+fun FeatureGroup<XY>.pose(pose2D: Pose2D) = with(Euclidean2DSpace){
+    line(pose2D.toXY(), (pose2D + Pose2D.bearingToVector(pose2D.bearing)).toXY() )
+}
+
 @Composable
 @Preview
 fun closePoints() {
@@ -120,10 +124,14 @@ fun doubleObstacle() {
         )
 
         obstacles.forEach { obstacle(it)  }
+        val enter = Pose2D(-5, -1, Angle.pi / 4)
+        val exit = Pose2D(20, 4, Angle.pi * 3 / 4)
+        pose(enter)
+        pose(exit)
 
         Obstacles.avoidObstacles(
-            Pose2D(-5, -1, Angle.pi / 4),
-            Pose2D(20, 4, Angle.pi * 3 / 4),
+            enter,
+            exit,
             0.5,
             *obstacles
         ).forEach {
@@ -137,7 +145,9 @@ fun doubleObstacle() {
 @Preview
 fun playground() {
     val examples = listOf(
-        "Close starting points"
+        "Close starting points",
+        "Single obstacle",
+        "Two obstacles",
     )
 
     var currentExample by remember { mutableStateOf(examples.first()) }
@@ -153,6 +163,8 @@ fun playground() {
     }) {
         when (currentExample) {
             examples[0] -> closePoints()
+            examples[1] -> singleObstacle()
+            examples[2] -> doubleObstacle()
         }
     }
 }

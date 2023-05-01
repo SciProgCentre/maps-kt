@@ -11,6 +11,8 @@ import space.kscience.trajectory.Trajectory2D
 import kotlin.math.PI
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class ArcTests {
 
@@ -34,9 +36,26 @@ class ArcTests {
         val arc = CircleTrajectory2D(
             circle,
             Pose2D(x = 2.0, y = 1.2246467991473532E-16, bearing = PI.radians),
-            Pose2D(x = 1.0, y = -1.0, bearing = (PI*3/2).radians)
+            Pose2D(x = 1.0, y = -1.0, bearing = (PI * 3 / 2).radians)
         )
         assertEquals(Trajectory2D.R, arc.direction)
         assertEquals(PI / 2, arc.length, 1e-4)
+    }
+
+    @Test
+    fun arcContains() = with(Euclidean2DSpace) {
+        val circle = circle(0, 0, 1.0)
+
+        val arc1 = CircleTrajectory2D(circle, Angle.pi / 4, Angle.piDiv2)
+        assertTrue { arc1.containsPoint(vector(1, 0)) }
+        assertFalse { arc1.containsPoint(vector(0, 1)) }
+        assertFalse { arc1.containsPoint(vector(-1, 0)) }
+
+        val arc2 = CircleTrajectory2D(circle, Angle.pi / 4, -Angle.piDiv2 * 3)
+        assertEquals(Trajectory2D.L, arc2.direction)
+        assertFalse { arc2.containsPoint(vector(1, 0)) }
+        assertTrue { arc2.containsPoint(vector(0, 1)) }
+        assertTrue { arc2.containsPoint(vector(-1, 0)) }
+
     }
 }

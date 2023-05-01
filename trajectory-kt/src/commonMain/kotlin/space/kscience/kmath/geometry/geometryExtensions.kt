@@ -2,6 +2,7 @@ package space.kscience.kmath.geometry
 
 import space.kscience.kmath.operations.DoubleField.pow
 import space.kscience.trajectory.*
+import kotlin.math.abs
 import kotlin.math.sign
 
 public fun Euclidean2DSpace.circle(x: Number, y: Number, radius: Number): Circle2D =
@@ -71,3 +72,14 @@ public fun Circle2D.tangent(bearing: Angle, direction: Trajectory2D.Direction): 
     Pose2D(coordinates, tangentAngle)
 }
 
+
+public fun CircleTrajectory2D.containsPoint(point: DoubleVector2D): Boolean = with(Euclidean2DSpace) {
+    val radiusVector = point - center
+    if (abs(norm(radiusVector) - circle.radius) > 1e-4 * circle.radius) error("Wrong radius")
+    val radiusVectorBearing = radiusVector.bearing
+    val offset = (radiusVectorBearing - arcStart).normalized()
+    when {
+        arcAngle >= Angle.zero -> offset < arcAngle
+        else -> arcAngle < offset - Angle.piTimes2
+    }
+}
