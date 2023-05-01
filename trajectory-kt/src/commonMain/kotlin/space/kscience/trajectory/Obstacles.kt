@@ -158,14 +158,15 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
         //cutting first and last arcs to accommodate connection points
         val first = circumvention.first() as CircleTrajectory2D
         val last = circumvention.last() as CircleTrajectory2D
+        //arc between end of the nangent and end of previous arc (begin of the the next one)
         circumvention[0] = CircleTrajectory2D(
             first.circle,
             tangent1.tangentTrajectory.endPose,
-            first.end
+            first.endPose,
         )
         circumvention[circumvention.lastIndex] = CircleTrajectory2D(
             last.circle,
-            last.begin,
+            last.beginPose,
             tangent2.tangentTrajectory.beginPose
         )
         return CompositeTrajectory2D(circumvention)
@@ -271,10 +272,10 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
             }
 
         private fun constructTangentCircles(
-            pose: DubinsPose2D,
+            pose: Pose2D,
             r: Double,
         ): LR<Circle2D> = with(Euclidean2DSpace) {
-            val direction = DubinsPose2D.bearingToVector(pose.bearing)
+            val direction = Pose2D.bearingToVector(pose.bearing)
             //TODO optimize to use bearing
             val center1 = pose + normalVectors(direction, r).first
             val center2 = pose + normalVectors(direction, r).second
@@ -293,8 +294,8 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
         }
 
         public fun avoidObstacles(
-            start: DubinsPose2D,
-            finish: DubinsPose2D,
+            start: Pose2D,
+            finish: Pose2D,
             startingRadius: Double,
             obstacleList: List<Obstacle>,
             finalRadius: Double = startingRadius,
@@ -328,15 +329,15 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
         }
 
         public fun avoidObstacles(
-            start: DubinsPose2D,
-            finish: DubinsPose2D,
+            start: Pose2D,
+            finish: Pose2D,
             trajectoryRadius: Double,
             vararg obstacles: Obstacle,
         ): List<Trajectory2D> = avoidObstacles(start, finish, trajectoryRadius, obstacles.toList())
 
         public fun avoidPolygons(
-            start: DubinsPose2D,
-            finish: DubinsPose2D,
+            start: Pose2D,
+            finish: Pose2D,
             trajectoryRadius: Double,
             vararg polygons: Polygon<Double>,
         ): List<Trajectory2D> {
@@ -348,8 +349,8 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
 
 
         public fun avoidPolygons(
-            start: DubinsPose2D,
-            finish: DubinsPose2D,
+            start: Pose2D,
+            finish: Pose2D,
             trajectoryRadius: Double,
             polygons: Collection<Polygon<Double>>,
         ): List<Trajectory2D> {

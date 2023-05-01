@@ -18,8 +18,8 @@ import kotlin.math.atan2
 public sealed interface Trajectory2D {
     public val length: Double
 
-    public val beginPose: DubinsPose2D
-    public val endPose: DubinsPose2D
+    public val beginPose: Pose2D
+    public val endPose: Pose2D
 
     /**
      * Produce a trajectory with reversed order of points
@@ -60,8 +60,8 @@ public data class StraightTrajectory2D(
 
     public val bearing: Angle get() = (end - begin).bearing
 
-    override val beginPose: DubinsPose2D get() = DubinsPose2D(begin, bearing)
-    override val endPose: DubinsPose2D get() = DubinsPose2D(end, bearing)
+    override val beginPose: Pose2D get() = Pose2D(begin, bearing)
+    override val endPose: Pose2D get() = Pose2D(end, bearing)
 
     override fun reversed(): StraightTrajectory2D = StraightTrajectory2D(end, begin)
 }
@@ -74,72 +74,88 @@ public fun StraightTrajectory2D(segment: LineSegment2D): StraightTrajectory2D =
  */
 @Serializable
 @SerialName("arc")
-public data class CircleTrajectory2D (
+public data class CircleTrajectory2D(
     public val circle: Circle2D,
-    public val begin: DubinsPose2D,
-    public val end: DubinsPose2D,
+    public val arcStart: Angle,
+    public val arcAngle: Angle,
 ) : Trajectory2D {
+    public val direction: Trajectory2D.Direction = if (arcAngle > Angle.zero) Trajectory2D.R else Trajectory2D.L
 
-    override val beginPose: DubinsPose2D get() = begin
-    override val endPose: DubinsPose2D get() = end
-
-    /**
-     * Arc length in radians
-     */
-    val arcAngle: Angle
-        get() = if (direction == Trajectory2D.L) {
-            begin.bearing - end.bearing
-        } else {
-            end.bearing - begin.bearing
-        }.normalized()
-
+    public val arcEnd: Angle = arcStart + arcAngle
+    override val beginPose: Pose2D get() = circle.tangent(arcStart, direction)
+    override val endPose: Pose2D get() = circle.tangent(arcEnd, direction)
 
     override val length: Double by lazy {
-        circle.radius * arcAngle.radians
+        circle.radius * kotlin.math.abs(arcAngle.radians)
     }
 
-    public val direction: Trajectory2D.Direction by lazy {
-        when {
-            begin.y < circle.center.y -> if (begin.bearing > Angle.pi) Trajectory2D.R else Trajectory2D.L
-            begin.y > circle.center.y -> if (begin.bearing < Angle.pi) Trajectory2D.R else Trajectory2D.L
-            else -> if (begin.bearing == Angle.zero) {
-                if (begin.x < circle.center.x) Trajectory2D.R else Trajectory2D.L
+
+    override fun reversed(): CircleTrajectory2D = CircleTrajectory2D(circle, arcEnd, -arcAngle)
+
+    public companion object
+}
+
+public fun CircleTrajectory2D(
+    center: DoubleVector2D,
+    start: DoubleVector2D,
+    end: DoubleVector2D,
+    direction: Trajectory2D.Direction,
+): CircleTrajectory2D = with(Euclidean2DSpace) {
+//    fun calculatePose(
+//        vector: DoubleVector2D,
+//        theta: Angle,
+//        direction: Trajectory2D.Direction,
+//    ): DubinsPose2D = DubinsPose2D(
+//        vector,
+//        when (direction) {
+//            Trajectory2D.L -> (theta - Angle.piDiv2).normalized()
+//            Trajectory2D.R -> (theta + Angle.piDiv2).normalized()
+//        }
+//    )
+//
+//    val s1 = StraightTrajectory2D(center, start)
+//    val s2 = StraightTrajectory2D(center, end)
+//    val pose1 = calculatePose(start, s1.bearing, direction)
+//    val pose2 = calculatePose(end, s2.bearing, direction)
+//    val trajectory = CircleTrajectory2D(Circle2D(center, s1.length), pose1, pose2)
+//    if (trajectory.direction != direction) error("Trajectory direction mismatch")
+//    return trajectory
+    val startVector = start - center
+    val endVector = end - center
+    val startRadius = norm(startVector)
+    val endRadius = norm(endVector)
+    require((startRadius - endRadius) / startRadius < 1e-6) { "Start and end points have different radii" }
+    val radius = (startRadius + endRadius) / 2
+    val startBearing = startVector.bearing
+    val endBearing = endVector.bearing
+    CircleTrajectory2D(
+        Circle2D(center, radius),
+        startBearing,
+        when (direction) {
+            Trajectory2D.L -> if (endBearing >= startBearing) {
+                endBearing - startBearing - Angle.piTimes2
             } else {
-                if (begin.x > circle.center.x) Trajectory2D.R else Trajectory2D.L
+                endBearing - startBearing
+            }
+
+            Trajectory2D.R -> if (endBearing >= startBearing) {
+                endBearing - startBearing
+            } else {
+                endBearing + Angle.piTimes2 - startBearing
             }
         }
-    }
+    )
+}
 
-    override fun reversed(): CircleTrajectory2D = CircleTrajectory2D(circle, end.reversed(), begin.reversed())
-
-    public companion object {
-        public fun of(
-            center: DoubleVector2D,
-            start: DoubleVector2D,
-            end: DoubleVector2D,
-            direction: Trajectory2D.Direction,
-        ): CircleTrajectory2D {
-            fun calculatePose(
-                vector: DoubleVector2D,
-                theta: Angle,
-                direction: Trajectory2D.Direction,
-            ): DubinsPose2D = DubinsPose2D(
-                vector,
-                when (direction) {
-                    Trajectory2D.L -> (theta - Angle.piDiv2).normalized()
-                    Trajectory2D.R -> (theta + Angle.piDiv2).normalized()
-                }
-            )
-
-            val s1 = StraightTrajectory2D(center, start)
-            val s2 = StraightTrajectory2D(center, end)
-            val pose1 = calculatePose(start, s1.bearing, direction)
-            val pose2 = calculatePose(end, s2.bearing, direction)
-            val trajectory = CircleTrajectory2D(Circle2D(center, s1.length), pose1, pose2)
-            if (trajectory.direction != direction) error("Trajectory direction mismatch")
-            return trajectory
-        }
-    }
+public fun CircleTrajectory2D(
+    circle: Circle2D,
+    beginPose: Pose2D,
+    endPose: Pose2D,
+): CircleTrajectory2D = with(Euclidean2DSpace) {
+    val vectorToBegin = beginPose - circle.center
+    val vectorToEnd = endPose - circle.center
+    //TODO check pose bearing
+    return CircleTrajectory2D(circle, vectorToBegin.bearing, vectorToEnd.bearing - vectorToBegin.bearing)
 }
 
 @Serializable
@@ -147,8 +163,8 @@ public data class CircleTrajectory2D (
 public class CompositeTrajectory2D(public val segments: List<Trajectory2D>) : Trajectory2D {
     override val length: Double get() = segments.sumOf { it.length }
 
-    override val beginPose: DubinsPose2D get() = segments.first().beginPose
-    override val endPose: DubinsPose2D get() = segments.last().endPose
+    override val beginPose: Pose2D get() = segments.first().beginPose
+    override val endPose: Pose2D get() = segments.last().endPose
 
     override fun reversed(): CompositeTrajectory2D = CompositeTrajectory2D(segments.map { it.reversed() }.reversed())
 }

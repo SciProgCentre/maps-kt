@@ -1,6 +1,8 @@
 package space.kscience.kmath.geometry
 
 import space.kscience.kmath.operations.DoubleField.pow
+import space.kscience.trajectory.Pose2D
+import space.kscience.trajectory.Trajectory2D
 import kotlin.math.sign
 
 public fun Euclidean2DSpace.circle(x: Number, y: Number, radius: Number): Circle2D =
@@ -45,5 +47,19 @@ public fun Euclidean2DSpace.intersects(segment1: LineSegment2D, segment2: LineSe
                 (segment1.begin - segment2.begin) crossSign (segment1.end - segment2.begin) !=
                 (segment1.begin - segment2.end) crossSign (segment1.end - segment2.end)
     }
+}
+
+/**
+ * Compute tangent pose to a circle
+ *
+ * @param bearing is counted the same way as in [Pose2D], from positive y clockwise
+ */
+public fun Circle2D.tangent(bearing: Angle, direction: Trajectory2D.Direction): Pose2D = with(Euclidean2DSpace) {
+    val coordinates: Vector2D<Double> = vector(center.x + radius * sin(bearing), center.y + radius * cos(bearing))
+    val tangentAngle = when (direction) {
+        Trajectory2D.R -> bearing + Angle.piDiv2
+        Trajectory2D.L -> bearing - Angle.piDiv2
+    }.normalized()
+    Pose2D(coordinates, tangentAngle)
 }
 

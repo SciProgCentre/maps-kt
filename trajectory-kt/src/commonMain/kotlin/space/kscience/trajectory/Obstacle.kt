@@ -48,14 +48,14 @@ private class ObstacleImpl(override val circles: List<Circle2D>) : Obstacle {
 
             if (circles.size == 1) {
                 // a circumvention consisting of a single circle, starting on top
-                val circle = circles.first()
-                val top = vector(circle.center.x + circle.radius, circle.center.y)
-                val startEnd = DubinsPose2D(
-                    top,
-                    Angle.piDiv2
-                )
+//                val circle = circles.first()
+//                val top = vector(circle.center.x + circle.radius, circle.center.y)
+//                val start = DubinsPose2D(
+//                    top,
+//                    Angle.piDiv2
+//                )
                 return@lazy CompositeTrajectory2D(
-                    CircleTrajectory2D(circle, startEnd, startEnd)
+                    CircleTrajectory2D(circles.first(), Angle.zero, Angle.zero)
                 )
             }
 

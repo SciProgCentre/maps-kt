@@ -10,7 +10,7 @@ import space.kscience.kmath.geometry.radians
 import space.kscience.kmath.geometry.sin
 
 
-fun assertEquals(expected: DubinsPose2D, actual: DubinsPose2D, precision: Double = 1e-6){
+fun assertEquals(expected: Pose2D, actual: Pose2D, precision: Double = 1e-6){
     kotlin.test.assertEquals(expected.x, actual.x, precision)
     kotlin.test.assertEquals(expected.y, actual.y, precision)
     kotlin.test.assertEquals(expected.bearing.radians, actual.bearing.radians, precision)

@@ -6,23 +6,22 @@
 package space.kscience.trajectory
 
 import space.kscience.kmath.geometry.Euclidean2DSpace
-import space.kscience.kmath.geometry.equalsFloat
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 
 class DubinsTests {
 
     @Test
-    fun dubinsTest() = with(Euclidean2DSpace){
+    fun dubinsTest() = with(Euclidean2DSpace) {
         val straight = StraightTrajectory2D(vector(0.0, 0.0), vector(100.0, 100.0))
         val lineP1 = straight.shift(1, 10.0).inverse()
 
-        val start = DubinsPose2D(straight.end, straight.bearing)
-        val end = DubinsPose2D(lineP1.begin, lineP1.bearing)
+        val start = Pose2D(straight.end, straight.bearing)
+        val end = Pose2D(lineP1.begin, lineP1.bearing)
         val radius = 2.0
-        val dubins = DubinsPath.all(start, end, radius)
+        val dubins: List<CompositeTrajectory2D> = DubinsPath.all(start, end, radius)
 
         val absoluteDistance = start.distanceTo(end)
         println("Absolute distance: $absoluteDistance")
@@ -39,22 +38,22 @@ class DubinsTests {
             val path = dubins.find { p -> DubinsPath.trajectoryTypeOf(p) == it.key }
             assertNotNull(path, "Path ${it.key} not found")
             println("${it.key}: ${path.length}")
-            assertTrue(it.value.equalsFloat(path.length))
+            assertEquals(it.value, path.length, 1e-4)
 
             val a = path.segments[0] as CircleTrajectory2D
             val b = path.segments[1]
             val c = path.segments[2] as CircleTrajectory2D
 
-            assertEquals(start, a.begin)
-            assertEquals(end, c.end)
+            assertEquals(start, a.beginPose, 1e-4)
+            assertEquals(end, c.endPose, 1e-4)
 
             // Not working, theta double precision inaccuracy
             if (b is CircleTrajectory2D) {
-                assertEquals(a.end, b.begin)
-                assertEquals(c.begin, b.end)
+                assertEquals(a.endPose, b.beginPose, 1e-4)
+                assertEquals(c.beginPose, b.endPose, 1e-4)
             } else if (b is StraightTrajectory2D) {
-                assertEquals(a.end, DubinsPose2D(b.begin, b.bearing))
-                assertEquals(c.begin, DubinsPose2D(b.end, b.bearing))
+                assertEquals(a.endPose, Pose2D(b.begin, b.bearing), 1e-4)
+                assertEquals(c.beginPose, Pose2D(b.end, b.bearing),1e-4)
             }
         }
     }

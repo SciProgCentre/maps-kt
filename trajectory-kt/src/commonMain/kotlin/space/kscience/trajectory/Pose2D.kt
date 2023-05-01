@@ -19,15 +19,15 @@ import kotlin.math.atan2
 /**
  * Combination of [Vector] and its view angle (clockwise from positive y-axis direction)
  */
-@Serializable(DubinsPose2DSerializer::class)
-public interface DubinsPose2D : DoubleVector2D {
+@Serializable(Pose2DSerializer::class)
+public interface Pose2D : DoubleVector2D {
     public val coordinates: DoubleVector2D
     public val bearing: Angle
 
     /**
      * Reverse the direction of this pose to the opposite, keeping other parameters the same
      */
-    public fun reversed(): DubinsPose2D
+    public fun reversed(): Pose2D
 
     public companion object {
         public fun bearingToVector(bearing: Angle): Vector2D<Double> =
@@ -45,45 +45,62 @@ public interface DubinsPose2D : DoubleVector2D {
 public class PhaseVector2D(
     override val coordinates: DoubleVector2D,
     public val velocity: DoubleVector2D,
-) : DubinsPose2D, DoubleVector2D by coordinates {
+) : Pose2D, DoubleVector2D by coordinates {
     override val bearing: Angle get() = atan2(velocity.x, velocity.y).radians
 
-    override fun reversed(): DubinsPose2D = with(Euclidean2DSpace) { PhaseVector2D(coordinates, -velocity) }
+    override fun reversed(): Pose2D = with(Euclidean2DSpace) { PhaseVector2D(coordinates, -velocity) }
 }
 
 @Serializable
 @SerialName("DubinsPose2D")
-private class DubinsPose2DImpl(
+private class Pose2DImpl(
     override val coordinates: DoubleVector2D,
     override val bearing: Angle,
-) : DubinsPose2D, DoubleVector2D by coordinates {
+) : Pose2D, DoubleVector2D by coordinates {
 
-    override fun reversed(): DubinsPose2D = DubinsPose2DImpl(coordinates, bearing.plus(Angle.pi).normalized())
+    override fun reversed(): Pose2D = Pose2DImpl(coordinates, bearing.plus(Angle.pi).normalized())
+
+
 
     override fun toString(): String = "Pose2D(x=$x, y=$y, bearing=$bearing)"
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as Pose2DImpl
+
+        if (coordinates != other.coordinates) return false
+        return bearing == other.bearing
+    }
+
+    override fun hashCode(): Int {
+        var result = coordinates.hashCode()
+        result = 31 * result + bearing.hashCode()
+        return result
+    }
 }
 
-public object DubinsPose2DSerializer : KSerializer<DubinsPose2D> {
-    private val proxySerializer = DubinsPose2DImpl.serializer()
+public object Pose2DSerializer : KSerializer<Pose2D> {
+    private val proxySerializer = Pose2DImpl.serializer()
 
     override val descriptor: SerialDescriptor
         get() = proxySerializer.descriptor
 
-    override fun deserialize(decoder: Decoder): DubinsPose2D {
+    override fun deserialize(decoder: Decoder): Pose2D {
         return decoder.decodeSerializableValue(proxySerializer)
     }
 
-    override fun serialize(encoder: Encoder, value: DubinsPose2D) {
-        val pose = value as? DubinsPose2DImpl ?: DubinsPose2DImpl(value.coordinates, value.bearing)
+    override fun serialize(encoder: Encoder, value: Pose2D) {
+        val pose = value as? Pose2DImpl ?: Pose2DImpl(value.coordinates, value.bearing)
         encoder.encodeSerializableValue(proxySerializer, pose)
     }
 }
 
-public fun DubinsPose2D(coordinate: DoubleVector2D, bearing: Angle): DubinsPose2D =
-    DubinsPose2DImpl(coordinate, bearing)
+public fun Pose2D(coordinate: DoubleVector2D, bearing: Angle): Pose2D =
+    Pose2DImpl(coordinate, bearing)
 
-public fun DubinsPose2D(point: DoubleVector2D, direction: DoubleVector2D): DubinsPose2D =
-    DubinsPose2D(point, DubinsPose2D.vectorToBearing(direction))
+public fun Pose2D(point: DoubleVector2D, direction: DoubleVector2D): Pose2D =
+    Pose2D(point, Pose2D.vectorToBearing(direction))
 
-public fun DubinsPose2D(x: Number, y: Number, bearing: Angle): DubinsPose2D =
-    DubinsPose2DImpl(Euclidean2DSpace.vector(x, y), bearing)
+public fun Pose2D(x: Number, y: Number, bearing: Angle): Pose2D =
+    Pose2DImpl(Euclidean2DSpace.vector(x, y), bearing)

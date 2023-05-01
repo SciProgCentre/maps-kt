@@ -10,11 +10,11 @@ import space.kscience.kmath.geometry.Euclidean2DSpace.distanceTo
 import space.kscience.trajectory.Trajectory2D.*
 import kotlin.math.acos
 
-internal fun DubinsPose2D.getLeftCircle(radius: Double): Circle2D = getTangentCircles(radius).first
+internal fun Pose2D.getLeftCircle(radius: Double): Circle2D = getTangentCircles(radius).first
 
-internal fun DubinsPose2D.getRightCircle(radius: Double): Circle2D = getTangentCircles(radius).second
+internal fun Pose2D.getRightCircle(radius: Double): Circle2D = getTangentCircles(radius).second
 
-internal fun DubinsPose2D.getTangentCircles(radius: Double): Pair<Circle2D, Circle2D> = with(Euclidean2DSpace) {
+internal fun Pose2D.getTangentCircles(radius: Double): Pair<Circle2D, Circle2D> = with(Euclidean2DSpace) {
     val dX = radius * cos(bearing)
     val dY = radius * sin(bearing)
     return Circle2D(vector(x - dX, y + dY), radius) to Circle2D(vector(x + dX, y - dY), radius)
@@ -102,8 +102,8 @@ public object DubinsPath {
     }
 
     public fun all(
-        start: DubinsPose2D,
-        end: DubinsPose2D,
+        start: Pose2D,
+        end: Pose2D,
         turningRadius: Double,
     ): List<CompositeTrajectory2D> = listOfNotNull(
         rlr(start, end, turningRadius),
@@ -114,10 +114,10 @@ public object DubinsPath {
         lsr(start, end, turningRadius)
     )
 
-    public fun shortest(start: DubinsPose2D, end: DubinsPose2D, turningRadius: Double): CompositeTrajectory2D =
+    public fun shortest(start: Pose2D, end: Pose2D, turningRadius: Double): CompositeTrajectory2D =
         all(start, end, turningRadius).minBy { it.length }
 
-    public fun rlr(start: DubinsPose2D, end: DubinsPose2D, turningRadius: Double): CompositeTrajectory2D? =
+    public fun rlr(start: Pose2D, end: Pose2D, turningRadius: Double): CompositeTrajectory2D? =
         with(Euclidean2DSpace) {
             val c1 = start.getRightCircle(turningRadius)
             val c2 = end.getRightCircle(turningRadius)
@@ -135,9 +135,9 @@ public object DubinsPath {
                 dX = turningRadius * sin(theta)
                 dY = turningRadius * cos(theta)
                 val p2 = vector(e.center.x + dX, e.center.y + dY)
-                val a1 = CircleTrajectory2D.of(c1.center, start, p1, R)
-                val a2 = CircleTrajectory2D.of(e.center, p1, p2, L)
-                val a3 = CircleTrajectory2D.of(c2.center, p2, end, R)
+                val a1 = CircleTrajectory2D(c1.center, start, p1, R)
+                val a2 = CircleTrajectory2D(e.center, p1, p2, L)
+                val a3 = CircleTrajectory2D(c2.center, p2, end, R)
                 CompositeTrajectory2D(a1, a2, a3)
             }
 
@@ -152,16 +152,16 @@ public object DubinsPath {
                 dX = turningRadius * sin(theta)
                 dY = turningRadius * cos(theta)
                 val p2 = vector(e.center.x + dX, e.center.y + dY)
-                val a1 = CircleTrajectory2D.of(c1.center, start, p1, R)
-                val a2 = CircleTrajectory2D.of(e.center, p1, p2, L)
-                val a3 = CircleTrajectory2D.of(c2.center, p2, end, R)
+                val a1 = CircleTrajectory2D(c1.center, start, p1, R)
+                val a2 = CircleTrajectory2D(e.center, p1, p2, L)
+                val a3 = CircleTrajectory2D(c2.center, p2, end, R)
                 CompositeTrajectory2D(a1, a2, a3)
             }
 
             return if (firstVariant.length < secondVariant.length) firstVariant else secondVariant
         }
 
-    public fun lrl(start: DubinsPose2D, end: DubinsPose2D, turningRadius: Double): CompositeTrajectory2D? =
+    public fun lrl(start: Pose2D, end: Pose2D, turningRadius: Double): CompositeTrajectory2D? =
         with(Euclidean2DSpace) {
             val c1 = start.getLeftCircle(turningRadius)
             val c2 = end.getLeftCircle(turningRadius)
@@ -179,9 +179,9 @@ public object DubinsPath {
                 dX = turningRadius * sin(theta)
                 dY = turningRadius * cos(theta)
                 val p2 = vector(e.center.x + dX, e.center.y + dY)
-                val a1 = CircleTrajectory2D.of(c1.center, start, p1, L)
-                val a2 = CircleTrajectory2D.of(e.center, p1, p2, R)
-                val a3 = CircleTrajectory2D.of(c2.center, p2, end, L)
+                val a1 = CircleTrajectory2D(c1.center, start, p1, L)
+                val a2 = CircleTrajectory2D(e.center, p1, p2, R)
+                val a3 = CircleTrajectory2D(c2.center, p2, end, L)
                 CompositeTrajectory2D(a1, a2, a3)
             }
 
@@ -196,52 +196,52 @@ public object DubinsPath {
                 dX = turningRadius * sin(theta)
                 dY = turningRadius * cos(theta)
                 val p2 = vector(e.center.x + dX, e.center.y + dY)
-                val a1 = CircleTrajectory2D.of(c1.center, start, p1, L)
-                val a2 = CircleTrajectory2D.of(e.center, p1, p2, R)
-                val a3 = CircleTrajectory2D.of(c2.center, p2, end, L)
+                val a1 = CircleTrajectory2D(c1.center, start, p1, L)
+                val a2 = CircleTrajectory2D(e.center, p1, p2, R)
+                val a3 = CircleTrajectory2D(c2.center, p2, end, L)
                 CompositeTrajectory2D(a1, a2, a3)
             }
 
             return if (firstVariant.length < secondVariant.length) firstVariant else secondVariant
         }
 
-    public fun rsr(start: DubinsPose2D, end: DubinsPose2D, turningRadius: Double): CompositeTrajectory2D {
+    public fun rsr(start: Pose2D, end: Pose2D, turningRadius: Double): CompositeTrajectory2D {
         val c1 = start.getRightCircle(turningRadius)
         val c2 = end.getRightCircle(turningRadius)
         val s = outerTangent(c1, c2, L)
-        val a1 = CircleTrajectory2D.of(c1.center, start, s.begin, R)
-        val a3 = CircleTrajectory2D.of(c2.center, s.end, end, R)
+        val a1 = CircleTrajectory2D(c1.center, start, s.begin, R)
+        val a3 = CircleTrajectory2D(c2.center, s.end, end, R)
         return CompositeTrajectory2D(a1, s, a3)
     }
 
-    public fun lsl(start: DubinsPose2D, end: DubinsPose2D, turningRadius: Double): CompositeTrajectory2D {
+    public fun lsl(start: Pose2D, end: Pose2D, turningRadius: Double): CompositeTrajectory2D {
         val c1 = start.getLeftCircle(turningRadius)
         val c2 = end.getLeftCircle(turningRadius)
         val s = outerTangent(c1, c2, R)
-        val a1 = CircleTrajectory2D.of(c1.center, start, s.begin, L)
-        val a3 = CircleTrajectory2D.of(c2.center, s.end, end, L)
+        val a1 = CircleTrajectory2D(c1.center, start, s.begin, L)
+        val a3 = CircleTrajectory2D(c2.center, s.end, end, L)
         return CompositeTrajectory2D(a1, s, a3)
     }
 
-    public fun rsl(start: DubinsPose2D, end: DubinsPose2D, turningRadius: Double): CompositeTrajectory2D? {
+    public fun rsl(start: Pose2D, end: Pose2D, turningRadius: Double): CompositeTrajectory2D? {
         val c1 = start.getRightCircle(turningRadius)
         val c2 = end.getLeftCircle(turningRadius)
         val s = innerTangent(c1, c2, R)
         if (s == null || c1.center.distanceTo(c2.center) < turningRadius * 2) return null
 
-        val a1 = CircleTrajectory2D.of(c1.center, start, s.begin, R)
-        val a3 = CircleTrajectory2D.of(c2.center, s.end, end, L)
+        val a1 = CircleTrajectory2D(c1.center, start, s.begin, R)
+        val a3 = CircleTrajectory2D(c2.center, s.end, end, L)
         return CompositeTrajectory2D(a1, s, a3)
     }
 
-    public fun lsr(start: DubinsPose2D, end: DubinsPose2D, turningRadius: Double): CompositeTrajectory2D? {
+    public fun lsr(start: Pose2D, end: Pose2D, turningRadius: Double): CompositeTrajectory2D? {
         val c1 = start.getLeftCircle(turningRadius)
         val c2 = end.getRightCircle(turningRadius)
         val s = innerTangent(c1, c2, L)
         if (s == null || c1.center.distanceTo(c2.center) < turningRadius * 2) return null
 
-        val a1 = CircleTrajectory2D.of(c1.center, start, s.begin, L)
-        val a3 = CircleTrajectory2D.of(c2.center, s.end, end, R)
+        val a1 = CircleTrajectory2D(c1.center, start, s.begin, L)
+        val a3 = CircleTrajectory2D(c2.center, s.end, end, R)
         return CompositeTrajectory2D(a1, s, a3)
     }
 }
