@@ -206,7 +206,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
                 connection.obstacleIndex,
                 connection.direction,
                 endArc
-            ) ?: error("No tangents between obstacle and endpoint")
+            )
 
             if (remainingObstacleIndices.none { obstacles[it].intersects(tangentToEnd.tangentTrajectory) }) return setOf(
                 TangentPath(tangents + tangentToEnd)
