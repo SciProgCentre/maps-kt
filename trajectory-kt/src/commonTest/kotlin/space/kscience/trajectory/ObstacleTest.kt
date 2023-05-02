@@ -89,13 +89,14 @@ class ObstacleTest {
         )
 
         val paths: List<Trajectory2D> = Obstacles.avoidObstacles(
-            Pose2D(-0.9, -0.9, Angle.pi),
-            Pose2D(-0.9, -0.9, Angle.piDiv2),
+            Pose2D(-1, -1, Angle.pi),
+            Pose2D(-1, -1, Angle.piDiv2),
             1.0,
             obstacle
         )
         assertTrue { paths.isNotEmpty() }
-        assertEquals(12.0, paths.minOf { it.length }, 2.0)
+        assertEquals(9.5, paths.minOf { it.length }, 1.0)
+        assertEquals(12.5, paths.maxOf { it.length }, 1.0)
     }
 
     @Test

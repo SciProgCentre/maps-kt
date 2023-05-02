@@ -149,7 +149,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
         //cutting first and last arcs to accommodate connection points
         val first = circumvention.first() as CircleTrajectory2D
         val last = circumvention.last() as CircleTrajectory2D
-        //arc between end of the nangent and end of previous arc (begin of the the next one)
+        //arc between end of the tangent and end of previous arc (begin of the next one)
         circumvention[0] = CircleTrajectory2D(
             first.circle,
             tangent1.tangentTrajectory.endPose,
@@ -182,7 +182,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
     private fun avoiding(
         dubinsPath: CompositeTrajectory2D,
     ): Collection<Trajectory2D> = with(Euclidean2DSpace) {
-        //fast return if no obstacles intersect direct path
+        //fast return if no obstacles intersect the direct path
         if (obstacles.none { it.intersects(dubinsPath) }) return listOf(dubinsPath)
 
         val beginArc = dubinsPath.segments.first() as CircleTrajectory2D
@@ -208,7 +208,8 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
                 endArc
             ) ?: return emptySet()
 
-            if (remainingObstacleIndices.none { obstacles[it].intersects(tangentToEnd.tangentTrajectory) }) return setOf(
+            // if no intersections, finish
+            if (obstacles.indices.none { obstacles[it].intersects(tangentToEnd.tangentTrajectory) }) return setOf(
                 TangentPath(tangents + tangentToEnd)
             )
 

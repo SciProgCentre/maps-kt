@@ -1,9 +1,10 @@
 package space.kscience.kmath.geometry
 
-import space.kscience.kmath.operations.DoubleField.pow
 import space.kscience.trajectory.*
 import kotlin.math.abs
+import kotlin.math.pow
 import kotlin.math.sign
+import kotlin.math.sqrt
 
 public fun Euclidean2DSpace.circle(x: Number, y: Number, radius: Number): Circle2D =
     Circle2D(vector(x, y), radius = radius.toDouble())
@@ -23,16 +24,24 @@ public fun Euclidean2DSpace.intersectsOrInside(circle1: Circle2D, circle2: Circl
  * https://mathworld.wolfram.com/Circle-LineIntersection.html
  */
 public fun Euclidean2DSpace.intersects(segment: LineSegment2D, circle: Circle2D): Boolean {
-    val begin = segment.begin
-    val end = segment.end
-    val d = begin.distanceTo(end)
-    val det = (begin.x - circle.center.x) * (end.y - circle.center.y) -
-            (end.x - circle.center.x) * (begin.y - circle.center.y)
+    val direction = segment.end - segment.begin
+    val radiusVector = segment.begin - circle.center
 
-    val incidence = circle.radius.pow(2) * d.pow(2) - det.pow(2)
+    val a = direction dot direction
+    val b = 2 * (radiusVector dot direction)
+    val c = (radiusVector dot radiusVector) - circle.radius.pow(2)
 
-    return incidence >= 0
+    val discriminantSquared = b * b - 4 * a * c
+    if (discriminantSquared < 0) return false
+
+    val discriminant = sqrt(discriminantSquared)
+
+    val t1 = (-b - discriminant) / (2 * a) // first intersection point in relative coordinates
+    val t2 = (-b + discriminant) / (2 * a) //second intersection point in relative coordinates
+
+    return t1.sign != t2.sign || (t1-1.0).sign != (t2-1).sign
 }
+
 
 public fun Euclidean2DSpace.intersects(circle: Circle2D, segment: LineSegment2D): Boolean =
     intersects(segment, circle)
