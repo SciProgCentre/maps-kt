@@ -240,7 +240,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
         var paths = tangentsToFirstObstacle.map { TangentPath(listOf(it)) }
 
         while (!paths.all { it.isFinished }) {
-            paths = paths.flatMap { it.nextSteps() }
+            paths = paths.flatMap { if(it.isFinished) listOf(it) else  it.nextSteps() }
         }
         return paths.map {
             CompositeTrajectory2D(
