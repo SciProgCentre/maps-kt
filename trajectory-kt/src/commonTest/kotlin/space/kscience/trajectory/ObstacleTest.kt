@@ -7,6 +7,7 @@ package space.kscience.trajectory
 
 import space.kscience.kmath.geometry.Angle
 import space.kscience.kmath.geometry.Circle2D
+import space.kscience.kmath.geometry.Degrees
 import space.kscience.kmath.geometry.Euclidean2DSpace.vector
 import space.kscience.kmath.geometry.degrees
 import kotlin.math.PI
@@ -29,8 +30,8 @@ class ObstacleTest {
     @Test
     fun singeObstacle() {
         val outputTangents: List<Trajectory2D> = Obstacles.avoidObstacles(
-            Pose2D(-5,-1, Angle.pi/4),
-            Pose2D(20,4, Angle.pi*3/4),
+            Pose2D(-5, -1, Angle.pi / 4),
+            Pose2D(20, 4, Angle.pi * 3 / 4),
             0.5,
             Obstacle(Circle2D(vector(7.0, 1.0), 5.0))
         )
@@ -42,8 +43,8 @@ class ObstacleTest {
     @Test
     fun twoObstacles() {
         val paths = Obstacles.avoidObstacles(
-            Pose2D(-5,-1, Angle.pi/4),
-            Pose2D(20,4, Angle.pi*3/4),
+            Pose2D(-5, -1, Angle.pi / 4),
+            Pose2D(20, 4, Angle.pi * 3 / 4),
             0.5,
             Obstacle(
                 Circle2D(vector(1.0, 6.5), 0.5),
@@ -99,19 +100,35 @@ class ObstacleTest {
 
     @Test
     fun largeCoordinates() {
-        val paths = Obstacles.avoidObstacles(
-            Pose2D(x = 484149.535516561, y = 2995086.2534208703, bearing = 3.401475378237137.degrees),
-            Pose2D(x = 456663.8489126448, y = 2830054.1087567504, bearing = 325.32183928982727.degrees),
-            5000.0,
-            Obstacle(
-                Circle2D(vector(x = 446088.2236175772, y = 2895264.0759535935), radius = 5000.0),
-                Circle2D(vector(x = 455587.51549431164, y = 2897116.5594902174), radius = 5000.0),
-                Circle2D(vector(x = 465903.08440141426, y = 2893897.500160981), radius = 5000.0),
-                Circle2D(vector(x = 462421.19397653354, y = 2879496.4842121634), radius = 5000.0),
-                Circle2D(vector(x = 449231.8047505464, y = 2880132.403305273), radius = 5000.0)
-            )
+        val startPoints = listOf(
+            Pose2D(x = 484149.535516561, y = 2995086.2534208703, bearing = Degrees(3.401475378237137))
         )
-        assertTrue { paths.isNotEmpty() }
+
+        val endPoints = listOf(
+            Pose2D(x = 456663.8489126448, y = 2830054.1087567504, bearing = 325.32183928982727.degrees),
+            Pose2D(x = 473093.1426061879, y = 2898525.45250675, bearing = Degrees(100.36609537114623))
+        )
+
+        val obstacle =                     Obstacle(
+            Circle2D(vector(x = 446088.2236175772, y = 2895264.0759535935), radius = 5000.0),
+            Circle2D(vector(x = 455587.51549431164, y = 2897116.5594902174), radius = 5000.0),
+            Circle2D(vector(x = 465903.08440141426, y = 2893897.500160981), radius = 5000.0),
+            Circle2D(vector(x = 462421.19397653354, y = 2879496.4842121634), radius = 5000.0),
+            Circle2D(vector(x = 449231.8047505464, y = 2880132.403305273), radius = 5000.0)
+        )
+
+        startPoints.forEach { start->
+            endPoints.forEach { end->
+                val paths = Obstacles.avoidObstacles(
+                    start,
+                    end,
+                    5000.0,
+                    obstacle
+                )
+                assertTrue { paths.isNotEmpty() }
+            }
+        }
+
     }
 
 }

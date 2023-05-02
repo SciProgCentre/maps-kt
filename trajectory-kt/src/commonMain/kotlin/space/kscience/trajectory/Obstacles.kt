@@ -101,15 +101,15 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
         obstacleIndex: Int,
         obstacleDirection: Trajectory2D.Direction,
         arc: CircleTrajectory2D
-    ): ObstacleTangent = with(Euclidean2DSpace) {
+    ): ObstacleTangent? = with(Euclidean2DSpace) {
         val obstacle = obstacles[obstacleIndex]
         for (circleIndex in obstacle.arcs.indices) {
             val obstacleArc = obstacle.arcs[circleIndex]
-            tangentsBetweenArcs(
-                obstacleArc,
-                arc.copy(arcAngle = Angle.piTimes2), //extend arc to full circle
+            tangentsBetweenCircles(
+                obstacleArc.circle,
+                arc.circle
             )[DubinsPath.Type(obstacleDirection, Trajectory2D.S, arc.direction)]?.takeIf {
-                !obstacle.intersects(it)
+                obstacleArc.containsPoint(it.begin) && !obstacle.intersects(it)
             }?.let {
                 return ObstacleTangent(
                     it,
@@ -118,7 +118,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
                 )
             }
         }
-        error("Tangent from obstacle $obstacleIndex to circle ${arc.circle} not found")
+        return null
     }
 
 
@@ -206,7 +206,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
                 connection.obstacleIndex,
                 connection.direction,
                 endArc
-            )
+            ) ?: return emptySet()
 
             if (remainingObstacleIndices.none { obstacles[it].intersects(tangentToEnd.tangentTrajectory) }) return setOf(
                 TangentPath(tangents + tangentToEnd)
