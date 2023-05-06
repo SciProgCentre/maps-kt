@@ -48,9 +48,9 @@ This repository is a work-in-progress implementation of Map-with-markers compone
 > **Maturity**: EXPERIMENTAL
 
 ### [trajectory-kt](trajectory-kt)
-> Path and trajectory optimization (to be moved to a separate project)
+> Path and trajectory optimization
 >
-> **Maturity**: DEPRECATED
+> **Maturity**: EXPERIMENTAL
 
 ### [demo/maps](demo/maps)
 > 
@@ -63,6 +63,11 @@ This repository is a work-in-progress implementation of Map-with-markers compone
 > **Maturity**: EXPERIMENTAL
 
 ### [demo/scheme](demo/scheme)
+> 
+>
+> **Maturity**: EXPERIMENTAL
+
+### [demo/trajectory-playground](demo/trajectory-playground)
 > 
 >
 > **Maturity**: EXPERIMENTAL

@@ -1,0 +1,156 @@
+public final class center/sciprog/maps/scheme/SchemeFeaturesKt {
+	public static final fun arc (Lcenter/sciprog/maps/features/FeatureGroup;Lkotlin/Pair;FLspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun arc$default (Lcenter/sciprog/maps/features/FeatureGroup;Lkotlin/Pair;FLspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun background (Lcenter/sciprog/maps/features/FeatureGroup;FFLcenter/sciprog/maps/scheme/XY;Ljava/lang/String;Lkotlin/jvm/functions/Function2;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun background$default (Lcenter/sciprog/maps/features/FeatureGroup;FFLcenter/sciprog/maps/scheme/XY;Ljava/lang/String;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun circle-d8LSEHM (Lcenter/sciprog/maps/features/FeatureGroup;Lkotlin/Pair;FLjava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun circle-d8LSEHM$default (Lcenter/sciprog/maps/features/FeatureGroup;Lkotlin/Pair;FLjava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun draw (Lcenter/sciprog/maps/features/FeatureGroup;Lkotlin/Pair;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun draw$default (Lcenter/sciprog/maps/features/FeatureGroup;Lkotlin/Pair;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun image-J7Fpp20 (Lcenter/sciprog/maps/features/FeatureGroup;Lkotlin/Pair;Landroidx/compose/ui/graphics/vector/ImageVector;JLjava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun image-J7Fpp20$default (Lcenter/sciprog/maps/features/FeatureGroup;Lkotlin/Pair;Landroidx/compose/ui/graphics/vector/ImageVector;JLjava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun line (Lcenter/sciprog/maps/features/FeatureGroup;Lkotlin/Pair;Lkotlin/Pair;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun line$default (Lcenter/sciprog/maps/features/FeatureGroup;Lkotlin/Pair;Lkotlin/Pair;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun pixelMap (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/maps/features/Rectangle;FFLjava/lang/String;Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun pixelMap$default (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/maps/features/Rectangle;FFLjava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun text (Lcenter/sciprog/maps/features/FeatureGroup;Lkotlin/Pair;Ljava/lang/String;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun text$default (Lcenter/sciprog/maps/features/FeatureGroup;Lkotlin/Pair;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+}
+
+public final class center/sciprog/maps/scheme/SchemeViewKt {
+	public static final fun SchemeView (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/maps/features/ViewPoint;Lcenter/sciprog/maps/features/Rectangle;Lcenter/sciprog/maps/features/ViewConfig;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
+	public static final fun SchemeView (Lcenter/sciprog/maps/features/ViewPoint;Lcenter/sciprog/maps/features/Rectangle;Lcenter/sciprog/maps/features/ViewConfig;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun SchemeView (Lcenter/sciprog/maps/scheme/XYViewScope;Lcenter/sciprog/maps/features/FeatureGroup;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
+	public static final fun computeViewPoint-6HolHcs (Lcenter/sciprog/maps/features/Rectangle;J)Lcenter/sciprog/maps/features/ViewPoint;
+	public static synthetic fun computeViewPoint-6HolHcs$default (Lcenter/sciprog/maps/features/Rectangle;JILjava/lang/Object;)Lcenter/sciprog/maps/features/ViewPoint;
+}
+
+public final class center/sciprog/maps/scheme/XY : space/kscience/kmath/geometry/Vector2D {
+	public static final field $stable I
+	public fun <init> (FF)V
+	public final fun component1 ()F
+	public final fun component2 ()F
+	public final fun copy (FF)Lcenter/sciprog/maps/scheme/XY;
+	public static synthetic fun copy$default (Lcenter/sciprog/maps/scheme/XY;FFILjava/lang/Object;)Lcenter/sciprog/maps/scheme/XY;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getX ()Ljava/lang/Float;
+	public synthetic fun getX ()Ljava/lang/Object;
+	public fun getY ()Ljava/lang/Float;
+	public synthetic fun getY ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class center/sciprog/maps/scheme/XYCoordinateSpace : center/sciprog/maps/features/CoordinateSpace {
+	public static final field $stable I
+	public static final field INSTANCE Lcenter/sciprog/maps/scheme/XYCoordinateSpace;
+	public fun Rectangle (Lcenter/sciprog/maps/scheme/XY;Lcenter/sciprog/maps/scheme/XY;)Lcenter/sciprog/maps/features/Rectangle;
+	public synthetic fun Rectangle (Ljava/lang/Object;Ljava/lang/Object;)Lcenter/sciprog/maps/features/Rectangle;
+	public fun Rectangle-Iw8sGQE (Lcenter/sciprog/maps/scheme/XY;FJ)Lcenter/sciprog/maps/features/Rectangle;
+	public synthetic fun Rectangle-Iw8sGQE (Ljava/lang/Object;FJ)Lcenter/sciprog/maps/features/Rectangle;
+	public fun ViewPoint (Lcenter/sciprog/maps/scheme/XY;F)Lcenter/sciprog/maps/features/ViewPoint;
+	public synthetic fun ViewPoint (Ljava/lang/Object;F)Lcenter/sciprog/maps/features/ViewPoint;
+	public fun getDefaultViewPoint ()Lcenter/sciprog/maps/features/ViewPoint;
+	public fun isInsidePolygon (Lcenter/sciprog/maps/scheme/XY;Ljava/util/List;)Z
+	public synthetic fun isInsidePolygon (Ljava/lang/Object;Ljava/util/List;)Z
+	public fun moveBy (Lcenter/sciprog/maps/features/ViewPoint;Lcenter/sciprog/maps/scheme/XY;)Lcenter/sciprog/maps/features/ViewPoint;
+	public synthetic fun moveBy (Lcenter/sciprog/maps/features/ViewPoint;Ljava/lang/Object;)Lcenter/sciprog/maps/features/ViewPoint;
+	public fun offsetTo-LQHvzoY (Lcenter/sciprog/maps/scheme/XY;Lcenter/sciprog/maps/scheme/XY;F)J
+	public synthetic fun offsetTo-LQHvzoY (Ljava/lang/Object;Ljava/lang/Object;F)J
+	public fun withCenter (Lcenter/sciprog/maps/features/Rectangle;Lcenter/sciprog/maps/scheme/XY;)Lcenter/sciprog/maps/features/Rectangle;
+	public synthetic fun withCenter (Lcenter/sciprog/maps/features/Rectangle;Ljava/lang/Object;)Lcenter/sciprog/maps/features/Rectangle;
+	public fun wrapPoints (Ljava/util/Collection;)Lcenter/sciprog/maps/features/Rectangle;
+	public fun wrapRectangles (Ljava/util/Collection;)Lcenter/sciprog/maps/features/Rectangle;
+	public fun zoomBy (Lcenter/sciprog/maps/features/ViewPoint;FLcenter/sciprog/maps/scheme/XY;)Lcenter/sciprog/maps/features/ViewPoint;
+	public synthetic fun zoomBy (Lcenter/sciprog/maps/features/ViewPoint;FLjava/lang/Object;)Lcenter/sciprog/maps/features/ViewPoint;
+}
+
+public final class center/sciprog/maps/scheme/XYKt {
+	public static final fun Rectangle (Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/scheme/XY;FF)Lcenter/sciprog/maps/features/Rectangle;
+	public static final fun getBottom (Lcenter/sciprog/maps/features/Rectangle;)F
+	public static final fun getHeight (Lcenter/sciprog/maps/features/Rectangle;)F
+	public static final fun getLeft (Lcenter/sciprog/maps/features/Rectangle;)F
+	public static final fun getLeftTop (Lcenter/sciprog/maps/features/Rectangle;)Lcenter/sciprog/maps/scheme/XY;
+	public static final fun getRight (Lcenter/sciprog/maps/features/Rectangle;)F
+	public static final fun getRightBottom (Lcenter/sciprog/maps/features/Rectangle;)Lcenter/sciprog/maps/scheme/XY;
+	public static final fun getTop (Lcenter/sciprog/maps/features/Rectangle;)F
+	public static final fun getWidth (Lcenter/sciprog/maps/features/Rectangle;)F
+}
+
+public final class center/sciprog/maps/scheme/XYViewPoint : center/sciprog/maps/features/ViewPoint {
+	public static final field $stable I
+	public fun <init> (Lcenter/sciprog/maps/scheme/XY;F)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/scheme/XY;FILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcenter/sciprog/maps/scheme/XY;
+	public final fun component2 ()F
+	public final fun copy (Lcenter/sciprog/maps/scheme/XY;F)Lcenter/sciprog/maps/scheme/XYViewPoint;
+	public static synthetic fun copy$default (Lcenter/sciprog/maps/scheme/XYViewPoint;Lcenter/sciprog/maps/scheme/XY;FILjava/lang/Object;)Lcenter/sciprog/maps/scheme/XYViewPoint;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getFocus ()Lcenter/sciprog/maps/scheme/XY;
+	public synthetic fun getFocus ()Ljava/lang/Object;
+	public fun getZoom ()F
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class center/sciprog/maps/scheme/XYViewScope : center/sciprog/maps/features/CoordinateViewScope {
+	public static final field $stable I
+	public static final field Companion Lcenter/sciprog/maps/scheme/XYViewScope$Companion;
+	public fun <init> (Lcenter/sciprog/maps/features/ViewConfig;)V
+	public fun computeViewPoint (Lcenter/sciprog/maps/features/Rectangle;)Lcenter/sciprog/maps/features/ViewPoint;
+	public fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public fun moveBy-VpY3zN4 (Lcenter/sciprog/maps/features/ViewPoint;FF)Lcenter/sciprog/maps/features/ViewPoint;
+	public fun toCoordinates-jo-Fl9I (J)Lcenter/sciprog/maps/scheme/XY;
+	public synthetic fun toCoordinates-jo-Fl9I (J)Ljava/lang/Object;
+	public fun toDpOffset-gVRvYmI (Lcenter/sciprog/maps/scheme/XY;)J
+	public synthetic fun toDpOffset-gVRvYmI (Ljava/lang/Object;)J
+	public fun toDpRect (Lcenter/sciprog/maps/features/Rectangle;)Landroidx/compose/ui/unit/DpRect;
+}
+
+public final class center/sciprog/maps/scheme/XYViewScope$Companion {
+	public final fun remember (Lcenter/sciprog/maps/features/ViewConfig;Lcenter/sciprog/maps/features/ViewPoint;Lcenter/sciprog/maps/features/Rectangle;Landroidx/compose/runtime/Composer;II)Lcenter/sciprog/maps/scheme/XYViewScope;
+}
+
+public final class center/sciprog/maps/svg/ExportToSvgKt {
+	public static final fun exportToSvg (Lcenter/sciprog/maps/svg/FeatureStateSnapshot;Lcenter/sciprog/maps/features/ViewPoint;DDLjava/nio/file/Path;)V
+	public static final fun generateSvg (Lcenter/sciprog/maps/svg/FeatureStateSnapshot;Lcenter/sciprog/maps/features/ViewPoint;DDLjava/lang/String;)Ljava/lang/String;
+	public static synthetic fun generateSvg$default (Lcenter/sciprog/maps/svg/FeatureStateSnapshot;Lcenter/sciprog/maps/features/ViewPoint;DDLjava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun snapshot (Lcenter/sciprog/maps/features/FeatureGroup;Landroidx/compose/runtime/Composer;I)Lcenter/sciprog/maps/svg/FeatureStateSnapshot;
+}
+
+public final class center/sciprog/maps/svg/FeatureStateSnapshot {
+	public static final field $stable I
+	public fun <init> (Ljava/util/Map;Ljava/util/Map;)V
+	public final fun getFeatures ()Ljava/util/Map;
+}
+
+public final class center/sciprog/maps/svg/SvgDrawScope : androidx/compose/ui/graphics/drawscope/DrawScope {
+	public static final field $stable I
+	public synthetic fun <init> (Lorg/jfree/svg/SVGGraphics2D;JFILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lorg/jfree/svg/SVGGraphics2D;JFLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun drawArc-illE91I (Landroidx/compose/ui/graphics/Brush;FFZJJFLandroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/graphics/ColorFilter;I)V
+	public fun drawArc-yD3GUKo (JFFZJJFLandroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/graphics/ColorFilter;I)V
+	public fun drawCircle-V9BoPsw (Landroidx/compose/ui/graphics/Brush;FJFLandroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/graphics/ColorFilter;I)V
+	public fun drawCircle-VaOC9Bg (JFJFLandroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/graphics/ColorFilter;I)V
+	public fun drawImage-9jGpkUE (Landroidx/compose/ui/graphics/ImageBitmap;JJJJFLandroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/graphics/ColorFilter;I)V
+	public fun drawImage-AZ2fEMs (Landroidx/compose/ui/graphics/ImageBitmap;JJJJFLandroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/graphics/ColorFilter;II)V
+	public fun drawImage-gbVJVH8 (Landroidx/compose/ui/graphics/ImageBitmap;JFLandroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/graphics/ColorFilter;I)V
+	public fun drawLine-1RTmtNc (Landroidx/compose/ui/graphics/Brush;JJFILandroidx/compose/ui/graphics/PathEffect;FLandroidx/compose/ui/graphics/ColorFilter;I)V
+	public fun drawLine-NGM6Ib0 (JJJFILandroidx/compose/ui/graphics/PathEffect;FLandroidx/compose/ui/graphics/ColorFilter;I)V
+	public fun drawOval-AsUm42w (Landroidx/compose/ui/graphics/Brush;JJFLandroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/graphics/ColorFilter;I)V
+	public fun drawOval-n-J9OG0 (JJJFLandroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/graphics/ColorFilter;I)V
+	public fun drawPath-GBMwjPU (Landroidx/compose/ui/graphics/Path;Landroidx/compose/ui/graphics/Brush;FLandroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/graphics/ColorFilter;I)V
+	public fun drawPath-LG529CI (Landroidx/compose/ui/graphics/Path;JFLandroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/graphics/ColorFilter;I)V
+	public fun drawPoints-F8ZwMP8 (Ljava/util/List;IJFILandroidx/compose/ui/graphics/PathEffect;FLandroidx/compose/ui/graphics/ColorFilter;I)V
+	public fun drawPoints-Gsft0Ws (Ljava/util/List;ILandroidx/compose/ui/graphics/Brush;FILandroidx/compose/ui/graphics/PathEffect;FLandroidx/compose/ui/graphics/ColorFilter;I)V
+	public fun drawRect-AsUm42w (Landroidx/compose/ui/graphics/Brush;JJFLandroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/graphics/ColorFilter;I)V
+	public fun drawRect-n-J9OG0 (JJJFLandroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/graphics/ColorFilter;I)V
+	public fun drawRoundRect-ZuiqVtQ (Landroidx/compose/ui/graphics/Brush;JJJFLandroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/graphics/ColorFilter;I)V
+	public fun drawRoundRect-u-Aw5IA (JJJJLandroidx/compose/ui/graphics/drawscope/DrawStyle;FLandroidx/compose/ui/graphics/ColorFilter;I)V
+	public final fun drawText-xwkQ0AY (Ljava/lang/String;FFLjava/awt/Font;J)V
+	public fun getDensity ()F
+	public fun getDrawContext ()Landroidx/compose/ui/graphics/drawscope/DrawContext;
+	public fun getFontScale ()F
+	public fun getLayoutDirection ()Landroidx/compose/ui/unit/LayoutDirection;
+}
+

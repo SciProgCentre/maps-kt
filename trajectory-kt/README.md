@@ -5,7 +5,7 @@
 
 ## Artifact:
 
-The Maven coordinates of this project are `space.kscience:trajectory-kt:0.2.2-dev-10`.
+The Maven coordinates of this project are `space.kscience:trajectory-kt:0.2.2`.
 
 **Gradle Groovy:**
 ```groovy
@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'space.kscience:trajectory-kt:0.2.2-dev-10'
+    implementation 'space.kscience:trajectory-kt:0.2.2'
 }
 ```
 **Gradle Kotlin DSL:**
@@ -26,7 +26,7 @@ repositories {
 }
 
 dependencies {
-    implementation("space.kscience:trajectory-kt:0.2.2-dev-10")
+    implementation("space.kscience:trajectory-kt:0.2.2")
 }
 ```
 

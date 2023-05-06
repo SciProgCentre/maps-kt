@@ -1,0 +1,18 @@
+public final class ComposableSingletons$MainKt {
+	public static final field INSTANCE LComposableSingletons$MainKt;
+	public static field lambda-1 Lkotlin/jvm/functions/Function2;
+	public static field lambda-2 Lkotlin/jvm/functions/Function3;
+	public static field lambda-3 Lkotlin/jvm/functions/Function3;
+	public fun <init> ()V
+	public final fun getLambda-1$maps ()Lkotlin/jvm/functions/Function2;
+	public final fun getLambda-2$maps ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda-3$maps ()Lkotlin/jvm/functions/Function3;
+}
+
+public final class MainKt {
+	public static final fun App (Landroidx/compose/runtime/Composer;I)V
+	public static final fun main ()V
+	public static synthetic fun main ([Ljava/lang/String;)V
+	public static final fun toShortString (Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;)Ljava/lang/String;
+}
+

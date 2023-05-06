@@ -1,0 +1,224 @@
+public abstract interface class center/sciprog/maps/geojson/GeoJson {
+	public static final field Companion Lcenter/sciprog/maps/geojson/GeoJson$Companion;
+	public static final field PROPERTIES_KEY Ljava/lang/String;
+	public static final field TYPE_KEY Ljava/lang/String;
+	public abstract fun getJson ()Lkotlinx/serialization/json/JsonObject;
+	public fun getType ()Ljava/lang/String;
+}
+
+public final class center/sciprog/maps/geojson/GeoJson$Companion {
+	public static final field PROPERTIES_KEY Ljava/lang/String;
+	public static final field TYPE_KEY Ljava/lang/String;
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonFeature : center/sciprog/maps/geojson/GeoJson {
+	public static final field Companion Lcenter/sciprog/maps/geojson/GeoJsonFeature$Companion;
+	public static final field GEOMETRY_KEY Ljava/lang/String;
+	public static final synthetic fun box-impl (Lkotlinx/serialization/json/JsonObject;)Lcenter/sciprog/maps/geojson/GeoJsonFeature;
+	public static fun constructor-impl (Lkotlinx/serialization/json/JsonObject;)Lkotlinx/serialization/json/JsonObject;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lkotlinx/serialization/json/JsonObject;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;)Z
+	public static final fun getGeometry-impl (Lkotlinx/serialization/json/JsonObject;)Lcenter/sciprog/maps/geojson/GeoJsonGeometry;
+	public fun getJson ()Lkotlinx/serialization/json/JsonObject;
+	public static final fun getProperties-impl (Lkotlinx/serialization/json/JsonObject;)Lkotlinx/serialization/json/JsonObject;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lkotlinx/serialization/json/JsonObject;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lkotlinx/serialization/json/JsonObject;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lkotlinx/serialization/json/JsonObject;
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonFeature$Companion {
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonFeatureCollection : center/sciprog/maps/geojson/GeoJson, java/lang/Iterable, kotlin/jvm/internal/markers/KMappedMarker {
+	public static final field Companion Lcenter/sciprog/maps/geojson/GeoJsonFeatureCollection$Companion;
+	public static final field FEATURES_KEY Ljava/lang/String;
+	public static final synthetic fun box-impl (Lkotlinx/serialization/json/JsonObject;)Lcenter/sciprog/maps/geojson/GeoJsonFeatureCollection;
+	public static fun constructor-impl (Lkotlinx/serialization/json/JsonObject;)Lkotlinx/serialization/json/JsonObject;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lkotlinx/serialization/json/JsonObject;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;)Z
+	public static final fun getFeatures-impl (Lkotlinx/serialization/json/JsonObject;)Ljava/util/List;
+	public fun getJson ()Lkotlinx/serialization/json/JsonObject;
+	public static final fun getProperties-impl (Lkotlinx/serialization/json/JsonObject;)Lkotlinx/serialization/json/JsonObject;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lkotlinx/serialization/json/JsonObject;)I
+	public fun iterator ()Ljava/util/Iterator;
+	public static fun iterator-impl (Lkotlinx/serialization/json/JsonObject;)Ljava/util/Iterator;
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lkotlinx/serialization/json/JsonObject;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lkotlinx/serialization/json/JsonObject;
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonFeatureCollection$Companion {
+	public final fun parse-oOQ2h9Q (Ljava/lang/String;)Lkotlinx/serialization/json/JsonObject;
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonFeatureJvmKt {
+	public static final fun geoJson (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/net/URL;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun geoJson$default (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/net/URL;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+}
+
+public abstract interface class center/sciprog/maps/geojson/GeoJsonGeometry : center/sciprog/maps/geojson/GeoJson {
+	public static final field COORDINATES_KEY Ljava/lang/String;
+	public static final field Companion Lcenter/sciprog/maps/geojson/GeoJsonGeometry$Companion;
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonGeometry$Companion {
+	public static final field COORDINATES_KEY Ljava/lang/String;
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonGeometryCollection : center/sciprog/maps/geojson/GeoJsonGeometry {
+	public static final synthetic fun box-impl (Lkotlinx/serialization/json/JsonObject;)Lcenter/sciprog/maps/geojson/GeoJsonGeometryCollection;
+	public static fun constructor-impl (Lkotlinx/serialization/json/JsonObject;)Lkotlinx/serialization/json/JsonObject;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lkotlinx/serialization/json/JsonObject;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;)Z
+	public static final fun getGeometries-impl (Lkotlinx/serialization/json/JsonObject;)Ljava/util/List;
+	public fun getJson ()Lkotlinx/serialization/json/JsonObject;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lkotlinx/serialization/json/JsonObject;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lkotlinx/serialization/json/JsonObject;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lkotlinx/serialization/json/JsonObject;
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonGeometryKt {
+	public static final fun GeoJsonGeometry (Lkotlinx/serialization/json/JsonObject;)Lcenter/sciprog/maps/geojson/GeoJsonGeometry;
+	public static final fun GeoJsonGeometryCollection (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun GeoJsonLineString (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonObject;
+	public static synthetic fun GeoJsonLineString$default (Ljava/util/List;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun GeoJsonMultiLineString (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonObject;
+	public static synthetic fun GeoJsonMultiLineString$default (Ljava/util/List;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun GeoJsonMultiPoint (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonObject;
+	public static synthetic fun GeoJsonMultiPoint$default (Ljava/util/List;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun GeoJsonMultiPolygon (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun GeoJsonPoint (Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonObject;
+	public static synthetic fun GeoJsonPoint$default (Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun GeoJsonPolygon (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonObject;
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonKt {
+	public static final fun GeoJson (Lkotlinx/serialization/json/JsonObject;)Lcenter/sciprog/maps/geojson/GeoJson;
+	public static final fun GeoJsonFeature (Lcenter/sciprog/maps/geojson/GeoJsonGeometry;Lkotlinx/serialization/json/JsonObject;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonObject;
+	public static synthetic fun GeoJsonFeature$default (Lcenter/sciprog/maps/geojson/GeoJsonGeometry;Lkotlinx/serialization/json/JsonObject;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun GeoJsonFeatureCollection (Ljava/util/List;Lkotlinx/serialization/json/JsonObject;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/JsonObject;
+	public static synthetic fun GeoJsonFeatureCollection$default (Ljava/util/List;Lkotlinx/serialization/json/JsonObject;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun getProperty-c0BrZC0 (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonLineString : center/sciprog/maps/geojson/GeoJsonGeometry {
+	public static final synthetic fun box-impl (Lkotlinx/serialization/json/JsonObject;)Lcenter/sciprog/maps/geojson/GeoJsonLineString;
+	public static fun constructor-impl (Lkotlinx/serialization/json/JsonObject;)Lkotlinx/serialization/json/JsonObject;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lkotlinx/serialization/json/JsonObject;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;)Z
+	public static final fun getCoordinates-impl (Lkotlinx/serialization/json/JsonObject;)Ljava/util/List;
+	public fun getJson ()Lkotlinx/serialization/json/JsonObject;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lkotlinx/serialization/json/JsonObject;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lkotlinx/serialization/json/JsonObject;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lkotlinx/serialization/json/JsonObject;
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonMultiLineString : center/sciprog/maps/geojson/GeoJsonGeometry {
+	public static final synthetic fun box-impl (Lkotlinx/serialization/json/JsonObject;)Lcenter/sciprog/maps/geojson/GeoJsonMultiLineString;
+	public static fun constructor-impl (Lkotlinx/serialization/json/JsonObject;)Lkotlinx/serialization/json/JsonObject;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lkotlinx/serialization/json/JsonObject;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;)Z
+	public static final fun getCoordinates-impl (Lkotlinx/serialization/json/JsonObject;)Ljava/util/List;
+	public fun getJson ()Lkotlinx/serialization/json/JsonObject;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lkotlinx/serialization/json/JsonObject;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lkotlinx/serialization/json/JsonObject;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lkotlinx/serialization/json/JsonObject;
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonMultiPoint : center/sciprog/maps/geojson/GeoJsonGeometry {
+	public static final synthetic fun box-impl (Lkotlinx/serialization/json/JsonObject;)Lcenter/sciprog/maps/geojson/GeoJsonMultiPoint;
+	public static fun constructor-impl (Lkotlinx/serialization/json/JsonObject;)Lkotlinx/serialization/json/JsonObject;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lkotlinx/serialization/json/JsonObject;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;)Z
+	public static final fun getCoordinates-impl (Lkotlinx/serialization/json/JsonObject;)Ljava/util/List;
+	public fun getJson ()Lkotlinx/serialization/json/JsonObject;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lkotlinx/serialization/json/JsonObject;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lkotlinx/serialization/json/JsonObject;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lkotlinx/serialization/json/JsonObject;
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonMultiPolygon : center/sciprog/maps/geojson/GeoJsonGeometry {
+	public static final synthetic fun box-impl (Lkotlinx/serialization/json/JsonObject;)Lcenter/sciprog/maps/geojson/GeoJsonMultiPolygon;
+	public static fun constructor-impl (Lkotlinx/serialization/json/JsonObject;)Lkotlinx/serialization/json/JsonObject;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lkotlinx/serialization/json/JsonObject;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;)Z
+	public static final fun getCoordinates-impl (Lkotlinx/serialization/json/JsonObject;)Ljava/util/List;
+	public fun getJson ()Lkotlinx/serialization/json/JsonObject;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lkotlinx/serialization/json/JsonObject;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lkotlinx/serialization/json/JsonObject;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lkotlinx/serialization/json/JsonObject;
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonPoint : center/sciprog/maps/geojson/GeoJsonGeometry {
+	public static final synthetic fun box-impl (Lkotlinx/serialization/json/JsonObject;)Lcenter/sciprog/maps/geojson/GeoJsonPoint;
+	public static fun constructor-impl (Lkotlinx/serialization/json/JsonObject;)Lkotlinx/serialization/json/JsonObject;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lkotlinx/serialization/json/JsonObject;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;)Z
+	public static final fun getCoordinates-impl (Lkotlinx/serialization/json/JsonObject;)Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;
+	public fun getJson ()Lkotlinx/serialization/json/JsonObject;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lkotlinx/serialization/json/JsonObject;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lkotlinx/serialization/json/JsonObject;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lkotlinx/serialization/json/JsonObject;
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonPolygon : center/sciprog/maps/geojson/GeoJsonGeometry {
+	public static final synthetic fun box-impl (Lkotlinx/serialization/json/JsonObject;)Lcenter/sciprog/maps/geojson/GeoJsonPolygon;
+	public static fun constructor-impl (Lkotlinx/serialization/json/JsonObject;)Lkotlinx/serialization/json/JsonObject;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lkotlinx/serialization/json/JsonObject;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;)Z
+	public static final fun getCoordinates-impl (Lkotlinx/serialization/json/JsonObject;)Ljava/util/List;
+	public fun getJson ()Lkotlinx/serialization/json/JsonObject;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lkotlinx/serialization/json/JsonObject;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lkotlinx/serialization/json/JsonObject;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lkotlinx/serialization/json/JsonObject;
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonPropertiesAttribute : center/sciprog/attributes/SerializableAttribute {
+	public static final field INSTANCE Lcenter/sciprog/maps/geojson/GeoJsonPropertiesAttribute;
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lcenter/sciprog/maps/geojson/GeoJsonSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcenter/sciprog/maps/geojson/GeoJson;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcenter/sciprog/maps/geojson/GeoJson;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public final class center/sciprog/maps/geojson/GeoJsonToMapKt {
+	public static final fun geoJson (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/maps/geojson/GeoJson;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun geoJson$default (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/maps/geojson/GeoJson;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun geoJsonFeature-wsmmyRA (Lcenter/sciprog/maps/features/FeatureGroup;Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun geoJsonFeature-wsmmyRA$default (Lcenter/sciprog/maps/features/FeatureGroup;Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun geoJsonGeometry (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/maps/geojson/GeoJsonGeometry;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun geoJsonGeometry$default (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/maps/geojson/GeoJsonGeometry;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+}
+

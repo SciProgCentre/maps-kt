@@ -20,7 +20,7 @@ kscience{
 }
 
 readme {
-    description = "Path and trajectory optimization (to be moved to a separate project)"
-    maturity = space.kscience.gradle.Maturity.DEPRECATED
+    description = "Path and trajectory optimization"
+    maturity = space.kscience.gradle.Maturity.EXPERIMENTAL
     propertyByTemplate("artifact", rootProject.file("docs/templates/ARTIFACT-TEMPLATE.md"))
 }

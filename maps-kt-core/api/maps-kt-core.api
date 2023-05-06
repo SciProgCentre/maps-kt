@@ -1,0 +1,250 @@
+public final class center/sciprog/maps/coordinates/Distance : java/lang/Comparable {
+	public static final field Companion Lcenter/sciprog/maps/coordinates/Distance$Companion;
+	public static final synthetic fun box-impl (D)Lcenter/sciprog/maps/coordinates/Distance;
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun compareTo-LPoRJxU (D)I
+	public static fun compareTo-LPoRJxU (DD)I
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (DLjava/lang/Object;)Z
+	public static final fun equals-impl0 (DD)Z
+	public final fun getKilometers ()D
+	public fun hashCode ()I
+	public static fun hashCode-impl (D)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (D)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()D
+}
+
+public final class center/sciprog/maps/coordinates/Distance$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcenter/sciprog/maps/coordinates/Distance$$serializer;
+	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize-h1Ihu8M (Lkotlinx/serialization/encoding/Decoder;)D
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize-xeUJnDc (Lkotlinx/serialization/encoding/Encoder;D)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class center/sciprog/maps/coordinates/Distance$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class center/sciprog/maps/coordinates/DistanceKt {
+	public static final fun div-XO6jDg8 (DLjava/lang/Number;)D
+	public static final fun div-yHr8yDM (DD)D
+	public static final fun getKilometers (Ljava/lang/Number;)D
+	public static final fun getMeters (Ljava/lang/Number;)D
+	public static final fun getMeters-LPoRJxU (D)D
+	public static final fun minus-yHr8yDM (DD)D
+	public static final fun plus-yHr8yDM (DD)D
+	public static final fun times-XO6jDg8 (DLjava/lang/Number;)D
+}
+
+public final class center/sciprog/maps/coordinates/GeoEllipsoid {
+	public static final field Companion Lcenter/sciprog/maps/coordinates/GeoEllipsoid$Companion;
+	public synthetic fun <init> (DDLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ILcenter/sciprog/maps/coordinates/Distance;Lcenter/sciprog/maps/coordinates/Distance;DDDDLkotlinx/serialization/internal/SerializationConstructorMarker;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getESquared ()D
+	public final fun getEccentricity ()D
+	public final fun getEquatorRadius-zipobaw ()D
+	public final fun getF ()D
+	public final fun getInverseF ()D
+	public final fun getPolarRadius-zipobaw ()D
+	public static final synthetic fun write$Self (Lcenter/sciprog/maps/coordinates/GeoEllipsoid;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+}
+
+public final class center/sciprog/maps/coordinates/GeoEllipsoid$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcenter/sciprog/maps/coordinates/GeoEllipsoid$$serializer;
+	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcenter/sciprog/maps/coordinates/GeoEllipsoid;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcenter/sciprog/maps/coordinates/GeoEllipsoid;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class center/sciprog/maps/coordinates/GeoEllipsoid$Companion {
+	public final fun getGRS80 ()Lcenter/sciprog/maps/coordinates/GeoEllipsoid;
+	public final fun getSphere ()Lcenter/sciprog/maps/coordinates/GeoEllipsoid;
+	public final fun getWGS84 ()Lcenter/sciprog/maps/coordinates/GeoEllipsoid;
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class center/sciprog/maps/coordinates/GeoEllipsoidKt {
+	public static final fun reducedRadius (Lcenter/sciprog/maps/coordinates/GeoEllipsoid;Lspace/kscience/kmath/geometry/Angle;)D
+}
+
+public final class center/sciprog/maps/coordinates/GeodeticMapCoordinates : space/kscience/kmath/geometry/Vector2D {
+	public static final field Companion Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates$Companion;
+	public synthetic fun <init> (ILspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;Lcenter/sciprog/maps/coordinates/Distance;Lkotlinx/serialization/internal/SerializationConstructorMarker;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;Lcenter/sciprog/maps/coordinates/Distance;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;Lcenter/sciprog/maps/coordinates/Distance;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getElevation-irfbOC8 ()Lcenter/sciprog/maps/coordinates/Distance;
+	public final fun getLatitude ()Lspace/kscience/kmath/geometry/Angle;
+	public final fun getLongitude ()Lspace/kscience/kmath/geometry/Angle;
+	public synthetic fun getX ()Ljava/lang/Object;
+	public fun getX ()Lspace/kscience/kmath/geometry/Angle;
+	public synthetic fun getY ()Ljava/lang/Object;
+	public fun getY ()Lspace/kscience/kmath/geometry/Angle;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public static final synthetic fun write$Self (Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+}
+
+public final class center/sciprog/maps/coordinates/GeodeticMapCoordinates$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates$$serializer;
+	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class center/sciprog/maps/coordinates/GeodeticMapCoordinates$Companion {
+	public final fun normalized-8x94Bck (Lspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;Lcenter/sciprog/maps/coordinates/Distance;)Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;
+	public static synthetic fun normalized-8x94Bck$default (Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates$Companion;Lspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;Lcenter/sciprog/maps/coordinates/Distance;ILjava/lang/Object;)Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;
+	public final fun ofDegrees-8x94Bck (DDLcenter/sciprog/maps/coordinates/Distance;)Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;
+	public static synthetic fun ofDegrees-8x94Bck$default (Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates$Companion;DDLcenter/sciprog/maps/coordinates/Distance;ILjava/lang/Object;)Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;
+	public final fun ofRadians-8x94Bck (DDLcenter/sciprog/maps/coordinates/Distance;)Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;
+	public static synthetic fun ofRadians-8x94Bck$default (Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates$Companion;DDLcenter/sciprog/maps/coordinates/Distance;ILjava/lang/Object;)Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class center/sciprog/maps/coordinates/GmcCurve {
+	public synthetic fun <init> (Lcenter/sciprog/maps/coordinates/GmcPose;Lcenter/sciprog/maps/coordinates/GmcPose;DLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getBackward ()Lcenter/sciprog/maps/coordinates/GmcPose;
+	public final fun getDistance-zipobaw ()D
+	public final fun getForward ()Lcenter/sciprog/maps/coordinates/GmcPose;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class center/sciprog/maps/coordinates/GmcCurveKt {
+	public static final fun contains (Lkotlin/ranges/ClosedRange;Lspace/kscience/kmath/geometry/Angle;)Z
+	public static final fun curveBetween (Lcenter/sciprog/maps/coordinates/GeoEllipsoid;Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;D)Lcenter/sciprog/maps/coordinates/GmcCurve;
+	public static synthetic fun curveBetween$default (Lcenter/sciprog/maps/coordinates/GeoEllipsoid;Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;DILjava/lang/Object;)Lcenter/sciprog/maps/coordinates/GmcCurve;
+	public static final fun curveInDirection-EeP4nfk (Lcenter/sciprog/maps/coordinates/GeoEllipsoid;Lcenter/sciprog/maps/coordinates/GmcPose;DD)Lcenter/sciprog/maps/coordinates/GmcCurve;
+	public static synthetic fun curveInDirection-EeP4nfk$default (Lcenter/sciprog/maps/coordinates/GeoEllipsoid;Lcenter/sciprog/maps/coordinates/GmcPose;DDILjava/lang/Object;)Lcenter/sciprog/maps/coordinates/GmcCurve;
+	public static final fun meridianCurve-L4GImx8 (Lcenter/sciprog/maps/coordinates/GeoEllipsoid;Lspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;D)Lcenter/sciprog/maps/coordinates/GmcCurve;
+	public static synthetic fun meridianCurve-L4GImx8$default (Lcenter/sciprog/maps/coordinates/GeoEllipsoid;Lspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;DILjava/lang/Object;)Lcenter/sciprog/maps/coordinates/GmcCurve;
+	public static final fun parallelCurve (Lcenter/sciprog/maps/coordinates/GeoEllipsoid;Lspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;)Lcenter/sciprog/maps/coordinates/GmcCurve;
+	public static final fun reversed (Lcenter/sciprog/maps/coordinates/GmcCurve;)Lcenter/sciprog/maps/coordinates/GmcCurve;
+}
+
+public final class center/sciprog/maps/coordinates/GmcPose {
+	public static final field Companion Lcenter/sciprog/maps/coordinates/GmcPose$Companion;
+	public synthetic fun <init> (ILcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;Lspace/kscience/kmath/geometry/Angle;Lkotlinx/serialization/internal/SerializationConstructorMarker;)V
+	public fun <init> (Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;Lspace/kscience/kmath/geometry/Angle;)V
+	public final fun component1 ()Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;
+	public final fun component2 ()Lspace/kscience/kmath/geometry/Angle;
+	public final fun copy (Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;Lspace/kscience/kmath/geometry/Angle;)Lcenter/sciprog/maps/coordinates/GmcPose;
+	public static synthetic fun copy$default (Lcenter/sciprog/maps/coordinates/GmcPose;Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;Lspace/kscience/kmath/geometry/Angle;ILjava/lang/Object;)Lcenter/sciprog/maps/coordinates/GmcPose;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBearing ()Lspace/kscience/kmath/geometry/Angle;
+	public final fun getCoordinates ()Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;
+	public final fun getLatitude ()Lspace/kscience/kmath/geometry/Angle;
+	public final fun getLongitude ()Lspace/kscience/kmath/geometry/Angle;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public static final synthetic fun write$Self (Lcenter/sciprog/maps/coordinates/GmcPose;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+}
+
+public final class center/sciprog/maps/coordinates/GmcPose$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcenter/sciprog/maps/coordinates/GmcPose$$serializer;
+	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcenter/sciprog/maps/coordinates/GmcPose;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcenter/sciprog/maps/coordinates/GmcPose;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class center/sciprog/maps/coordinates/GmcPose$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class center/sciprog/maps/coordinates/GmcPoseKt {
+	public static final fun reversed (Lcenter/sciprog/maps/coordinates/GmcPose;)Lcenter/sciprog/maps/coordinates/GmcPose;
+}
+
+public abstract interface class center/sciprog/maps/coordinates/MapProjection {
+	public static final field Companion Lcenter/sciprog/maps/coordinates/MapProjection$Companion;
+	public abstract fun toGeodetic (Ljava/lang/Object;)Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;
+	public abstract fun toProjection (Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;)Ljava/lang/Object;
+}
+
+public final class center/sciprog/maps/coordinates/MapProjection$Companion {
+	public final fun getEpsg3857 ()Lcenter/sciprog/maps/coordinates/MercatorProjection;
+}
+
+public class center/sciprog/maps/coordinates/MercatorProjection : center/sciprog/maps/coordinates/MapProjection {
+	public static final field Companion Lcenter/sciprog/maps/coordinates/MercatorProjection$Companion;
+	public fun <init> ()V
+	public synthetic fun <init> (ILspace/kscience/kmath/geometry/Angle;Lcenter/sciprog/maps/coordinates/GeoEllipsoid;Lkotlinx/serialization/internal/SerializationConstructorMarker;)V
+	public fun <init> (Lspace/kscience/kmath/geometry/Angle;Lcenter/sciprog/maps/coordinates/GeoEllipsoid;)V
+	public synthetic fun <init> (Lspace/kscience/kmath/geometry/Angle;Lcenter/sciprog/maps/coordinates/GeoEllipsoid;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getBaseLongitude ()Lspace/kscience/kmath/geometry/Angle;
+	public final fun getEllipsoid ()Lcenter/sciprog/maps/coordinates/GeoEllipsoid;
+	public fun toGeodetic (Lcenter/sciprog/maps/coordinates/ProjectionCoordinates;)Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;
+	public synthetic fun toGeodetic (Ljava/lang/Object;)Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;
+	public fun toProjection (Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;)Lcenter/sciprog/maps/coordinates/ProjectionCoordinates;
+	public synthetic fun toProjection (Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;)Ljava/lang/Object;
+	public static final synthetic fun write$Self (Lcenter/sciprog/maps/coordinates/MercatorProjection;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+}
+
+public final class center/sciprog/maps/coordinates/MercatorProjection$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcenter/sciprog/maps/coordinates/MercatorProjection$$serializer;
+	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcenter/sciprog/maps/coordinates/MercatorProjection;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcenter/sciprog/maps/coordinates/MercatorProjection;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class center/sciprog/maps/coordinates/MercatorProjection$Companion {
+	public final fun getMAXIMUM_LATITUDE ()Lspace/kscience/kmath/geometry/Angle;
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class center/sciprog/maps/coordinates/ProjectionCoordinates {
+	public synthetic fun <init> (DDLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-zipobaw ()D
+	public final fun component2-zipobaw ()D
+	public final fun copy-yHr8yDM (DD)Lcenter/sciprog/maps/coordinates/ProjectionCoordinates;
+	public static synthetic fun copy-yHr8yDM$default (Lcenter/sciprog/maps/coordinates/ProjectionCoordinates;DDILjava/lang/Object;)Lcenter/sciprog/maps/coordinates/ProjectionCoordinates;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getX-zipobaw ()D
+	public final fun getY-zipobaw ()D
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class center/sciprog/maps/coordinates/WebMercatorCoordinates {
+	public fun <init> (IFF)V
+	public final fun component1 ()I
+	public final fun component2 ()F
+	public final fun component3 ()F
+	public final fun copy (IFF)Lcenter/sciprog/maps/coordinates/WebMercatorCoordinates;
+	public static synthetic fun copy$default (Lcenter/sciprog/maps/coordinates/WebMercatorCoordinates;IFFILjava/lang/Object;)Lcenter/sciprog/maps/coordinates/WebMercatorCoordinates;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getX ()F
+	public final fun getY ()F
+	public final fun getZoom ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class center/sciprog/maps/coordinates/WebMercatorProjection {
+	public static final field INSTANCE Lcenter/sciprog/maps/coordinates/WebMercatorProjection;
+	public final fun scaleFactor (F)F
+	public final fun toGeodetic (Lcenter/sciprog/maps/coordinates/WebMercatorCoordinates;)Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;
+	public final fun toMercator (Lcenter/sciprog/maps/coordinates/GeodeticMapCoordinates;I)Lcenter/sciprog/maps/coordinates/WebMercatorCoordinates;
+}
+

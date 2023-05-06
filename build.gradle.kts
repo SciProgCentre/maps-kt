@@ -10,7 +10,7 @@ val kmathVersion: String by extra("0.3.1-dev-RC")
 
 allprojects {
     group = "center.sciprog"
-    version = "0.2.2-dev-12"
+    version = "0.2.2"
 
     repositories {
         mavenLocal()
@@ -19,12 +19,12 @@ allprojects {
     }
 }
 
-ksciencePublish{
+ksciencePublish {
     pom("https://github.com/SciProgCentre/maps-kt") {
         useApache2Licence()
         useSPCTeam()
     }
-    github("maps-kt", "SciProgCentre")
+    github("SciProgCentre", "maps-kt")
     space(
         if (isInDevelopment) {
             "https://maven.pkg.jetbrains.space/spc/p/sci/dev"

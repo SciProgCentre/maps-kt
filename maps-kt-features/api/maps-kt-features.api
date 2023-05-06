@@ -1,0 +1,765 @@
+public abstract interface class center/sciprog/attributes/Attribute {
+}
+
+public abstract interface class center/sciprog/attributes/AttributeWithDefault : center/sciprog/attributes/Attribute {
+	public abstract fun getDefault ()Ljava/lang/Object;
+}
+
+public final class center/sciprog/attributes/Attributes {
+	public static final field Companion Lcenter/sciprog/attributes/Attributes$Companion;
+	public static final synthetic fun box-impl (Ljava/util/Map;)Lcenter/sciprog/attributes/Attributes;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/util/Map;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/util/Map;Ljava/util/Map;)Z
+	public static final fun get-impl (Ljava/util/Map;Lcenter/sciprog/attributes/Attribute;)Ljava/lang/Object;
+	public final fun getContent ()Ljava/util/Map;
+	public static final fun getKeys-impl (Ljava/util/Map;)Ljava/util/Set;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/util/Map;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/util/Map;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/util/Map;
+}
+
+public final class center/sciprog/attributes/Attributes$Companion {
+	public final fun getEMPTY-hlWAoAs ()Ljava/util/Map;
+}
+
+public final class center/sciprog/attributes/AttributesBuilder {
+	public static final field $stable I
+	public fun <init> ()V
+	public final fun add (Lcenter/sciprog/attributes/SetAttribute;Ljava/lang/Object;)V
+	public final fun build-hlWAoAs ()Ljava/util/Map;
+	public final fun from-xbryb2s (Ljava/util/Map;)V
+	public final fun get (Lcenter/sciprog/attributes/Attribute;)Ljava/lang/Object;
+	public final fun invoke (Lcenter/sciprog/attributes/Attribute;Ljava/lang/Object;)V
+	public final fun remove (Lcenter/sciprog/attributes/SetAttribute;Ljava/lang/Object;)V
+}
+
+public final class center/sciprog/attributes/AttributesBuilderKt {
+	public static final fun Attributes (Lkotlin/jvm/functions/Function1;)Ljava/util/Map;
+	public static final fun AttributesBuilder-xbryb2s (Ljava/util/Map;)Lcenter/sciprog/attributes/AttributesBuilder;
+}
+
+public final class center/sciprog/attributes/AttributesKt {
+	public static final fun Attributes (Lcenter/sciprog/attributes/Attribute;Ljava/lang/Object;)Ljava/util/Map;
+	public static final fun getOrDefault-hZ80nBk (Ljava/util/Map;Lcenter/sciprog/attributes/AttributeWithDefault;)Ljava/lang/Object;
+	public static final fun getZ (Lcenter/sciprog/maps/features/Feature;)F
+	public static final fun isEmpty-xbryb2s (Ljava/util/Map;)Z
+	public static final fun plus-0GKEh6s (Ljava/util/Map;Ljava/util/Map;)Ljava/util/Map;
+	public static final fun withAttribute-svNjpeE (Ljava/util/Map;Lcenter/sciprog/attributes/Attribute;Ljava/lang/Object;)Ljava/util/Map;
+	public static final fun withAttributeElement-svNjpeE (Ljava/util/Map;Lcenter/sciprog/attributes/SetAttribute;Ljava/lang/Object;)Ljava/util/Map;
+	public static final fun withoutAttributeElement-svNjpeE (Ljava/util/Map;Lcenter/sciprog/attributes/SetAttribute;Ljava/lang/Object;)Ljava/util/Map;
+}
+
+public final class center/sciprog/attributes/AttributesSerializer : kotlinx/serialization/KSerializer {
+	public static final field $stable I
+	public fun <init> (Ljava/util/Set;)V
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize-7icwqAM (Lkotlinx/serialization/encoding/Decoder;)Ljava/util/Map;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize-izrVrxc (Lkotlinx/serialization/encoding/Encoder;Ljava/util/Map;)V
+}
+
+public final class center/sciprog/attributes/NameAttribute : center/sciprog/attributes/SerializableAttribute {
+	public static final field $stable I
+	public static final field INSTANCE Lcenter/sciprog/attributes/NameAttribute;
+}
+
+public abstract class center/sciprog/attributes/SerializableAttribute : center/sciprog/attributes/Attribute {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/KSerializer;)V
+	public final fun getSerialId ()Ljava/lang/String;
+	public final fun getSerializer ()Lkotlinx/serialization/KSerializer;
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class center/sciprog/attributes/SetAttribute : center/sciprog/attributes/Attribute {
+}
+
+public final class center/sciprog/maps/compose/ClickGesturesKt {
+	public static final fun detectClicks (Landroidx/compose/ui/input/pointer/PointerInputScope;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun detectClicks$default (Landroidx/compose/ui/input/pointer/PointerInputScope;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun getPosition (Landroidx/compose/ui/input/pointer/PointerEvent;)J
+}
+
+public final class center/sciprog/maps/compose/MapControlsKt {
+	public static final fun mapControls (Landroidx/compose/ui/Modifier;Lcenter/sciprog/maps/features/CoordinateViewScope;Lcenter/sciprog/maps/features/FeatureGroup;)Landroidx/compose/ui/Modifier;
+}
+
+public final class center/sciprog/maps/features/AlphaAttribute : center/sciprog/attributes/Attribute {
+	public static final field $stable I
+	public static final field INSTANCE Lcenter/sciprog/maps/features/AlphaAttribute;
+}
+
+public final class center/sciprog/maps/features/ArcFeature : center/sciprog/maps/features/DraggableFeature {
+	public static final field $stable I
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/Rectangle;Lspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/Rectangle;Lspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun component2 ()Lcenter/sciprog/maps/features/Rectangle;
+	public final fun component3 ()Lspace/kscience/kmath/geometry/Angle;
+	public final fun component4 ()Lspace/kscience/kmath/geometry/Angle;
+	public final fun component5-hlWAoAs ()Ljava/util/Map;
+	public final fun copy-CqjioLk (Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/Rectangle;Lspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;Ljava/util/Map;)Lcenter/sciprog/maps/features/ArcFeature;
+	public static synthetic fun copy-CqjioLk$default (Lcenter/sciprog/maps/features/ArcFeature;Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/Rectangle;Lspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;Ljava/util/Map;ILjava/lang/Object;)Lcenter/sciprog/maps/features/ArcFeature;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getArcLength ()Lspace/kscience/kmath/geometry/Angle;
+	public fun getAttributes-hlWAoAs ()Ljava/util/Map;
+	public fun getBoundingBox (F)Lcenter/sciprog/maps/features/Rectangle;
+	public final fun getOval ()Lcenter/sciprog/maps/features/Rectangle;
+	public fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun getStartAngle ()Lspace/kscience/kmath/geometry/Angle;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun withAttributes (Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/Feature;
+	public fun withCoordinates (Ljava/lang/Object;)Lcenter/sciprog/maps/features/Feature;
+}
+
+public abstract interface class center/sciprog/maps/features/Area {
+	public abstract fun contains (Ljava/lang/Object;)Z
+}
+
+public final class center/sciprog/maps/features/BitmapIconFeature : center/sciprog/maps/features/MarkerFeature {
+	public static final field $stable I
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;JLandroidx/compose/ui/graphics/ImageBitmap;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;JLandroidx/compose/ui/graphics/ImageBitmap;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun component3-MYxV2XQ ()J
+	public final fun component4 ()Landroidx/compose/ui/graphics/ImageBitmap;
+	public final fun component5-hlWAoAs ()Ljava/util/Map;
+	public final fun copy-xcw5jm0 (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;JLandroidx/compose/ui/graphics/ImageBitmap;Ljava/util/Map;)Lcenter/sciprog/maps/features/BitmapIconFeature;
+	public static synthetic fun copy-xcw5jm0$default (Lcenter/sciprog/maps/features/BitmapIconFeature;Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;JLandroidx/compose/ui/graphics/ImageBitmap;Ljava/util/Map;ILjava/lang/Object;)Lcenter/sciprog/maps/features/BitmapIconFeature;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getAttributes-hlWAoAs ()Ljava/util/Map;
+	public fun getBoundingBox (F)Lcenter/sciprog/maps/features/Rectangle;
+	public fun getCenter ()Ljava/lang/Object;
+	public final fun getImage ()Landroidx/compose/ui/graphics/ImageBitmap;
+	public final fun getSize-MYxV2XQ ()J
+	public fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun withAttributes (Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/Feature;
+	public fun withCoordinates (Ljava/lang/Object;)Lcenter/sciprog/maps/features/Feature;
+}
+
+public final class center/sciprog/maps/features/CircleFeature : center/sciprog/maps/features/MarkerFeature {
+	public static final field $stable I
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;FLjava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;FLjava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun component3-D9Ej5fM ()F
+	public final fun component4-hlWAoAs ()Ljava/util/Map;
+	public fun contains (Lcenter/sciprog/maps/features/ViewPoint;)Z
+	public final fun copy-eji0nfc (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;FLjava/util/Map;)Lcenter/sciprog/maps/features/CircleFeature;
+	public static synthetic fun copy-eji0nfc$default (Lcenter/sciprog/maps/features/CircleFeature;Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;FLjava/util/Map;ILjava/lang/Object;)Lcenter/sciprog/maps/features/CircleFeature;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getAttributes-hlWAoAs ()Ljava/util/Map;
+	public fun getBoundingBox (F)Lcenter/sciprog/maps/features/Rectangle;
+	public fun getCenter ()Ljava/lang/Object;
+	public final fun getRadius-D9Ej5fM ()F
+	public fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun withAttributes (Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/Feature;
+	public fun withCoordinates (Ljava/lang/Object;)Lcenter/sciprog/maps/features/Feature;
+}
+
+public final class center/sciprog/maps/features/ClickListenerAttribute : center/sciprog/attributes/SetAttribute {
+	public static final field $stable I
+	public static final field INSTANCE Lcenter/sciprog/maps/features/ClickListenerAttribute;
+}
+
+public final class center/sciprog/maps/features/ClickRadius : center/sciprog/attributes/Attribute {
+	public static final field $stable I
+	public static final field INSTANCE Lcenter/sciprog/maps/features/ClickRadius;
+}
+
+public final class center/sciprog/maps/features/ColorAttribute : center/sciprog/attributes/Attribute {
+	public static final field $stable I
+	public static final field INSTANCE Lcenter/sciprog/maps/features/ColorAttribute;
+}
+
+public final class center/sciprog/maps/features/CompositeFeaturesKt {
+	public static final fun draggableLine (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/maps/features/FeatureRef;Lcenter/sciprog/maps/features/FeatureRef;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun draggableLine$default (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/maps/features/FeatureRef;Lcenter/sciprog/maps/features/FeatureRef;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun draggableMultiLine (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/util/List;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun draggableMultiLine$default (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/util/List;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun draggableMultiLineFromPoints (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/util/List;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun draggableMultiLineFromPoints$default (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/util/List;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+}
+
+public abstract interface class center/sciprog/maps/features/CoordinateSpace {
+	public abstract fun Rectangle (Ljava/lang/Object;Ljava/lang/Object;)Lcenter/sciprog/maps/features/Rectangle;
+	public abstract fun Rectangle-Iw8sGQE (Ljava/lang/Object;FJ)Lcenter/sciprog/maps/features/Rectangle;
+	public abstract fun ViewPoint (Ljava/lang/Object;F)Lcenter/sciprog/maps/features/ViewPoint;
+	public fun distanceTo-ccRj1GA (Ljava/lang/Object;Ljava/lang/Object;F)F
+	public fun distanceToLine-DwT6o7Y (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;F)F
+	public abstract fun getDefaultViewPoint ()Lcenter/sciprog/maps/features/ViewPoint;
+	public abstract fun isInsidePolygon (Ljava/lang/Object;Ljava/util/List;)Z
+	public abstract fun moveBy (Lcenter/sciprog/maps/features/ViewPoint;Ljava/lang/Object;)Lcenter/sciprog/maps/features/ViewPoint;
+	public abstract fun offsetTo-LQHvzoY (Ljava/lang/Object;Ljava/lang/Object;F)J
+	public abstract fun withCenter (Lcenter/sciprog/maps/features/Rectangle;Ljava/lang/Object;)Lcenter/sciprog/maps/features/Rectangle;
+	public abstract fun wrapPoints (Ljava/util/Collection;)Lcenter/sciprog/maps/features/Rectangle;
+	public abstract fun wrapRectangles (Ljava/util/Collection;)Lcenter/sciprog/maps/features/Rectangle;
+	public abstract fun zoomBy (Lcenter/sciprog/maps/features/ViewPoint;FLjava/lang/Object;)Lcenter/sciprog/maps/features/ViewPoint;
+	public static synthetic fun zoomBy$default (Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/ViewPoint;FLjava/lang/Object;ILjava/lang/Object;)Lcenter/sciprog/maps/features/ViewPoint;
+}
+
+public final class center/sciprog/maps/features/CoordinateSpaceKt {
+	public static final fun Rectangle-Iw8sGQE (Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/ViewPoint;J)Lcenter/sciprog/maps/features/Rectangle;
+}
+
+public abstract class center/sciprog/maps/features/CoordinateViewScope {
+	public static final field $stable I
+	public fun <init> (Lcenter/sciprog/maps/features/ViewConfig;)V
+	public abstract fun computeViewPoint (Lcenter/sciprog/maps/features/Rectangle;)Lcenter/sciprog/maps/features/ViewPoint;
+	public final fun getCanvasSize-MYxV2XQ ()J
+	public final fun getConfig ()Lcenter/sciprog/maps/features/ViewConfig;
+	public final fun getSelectRect ()Landroidx/compose/ui/unit/DpRect;
+	public abstract fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun getViewPoint ()Lcenter/sciprog/maps/features/ViewPoint;
+	public final fun getZoom ()F
+	public abstract fun moveBy-VpY3zN4 (Lcenter/sciprog/maps/features/ViewPoint;FF)Lcenter/sciprog/maps/features/ViewPoint;
+	public final fun setCanvasSize-EaSLcWc (J)V
+	public final fun setSelectRect (Landroidx/compose/ui/unit/DpRect;)V
+	public final fun setViewPoint (Lcenter/sciprog/maps/features/ViewPoint;)V
+	public final fun toCoordinates-3MmeM6k (JLandroidx/compose/ui/unit/Density;)Ljava/lang/Object;
+	public abstract fun toCoordinates-jo-Fl9I (J)Ljava/lang/Object;
+	public abstract fun toDpOffset-gVRvYmI (Ljava/lang/Object;)J
+	public abstract fun toDpRect (Lcenter/sciprog/maps/features/Rectangle;)Landroidx/compose/ui/unit/DpRect;
+	public final fun toOffset-dBAh8RU (Ljava/lang/Object;Landroidx/compose/ui/unit/Density;)J
+}
+
+public final class center/sciprog/maps/features/CoordinateViewScopeKt {
+	public static final fun getBottomRight (Landroidx/compose/ui/unit/DpRect;)J
+	public static final fun getTopLeft (Landroidx/compose/ui/unit/DpRect;)J
+}
+
+public abstract interface class center/sciprog/maps/features/DomainFeature : center/sciprog/maps/features/Feature {
+	public fun contains (Lcenter/sciprog/maps/features/ViewPoint;)Z
+}
+
+public abstract interface class center/sciprog/maps/features/DragHandle {
+	public static final field Companion Lcenter/sciprog/maps/features/DragHandle$Companion;
+	public abstract fun handle (Landroidx/compose/ui/input/pointer/PointerEvent;Lcenter/sciprog/maps/features/ViewPoint;Lcenter/sciprog/maps/features/ViewPoint;)Lcenter/sciprog/maps/features/DragResult;
+}
+
+public final class center/sciprog/maps/features/DragHandle$Companion {
+	public final fun bypass ()Lcenter/sciprog/maps/features/DragHandle;
+	public final fun combine ([Lcenter/sciprog/maps/features/DragHandle;)Lcenter/sciprog/maps/features/DragHandle;
+	public final fun withPrimaryButton (Lkotlin/jvm/functions/Function3;)Lcenter/sciprog/maps/features/DragHandle;
+}
+
+public abstract interface class center/sciprog/maps/features/DragListener {
+	public abstract fun handle (Landroidx/compose/ui/input/pointer/PointerEvent;Lcenter/sciprog/maps/features/ViewPoint;Lcenter/sciprog/maps/features/ViewPoint;)V
+}
+
+public final class center/sciprog/maps/features/DragListenerAttribute : center/sciprog/attributes/SetAttribute {
+	public static final field $stable I
+	public static final field INSTANCE Lcenter/sciprog/maps/features/DragListenerAttribute;
+}
+
+public final class center/sciprog/maps/features/DragResult {
+	public static final field $stable I
+	public fun <init> (Lcenter/sciprog/maps/features/ViewPoint;Z)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/ViewPoint;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcenter/sciprog/maps/features/ViewPoint;
+	public final fun component2 ()Z
+	public final fun copy (Lcenter/sciprog/maps/features/ViewPoint;Z)Lcenter/sciprog/maps/features/DragResult;
+	public static synthetic fun copy$default (Lcenter/sciprog/maps/features/DragResult;Lcenter/sciprog/maps/features/ViewPoint;ZILjava/lang/Object;)Lcenter/sciprog/maps/features/DragResult;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHandleNext ()Z
+	public final fun getResult ()Lcenter/sciprog/maps/features/ViewPoint;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class center/sciprog/maps/features/DraggableAttribute : center/sciprog/attributes/Attribute {
+	public static final field $stable I
+	public static final field INSTANCE Lcenter/sciprog/maps/features/DraggableAttribute;
+}
+
+public abstract interface class center/sciprog/maps/features/DraggableFeature : center/sciprog/maps/features/DomainFeature {
+	public abstract fun withCoordinates (Ljava/lang/Object;)Lcenter/sciprog/maps/features/Feature;
+}
+
+public final class center/sciprog/maps/features/DrawFeature : center/sciprog/maps/features/DraggableFeature {
+	public static final field $stable I
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;Ljava/util/Map;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;Ljava/util/Map;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun component3-hlWAoAs ()Ljava/util/Map;
+	public final fun component4 ()Lkotlin/jvm/functions/Function1;
+	public final fun copy-4xdkkFs (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;Ljava/util/Map;Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/DrawFeature;
+	public static synthetic fun copy-4xdkkFs$default (Lcenter/sciprog/maps/features/DrawFeature;Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;Ljava/util/Map;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcenter/sciprog/maps/features/DrawFeature;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getAttributes-hlWAoAs ()Ljava/util/Map;
+	public fun getBoundingBox (F)Lcenter/sciprog/maps/features/Rectangle;
+	public final fun getDrawFeature ()Lkotlin/jvm/functions/Function1;
+	public final fun getPosition ()Ljava/lang/Object;
+	public fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun withAttributes (Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/Feature;
+	public fun withCoordinates (Ljava/lang/Object;)Lcenter/sciprog/maps/features/Feature;
+}
+
+public final class center/sciprog/maps/features/DrawFeatureKt {
+	public static final fun drawFeature (Landroidx/compose/ui/graphics/drawscope/DrawScope;Lcenter/sciprog/maps/features/CoordinateViewScope;Ljava/util/Map;Lcenter/sciprog/maps/features/Feature;)V
+}
+
+public abstract interface class center/sciprog/maps/features/Feature {
+	public abstract fun getAttributes-hlWAoAs ()Ljava/util/Map;
+	public abstract fun getBoundingBox (F)Lcenter/sciprog/maps/features/Rectangle;
+	public static synthetic fun getBoundingBox$default (Lcenter/sciprog/maps/features/Feature;FILjava/lang/Object;)Lcenter/sciprog/maps/features/Rectangle;
+	public abstract fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public abstract fun withAttributes (Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/Feature;
+}
+
+public final class center/sciprog/maps/features/FeatureGroup : center/sciprog/maps/features/CoordinateSpace, center/sciprog/maps/features/Feature {
+	public static final field $stable I
+	public static final field Companion Lcenter/sciprog/maps/features/FeatureGroup$Companion;
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Landroidx/compose/runtime/snapshots/SnapshotStateMap;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Landroidx/compose/runtime/snapshots/SnapshotStateMap;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun Rectangle (Ljava/lang/Object;Ljava/lang/Object;)Lcenter/sciprog/maps/features/Rectangle;
+	public fun Rectangle-Iw8sGQE (Ljava/lang/Object;FJ)Lcenter/sciprog/maps/features/Rectangle;
+	public fun ViewPoint (Ljava/lang/Object;F)Lcenter/sciprog/maps/features/ViewPoint;
+	public final fun component1 ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun component2 ()Landroidx/compose/runtime/snapshots/SnapshotStateMap;
+	public final fun component3-hlWAoAs ()Ljava/util/Map;
+	public final fun copy-EHyjM0Q (Lcenter/sciprog/maps/features/CoordinateSpace;Landroidx/compose/runtime/snapshots/SnapshotStateMap;Ljava/util/Map;)Lcenter/sciprog/maps/features/FeatureGroup;
+	public static synthetic fun copy-EHyjM0Q$default (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/maps/features/CoordinateSpace;Landroidx/compose/runtime/snapshots/SnapshotStateMap;Ljava/util/Map;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureGroup;
+	public fun distanceTo-ccRj1GA (Ljava/lang/Object;Ljava/lang/Object;F)F
+	public fun distanceToLine-DwT6o7Y (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;F)F
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun feature (Ljava/lang/String;Lcenter/sciprog/maps/features/Feature;)Lcenter/sciprog/maps/features/FeatureRef;
+	public fun getAttributes-hlWAoAs ()Ljava/util/Map;
+	public fun getBoundingBox (F)Lcenter/sciprog/maps/features/Rectangle;
+	public fun getDefaultViewPoint ()Lcenter/sciprog/maps/features/ViewPoint;
+	public final fun getFeatureMap ()Landroidx/compose/runtime/snapshots/SnapshotStateMap;
+	public final fun getFeatures ()Ljava/util/Collection;
+	public fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public fun hashCode ()I
+	public fun isInsidePolygon (Ljava/lang/Object;Ljava/util/List;)Z
+	public fun moveBy (Lcenter/sciprog/maps/features/ViewPoint;Ljava/lang/Object;)Lcenter/sciprog/maps/features/ViewPoint;
+	public fun offsetTo-LQHvzoY (Ljava/lang/Object;Ljava/lang/Object;F)J
+	public final fun removeFeature (Ljava/lang/String;)V
+	public fun toString ()Ljava/lang/String;
+	public final fun visit (Lkotlin/jvm/functions/Function3;)V
+	public final fun visitUntil (Lkotlin/jvm/functions/Function3;)V
+	public fun withAttributes (Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/Feature;
+	public fun withCenter (Lcenter/sciprog/maps/features/Rectangle;Ljava/lang/Object;)Lcenter/sciprog/maps/features/Rectangle;
+	public fun wrapPoints (Ljava/util/Collection;)Lcenter/sciprog/maps/features/Rectangle;
+	public fun wrapRectangles (Ljava/util/Collection;)Lcenter/sciprog/maps/features/Rectangle;
+	public fun zoomBy (Lcenter/sciprog/maps/features/ViewPoint;FLjava/lang/Object;)Lcenter/sciprog/maps/features/ViewPoint;
+}
+
+public final class center/sciprog/maps/features/FeatureGroup$Companion {
+	public final fun build (Lcenter/sciprog/maps/features/CoordinateSpace;Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/FeatureGroup;
+	public static synthetic fun build$default (Lcenter/sciprog/maps/features/FeatureGroup$Companion;Lcenter/sciprog/maps/features/CoordinateSpace;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureGroup;
+	public final fun remember (Lcenter/sciprog/maps/features/CoordinateSpace;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lcenter/sciprog/maps/features/FeatureGroup;
+}
+
+public final class center/sciprog/maps/features/FeatureGroupKt {
+	public static final fun Structure2D (IILkotlin/jvm/functions/Function1;)Lspace/kscience/kmath/nd/Structure2D;
+	public static final fun StructureND-qL90JFI ([ILkotlin/jvm/functions/Function1;)Lspace/kscience/kmath/nd/StructureND;
+	public static final fun arc-f9v9FWM (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/maps/features/Rectangle;Lspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;Ljava/util/Map;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun arc-f9v9FWM$default (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/maps/features/Rectangle;Lspace/kscience/kmath/geometry/Angle;Lspace/kscience/kmath/geometry/Angle;Ljava/util/Map;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun circle-vJIlCZg (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/lang/Object;FLjava/util/Map;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun circle-vJIlCZg$default (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/lang/Object;FLjava/util/Map;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun draw-UqNt6FI (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/lang/Object;Ljava/util/Map;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun draw-UqNt6FI$default (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/lang/Object;Ljava/util/Map;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun forEachWithAttribute (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/attributes/Attribute;Lkotlin/jvm/functions/Function4;)V
+	public static final fun forEachWithAttributeUntil (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/attributes/Attribute;Lkotlin/jvm/functions/Function4;)V
+	public static final fun getAttributes (Lcenter/sciprog/maps/features/FeatureRef;)Ljava/util/Map;
+	public static final fun group-WhaQnWU (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/util/Map;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun group-WhaQnWU$default (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/util/Map;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun icon-Rwk-ljY (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/lang/Object;Landroidx/compose/ui/graphics/vector/ImageVector;JLjava/util/Map;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun icon-Rwk-ljY$default (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/lang/Object;Landroidx/compose/ui/graphics/vector/ImageVector;JLjava/util/Map;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun line-JCOR_Dk (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Map;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun line-JCOR_Dk$default (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Map;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun multiLine-4xdkkFs (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/util/List;Ljava/util/Map;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun multiLine-4xdkkFs$default (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/util/List;Ljava/util/Map;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun pixelMap-JCOR_Dk (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/maps/features/Rectangle;Lspace/kscience/kmath/nd/Structure2D;Ljava/util/Map;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun pixelMap-JCOR_Dk$default (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/maps/features/Rectangle;Lspace/kscience/kmath/nd/Structure2D;Ljava/util/Map;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun points-4xdkkFs (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/util/List;Ljava/util/Map;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun points-4xdkkFs$default (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/util/List;Ljava/util/Map;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun polygon-4xdkkFs (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/util/List;Ljava/util/Map;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun polygon-4xdkkFs$default (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/util/List;Ljava/util/Map;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun rectangle-H_bhbsI (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/lang/Object;JLjava/util/Map;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun rectangle-H_bhbsI$default (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/lang/Object;JLjava/util/Map;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun resolve (Lcenter/sciprog/maps/features/FeatureRef;)Lcenter/sciprog/maps/features/Feature;
+	public static final fun scalableImage-UqNt6FI (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/maps/features/Rectangle;Ljava/util/Map;Ljava/lang/String;Lkotlin/jvm/functions/Function2;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun scalableImage-UqNt6FI$default (Lcenter/sciprog/maps/features/FeatureGroup;Lcenter/sciprog/maps/features/Rectangle;Ljava/util/Map;Ljava/lang/String;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun text-f9v9FWM (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/lang/Object;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Ljava/util/Map;Ljava/lang/String;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun text-f9v9FWM$default (Lcenter/sciprog/maps/features/FeatureGroup;Ljava/lang/Object;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Ljava/util/Map;Ljava/lang/String;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+}
+
+public final class center/sciprog/maps/features/FeatureKt {
+	public static final fun computeBoundingBox (Ljava/lang/Iterable;Lcenter/sciprog/maps/features/CoordinateSpace;F)Lcenter/sciprog/maps/features/Rectangle;
+	public static final fun getColor (Lcenter/sciprog/maps/features/Feature;)Landroidx/compose/ui/graphics/Color;
+	public static final fun getName (Lcenter/sciprog/maps/features/Feature;)Ljava/lang/String;
+	public static final fun getZoomRange (Lcenter/sciprog/maps/features/Feature;)Lkotlin/ranges/ClosedFloatingPointRange;
+}
+
+public final class center/sciprog/maps/features/FeatureRef {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;Lcenter/sciprog/maps/features/FeatureGroup;)V
+	public final fun getId ()Ljava/lang/String;
+	public final fun getParent ()Lcenter/sciprog/maps/features/FeatureGroup;
+}
+
+public final class center/sciprog/maps/features/FeatureSelector : center/sciprog/maps/features/Feature {
+	public static final field $stable I
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/util/Map;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/util/Map;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun component2-hlWAoAs ()Ljava/util/Map;
+	public final fun component3 ()Lkotlin/jvm/functions/Function1;
+	public final fun copy-I8jStn0 (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/util/Map;Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/FeatureSelector;
+	public static synthetic fun copy-I8jStn0$default (Lcenter/sciprog/maps/features/FeatureSelector;Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/util/Map;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureSelector;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getAttributes-hlWAoAs ()Ljava/util/Map;
+	public fun getBoundingBox (F)Lcenter/sciprog/maps/features/Rectangle;
+	public final fun getSelector ()Lkotlin/jvm/functions/Function1;
+	public fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun withAttributes (Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/Feature;
+}
+
+public final class center/sciprog/maps/features/HoverListenerAttribute : center/sciprog/attributes/SetAttribute {
+	public static final field $stable I
+	public static final field INSTANCE Lcenter/sciprog/maps/features/HoverListenerAttribute;
+}
+
+public final class center/sciprog/maps/features/LineFeature : center/sciprog/maps/features/DomainFeature, center/sciprog/maps/features/LineSegmentFeature {
+	public static final field $stable I
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun component3 ()Ljava/lang/Object;
+	public final fun component4-hlWAoAs ()Ljava/util/Map;
+	public fun contains (Lcenter/sciprog/maps/features/ViewPoint;)Z
+	public final fun copy-a7qfu0U (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Map;)Lcenter/sciprog/maps/features/LineFeature;
+	public static synthetic fun copy-a7qfu0U$default (Lcenter/sciprog/maps/features/LineFeature;Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Map;ILjava/lang/Object;)Lcenter/sciprog/maps/features/LineFeature;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getA ()Ljava/lang/Object;
+	public fun getAttributes-hlWAoAs ()Ljava/util/Map;
+	public final fun getB ()Ljava/lang/Object;
+	public fun getBoundingBox (F)Lcenter/sciprog/maps/features/Rectangle;
+	public final fun getCenter ()Ljava/lang/Object;
+	public fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun withAttributes (Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/Feature;
+}
+
+public abstract interface class center/sciprog/maps/features/LineSegmentFeature : center/sciprog/maps/features/Feature {
+}
+
+public final class center/sciprog/maps/features/MapFeatureAttributesKt {
+	public static final fun color-4WTKRHQ (Lcenter/sciprog/maps/features/FeatureRef;J)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun draggable (Lcenter/sciprog/maps/features/FeatureRef;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function3;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun draggable$default (Lcenter/sciprog/maps/features/FeatureRef;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun modifyAttribute (Lcenter/sciprog/maps/features/FeatureRef;Lcenter/sciprog/attributes/Attribute;Ljava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun modifyAttributes (Lcenter/sciprog/maps/features/FeatureRef;Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun onClick (Lcenter/sciprog/maps/features/FeatureRef;Landroidx/compose/foundation/PointerMatcher;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun onClick (Lcenter/sciprog/maps/features/FeatureRef;Lkotlin/jvm/functions/Function2;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static synthetic fun onClick$default (Lcenter/sciprog/maps/features/FeatureRef;Landroidx/compose/foundation/PointerMatcher;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun onDrag (Lcenter/sciprog/maps/features/FeatureRef;Lkotlin/jvm/functions/Function3;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun onHover (Lcenter/sciprog/maps/features/FeatureRef;Lkotlin/jvm/functions/Function2;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun pathEffect (Lcenter/sciprog/maps/features/FeatureRef;Landroidx/compose/ui/graphics/PathEffect;)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun stroke (Lcenter/sciprog/maps/features/FeatureRef;F)Lcenter/sciprog/maps/features/FeatureRef;
+	public static final fun zoomRange (Lcenter/sciprog/maps/features/FeatureRef;Lkotlin/ranges/ClosedFloatingPointRange;)Lcenter/sciprog/maps/features/FeatureRef;
+}
+
+public abstract interface class center/sciprog/maps/features/MarkerFeature : center/sciprog/maps/features/DraggableFeature {
+	public abstract fun getCenter ()Ljava/lang/Object;
+}
+
+public abstract interface class center/sciprog/maps/features/MouseListener {
+	public static final field Companion Lcenter/sciprog/maps/features/MouseListener$Companion;
+	public abstract fun handle (Landroidx/compose/ui/input/pointer/PointerEvent;Lcenter/sciprog/maps/features/ViewPoint;)V
+}
+
+public final class center/sciprog/maps/features/MouseListener$Companion {
+	public final fun withPrimaryButton (Lkotlin/jvm/functions/Function2;)Lcenter/sciprog/maps/features/MouseListener;
+}
+
+public final class center/sciprog/maps/features/MultiLineFeature : center/sciprog/maps/features/DomainFeature, center/sciprog/maps/features/LineSegmentFeature {
+	public static final field $stable I
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/util/List;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/util/List;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3-hlWAoAs ()Ljava/util/Map;
+	public fun contains (Lcenter/sciprog/maps/features/ViewPoint;)Z
+	public final fun copy-EHyjM0Q (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/util/List;Ljava/util/Map;)Lcenter/sciprog/maps/features/MultiLineFeature;
+	public static synthetic fun copy-EHyjM0Q$default (Lcenter/sciprog/maps/features/MultiLineFeature;Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/util/List;Ljava/util/Map;ILjava/lang/Object;)Lcenter/sciprog/maps/features/MultiLineFeature;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getAttributes-hlWAoAs ()Ljava/util/Map;
+	public fun getBoundingBox (F)Lcenter/sciprog/maps/features/Rectangle;
+	public final fun getPoints ()Ljava/util/List;
+	public fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun withAttributes (Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/Feature;
+}
+
+public abstract interface class center/sciprog/maps/features/PainterFeature : center/sciprog/maps/features/Feature {
+	public abstract fun getPainter (Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/graphics/painter/Painter;
+}
+
+public final class center/sciprog/maps/features/PathEffectAttribute : center/sciprog/attributes/Attribute {
+	public static final field $stable I
+	public static final field INSTANCE Lcenter/sciprog/maps/features/PathEffectAttribute;
+}
+
+public final class center/sciprog/maps/features/PathFeature : center/sciprog/maps/features/DraggableFeature {
+	public static final field $stable I
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/Rectangle;Landroidx/compose/ui/graphics/Path;Landroidx/compose/ui/graphics/Brush;Landroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/geometry/Rect;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/Rectangle;Landroidx/compose/ui/graphics/Path;Landroidx/compose/ui/graphics/Brush;Landroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/geometry/Rect;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun component2 ()Lcenter/sciprog/maps/features/Rectangle;
+	public final fun component3 ()Landroidx/compose/ui/graphics/Path;
+	public final fun component4 ()Landroidx/compose/ui/graphics/Brush;
+	public final fun component5 ()Landroidx/compose/ui/graphics/drawscope/DrawStyle;
+	public final fun component6 ()Landroidx/compose/ui/geometry/Rect;
+	public final fun component7-hlWAoAs ()Ljava/util/Map;
+	public final fun copy-mDmFKLY (Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/Rectangle;Landroidx/compose/ui/graphics/Path;Landroidx/compose/ui/graphics/Brush;Landroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/geometry/Rect;Ljava/util/Map;)Lcenter/sciprog/maps/features/PathFeature;
+	public static synthetic fun copy-mDmFKLY$default (Lcenter/sciprog/maps/features/PathFeature;Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/Rectangle;Landroidx/compose/ui/graphics/Path;Landroidx/compose/ui/graphics/Brush;Landroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/geometry/Rect;Ljava/util/Map;ILjava/lang/Object;)Lcenter/sciprog/maps/features/PathFeature;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getAttributes-hlWAoAs ()Ljava/util/Map;
+	public fun getBoundingBox (F)Lcenter/sciprog/maps/features/Rectangle;
+	public final fun getBrush ()Landroidx/compose/ui/graphics/Brush;
+	public final fun getPath ()Landroidx/compose/ui/graphics/Path;
+	public final fun getRectangle ()Lcenter/sciprog/maps/features/Rectangle;
+	public fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun getStyle ()Landroidx/compose/ui/graphics/drawscope/DrawStyle;
+	public final fun getTargetRect ()Landroidx/compose/ui/geometry/Rect;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun withAttributes (Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/Feature;
+	public fun withCoordinates (Ljava/lang/Object;)Lcenter/sciprog/maps/features/Feature;
+}
+
+public final class center/sciprog/maps/features/PixelMapFeature : center/sciprog/maps/features/Feature {
+	public static final field $stable I
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/Rectangle;Lspace/kscience/kmath/nd/Structure2D;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/Rectangle;Lspace/kscience/kmath/nd/Structure2D;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun component2 ()Lcenter/sciprog/maps/features/Rectangle;
+	public final fun component3 ()Lspace/kscience/kmath/nd/Structure2D;
+	public final fun component4-hlWAoAs ()Ljava/util/Map;
+	public final fun copy-a7qfu0U (Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/Rectangle;Lspace/kscience/kmath/nd/Structure2D;Ljava/util/Map;)Lcenter/sciprog/maps/features/PixelMapFeature;
+	public static synthetic fun copy-a7qfu0U$default (Lcenter/sciprog/maps/features/PixelMapFeature;Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/Rectangle;Lspace/kscience/kmath/nd/Structure2D;Ljava/util/Map;ILjava/lang/Object;)Lcenter/sciprog/maps/features/PixelMapFeature;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getAttributes-hlWAoAs ()Ljava/util/Map;
+	public fun getBoundingBox (F)Lcenter/sciprog/maps/features/Rectangle;
+	public final fun getPixelMap ()Lspace/kscience/kmath/nd/Structure2D;
+	public final fun getRectangle ()Lcenter/sciprog/maps/features/Rectangle;
+	public fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun withAttributes (Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/Feature;
+}
+
+public final class center/sciprog/maps/features/PointsFeature : center/sciprog/maps/features/Feature {
+	public static final field $stable I
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/util/List;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/util/List;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3-hlWAoAs ()Ljava/util/Map;
+	public final fun copy-EHyjM0Q (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/util/List;Ljava/util/Map;)Lcenter/sciprog/maps/features/PointsFeature;
+	public static synthetic fun copy-EHyjM0Q$default (Lcenter/sciprog/maps/features/PointsFeature;Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/util/List;Ljava/util/Map;ILjava/lang/Object;)Lcenter/sciprog/maps/features/PointsFeature;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getAttributes-hlWAoAs ()Ljava/util/Map;
+	public fun getBoundingBox (F)Lcenter/sciprog/maps/features/Rectangle;
+	public final fun getPoints ()Ljava/util/List;
+	public fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun withAttributes (Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/Feature;
+}
+
+public final class center/sciprog/maps/features/PolygonFeature : center/sciprog/maps/features/DomainFeature {
+	public static final field $stable I
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/util/List;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/util/List;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3-hlWAoAs ()Ljava/util/Map;
+	public fun contains (Lcenter/sciprog/maps/features/ViewPoint;)Z
+	public final fun copy-EHyjM0Q (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/util/List;Ljava/util/Map;)Lcenter/sciprog/maps/features/PolygonFeature;
+	public static synthetic fun copy-EHyjM0Q$default (Lcenter/sciprog/maps/features/PolygonFeature;Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/util/List;Ljava/util/Map;ILjava/lang/Object;)Lcenter/sciprog/maps/features/PolygonFeature;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getAttributes-hlWAoAs ()Ljava/util/Map;
+	public fun getBoundingBox (F)Lcenter/sciprog/maps/features/Rectangle;
+	public final fun getPoints ()Ljava/util/List;
+	public fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun withAttributes (Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/Feature;
+}
+
+public abstract interface class center/sciprog/maps/features/Rectangle : center/sciprog/maps/features/Area {
+	public abstract fun getA ()Ljava/lang/Object;
+	public abstract fun getB ()Ljava/lang/Object;
+	public abstract fun getCenter ()Ljava/lang/Object;
+}
+
+public final class center/sciprog/maps/features/RectangleFeature : center/sciprog/maps/features/MarkerFeature {
+	public static final field $stable I
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;JLjava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;JLjava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun component3-MYxV2XQ ()J
+	public final fun component4-hlWAoAs ()Ljava/util/Map;
+	public final fun copy-tzWo0Eo (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;JLjava/util/Map;)Lcenter/sciprog/maps/features/RectangleFeature;
+	public static synthetic fun copy-tzWo0Eo$default (Lcenter/sciprog/maps/features/RectangleFeature;Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;JLjava/util/Map;ILjava/lang/Object;)Lcenter/sciprog/maps/features/RectangleFeature;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getAttributes-hlWAoAs ()Ljava/util/Map;
+	public fun getBoundingBox (F)Lcenter/sciprog/maps/features/Rectangle;
+	public fun getCenter ()Ljava/lang/Object;
+	public final fun getSize-MYxV2XQ ()J
+	public fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun withAttributes (Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/Feature;
+	public fun withCoordinates (Ljava/lang/Object;)Lcenter/sciprog/maps/features/Feature;
+}
+
+public final class center/sciprog/maps/features/ScalableImageFeature : center/sciprog/maps/features/Feature, center/sciprog/maps/features/PainterFeature {
+	public static final field $stable I
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/Rectangle;Ljava/util/Map;Lkotlin/jvm/functions/Function2;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/Rectangle;Ljava/util/Map;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun component2 ()Lcenter/sciprog/maps/features/Rectangle;
+	public final fun component3-hlWAoAs ()Ljava/util/Map;
+	public final fun component4 ()Lkotlin/jvm/functions/Function2;
+	public final fun copy-4xdkkFs (Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/Rectangle;Ljava/util/Map;Lkotlin/jvm/functions/Function2;)Lcenter/sciprog/maps/features/ScalableImageFeature;
+	public static synthetic fun copy-4xdkkFs$default (Lcenter/sciprog/maps/features/ScalableImageFeature;Lcenter/sciprog/maps/features/CoordinateSpace;Lcenter/sciprog/maps/features/Rectangle;Ljava/util/Map;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lcenter/sciprog/maps/features/ScalableImageFeature;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getAttributes-hlWAoAs ()Ljava/util/Map;
+	public fun getBoundingBox (F)Lcenter/sciprog/maps/features/Rectangle;
+	public final fun getPainter ()Lkotlin/jvm/functions/Function2;
+	public fun getPainter (Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/graphics/painter/Painter;
+	public final fun getRectangle ()Lcenter/sciprog/maps/features/Rectangle;
+	public fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun withAttributes (Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/Feature;
+}
+
+public final class center/sciprog/maps/features/StrokeAttribute : center/sciprog/attributes/Attribute {
+	public static final field $stable I
+	public static final field INSTANCE Lcenter/sciprog/maps/features/StrokeAttribute;
+}
+
+public final class center/sciprog/maps/features/TextFeature : center/sciprog/maps/features/DraggableFeature {
+	public static final field $stable I
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;Ljava/lang/String;Ljava/util/Map;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;Ljava/lang/String;Ljava/util/Map;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4-hlWAoAs ()Ljava/util/Map;
+	public final fun component5 ()Lkotlin/jvm/functions/Function1;
+	public final fun copy-JCOR_Dk (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;Ljava/lang/String;Ljava/util/Map;Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/TextFeature;
+	public static synthetic fun copy-JCOR_Dk$default (Lcenter/sciprog/maps/features/TextFeature;Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;Ljava/lang/String;Ljava/util/Map;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcenter/sciprog/maps/features/TextFeature;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getAttributes-hlWAoAs ()Ljava/util/Map;
+	public fun getBoundingBox (F)Lcenter/sciprog/maps/features/Rectangle;
+	public final fun getFontConfig ()Lkotlin/jvm/functions/Function1;
+	public final fun getPosition ()Ljava/lang/Object;
+	public fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun getText ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun withAttributes (Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/Feature;
+	public fun withCoordinates (Ljava/lang/Object;)Lcenter/sciprog/maps/features/Feature;
+}
+
+public final class center/sciprog/maps/features/VectorIconFeature : center/sciprog/maps/features/MarkerFeature, center/sciprog/maps/features/PainterFeature {
+	public static final field $stable I
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;JLandroidx/compose/ui/graphics/vector/ImageVector;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;JLandroidx/compose/ui/graphics/vector/ImageVector;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun component3-MYxV2XQ ()J
+	public final fun component4 ()Landroidx/compose/ui/graphics/vector/ImageVector;
+	public final fun component5-hlWAoAs ()Ljava/util/Map;
+	public final fun copy-xcw5jm0 (Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;JLandroidx/compose/ui/graphics/vector/ImageVector;Ljava/util/Map;)Lcenter/sciprog/maps/features/VectorIconFeature;
+	public static synthetic fun copy-xcw5jm0$default (Lcenter/sciprog/maps/features/VectorIconFeature;Lcenter/sciprog/maps/features/CoordinateSpace;Ljava/lang/Object;JLandroidx/compose/ui/graphics/vector/ImageVector;Ljava/util/Map;ILjava/lang/Object;)Lcenter/sciprog/maps/features/VectorIconFeature;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getAttributes-hlWAoAs ()Ljava/util/Map;
+	public fun getBoundingBox (F)Lcenter/sciprog/maps/features/Rectangle;
+	public fun getCenter ()Ljava/lang/Object;
+	public final fun getImage ()Landroidx/compose/ui/graphics/vector/ImageVector;
+	public synthetic fun getPainter (Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/graphics/painter/Painter;
+	public fun getPainter (Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/graphics/vector/VectorPainter;
+	public final fun getSize-MYxV2XQ ()J
+	public fun getSpace ()Lcenter/sciprog/maps/features/CoordinateSpace;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun withAttributes (Lkotlin/jvm/functions/Function1;)Lcenter/sciprog/maps/features/Feature;
+	public fun withCoordinates (Ljava/lang/Object;)Lcenter/sciprog/maps/features/Feature;
+}
+
+public final class center/sciprog/maps/features/ViewConfig {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (FLcenter/sciprog/maps/features/MouseListener;Lcenter/sciprog/maps/features/DragHandle;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ZZ)V
+	public synthetic fun <init> (FLcenter/sciprog/maps/features/MouseListener;Lcenter/sciprog/maps/features/DragHandle;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()F
+	public final fun component2 ()Lcenter/sciprog/maps/features/MouseListener;
+	public final fun component3 ()Lcenter/sciprog/maps/features/DragHandle;
+	public final fun component4 ()Lkotlin/jvm/functions/Function1;
+	public final fun component5 ()Lkotlin/jvm/functions/Function1;
+	public final fun component6 ()Lkotlin/jvm/functions/Function1;
+	public final fun component7 ()Z
+	public final fun component8 ()Z
+	public final fun copy (FLcenter/sciprog/maps/features/MouseListener;Lcenter/sciprog/maps/features/DragHandle;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ZZ)Lcenter/sciprog/maps/features/ViewConfig;
+	public static synthetic fun copy$default (Lcenter/sciprog/maps/features/ViewConfig;FLcenter/sciprog/maps/features/MouseListener;Lcenter/sciprog/maps/features/DragHandle;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ZZILjava/lang/Object;)Lcenter/sciprog/maps/features/ViewConfig;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDragHandle ()Lcenter/sciprog/maps/features/DragHandle;
+	public final fun getOnCanvasSizeChange ()Lkotlin/jvm/functions/Function1;
+	public final fun getOnClick ()Lcenter/sciprog/maps/features/MouseListener;
+	public final fun getOnSelect ()Lkotlin/jvm/functions/Function1;
+	public final fun getOnViewChange ()Lkotlin/jvm/functions/Function1;
+	public final fun getZoomOnDoubleClick ()Z
+	public final fun getZoomOnSelect ()Z
+	public final fun getZoomSpeed ()F
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class center/sciprog/maps/features/ViewPoint {
+	public abstract fun getFocus ()Ljava/lang/Object;
+	public abstract fun getZoom ()F
+}
+
+public final class center/sciprog/maps/features/VisibleAttribute : center/sciprog/attributes/Attribute {
+	public static final field $stable I
+	public static final field INSTANCE Lcenter/sciprog/maps/features/VisibleAttribute;
+}
+
+public final class center/sciprog/maps/features/ZAttribute : center/sciprog/attributes/Attribute {
+	public static final field $stable I
+	public static final field INSTANCE Lcenter/sciprog/maps/features/ZAttribute;
+}
+
+public final class center/sciprog/maps/features/ZoomRangeAttribute : center/sciprog/attributes/Attribute {
+	public static final field $stable I
+	public static final field INSTANCE Lcenter/sciprog/maps/features/ZoomRangeAttribute;
+}
+
