@@ -39,7 +39,7 @@ public fun Euclidean2DSpace.intersects(segment: LineSegment2D, circle: Circle2D)
     val t1 = (-b - discriminant) / (2 * a) // first intersection point in relative coordinates
     val t2 = (-b + discriminant) / (2 * a) //second intersection point in relative coordinates
 
-    return t1.sign != t2.sign || (t1-1.0).sign != (t2-1).sign
+    return t1 in 0.0..1.0 || t2 in 0.0..1.0
 }
 
 

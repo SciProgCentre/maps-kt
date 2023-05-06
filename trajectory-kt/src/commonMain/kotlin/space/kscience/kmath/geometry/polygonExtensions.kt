@@ -14,4 +14,8 @@ public fun Euclidean2DSpace.intersects(polygon: Polygon<Double>, circle: Circle2
     polygon.points.zipWithNextCircular { l, r -> segment(l, r) }.any { intersects(it, circle) }
 
 public fun Euclidean2DSpace.intersectsTrajectory(polygon: Polygon<Double>, trajectory: Trajectory2D): Boolean =
-    polygon.points.zipWithNextCircular { l, r -> segment(l, r) }.any { edge -> intersectsTrajectory(edge, trajectory) }
+    polygon.points.zipWithNextCircular { l, r ->
+        segment(l, r)
+    }.any { edge ->
+        intersectsTrajectory(edge, trajectory)
+    }

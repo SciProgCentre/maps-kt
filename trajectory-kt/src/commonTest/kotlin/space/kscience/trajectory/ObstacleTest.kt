@@ -28,7 +28,7 @@ class ObstacleTest {
     }
 
     @Test
-    fun singeObstacle() {
+    fun singePoint() {
         val outputTangents: List<Trajectory2D> = Obstacles.avoidObstacles(
             Pose2D(-5, -1, Angle.pi / 4),
             Pose2D(20, 4, Angle.pi * 3 / 4),
@@ -110,7 +110,7 @@ class ObstacleTest {
             Pose2D(x = 473093.1426061879, y = 2898525.45250675, bearing = Degrees(100.36609537114623))
         )
 
-        val obstacle =                     Obstacle(
+        val obstacle = Obstacle(
             Circle2D(vector(x = 446088.2236175772, y = 2895264.0759535935), radius = 5000.0),
             Circle2D(vector(x = 455587.51549431164, y = 2897116.5594902174), radius = 5000.0),
             Circle2D(vector(x = 465903.08440141426, y = 2893897.500160981), radius = 5000.0),
@@ -118,8 +118,8 @@ class ObstacleTest {
             Circle2D(vector(x = 449231.8047505464, y = 2880132.403305273), radius = 5000.0)
         )
 
-        startPoints.forEach { start->
-            endPoints.forEach { end->
+        startPoints.forEach { start ->
+            endPoints.forEach { end ->
                 val paths = Obstacles.avoidObstacles(
                     start,
                     end,

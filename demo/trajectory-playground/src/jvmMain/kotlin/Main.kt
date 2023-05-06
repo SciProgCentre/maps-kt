@@ -20,6 +20,8 @@ import kotlin.random.Random
 
 private fun DoubleVector2D.toXY() = XY(x.toFloat(), y.toFloat())
 
+private val random = Random(123)
+
 fun FeatureGroup<XY>.trajectory(
     trajectory: Trajectory2D,
     colorPicker: (Trajectory2D) -> Color = { Color.Blue },
@@ -57,8 +59,8 @@ fun FeatureGroup<XY>.obstacle(obstacle: Obstacle, colorPicker: (Trajectory2D) ->
     polygon(obstacle.arcs.map { it.center.toXY() }).color(Color.Gray)
 }
 
-fun FeatureGroup<XY>.pose(pose2D: Pose2D) = with(Euclidean2DSpace){
-    line(pose2D.toXY(), (pose2D + Pose2D.bearingToVector(pose2D.bearing)).toXY() )
+fun FeatureGroup<XY>.pose(pose2D: Pose2D) = with(Euclidean2DSpace) {
+    line(pose2D.toXY(), (pose2D + Pose2D.bearingToVector(pose2D.bearing)).toXY())
 }
 
 @Composable
@@ -72,18 +74,25 @@ fun closePoints() {
             Circle2D(Euclidean2DSpace.vector(1.0, 1.0), 1.0),
             Circle2D(Euclidean2DSpace.vector(1.0, 0.0), 1.0)
         )
+        val enter = Pose2D(-0.8, -0.8, Angle.pi)
+        val exit = Pose2D(-0.8, -0.8, Angle.piDiv2)
+
+        pose(enter)
+        pose(exit)
 
         val paths: List<Trajectory2D> = Obstacles.avoidObstacles(
-            Pose2D(-1, -1, Angle.pi),
-            Pose2D(-1, -1, Angle.piDiv2),
+            enter,
+            exit,
             1.0,
             obstacle
         )
 
         obstacle(obstacle)
 
-        trajectory(paths.first()) { Color.Green }
-        trajectory(paths.last()) { Color.Magenta }
+        paths.forEach {
+            val color = Color(random.nextInt())
+            trajectory(it) { color }
+        }
 
     }
 }
@@ -93,14 +102,21 @@ fun closePoints() {
 fun singleObstacle() {
     SchemeView {
         val obstacle = Obstacle(Circle2D(Euclidean2DSpace.vector(7.0, 1.0), 5.0))
+        val enter = Pose2D(-5, -1, Angle.pi / 4)
+        val exit = Pose2D(20, 4, Angle.pi * 3 / 4)
+
+        pose(enter)
+        pose(exit)
         obstacle(obstacle)
+
         Obstacles.avoidObstacles(
-            Pose2D(-5, -1, Angle.pi / 4),
-            Pose2D(20, 4, Angle.pi * 3 / 4),
+            enter,
+            exit,
             0.5,
             obstacle
         ).forEach {
-            trajectory(it).color(Color(Random.nextInt()))
+            val color = Color(random.nextInt())
+            trajectory(it) { color }
         }
     }
 }
@@ -123,7 +139,7 @@ fun doubleObstacle() {
             )
         )
 
-        obstacles.forEach { obstacle(it)  }
+        obstacles.forEach { obstacle(it) }
         val enter = Pose2D(-5, -1, Angle.pi / 4)
         val exit = Pose2D(20, 4, Angle.pi * 3 / 4)
         pose(enter)
@@ -135,7 +151,8 @@ fun doubleObstacle() {
             0.5,
             *obstacles
         ).forEach {
-            trajectory(it).color(Color(Random.nextInt()))
+            val color = Color(random.nextInt())
+            trajectory(it) { color }
         }
     }
 }

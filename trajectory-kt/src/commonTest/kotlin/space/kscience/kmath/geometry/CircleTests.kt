@@ -48,7 +48,15 @@ class CircleTests {
     @Test
     fun circleLineIntersection() = with(Euclidean2DSpace) {
         assertTrue {
-            intersects(circle(0, 0, 1), segment(1, 1, -1, 1))
+            intersects(circle(0, 0, 1.0), segment(1, 1, -1, 1))
+        }
+
+        assertFalse {
+            intersects(circle(0, 0, 1.0), segment(1, 1, 0.5, 1))
+        }
+
+        assertFalse {
+            intersects(circle(0, 0, 1.0), segment(0, 0.5, 0, -0.5))
         }
 
         assertTrue {

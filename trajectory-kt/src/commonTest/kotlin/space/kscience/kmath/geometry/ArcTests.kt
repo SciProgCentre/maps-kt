@@ -6,7 +6,6 @@
 package space.kscience.kmath.geometry
 
 import space.kscience.trajectory.CircleTrajectory2D
-import space.kscience.trajectory.Pose2D
 import space.kscience.trajectory.Trajectory2D
 import kotlin.math.PI
 import kotlin.test.Test
@@ -35,11 +34,11 @@ class ArcTests {
         val circle = circle(1, 0, 1)
         val arc = CircleTrajectory2D(
             circle,
-            Pose2D(x = 2.0, y = 1.2246467991473532E-16, bearing = PI.radians),
-            Pose2D(x = 1.0, y = -1.0, bearing = (PI * 3 / 2).radians)
+            (PI/2).radians,
+            (PI/2).radians
         )
         assertEquals(Trajectory2D.R, arc.direction)
-        assertEquals(PI / 2, arc.length, 1e-4)
+        assertEquals(PI, arc.arcEnd.radians, 1e-4)
     }
 
     @Test

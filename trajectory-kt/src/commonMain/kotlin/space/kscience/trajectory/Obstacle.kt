@@ -14,19 +14,14 @@ public interface Obstacle {
     public val center: Vector2D<Double>
 
     /**
-     * A closed right-handed circuit minimal path circumvention of an obstacle.
+     * A closed right-handed circuit minimal path circumvention of the obstacle.
      */
     public val circumvention: CompositeTrajectory2D
 
-    public val polygon: Polygon<Double>
-
-
     /**
-     * Check if obstacle has intersection with given [Trajectory2D]
+     * A polygon created from the arc centers of the obstacle
      */
-    public fun intersects(trajectory: Trajectory2D): Boolean =
-        Euclidean2DSpace.intersectsTrajectory(polygon, trajectory)
-
+    public val core: Polygon<Double>
 
     public companion object {
 
@@ -45,7 +40,7 @@ private class ObstacleImpl(override val circumvention: CompositeTrajectory2D) : 
         )
     }
 
-    override val polygon: Polygon<Double> by lazy {
+    override val core: Polygon<Double> by lazy {
         Euclidean2DSpace.polygon(arcs.map { it.circle.center })
     }
 
