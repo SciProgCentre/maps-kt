@@ -37,7 +37,7 @@ class ObstacleTest {
         )
         assertTrue { outputTangents.isNotEmpty() }
         val length = outputTangents.minOf { it.length }
-        assertEquals(25.0, length, 2.0)
+        assertEquals(26.0, length, 2.0)
     }
 
     @Test

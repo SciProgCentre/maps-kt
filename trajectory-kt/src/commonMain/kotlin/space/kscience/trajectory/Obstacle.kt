@@ -17,18 +17,51 @@ public interface Obstacle {
      * A closed right-handed circuit minimal path circumvention of the obstacle.
      */
     public val circumvention: CompositeTrajectory2D
+//
+//    /**
+//     * A polygon created from the arc centers of the obstacle
+//     */
+//    public val core: Polygon<Double>
 
-    /**
-     * A polygon created from the arc centers of the obstacle
-     */
-    public val core: Polygon<Double>
+    public fun intersectsTrajectory(trajectory: Trajectory2D): Boolean
 
     public companion object {
 
     }
 }
 
-private class ObstacleImpl(override val circumvention: CompositeTrajectory2D) : Obstacle {
+private class CircleObstacle(val circle: Circle2D) : Obstacle {
+    override val center: Vector2D<Double> get() = circle.center
+
+    override val arcs: List<CircleTrajectory2D>
+        get() = listOf(CircleTrajectory2D(circle, Angle.zero, Angle.piTimes2))
+
+    override val circumvention: CompositeTrajectory2D
+        get() = CompositeTrajectory2D(arcs)
+
+
+    override fun intersectsTrajectory(trajectory: Trajectory2D): Boolean =
+        Euclidean2DSpace.intersectsTrajectory(circumvention, trajectory)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as CircleObstacle
+
+        return circle == other.circle
+    }
+
+    override fun hashCode(): Int {
+        return circle.hashCode()
+    }
+
+    override fun toString(): String = "Obstacle(circle=$circle)"
+
+
+}
+
+private class CoreObstacle(override val circumvention: CompositeTrajectory2D) : Obstacle {
     override val arcs: List<CircleTrajectory2D> by lazy {
         circumvention.segments.filterIsInstance<CircleTrajectory2D>()
     }
@@ -40,15 +73,19 @@ private class ObstacleImpl(override val circumvention: CompositeTrajectory2D) : 
         )
     }
 
-    override val core: Polygon<Double> by lazy {
+    val core: Polygon<Double> by lazy {
         Euclidean2DSpace.polygon(arcs.map { it.circle.center })
     }
+
+    override fun intersectsTrajectory(trajectory: Trajectory2D): Boolean =
+        Euclidean2DSpace.intersectsTrajectory(core, trajectory)
+
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
-        other as ObstacleImpl
+        other as CoreObstacle
 
         return arcs == other.arcs
     }
@@ -63,16 +100,17 @@ private class ObstacleImpl(override val circumvention: CompositeTrajectory2D) : 
 }
 
 public fun Obstacle(circles: List<Circle2D>): Obstacle = with(Euclidean2DSpace) {
+    require(circles.isNotEmpty()) { "Can't create circumvention for an empty obstacle" }
+    //Create a single circle obstacle
+    if(circles.size == 1) return CircleObstacle(circles.first())
+
     val center = vector(
         circles.sumOf { it.center.x },
         circles.sumOf { it.center.y }
-    )/ circles.size
-
-
-    require(circles.isNotEmpty()) { "Can't create circumvention for an empty obstacle" }
+    ) / circles.size
 
     if (circles.size == 1) {
-        return ObstacleImpl(
+        return CoreObstacle(
             CompositeTrajectory2D(
                 CircleTrajectory2D(circles.first(), Angle.zero, Angle.piTimes2)
             )
@@ -102,7 +140,7 @@ public fun Obstacle(circles: List<Circle2D>): Obstacle = with(Euclidean2DSpace) 
     val circumvention = CompositeTrajectory2D(trajectory)
 
 
-    return ObstacleImpl(circumvention)
+    return CoreObstacle(circumvention)
 }
 
 

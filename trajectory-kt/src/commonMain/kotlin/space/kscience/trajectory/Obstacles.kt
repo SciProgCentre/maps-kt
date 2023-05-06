@@ -46,8 +46,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
         val isValid by lazy {
             with(Euclidean2DSpace) {
                 obstacles.indices.none {
-                    it != from?.obstacleIndex && it != to?.obstacleIndex && intersectsTrajectory(
-                        obstacles[it].core,
+                    it != from?.obstacleIndex && it != to?.obstacleIndex && obstacles[it].intersectsTrajectory(
                         tangentTrajectory
                     )
                 }
@@ -78,8 +77,8 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
                         secondCircle
                     )) {
                         if (
-                            !intersectsTrajectory(first.core, segment)
-                            && !intersectsTrajectory(second.core, segment)
+                            !first.intersectsTrajectory(segment)
+                            && !second.intersectsTrajectory(segment)
                         ) {
                             put(
                                 pathType,
@@ -109,11 +108,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
                     arc.copy(arcAngle = Angle.piTimes2), //extend arc to full circle
                     obstacleArc
                 )) {
-                    if (pathType.first == arc.direction && !intersectsTrajectory(
-                            obstacle.core,
-                            segment
-                        )
-                    ) {
+                    if (pathType.first == arc.direction && !obstacle.intersectsTrajectory(segment)) {
                         put(
                             pathType,
                             ObstacleTangent(
@@ -140,7 +135,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
                 obstacleArc.circle,
                 arc.circle
             )[DubinsPath.Type(obstacleDirection, Trajectory2D.S, arc.direction)]?.takeIf {
-                obstacleArc.containsPoint(it.begin) && !intersectsTrajectory(obstacle.core, it)
+                obstacleArc.containsPoint(it.begin) && !obstacle.intersectsTrajectory(it)
             }?.let {
                 return ObstacleTangent(
                     it,
@@ -214,12 +209,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
         dubinsPath: CompositeTrajectory2D,
     ): Collection<Trajectory2D> = with(Euclidean2DSpace) {
         //fast return if no obstacles intersect the direct path
-        if (
-            obstacles.none {
-                (it.arcs.size == 1 && intersectsTrajectory(it.circumvention, dubinsPath)) // special case for one-point obstacles
-                        || intersectsTrajectory(it.core, dubinsPath)
-            }
-        ) return listOf(dubinsPath)
+        if (obstacles.none { it.intersectsTrajectory(dubinsPath) }) return listOf(dubinsPath)
 
         val beginArc = dubinsPath.segments.first() as CircleTrajectory2D
         val endArc = dubinsPath.segments.last() as CircleTrajectory2D
@@ -245,22 +235,14 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
             ) ?: return emptySet()
 
             // if no intersections, finish
-            if (obstacles.indices.none {
-                    intersectsTrajectory(
-                        obstacles[it].core,
-                        tangentToEnd.tangentTrajectory
-                    )
-                }) return setOf(
-                TangentPath(tangents + tangentToEnd)
-            )
+            if (
+                obstacles.indices.none { obstacles[it].intersectsTrajectory(tangentToEnd.tangentTrajectory) }
+            ) return setOf(TangentPath(tangents + tangentToEnd))
 
             // tangents to other obstacles
             return remainingObstacleIndices.sortedWith(
                 compareByDescending<Int> {
-                    intersectsTrajectory(
-                        obstacles[it].core,
-                        tangentToEnd.tangentTrajectory
-                    )
+                    obstacles[it].intersectsTrajectory(tangentToEnd.tangentTrajectory)
                     //take intersecting obstacles
                 }.thenBy {
                     connection.circle.center.distanceTo(obstacles[it].center)
@@ -281,7 +263,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
         //find the nearest obstacle that has valid tangents to
         val tangentsToFirstObstacle: Collection<ObstacleTangent> = obstacles.indices.sortedWith(
             compareByDescending<Int> {
-                intersectsTrajectory(obstacles[it].core, dubinsPath)
+                obstacles[it].intersectsTrajectory(dubinsPath)
                 //take intersecting obstacles
             }.thenBy {
                 beginArc.circle.center.distanceTo(obstacles[it].center)

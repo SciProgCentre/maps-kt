@@ -1,14 +1,14 @@
 import kotlin.io.path.readText
 
 job("Build") {
-    gradlew("spc.registry.jetbrains.space/p/sci/containers/kotlin-ci:1.0.3", "build")
+    gradlew("spc.registry.jetbrains.space/p/sci/containers/kotlin-ci:lastest", "build")
 }
 
 job("Publish") {
     startOn {
         gitPush { enabled = false }
     }
-    container("openjdk:11") {
+    container("spc.registry.jetbrains.space/p/sci/containers/kotlin-ci:latest") {
         env["SPACE_USER"] = Secrets("space_user")
         env["SPACE_TOKEN"] = Secrets("space_token")
         kotlinScript { api ->
