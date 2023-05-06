@@ -1,7 +1,7 @@
 import kotlin.io.path.readText
 
 job("Build") {
-    gradlew("openjdk:11", "build")
+    gradlew("spc.registry.jetbrains.space/p/sci/containers/kotlin-ci:1.0.3", "build")
 }
 
 job("Publish") {
