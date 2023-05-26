@@ -26,12 +26,15 @@ public class XYViewScope(
     )
 
     override fun computeViewPoint(rectangle: Rectangle<XY>): ViewPoint<XY> {
-        val scale = min(
+        val scale: Float = min(
             canvasSize.width.value / rectangle.width,
             canvasSize.height.value / rectangle.height
         )
-
-        return XYViewPoint(rectangle.center, scale)
+        return if(scale.isInfinite()){
+            XYViewPoint(rectangle.center, 1f)
+        } else {
+            XYViewPoint(rectangle.center, scale)
+        }
     }
 
     override fun ViewPoint<XY>.moveBy(x: Dp, y: Dp): ViewPoint<XY> {

@@ -157,6 +157,14 @@ fun doubleObstacle() {
     }
 }
 
+@Composable
+@Preview
+fun singleElement() {
+    SchemeView {
+        points(listOf(XY(1f,1f)))
+    }
+}
+
 
 @Composable
 @Preview
@@ -165,6 +173,7 @@ fun playground() {
         "Close starting points",
         "Single obstacle",
         "Two obstacles",
+        "Single element"
     )
 
     var currentExample by remember { mutableStateOf(examples.first()) }
@@ -182,6 +191,7 @@ fun playground() {
             examples[0] -> closePoints()
             examples[1] -> singleObstacle()
             examples[2] -> doubleObstacle()
+            examples[3] -> singleElement()
         }
     }
 }
