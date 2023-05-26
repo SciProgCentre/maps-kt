@@ -3,7 +3,10 @@ package center.sciprog.maps.features
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.*
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
 import center.sciprog.attributes.plus
 import org.jetbrains.skia.Font
@@ -121,7 +124,7 @@ public fun <T : Any> DrawScope.drawFeature(
             drawPoints(
                 points = points,
                 color = color,
-                strokeWidth = feature.attributes[StrokeAttribute] ?: Stroke.HairlineWidth,
+                strokeWidth = feature.attributes[StrokeAttribute] ?: 5f,
                 pointMode = PointMode.Points,
                 pathEffect = feature.attributes[PathEffectAttribute],
                 alpha = alpha

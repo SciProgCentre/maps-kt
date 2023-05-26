@@ -6,11 +6,11 @@ plugins {
     id("space.kscience.gradle.project")
 }
 
-val kmathVersion: String by extra("0.3.1-dev-RC")
+val kmathVersion: String by extra("0.3.1")
 
 allprojects {
     group = "center.sciprog"
-    version = "0.2.2"
+    version = "0.2.3-dev-1"
 
     repositories {
         mavenLocal()

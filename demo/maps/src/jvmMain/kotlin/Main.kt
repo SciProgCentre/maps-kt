@@ -55,7 +55,6 @@ fun App() {
 
         val centerCoordinates = MutableStateFlow<Gmc?>(null)
 
-
         val pointOne = 55.568548 to 37.568604
         val pointTwo = 55.929444 to 37.518434
 //        val pointThree = 60.929444 to 37.518434
@@ -90,6 +89,7 @@ fun App() {
                 println("line 3 clicked")
             }
 
+
             multiLine(
                 points = listOf(
                     55.742465 to 37.615812,
@@ -100,6 +100,15 @@ fun App() {
                     55.741715 to 37.616716
                 ),
             )
+
+            points(
+                points = listOf(
+                    55.744 to 38.614,
+                    55.8 to 38.5,
+                    56.0 to 38.5,
+                )
+            ).pointSize(5f)
+
 
             //remember feature ID
             val circleId = circle(
@@ -120,8 +129,10 @@ fun App() {
 
             arc(pointOne, 10.0.kilometers, (PI / 4).radians, -Angle.pi / 2)
 
+
             line(pointOne, pointTwo, id = "line")
             text(pointOne, "Home", font = { size = 32f })
+
 
             pixelMap(
                 space.Rectangle(
@@ -132,8 +143,8 @@ fun App() {
                 0.005.degrees
             ) { gmc ->
                 Color(
-                    red = ((gmc.latitude + Angle.piDiv2).degrees*10 % 1f).toFloat(),
-                    green = ((gmc.longitude + Angle.pi).degrees*10 % 1f).toFloat(),
+                    red = ((gmc.latitude + Angle.piDiv2).degrees * 10 % 1f).toFloat(),
+                    green = ((gmc.longitude + Angle.pi).degrees * 10 % 1f).toFloat(),
                     blue = 0f
                 ).copy(alpha = 0.3f)
             }

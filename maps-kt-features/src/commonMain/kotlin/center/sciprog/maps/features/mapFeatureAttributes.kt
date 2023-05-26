@@ -170,3 +170,6 @@ public object StrokeAttribute : Attribute<Float>
 
 public fun <T : Any, F : LineSegmentFeature<T>> FeatureRef<T, F>.stroke(width: Float): FeatureRef<T, F> =
     modifyAttribute(StrokeAttribute, width)
+
+public fun <T : Any, F : PointsFeature<T>> FeatureRef<T, F>.pointSize(width: Float): FeatureRef<T, F> =
+    modifyAttribute(StrokeAttribute, width)
