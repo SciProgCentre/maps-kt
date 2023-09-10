@@ -21,9 +21,8 @@ import java.awt.Color as AWTColor
 public class SvgDrawScope(
     state: CanvasState<XY>,
     private val graphics: SVGGraphics2D,
-    size: Size,
     private val painterCache: Map<PainterFeature<XY>, Painter>,
-    private val defaultStrokeWidth: Float = 1f
+    private val defaultStrokeWidth: Float = 1f,
 ) : FeatureDrawScope<XY>(state) {
 
     override val layoutDirection: LayoutDirection
@@ -467,7 +466,7 @@ public class SvgDrawScope(
     public fun renderText(
         textFeature: TextFeature<XY>,
     ) {
-        textFeature.color?.let { setupColor(it)}
+        textFeature.color?.let { setupColor(it) }
         graphics.drawString(textFeature.text, textFeature.position.x, textFeature.position.y)
     }
 
@@ -476,10 +475,10 @@ public class SvgDrawScope(
     }
 
     override fun drawText(text: String, position: Offset, attributes: Attributes) {
-        attributes[ColorAttribute]?.let { setupColor(it)}
+        attributes[ColorAttribute]?.let { setupColor(it) }
         graphics.drawString(text, position.x, position.y)
     }
 
-    override val drawContext: DrawContext = SvgDrawContext(graphics, size)
+    override val drawContext: DrawContext = SvgDrawContext(graphics, state.canvasSize.toSize())
 
 }

@@ -6,9 +6,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.unit.IntOffset
@@ -72,7 +69,7 @@ public fun MapView(
                                     mapTiles[tile.id] = tile.image
                                 } catch (ex: Exception) {
                                     //displaying the error is maps responsibility
-                                    if(ex !is CancellationException) {
+                                    if (ex !is CancellationException) {
                                         logger.error(ex) { "Failed to load tile with id=$id" }
                                     }
                                 }
@@ -147,5 +144,6 @@ public fun MapView(
     buildFeatures: FeatureGroup<Gmc>.() -> Unit = {},
 ) {
     val featureState = FeatureGroup.remember(WebMercatorSpace, buildFeatures)
-    MapView(mapTileProvider, config, featureState, initialViewPoint, initialRectangle, modifier)
+    val computedRectangle = initialRectangle ?: featureState.getBoundingBox()
+    MapView(mapTileProvider, config, featureState, initialViewPoint, computedRectangle, modifier)
 }

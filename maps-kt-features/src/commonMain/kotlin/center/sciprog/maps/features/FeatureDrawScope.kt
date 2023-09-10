@@ -29,7 +29,7 @@ public abstract class FeatureDrawScope<T : Any>(
         toCoordinates(this@toCoordinates, this@FeatureDrawScope)
     }
 
-    public fun T.toOffset(): Offset = with(state) {
+    public open fun T.toOffset(): Offset = with(state) {
         toOffset(this@toOffset, this@FeatureDrawScope)
     }
 
@@ -53,12 +53,17 @@ public class ComposeFeatureDrawScope<T : Any>(
     override fun drawText(text: String, position: Offset, attributes: Attributes) {
         try {
             drawText(textMeasurer, text, position)
-        } catch (ex: Exception){
-            KotlinLogging.logger("features").error(ex){"Failed to measure text"}
+        } catch (ex: Exception) {
+            logger.error(ex) { "Failed to measure text" }
         }
     }
 
-    override fun painterFor(feature: PainterFeature<T>): Painter = painterCache[feature] ?: error("Can't resolve painter for $feature")
+    override fun painterFor(feature: PainterFeature<T>): Painter =
+        painterCache[feature] ?: error("Can't resolve painter for $feature")
+
+    public companion object{
+        private val logger = KotlinLogging.logger("ComposeFeatureDrawScope")
+    }
 }
 
 
@@ -82,7 +87,7 @@ public fun <T : Any> FeatureCanvas(
         if (state.canvasSize != size.toDpSize()) {
             state.canvasSize = size.toDpSize()
         }
-        ComposeFeatureDrawScope(this, state, painterCache, textMeasurer).apply(draw).apply{
+        ComposeFeatureDrawScope(this, state, painterCache, textMeasurer).apply(draw).apply {
             clipRect {
                 features.featureMap.values.sortedBy { it.z }
                     .filter { state.viewPoint.zoom in it.zoomRange }

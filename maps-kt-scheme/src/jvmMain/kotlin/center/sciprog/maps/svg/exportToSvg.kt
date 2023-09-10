@@ -3,6 +3,8 @@ package center.sciprog.maps.svg
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import center.sciprog.maps.features.*
 import center.sciprog.maps.scheme.XY
 import center.sciprog.maps.scheme.XYCanvasState
@@ -154,15 +156,18 @@ public fun FeatureStateSnapshot<XY>.generateSvg(
 //    }
 
     val svgGraphics2D: SVGGraphics2D = SVGGraphics2D(width, height)
-    val svgCanvasState: XYCanvasState = XYCanvasState(ViewConfig())
-    val svgScope = SvgDrawScope(svgCanvasState, svgGraphics2D, Size(width.toFloat(), height.toFloat()), painterCache)
+    val svgCanvasState: XYCanvasState = XYCanvasState(ViewConfig()).apply {
+        this.viewPoint = viewPoint
+        this.canvasSize = DpSize(width.dp, height.dp)
+    }
+    val svgScope = SvgDrawScope(svgCanvasState, svgGraphics2D,  painterCache)
 
     svgScope.apply {
-        features.values.filter {
-            viewPoint.zoom in it.zoomRange
-        }.forEach { feature ->
-            drawFeature(feature)
-        }
+        features.values.sortedBy { it.z }
+            .filter { state.viewPoint.zoom in it.zoomRange }
+            .forEach { feature ->
+                this@apply.drawFeature(feature)
+            }
     }
     return svgGraphics2D.getSVGElement(id)
 }
@@ -173,8 +178,6 @@ public fun FeatureStateSnapshot<XY>.exportToSvg(
     height: Double,
     path: java.nio.file.Path,
 ) {
-
-    val svgString = generateSvg(viewPoint, width, height)
-
+    val svgString: String = generateSvg(viewPoint, width, height)
     SVGUtils.writeToSVG(path.toFile(), svgString)
 }
