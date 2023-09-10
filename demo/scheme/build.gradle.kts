@@ -26,6 +26,7 @@ compose{
     desktop {
         application {
             mainClass = "MainKt"
+            //mainClass = "Joker2023Kt"
             nativeDistributions {
                 targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
                 packageName = "scheme-compose-demo"

@@ -5,10 +5,10 @@ import kotlin.math.*
 
 /**
  * A directed straight (geodetic) segment on a spheroid with given start, direction, end point and distance.
- * @param forward coordinate of a start point with forward direction
- * @param backward coordinate of an end point with backward direction
+ * @param forward coordinate of a start point with the forward direction
+ * @param backward coordinate of an end point with the backward direction
  */
-public class GmcCurve(
+public class GmcCurve internal constructor(
     public val forward: GmcPose,
     public val backward: GmcPose,
     public val distance: Distance,

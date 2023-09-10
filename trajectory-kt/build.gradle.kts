@@ -10,7 +10,7 @@ val kmathVersion: String by rootProject.extra
 kscience{
     jvm()
     js()
-    native()
+//    native()
 
     useContextReceivers()
     useSerialization()

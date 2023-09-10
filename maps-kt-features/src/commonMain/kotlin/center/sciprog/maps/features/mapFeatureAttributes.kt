@@ -13,6 +13,9 @@ import center.sciprog.attributes.withAttribute
 
 public object ZAttribute : Attribute<Float>
 
+public val Feature<*>.z: Float
+    get() = attributes[ZAttribute] ?: 0f
+
 public object DraggableAttribute : Attribute<DragHandle<Any>>
 
 public object DragListenerAttribute : SetAttribute<DragListener<Any>>
@@ -46,12 +49,14 @@ public fun <T : Any, F : Feature<T>> FeatureRef<T, F>.zoomRange(range: FloatRang
 
 public object AlphaAttribute : Attribute<Float>
 
-public fun <T : Any, F : Feature<T>> FeatureRef<T, F>.modifyAttributes(modify: AttributesBuilder.() -> Unit): FeatureRef<T, F> {
+public fun <T : Any, F : Feature<T>> FeatureRef<T, F>.modifyAttributes(
+    modification: AttributesBuilder.() -> Unit
+): FeatureRef<T, F> {
     @Suppress("UNCHECKED_CAST")
     parent.feature(
         id,
         resolve().withAttributes {
-            AttributesBuilder(this).apply(modify).build()
+            AttributesBuilder(this).apply(modification).build()
         } as F
     )
     return this

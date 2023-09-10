@@ -9,9 +9,9 @@ import androidx.compose.ui.unit.dp
 import center.sciprog.maps.features.*
 import kotlin.math.min
 
-public class XYViewScope(
+public class XYCanvasState(
     config: ViewConfig<XY>,
-) : CoordinateViewScope<XY>(config) {
+) : CanvasState<XY>(config) {
     override val space: CoordinateSpace<XY>
         get() = XYCoordinateSpace
 
@@ -54,12 +54,12 @@ public class XYViewScope(
             config: ViewConfig<XY> = ViewConfig(),
             initialViewPoint: ViewPoint<XY>? = null,
             initialRectangle: Rectangle<XY>? = null,
-        ): XYViewScope = remember {
-            XYViewScope(config).also { mapState->
+        ): XYCanvasState = remember {
+            XYCanvasState(config).apply {
                 if (initialViewPoint != null) {
-                    mapState.viewPoint = initialViewPoint
+                    viewPoint = initialViewPoint
                 } else if (initialRectangle != null) {
-                    mapState.viewPoint = mapState.computeViewPoint(initialRectangle)
+                    viewPoint = computeViewPoint(initialRectangle)
                 }
             }
         }

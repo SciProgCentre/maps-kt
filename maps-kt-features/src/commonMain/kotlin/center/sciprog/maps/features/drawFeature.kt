@@ -2,35 +2,31 @@ package center.sciprog.maps.features
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.graphics.painter.Painter
 import center.sciprog.attributes.plus
-import org.jetbrains.skia.Font
-import org.jetbrains.skia.Paint
 import space.kscience.kmath.PerformancePitfall
 import space.kscience.kmath.geometry.degrees
 
 
-internal fun Color.toPaint(): Paint = Paint().apply {
-    isAntiAlias = true
-    color = toArgb()
-}
+//internal fun Color.toPaint(): Paint = Paint().apply {
+//    isAntiAlias = true
+//    color = toArgb()
+//}
 
-public fun <T : Any> DrawScope.drawFeature(
-    state: CoordinateViewScope<T>,
-    painterCache: Map<PainterFeature<T>, Painter>,
+
+public fun <T : Any> FeatureDrawScope<T>.drawFeature(
     feature: Feature<T>,
-): Unit = with(state) {
+): Unit {
     val color = feature.color ?: Color.Red
     val alpha = feature.attributes[AlphaAttribute] ?: 1f
-    fun T.toOffset(): Offset = toOffset(this@drawFeature)
 
     when (feature) {
-        is FeatureSelector -> drawFeature(state, painterCache, feature.selector(state.zoom))
+        is FeatureSelector -> drawFeature(feature.selector(state.zoom))
         is CircleFeature -> drawCircle(
             color,
             feature.radius.toPx(),
@@ -78,22 +74,13 @@ public fun <T : Any> DrawScope.drawFeature(
             val offset = feature.center.toOffset()
             val size = feature.size.toSize()
             translate(offset.x - size.width / 2, offset.y - size.height / 2) {
-                with(painterCache[feature]!!) {
-                    draw(size)
+                with(this@drawFeature.painterFor(feature)) {
+                    draw(size, colorFilter = feature.color?.let { ColorFilter.tint(it) })
                 }
             }
         }
 
-        is TextFeature -> drawIntoCanvas { canvas ->
-            val offset = feature.position.toOffset()
-            canvas.nativeCanvas.drawString(
-                feature.text,
-                offset.x + 5,
-                offset.y - 5,
-                Font().apply(feature.fontConfig),
-                (feature.color ?: Color.Black).toPaint()
-            )
-        }
+        is TextFeature -> drawText(feature.text, feature.position.toOffset(), feature.attributes)
 
         is DrawFeature -> {
             val offset = feature.position.toOffset()
@@ -104,9 +91,7 @@ public fun <T : Any> DrawScope.drawFeature(
 
         is FeatureGroup -> {
             feature.featureMap.values.forEach {
-                drawFeature(state, painterCache, it.withAttributes {
-                    feature.attributes + this
-                })
+                drawFeature(it.withAttributes { feature.attributes + this })
             }
         }
 
@@ -163,7 +148,7 @@ public fun <T : Any> DrawScope.drawFeature(
             val offset = rect.topLeft
 
             translate(offset.x, offset.y) {
-                with(painterCache[feature]!!) {
+                with(this@drawFeature.painterFor(feature)) {
                     draw(rect.size)
                 }
             }

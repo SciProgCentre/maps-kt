@@ -15,7 +15,9 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import center.sciprog.attributes.Attributes
 import center.sciprog.maps.compose.*
-import center.sciprog.maps.coordinates.*
+import center.sciprog.maps.coordinates.GeodeticMapCoordinates
+import center.sciprog.maps.coordinates.Gmc
+import center.sciprog.maps.coordinates.kilometers
 import center.sciprog.maps.features.*
 import center.sciprog.maps.geojson.geoJson
 import io.ktor.client.HttpClient
@@ -109,8 +111,11 @@ fun App() {
                 )
             ).pointSize(5f)
 
+//            geodeticLine(Gmc.ofDegrees(40.7128, -74.0060), Gmc.ofDegrees(55.742465, 37.615812)).color(Color.Blue)
+//            line(Gmc.ofDegrees(40.7128, -74.0060), Gmc.ofDegrees(55.742465, 37.615812))
 
-            //remember feature ID
+
+            //remember feature ref
             val circleId = circle(
                 centerCoordinates = pointTwo,
             )
@@ -170,6 +175,7 @@ fun App() {
                     }
                 }
             }
+//            println(toPrettyString())
         }
     }
 }

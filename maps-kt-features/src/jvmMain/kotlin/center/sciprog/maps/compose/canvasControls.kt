@@ -16,10 +16,10 @@ import kotlin.math.min
  * Create a modifier for Map/Scheme canvas controls on desktop
  * @param features a collection of features to be rendered in descending [ZAttribute] order
  */
-public fun <T : Any> Modifier.mapControls(
-    state: CoordinateViewScope<T>,
+public fun <T : Any> Modifier.canvasControls(
+    state: CanvasState<T>,
     features: FeatureGroup<T>,
-): Modifier = with(state) {
+): Modifier = with(state){
 
 //    //selecting all tapabales ahead of time
 //    val allTapable = buildMap {
@@ -32,8 +32,8 @@ public fun <T : Any> Modifier.mapControls(
         awaitPointerEventScope {
             while (true) {
                 val event = awaitPointerEvent()
-                val coordinates = event.changes.first().position.toCoordinates(this)
-                val point = space.ViewPoint(coordinates, zoom)
+                val coordinates = toCoordinates(event.changes.first().position, this)
+                val point = state.space.ViewPoint(coordinates, zoom)
 
                 if (event.type == PointerEventType.Move) {
                     features.forEachWithAttribute(HoverListenerAttribute) { _, feature, listeners ->
@@ -47,9 +47,9 @@ public fun <T : Any> Modifier.mapControls(
         }
     }.pointerInput(Unit) {
         detectClicks(
-            onDoubleClick = if (state.config.zoomOnDoubleClick) {
+            onDoubleClick = if (viewConfig.zoomOnDoubleClick) {
                 { event ->
-                    val invariant = event.position.toCoordinates(this)
+                    val invariant = toCoordinates(event.position, this)
                     viewPoint = with(space) {
                         viewPoint.zoomBy(
                             if (event.buttons.isPrimaryPressed) 1f else if (event.buttons.isSecondaryPressed) -1f else 0f,
@@ -59,10 +59,10 @@ public fun <T : Any> Modifier.mapControls(
                 }
             } else null,
             onClick = { event ->
-                val coordinates = event.position.toCoordinates(this)
+                val coordinates = toCoordinates(event.position, this)
                 val point = space.ViewPoint(coordinates, zoom)
 
-                config.onClick?.handle(
+                viewConfig.onClick?.handle(
                     event,
                     point
                 )
@@ -88,7 +88,7 @@ public fun <T : Any> Modifier.mapControls(
                         //compute invariant point of translation
                         val invariant = DpOffset(xPos.toDp(), yPos.toDp()).toCoordinates()
                         viewPoint = with(space) {
-                            viewPoint.zoomBy(-change.scrollDelta.y * config.zoomSpeed, invariant)
+                            viewPoint.zoomBy(-change.scrollDelta.y * viewConfig.zoomSpeed, invariant)
                         }
                         change.consume()
                     }
@@ -110,14 +110,14 @@ public fun <T : Any> Modifier.mapControls(
                         //apply drag handle and check if it prohibits the drag even propagation
                         if (selectionStart == null) {
                             val dragStart = space.ViewPoint(
-                                dragChange.previousPosition.toCoordinates(this),
+                                toCoordinates(dragChange.previousPosition, this),
                                 zoom
                             )
                             val dragEnd = space.ViewPoint(
-                                dragChange.position.toCoordinates(this),
+                                toCoordinates(dragChange.position, this),
                                 zoom
                             )
-                            val dragResult = config.dragHandle?.handle(event, dragStart, dragEnd)
+                            val dragResult = viewConfig.dragHandle?.handle(event, dragStart, dragEnd)
                             if (dragResult?.handleNext == false) return@drag
 
                             var continueAfter = true
@@ -132,7 +132,7 @@ public fun <T : Any> Modifier.mapControls(
                         }
 
                         if (event.buttons.isPrimaryPressed) {
-                            //If selection process is started, modify the frame
+                            //If the selection process is started, modify the frame
                             selectionStart?.let { start ->
                                 val offset = dragChange.position
                                 selectRect = DpRect(
@@ -161,8 +161,8 @@ public fun <T : Any> Modifier.mapControls(
                             rect.topLeft.toCoordinates(),
                             rect.bottomRight.toCoordinates()
                         )
-                        config.onSelect(coordinateRect)
-                        if (config.zoomOnSelect) {
+                        viewConfig.onSelect(coordinateRect)
+                        if (viewConfig.zoomOnSelect) {
                             viewPoint = computeViewPoint(coordinateRect)
                         }
                         selectRect = null

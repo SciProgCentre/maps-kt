@@ -14,10 +14,11 @@ import center.sciprog.maps.features.*
 import space.kscience.kmath.geometry.radians
 import kotlin.math.*
 
-public class MapViewScope internal constructor(
+
+public class MapCanvasState private constructor(
     public val mapTileProvider: MapTileProvider,
     config: ViewConfig<Gmc>,
-) : CoordinateViewScope<Gmc>(config) {
+) : CanvasState<Gmc>(config) {
     override val space: CoordinateSpace<Gmc> get() = WebMercatorSpace
 
     private val scaleFactor: Float
@@ -87,12 +88,12 @@ public class MapViewScope internal constructor(
             config: ViewConfig<Gmc> = ViewConfig(),
             initialViewPoint: ViewPoint<Gmc>? = null,
             initialRectangle: Rectangle<Gmc>? = null,
-        ): MapViewScope = remember {
-            MapViewScope(mapTileProvider, config).also { mapState ->
+        ): MapCanvasState = remember {
+            MapCanvasState(mapTileProvider, config).apply {
                 if (initialViewPoint != null) {
-                    mapState.viewPoint = initialViewPoint
+                    viewPoint = initialViewPoint
                 } else if (initialRectangle != null) {
-                    mapState.viewPoint = mapState.computeViewPoint(initialRectangle)
+                    viewPoint = computeViewPoint(initialRectangle)
                 }
             }
         }

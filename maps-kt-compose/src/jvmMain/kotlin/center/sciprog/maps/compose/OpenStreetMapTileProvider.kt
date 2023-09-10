@@ -1,15 +1,12 @@
 package center.sciprog.maps.compose
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.readBytes
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import mu.KotlinLogging
 import org.jetbrains.skia.Image
 import java.net.URL
 import java.nio.file.Path
@@ -76,7 +73,9 @@ public class OpenStreetMapTileProvider(
         //collect the result asynchronously
         return async {
             val image: Image = runCatching { imageDeferred.await() }.onFailure {
-                logger.error(it) { "Failed to load tile image with id=$tileId" }
+                if(it !is CancellationException) {
+                    logger.error(it) { "Failed to load tile image with id=$tileId" }
+                }
                 cache.remove(tileId)
             }.getOrThrow()
 

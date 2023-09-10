@@ -6,10 +6,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import center.sciprog.maps.coordinates.Distance
-import center.sciprog.maps.coordinates.GeodeticMapCoordinates
-import center.sciprog.maps.coordinates.Gmc
-import center.sciprog.maps.coordinates.GmcCurve
+import center.sciprog.maps.coordinates.*
 import center.sciprog.maps.features.*
 import space.kscience.kmath.geometry.Angle
 import kotlin.math.ceil
@@ -55,6 +52,39 @@ public fun FeatureGroup<Gmc>.line(
     LineFeature(space, curve.forward.coordinates, curve.backward.coordinates)
 )
 
+/**
+ * A segmented geodetic curve
+ */
+public fun FeatureGroup<Gmc>.geodeticLine(
+    curve: GmcCurve,
+    ellipsoid: GeoEllipsoid = GeoEllipsoid.WGS84,
+    maxLineDistance: Distance = 100.kilometers,
+    id: String? = null,
+): FeatureRef<Gmc, Feature<Gmc>> = if (curve.distance < maxLineDistance) {
+    feature(
+        id,
+        LineFeature(space, curve.forward.coordinates, curve.backward.coordinates)
+    )
+} else {
+    val segments = ceil(curve.distance / maxLineDistance).toInt()
+    val segmentSize = curve.distance / segments
+    val points = buildList<GmcPose> {
+        add(curve.forward)
+        repeat(segments) {
+            val segment = ellipsoid.curveInDirection(this.last(), segmentSize, 1e-2)
+            add(segment.backward)
+        }
+    }
+    multiLine(points.map { it.coordinates }, id = id)
+}
+
+public fun FeatureGroup<Gmc>.geodeticLine(
+    from: Gmc,
+    to: Gmc,
+    ellipsoid: GeoEllipsoid = GeoEllipsoid.WGS84,
+    maxLineDistance: Distance = 100.kilometers,
+    id: String? = null,
+): FeatureRef<Gmc, Feature<Gmc>> = geodeticLine(ellipsoid.curveBetween(from, to), ellipsoid, maxLineDistance, id)
 
 public fun FeatureGroup<Gmc>.line(
     aCoordinates: Pair<Double, Double>,
@@ -64,7 +94,6 @@ public fun FeatureGroup<Gmc>.line(
     id,
     LineFeature(space, coordinatesOf(aCoordinates), coordinatesOf(bCoordinates))
 )
-
 
 public fun FeatureGroup<Gmc>.arc(
     center: Pair<Double, Double>,

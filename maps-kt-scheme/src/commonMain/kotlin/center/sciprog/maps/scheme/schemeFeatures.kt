@@ -41,7 +41,7 @@ public fun FeatureGroup<XY>.circle(
     centerCoordinates: Pair<Number, Number>,
     size: Dp = 5.dp,
     id: String? = null,
-): FeatureRef<XY, CircleFeature<XY>> = circle(centerCoordinates.toCoordinates(),  size,  id = id)
+): FeatureRef<XY, CircleFeature<XY>> = circle(centerCoordinates.toCoordinates(), size, id = id)
 
 public fun FeatureGroup<XY>.draw(
     position: Pair<Number, Number>,
@@ -63,7 +63,7 @@ public fun FeatureGroup<XY>.arc(
     arcLength: Angle,
     id: String? = null,
 ): FeatureRef<XY, ArcFeature<XY>> = arc(
-    oval = XYCoordinateSpace.Rectangle(center.toCoordinates(), 2*radius, 2*radius),
+    oval = XYCoordinateSpace.Rectangle(center.toCoordinates(), 2 * radius, 2 * radius),
     startAngle = startAngle,
     arcLength = arcLength,
     id = id
@@ -106,6 +106,35 @@ public fun FeatureGroup<XY>.pixelMap(
             )
         }
     )
+)
+
+public fun FeatureGroup<XY>.rectanglePolygon(
+    left: Number, right: Number,
+    bottom: Number, top: Number,
+    attributes: Attributes = Attributes.EMPTY,
+    id: String? = null,
+): FeatureRef<XY, PolygonFeature<XY>> = polygon(
+    listOf(
+        XY(left.toFloat(), top.toFloat()),
+        XY(right.toFloat(), top.toFloat()),
+        XY(right.toFloat(), bottom.toFloat()),
+        XY(left.toFloat(), bottom.toFloat())
+    ),
+    attributes, id
+)
+
+public fun FeatureGroup<XY>.rectanglePolygon(
+    rectangle: Rectangle<XY>,
+    attributes: Attributes = Attributes.EMPTY,
+    id: String? = null,
+): FeatureRef<XY, PolygonFeature<XY>> = polygon(
+    listOf(
+        XY(rectangle.left, rectangle.top),
+        XY(rectangle.right, rectangle.top),
+        XY(rectangle.right, rectangle.bottom),
+        XY(rectangle.left, rectangle.bottom)
+    ),
+    attributes, id
 )
 
 

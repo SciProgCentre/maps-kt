@@ -66,9 +66,3 @@ public fun <T : Any, A : Attribute<T>> Attributes(
 ): Attributes = Attributes(mapOf(attribute to attrValue))
 
 public operator fun Attributes.plus(other: Attributes): Attributes = Attributes(content + other.content)
-
-public val Feature<*>.z: Float
-    get() = attributes[ZAttribute] ?: 0f
-//    set(value) {
-//        attributes[ZAttribute] = value
-//    }

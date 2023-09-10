@@ -5,21 +5,26 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import center.sciprog.attributes.Attributes
+import center.sciprog.maps.features.*
+import center.sciprog.maps.scheme.XY
 import org.jfree.svg.SVGGraphics2D
 import java.awt.BasicStroke
-import java.awt.Font
 import java.awt.geom.*
 import java.awt.image.AffineTransformOp
 import java.awt.Color as AWTColor
 
 public class SvgDrawScope(
+    state: CanvasState<XY>,
     private val graphics: SVGGraphics2D,
     size: Size,
-    private val defaultStrokeWidth: Float = 1f,
-) : DrawScope {
+    private val painterCache: Map<PainterFeature<XY>, Painter>,
+    private val defaultStrokeWidth: Float = 1f
+) : FeatureDrawScope<XY>(state) {
 
     override val layoutDirection: LayoutDirection
         get() = LayoutDirection.Ltr
@@ -459,16 +464,20 @@ public class SvgDrawScope(
         }
     }
 
-    public fun drawText(
-        text: String,
-        x: Float,
-        y: Float,
-        font: Font,
-        color: Color,
+    public fun renderText(
+        textFeature: TextFeature<XY>,
     ) {
-        setupColor(color)
-        graphics.font = font
-        graphics.drawString(text, x, y)
+        textFeature.color?.let { setupColor(it)}
+        graphics.drawString(textFeature.text, textFeature.position.x, textFeature.position.y)
+    }
+
+    override fun painterFor(feature: PainterFeature<XY>): Painter {
+        return painterCache[feature]!!
+    }
+
+    override fun drawText(text: String, position: Offset, attributes: Attributes) {
+        attributes[ColorAttribute]?.let { setupColor(it)}
+        graphics.drawString(text, position.x, position.y)
     }
 
     override val drawContext: DrawContext = SvgDrawContext(graphics, size)

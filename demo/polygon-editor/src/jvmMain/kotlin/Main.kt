@@ -13,7 +13,7 @@ import center.sciprog.maps.features.*
 import center.sciprog.maps.scheme.SchemeView
 import center.sciprog.maps.scheme.XY
 import center.sciprog.maps.scheme.XYCoordinateSpace
-import center.sciprog.maps.scheme.XYViewScope
+import center.sciprog.maps.scheme.XYCanvasState
 
 @Composable
 @Preview
@@ -31,7 +31,7 @@ fun App() {
             )
         }
 
-        val mapState: XYViewScope = XYViewScope.remember(
+        val mapState: XYCanvasState = XYCanvasState.remember(
             config = ViewConfig<XY>(
                 onClick = { event, point ->
                     if (event.buttons.isSecondaryPressed) {

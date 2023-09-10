@@ -17,7 +17,6 @@ kotlin {
                 api(compose.foundation)
                 api(project.dependencies.platform(spclibs.ktor.bom))
                 api("io.ktor:ktor-client-core")
-                api("io.github.microutils:kotlin-logging:2.1.23")
             }
         }
         val jvmTest by getting {

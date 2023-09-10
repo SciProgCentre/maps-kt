@@ -24,6 +24,7 @@ kotlin {
             dependencies {
                 api(projects.trajectoryKt)
                 api(compose.foundation)
+                api("io.github.oshai:kotlin-logging:5.1.0")
             }
         }
     }

@@ -1,10 +1,8 @@
 package center.sciprog.maps.coordinates
 
 import kotlinx.serialization.Serializable
-import space.kscience.kmath.geometry.Angle
-import space.kscience.kmath.geometry.tan
-import kotlin.math.pow
-import kotlin.math.sqrt
+import space.kscience.kmath.geometry.*
+import kotlin.math.*
 
 @Serializable
 public class GeoEllipsoid(public val equatorRadius: Distance, public val polarRadius: Distance) {
@@ -43,12 +41,7 @@ public class GeoEllipsoid(public val equatorRadius: Distance, public val polarRa
             polarRadius = Distance(6378.137)
         )
 
-//        /**
-//         * https://en.wikipedia.org/wiki/Great-circle_distance
-//         */
-//        public fun greatCircleAngleBetween(r1: GMC, r2: GMC): Radians = acos(
-//            sin(r1.latitude) * sin(r2.latitude) + cos(r1.latitude) * cos(r2.latitude) * cos(r1.longitude - r2.longitude)
-//        ).radians
+
     }
 }
 
@@ -59,22 +52,35 @@ public fun GeoEllipsoid.reducedRadius(latitude: Angle): Distance {
     val reducedLatitudeTan = (1 - f) * tan(latitude)
     return equatorRadius / sqrt(1.0 + reducedLatitudeTan.pow(2))
 }
-//
-//
-///**
-// * Compute distance between two map points using giv
-// * https://en.wikipedia.org/wiki/Geographical_distance#Lambert's_formula_for_long_lines
-// */
-//public fun GeoEllipsoid.lambertDistanceBetween(r1: GMC, r2: GMC): Distance {
-//    val s = greatCircleAngleBetween(r1, r2)
-//
-//    val b1: Double = (1 - f) * tan(r1.latitude)
-//    val b2: Double = (1 - f) * tan(r2.latitude)
-//    val p = (b1 + b2) / 2
-//    val q = (b2 - b1) / 2
-//
-//    val x = (s.value - sin(s)) * sin(p).pow(2) * cos(q).pow(2) / cos(s / 2).pow(2)
-//    val y = (s.value + sin(s)) * cos(p).pow(2) * sin(q).pow(2) / sin(s / 2).pow(2)
-//
-//    return equatorRadius * (s.value - f / 2 * (x + y))
-//}
+
+
+/**
+ * Compute distance between two map points using giv
+ * https://en.wikipedia.org/wiki/Geographical_distance#Lambert's_formula_for_long_lines
+ */
+public fun GeoEllipsoid.lambertDistanceBetween(r1: Gmc, r2: Gmc): Distance {
+
+    /**
+     * https://en.wikipedia.org/wiki/Great-circle_distance
+     */
+    fun greatCircleAngleBetween(
+        r1: Gmc,
+        r2: Gmc,
+    ): Radians = acos(
+        sin(r1.latitude) * sin(r2.latitude) +
+                cos(r1.latitude) * cos(r2.latitude) *
+                cos(r1.longitude - r2.longitude)
+    ).radians
+
+    val s = greatCircleAngleBetween(r1, r2)
+
+    val b1: Double = (1 - f) * tan(r1.latitude)
+    val b2: Double = (1 - f) * tan(r2.latitude)
+    val p = (b1 + b2) / 2
+    val q = (b2 - b1) / 2
+
+    val x = (s.value - sin(s)) * sin(p).pow(2) * cos(q).pow(2) / cos(s / 2).pow(2)
+    val y = (s.value + sin(s)) * cos(p).pow(2) * sin(q).pow(2) / sin(s / 2).pow(2)
+
+    return equatorRadius * (s.value - f / 2 * (x + y))
+}

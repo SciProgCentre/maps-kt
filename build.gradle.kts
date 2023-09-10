@@ -10,7 +10,7 @@ val kmathVersion: String by extra("0.3.1")
 
 allprojects {
     group = "center.sciprog"
-    version = "0.2.3-dev-1"
+    version = "0.3.0-dev-1"
 
     repositories {
         mavenLocal()

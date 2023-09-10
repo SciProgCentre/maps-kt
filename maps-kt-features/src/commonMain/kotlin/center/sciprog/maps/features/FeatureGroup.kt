@@ -1,8 +1,6 @@
 package center.sciprog.maps.features
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -11,7 +9,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import center.sciprog.attributes.*
+import center.sciprog.attributes.Attribute
+import center.sciprog.attributes.Attributes
 import space.kscience.kmath.geometry.Angle
 import space.kscience.kmath.nd.*
 import space.kscience.kmath.structures.Buffer
@@ -33,8 +32,12 @@ public val <T : Any, F : Feature<T>> FeatureRef<T, F>.attributes: Attributes get
 public data class FeatureGroup<T : Any>(
     override val space: CoordinateSpace<T>,
     public val featureMap: SnapshotStateMap<String, Feature<T>> = mutableStateMapOf(),
-    override val attributes: Attributes = Attributes.EMPTY,
 ) : CoordinateSpace<T> by space, Feature<T> {
+
+    private val attributesState: MutableState<Attributes> = mutableStateOf(Attributes.EMPTY)
+
+    override val attributes: Attributes get() = attributesState.value
+
 //
 //    @Suppress("UNCHECKED_CAST")
 //    public operator fun <F : Feature<T>> get(id: FeatureId<F>): F =
@@ -62,26 +65,8 @@ public data class FeatureGroup<T : Any>(
 
     public val features: Collection<Feature<T>> get() = featureMap.values.sortedByDescending { it.z }
 
-    public fun visit(visitor: FeatureGroup<T>.(id: String, feature: Feature<T>) -> Unit) {
-        featureMap.entries.sortedByDescending { it.value.z }.forEach { (key, feature) ->
-            if (feature is FeatureGroup<T>) {
-                feature.visit(visitor)
-            } else {
-                visitor(this, key, feature)
-            }
-        }
-    }
 
-    public fun visitUntil(visitor: FeatureGroup<T>.(id: String, feature: Feature<T>) -> Boolean) {
-        featureMap.entries.sortedByDescending { it.value.z }.forEach { (key, feature) ->
-            if (feature is FeatureGroup<T>) {
-                feature.visitUntil(visitor)
-            } else {
-                if (!visitor(this, key, feature)) return@visitUntil
-            }
-        }
-    }
-//
+    //
 //    @Suppress("UNCHECKED_CAST")
 //    public fun <A> getAttribute(id: FeatureId<Feature<T>>, key: Attribute<A>): A? =
 //        get(id).attributes[key]
@@ -91,7 +76,10 @@ public data class FeatureGroup<T : Any>(
         featureMap.values.mapNotNull { it.getBoundingBox(zoom) }.wrapRectangles()
     }
 
-    override fun withAttributes(modify: Attributes.() -> Attributes): Feature<T> = copy(attributes = modify(attributes))
+    override fun withAttributes(modify: Attributes.() -> Attributes): Feature<T> {
+        attributesState.value = attributes.modify()
+        return this
+    }
 
 
     public companion object {
@@ -119,13 +107,36 @@ public data class FeatureGroup<T : Any>(
 }
 
 /**
+ * Recursively search for feature until function returns true
+ */
+public fun <T : Any> FeatureGroup<T>.forEachUntil(visitor: FeatureGroup<T>.(id: String, feature: Feature<T>) -> Boolean) {
+    featureMap.entries.sortedByDescending { it.value.z }.forEach { (key, feature) ->
+        if (feature is FeatureGroup<T>) {
+            feature.forEachUntil(visitor)
+        } else {
+            if (!visitor(this, key, feature)) return@forEachUntil
+        }
+    }
+}
+
+/**
+ * Recursively visit all features in this group
+ */
+public fun <T : Any> FeatureGroup<T>.forEach(
+    visitor: FeatureGroup<T>.(id: String, feature: Feature<T>) -> Unit,
+): Unit = forEachUntil { id, feature ->
+    visitor(id, feature)
+    true
+}
+
+/**
  * Process all features with a given attribute from the one with highest [z] to lowest
  */
 public fun <T : Any, A> FeatureGroup<T>.forEachWithAttribute(
     key: Attribute<A>,
     block: FeatureGroup<T>.(id: String, feature: Feature<T>, attributeValue: A) -> Unit,
 ) {
-    visit { id, feature ->
+    forEach { id, feature ->
         feature.attributes[key]?.let {
             block(id, feature, it)
         }
@@ -136,7 +147,7 @@ public fun <T : Any, A> FeatureGroup<T>.forEachWithAttributeUntil(
     key: Attribute<A>,
     block: FeatureGroup<T>.(id: String, feature: Feature<T>, attributeValue: A) -> Boolean,
 ) {
-    visitUntil { id, feature ->
+    forEachUntil { id, feature ->
         feature.attributes[key]?.let {
             block(id, feature, it)
         } ?: true
@@ -146,7 +157,7 @@ public fun <T : Any, A> FeatureGroup<T>.forEachWithAttributeUntil(
 public inline fun <T : Any, reified F : Feature<T>> FeatureGroup<T>.forEachWithType(
     crossinline block: (FeatureRef<T, F>) -> Unit,
 ) {
-    visit { id, feature ->
+    forEach { id, feature ->
         if (feature is F) block(FeatureRef(id, this))
     }
 }
@@ -154,7 +165,7 @@ public inline fun <T : Any, reified F : Feature<T>> FeatureGroup<T>.forEachWithT
 public inline fun <T : Any, reified F : Feature<T>> FeatureGroup<T>.forEachWithTypeUntil(
     crossinline block: (FeatureRef<T, F>) -> Boolean,
 ) {
-    visitUntil { id, feature ->
+    forEachUntil { id, feature ->
         if (feature is F) block(FeatureRef(id, this)) else true
     }
 }
@@ -241,25 +252,23 @@ public fun <T : Any> FeatureGroup<T>.icon(
     size: DpSize = DpSize(image.defaultWidth, image.defaultHeight),
     attributes: Attributes = Attributes.EMPTY,
     id: String? = null,
-): FeatureRef<T, VectorIconFeature<T>> =
-    feature(
-        id,
-        VectorIconFeature(
-            space,
-            position,
-            size,
-            image,
-            attributes
-        )
+): FeatureRef<T, VectorIconFeature<T>> = feature(
+    id,
+    VectorIconFeature(
+        space,
+        position,
+        size,
+        image,
+        attributes
     )
+)
 
 public fun <T : Any> FeatureGroup<T>.group(
-    attributes: Attributes = Attributes.EMPTY,
     id: String? = null,
     builder: FeatureGroup<T>.() -> Unit,
 ): FeatureRef<T, FeatureGroup<T>> {
     val collection = FeatureGroup(space).apply(builder)
-    val feature = FeatureGroup(space, collection.featureMap, attributes)
+    val feature = FeatureGroup(space, collection.featureMap)
     return feature(id, feature)
 }
 
@@ -303,3 +312,22 @@ public fun <T : Any> FeatureGroup<T>.pixelMap(
     id,
     PixelMapFeature(space, rectangle, pixelMap, attributes = attributes)
 )
+
+/**
+ * Create a pretty tree-like representation of this feature group
+ */
+public fun FeatureGroup<*>.toPrettyString(): String {
+    fun StringBuilder.printGroup(id: String, group: FeatureGroup<*>, prefix: String) {
+        appendLine("${prefix}* [group] $id")
+        group.featureMap.forEach { (id, feature) ->
+            if (feature is FeatureGroup<*>) {
+                printGroup(id, feature, "  ")
+            } else {
+                appendLine("$prefix  * [${feature::class.simpleName}] $id ")
+            }
+        }
+    }
+    return buildString {
+        printGroup("root", this@toPrettyString, "")
+    }
+}

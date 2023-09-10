@@ -1,18 +1,14 @@
 package center.sciprog.maps.scheme
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.DpSize
-import center.sciprog.attributes.z
-import center.sciprog.maps.compose.mapControls
+import center.sciprog.maps.compose.canvasControls
 import center.sciprog.maps.features.*
 import mu.KotlinLogging
 import kotlin.math.min
@@ -22,47 +18,13 @@ private val logger = KotlinLogging.logger("SchemeView")
 
 @Composable
 public fun SchemeView(
-    state: XYViewScope,
+    state: XYCanvasState,
     features: FeatureGroup<XY>,
     modifier: Modifier = Modifier.fillMaxSize(),
-): Unit = key(state, features) {
-    with(state) {
-        //Can't do that inside canvas
-        val painterCache: Map<PainterFeature<XY>, Painter> =
-            features.features.filterIsInstance<PainterFeature<XY>>().associateWith { it.getPainter() }
-
-        Canvas(modifier = modifier.mapControls(state, features)) {
-
-            if (canvasSize != size.toDpSize()) {
-                canvasSize = size.toDpSize()
-                logger.debug { "Recalculate canvas. Size: $size" }
-            }
-
-            clipRect {
-                features.featureMap.values.sortedBy { it.z }
-                    .filter { viewPoint.zoom in it.zoomRange }
-                    .forEach { feature ->
-                        drawFeature(state, painterCache, feature)
-                    }
-            }
-
-            selectRect?.let { dpRect ->
-                val rect = dpRect.toRect()
-                drawRect(
-                    color = Color.Blue,
-                    topLeft = rect.topLeft,
-                    size = rect.size,
-                    alpha = 0.5f,
-                    style = Stroke(
-                        width = 2f,
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-                    )
-                )
-            }
-        }
-    }
-
+): Unit {
+    FeatureCanvas(state, features, modifier = modifier.canvasControls(state, features))
 }
+
 
 public fun Rectangle<XY>.computeViewPoint(
     canvasSize: DpSize = defaultCanvasSize,
@@ -87,7 +49,7 @@ public fun SchemeView(
     modifier: Modifier = Modifier.fillMaxSize(),
 ) {
 
-    val state = XYViewScope.remember(
+    val state = XYCanvasState.remember(
         config,
         initialViewPoint = initialViewPoint,
         initialRectangle = initialRectangle ?: features.getBoundingBox(Float.MAX_VALUE),
@@ -112,7 +74,7 @@ public fun SchemeView(
     buildFeatures: FeatureGroup<XY>.() -> Unit = {},
 ) {
     val featureState = FeatureGroup.remember(XYCoordinateSpace, buildFeatures)
-    val mapState: XYViewScope = XYViewScope.remember(
+    val mapState: XYCanvasState = XYCanvasState.remember(
         config,
         initialViewPoint = initialViewPoint,
         initialRectangle = initialRectangle ?: featureState.features.computeBoundingBox(

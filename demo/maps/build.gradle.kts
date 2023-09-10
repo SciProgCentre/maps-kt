@@ -17,7 +17,7 @@ kotlin {
                 implementation(projects.mapsKtGeojson)
                 implementation(compose.desktop.currentOs)
                 implementation("io.ktor:ktor-client-cio")
-                implementation("ch.qos.logback:logback-classic:1.2.11")
+                implementation(spclibs.logback.classic)
             }
         }
         val jvmTest by getting
