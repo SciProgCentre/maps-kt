@@ -19,9 +19,21 @@ kotlin {
                 api(projects.mapsKtFeatures)
                 api(compose.foundation)
                 api(project.dependencies.platform(spclibs.ktor.bom))
-                api("io.ktor:ktor-client-core")
             }
         }
+
+        getByName("jvmMain"){
+            dependencies {
+                api("io.ktor:ktor-client-cio")
+            }
+        }
+
+        getByName("jsMain"){
+            dependencies {
+                api("io.ktor:ktor-client-js")
+            }
+        }
+
         getByName("jvmTest") {
             dependencies {
                 implementation("io.ktor:ktor-client-cio")

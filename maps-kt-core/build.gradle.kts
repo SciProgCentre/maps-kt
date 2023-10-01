@@ -8,6 +8,7 @@ val kmathVersion: String by rootProject.extra
 kscience{
     jvm()
     js()
+    native()
     useSerialization()
 
     dependencies{

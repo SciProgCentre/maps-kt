@@ -48,11 +48,11 @@ public class ComposeFeatureDrawScope<T : Any>(
     drawScope: DrawScope,
     state: CanvasState<T>,
     private val painterCache: Map<PainterFeature<T>, Painter>,
-    private val textMeasurer: TextMeasurer,
+    private val textMeasurer: TextMeasurer?,
 ) : FeatureDrawScope<T>(state), DrawScope by drawScope {
     override fun drawText(text: String, position: Offset, attributes: Attributes) {
         try {
-            drawText(textMeasurer, text, position)
+            drawText(textMeasurer?: error("Text measurer not defined"), text, position)
         } catch (ex: Exception) {
             logger.error(ex) { "Failed to measure text" }
         }
@@ -77,7 +77,7 @@ public fun <T : Any> FeatureCanvas(
     modifier: Modifier = Modifier,
     draw: FeatureDrawScope<T>.() -> Unit = {},
 ) {
-    val textMeasurer = rememberTextMeasurer(200)
+    val textMeasurer = rememberTextMeasurer(0)
 
     val painterCache: Map<PainterFeature<T>, Painter> = features.features.flatMap {
         if (it is FeatureGroup) it.features else listOf(it)
