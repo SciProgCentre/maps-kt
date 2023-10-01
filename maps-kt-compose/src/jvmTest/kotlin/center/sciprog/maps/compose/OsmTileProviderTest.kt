@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import kotlin.test.assertFails
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class OsmTileProviderTest {
 //    @get:Rule
 //    val rule = createComposeRule()

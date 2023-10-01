@@ -72,7 +72,7 @@ fun App() {
         ) {
 
             geoJson(javaClass.getResource("/moscow.geo.json")!!)
-                .modifyAttribute(ColorAttribute, Color.Blue)
+                .color(Color.Blue)
                 .modifyAttribute(AlphaAttribute, 0.4f)
 
             icon(pointOne, Icons.Filled.Home)
@@ -153,8 +153,9 @@ fun App() {
                 Color(
                     red = ((gmc.latitude + Angle.piDiv2).degrees * 10 % 1f).toFloat(),
                     green = ((gmc.longitude + Angle.pi).degrees * 10 % 1f).toFloat(),
-                    blue = 0f
-                ).copy(alpha = 0.3f)
+                    blue = 0f,
+                    alpha = 0.3f
+                )
             }
 
             centerCoordinates.filterNotNull().onEach {

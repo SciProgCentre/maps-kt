@@ -29,7 +29,7 @@ fun App() {
     MaterialTheme {
         val scope = rememberCoroutineScope()
 
-        val schemeFeaturesState: FeatureGroup<XY> = FeatureGroup.remember(XYCoordinateSpace) {
+        val features: FeatureGroup<XY> = FeatureGroup.remember(XYCoordinateSpace) {
             background(1600f, 1200f) { painterResource("middle-earth.jpg") }
             circle(410.52737 to 868.7676).color(Color.Blue)
             text(410.52737 to 868.7676, "Shire").color(Color.Blue)
@@ -53,7 +53,7 @@ fun App() {
         }
 
         val initialViewPoint: ViewPoint<XY> = remember {
-            schemeFeaturesState.getBoundingBox(1f)?.computeViewPoint() ?: XYViewPoint(XY(0f, 0f))
+            features.getBoundingBox(1f)?.computeViewPoint() ?: XYViewPoint(XY(0f, 0f))
         }
 
         var viewPoint: ViewPoint<XY> by remember { mutableStateOf(initialViewPoint) }
@@ -61,7 +61,7 @@ fun App() {
         var snapshot: FeatureStateSnapshot<XY>? by remember { mutableStateOf(null) }
 
         if (snapshot == null) {
-            snapshot = schemeFeaturesState.snapshot()
+            snapshot = features.snapshot()
         }
 
         ContextMenuArea(
@@ -90,7 +90,7 @@ fun App() {
 
             SchemeView(
                 mapState,
-                schemeFeaturesState,
+                features,
             )
         }
 

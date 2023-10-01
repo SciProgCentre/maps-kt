@@ -1,6 +1,7 @@
 plugins {
     id("space.kscience.gradle.mpp")
     id("org.jetbrains.compose")
+//    id("com.android.library")
     `maven-publish`
 }
 

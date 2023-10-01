@@ -26,32 +26,9 @@ public val PointerEvent.position: Offset get() = firstChange.position
 
 
 /**
- * Detects tap, double-tap, and long press gestures and calls [onClick], [onDoubleClick], and
- * [onLongClick], respectively, when detected. [onPress] is called when the press is detected
- * and the [PressGestureScope.tryAwaitRelease] and [PressGestureScope.awaitRelease] can be
- * used to detect when pointers have released or the gesture was canceled.
- * The first pointer down and final pointer up are consumed, and in the
- * case of long press, all changes after the long press is detected are consumed.
- *
- * Each function parameter receives an [Offset] representing the position relative to the containing
- * element. The [Offset] can be outside the actual bounds of the element itself meaning the numbers
- * can be negative or larger than the element bounds if the touch target is smaller than the
- * [ViewConfiguration.minimumTouchTargetSize].
- *
- * When [onDoubleClick] is provided, the tap gesture is detected only after
- * the [ViewConfiguration.doubleTapMinTimeMillis] has passed and [onDoubleClick] is called if the
- * second tap is started before [ViewConfiguration.doubleTapTimeoutMillis]. If [onDoubleClick] is not
- * provided, then [onClick] is called when the pointer up has been received.
- *
- * After the initial [onPress], if the pointer moves out of the input area, the position change
- * is consumed, or another gesture consumes the down or up events, the gestures are considered
- * canceled. That means [onDoubleClick], [onLongClick], and [onClick] will not be called after a
- * gesture has been canceled.
- *
- * If the first down event is consumed somewhere else, the entire gesture will be skipped,
- * including [onPress].
+ * An alternative to [detectTapGestures] with reimplementation of internal logic
  */
-public suspend fun PointerInputScope.detectClicks(
+internal suspend fun PointerInputScope.detectClicks(
     onDoubleClick: (Density.(PointerEvent) -> Unit)? = null,
     onLongClick: (Density.(PointerEvent) -> Unit)? = null,
     onPress: suspend PressGestureScope.(event: PointerEvent) -> Unit = NoPressGesture,
