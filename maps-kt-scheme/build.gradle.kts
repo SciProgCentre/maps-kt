@@ -6,6 +6,7 @@ plugins {
 
 kscience{
     jvm()
+    js()
 }
 
 kotlin {
@@ -17,7 +18,7 @@ kotlin {
                 api(compose.foundation)
             }
         }
-        val jvmMain by getting {
+        getByName("jvmMain"){
             dependencies {
                 implementation("org.jfree:org.jfree.svg:5.0.4")
                 api(compose.desktop.currentOs)

@@ -5,8 +5,10 @@ plugins {
     `maven-publish`
 }
 
-kscience{
+kscience {
     jvm()
+    js()
+    useCoroutines()
 }
 
 kotlin {
@@ -20,7 +22,7 @@ kotlin {
                 api("io.ktor:ktor-client-core")
             }
         }
-        val jvmTest by getting {
+        getByName("jvmTest") {
             dependencies {
                 implementation("io.ktor:ktor-client-cio")
                 implementation(compose.desktop.currentOs)

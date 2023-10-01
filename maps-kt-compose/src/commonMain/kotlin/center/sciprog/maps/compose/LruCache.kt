@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package center.sciprog.maps.compose
 
 import kotlin.jvm.Synchronized
