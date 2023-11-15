@@ -1,4 +1,3 @@
-import space.kscience.gradle.isInDevelopment
 import space.kscience.gradle.useApache2Licence
 import space.kscience.gradle.useSPCTeam
 
@@ -24,15 +23,8 @@ ksciencePublish {
         useApache2Licence()
         useSPCTeam()
     }
-    github("SciProgCentre", "maps-kt")
-    space(
-        if (isInDevelopment) {
-            "https://maven.pkg.jetbrains.space/spc/p/sci/dev"
-        } else {
-            "https://maven.pkg.jetbrains.space/spc/p/sci/maven"
-        }
-    )
-    sonatype()
+    repository("spc","https://maven.sciprog.center/kscience")
+    sonatype("https://oss.sonatype.org")
 }
 
 subprojects {
@@ -45,6 +37,5 @@ subprojects {
 }
 
 readme.readmeTemplate = file("docs/templates/README-TEMPLATE.md")
-
 
 

@@ -55,3 +55,7 @@ readme {
         id = "osm",
     ) { "OpenStreetMap tile provider." }
 }
+
+//tasks.getByName<Copy>("downloadWix"){
+//    duplicatesStrategy = DuplicatesStrategy.WARN
+//}

@@ -56,6 +56,7 @@ include(
     ":maps-kt-features",
     ":maps-kt-compose",
     ":maps-kt-scheme",
+//    ":maps-kt-leaflet",
     ":demo:maps",
     ":demo:scheme",
     ":demo:polygon-editor",
