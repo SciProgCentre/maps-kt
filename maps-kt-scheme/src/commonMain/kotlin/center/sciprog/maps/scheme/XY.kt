@@ -10,7 +10,7 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
-public data class XY(override val x: Float, override val y: Float): Vector2D<Float>
+public data class XY(override val x: Float, override val y: Float) : Vector2D<Float>
 
 public fun XY(x: Number, y: Number): XY = XY(x.toFloat(), y.toFloat())
 

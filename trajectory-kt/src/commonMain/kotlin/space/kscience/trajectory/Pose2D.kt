@@ -2,7 +2,7 @@
  * Copyright 2018-2022 KMath contributors.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
-@file:UseSerializers(Euclidean2DSpace.VectorSerializer::class)
+@file:UseSerializers(Float64Space2D.VectorSerializer::class)
 
 package space.kscience.trajectory
 
@@ -14,14 +14,16 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import space.kscience.kmath.geometry.*
+import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
+import space.kscience.kmath.structures.Float64
 import kotlin.math.atan2
 
 /**
  * Combination of [Vector] and its view angle (clockwise from positive y-axis direction)
  */
 @Serializable(Pose2DSerializer::class)
-public interface Pose2D : DoubleVector2D {
-    public val coordinates: DoubleVector2D
+public interface Pose2D : Vector2D<Float64> {
+    public val coordinates: Vector2D<Float64>
     public val bearing: Angle
 
     /**
@@ -31,9 +33,9 @@ public interface Pose2D : DoubleVector2D {
 
     public companion object {
         public fun bearingToVector(bearing: Angle): Vector2D<Double> =
-            Euclidean2DSpace.vector(cos(bearing), sin(bearing))
+            Float64Space2D.vector(cos(bearing), sin(bearing))
 
-        public fun vectorToBearing(vector2D: DoubleVector2D): Angle {
+        public fun vectorToBearing(vector2D: Vector2D<Float64>): Angle {
             require(vector2D.x != 0.0 || vector2D.y != 0.0) { "Can't get bearing of zero vector" }
             return atan2(vector2D.y, vector2D.x).radians
         }
@@ -43,23 +45,22 @@ public interface Pose2D : DoubleVector2D {
 
 @Serializable
 public class PhaseVector2D(
-    override val coordinates: DoubleVector2D,
-    public val velocity: DoubleVector2D,
-) : Pose2D, DoubleVector2D by coordinates {
+    override val coordinates: Vector2D<Float64>,
+    public val velocity: Vector2D<Float64>,
+) : Pose2D, Vector2D<Float64> by coordinates {
     override val bearing: Angle get() = atan2(velocity.x, velocity.y).radians
 
-    override fun reversed(): Pose2D = with(Euclidean2DSpace) { PhaseVector2D(coordinates, -velocity) }
+    override fun reversed(): Pose2D = with(Float64Space2D) { PhaseVector2D(coordinates, -velocity) }
 }
 
 @Serializable
 @SerialName("DubinsPose2D")
 private class Pose2DImpl(
-    override val coordinates: DoubleVector2D,
+    override val coordinates: Vector2D<Float64>,
     override val bearing: Angle,
-) : Pose2D, DoubleVector2D by coordinates {
+) : Pose2D, Vector2D<Float64> by coordinates {
 
     override fun reversed(): Pose2D = Pose2DImpl(coordinates, bearing.plus(Angle.pi).normalized())
-
 
 
     override fun toString(): String = "Pose2D(x=$x, y=$y, bearing=$bearing)"
@@ -96,11 +97,11 @@ public object Pose2DSerializer : KSerializer<Pose2D> {
     }
 }
 
-public fun Pose2D(coordinate: DoubleVector2D, bearing: Angle): Pose2D =
+public fun Pose2D(coordinate: Vector2D<Float64>, bearing: Angle): Pose2D =
     Pose2DImpl(coordinate, bearing)
 
-public fun Pose2D(point: DoubleVector2D, direction: DoubleVector2D): Pose2D =
+public fun Pose2D(point: Vector2D<Float64>, direction: Vector2D<Float64>): Pose2D =
     Pose2D(point, Pose2D.vectorToBearing(direction))
 
 public fun Pose2D(x: Number, y: Number, bearing: Angle): Pose2D =
-    Pose2DImpl(Euclidean2DSpace.vector(x, y), bearing)
+    Pose2DImpl(Float64Space2D.vector(x, y), bearing)

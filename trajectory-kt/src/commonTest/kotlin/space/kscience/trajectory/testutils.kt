@@ -5,20 +5,19 @@
 
 package space.kscience.trajectory
 
-import space.kscience.kmath.geometry.Euclidean2DSpace
-import space.kscience.kmath.geometry.radians
+import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
 import space.kscience.kmath.geometry.sin
 
 
-fun assertEquals(expected: Pose2D, actual: Pose2D, precision: Double = 1e-6){
+fun assertEquals(expected: Pose2D, actual: Pose2D, precision: Double = 1e-6) {
     kotlin.test.assertEquals(expected.x, actual.x, precision)
     kotlin.test.assertEquals(expected.y, actual.y, precision)
-    kotlin.test.assertEquals(expected.bearing.radians, actual.bearing.radians, precision)
+    kotlin.test.assertEquals(expected.bearing.toRadians().value, actual.bearing.toRadians().value, precision)
 }
 
 fun StraightTrajectory2D.inverse() = StraightTrajectory2D(end, begin)
 
-fun StraightTrajectory2D.shift(shift: Int, width: Double): StraightTrajectory2D = with(Euclidean2DSpace) {
+fun StraightTrajectory2D.shift(shift: Int, width: Double): StraightTrajectory2D = with(Float64Space2D) {
     val dX = width * sin(inverse().bearing)
     val dY = width * sin(bearing)
 

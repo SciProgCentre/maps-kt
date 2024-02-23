@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import center.sciprog.attributes.Attributes
 import center.sciprog.maps.compose.*
 import center.sciprog.maps.coordinates.GeodeticMapCoordinates
 import center.sciprog.maps.coordinates.Gmc
@@ -29,6 +28,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import space.kscience.attributes.Attributes
 import space.kscience.kmath.geometry.Angle
 import space.kscience.kmath.geometry.degrees
 import space.kscience.kmath.geometry.radians
@@ -37,7 +37,7 @@ import kotlin.math.PI
 import kotlin.random.Random
 
 public fun GeodeticMapCoordinates.toShortString(): String =
-    "${(latitude.degrees).toString().take(6)}:${(longitude.degrees).toString().take(6)}"
+    "${(latitude.toDegrees().value).toString().take(6)}:${(longitude.toDegrees().value).toString().take(6)}"
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -151,8 +151,8 @@ fun App() {
                 0.005.degrees
             ) { gmc ->
                 Color(
-                    red = ((gmc.latitude + Angle.piDiv2).degrees * 10 % 1f).toFloat(),
-                    green = ((gmc.longitude + Angle.pi).degrees * 10 % 1f).toFloat(),
+                    red = ((gmc.latitude + Angle.piDiv2).toDegrees().value * 10 % 1f).toFloat(),
+                    green = ((gmc.longitude + Angle.pi).toDegrees().value * 10 % 1f).toFloat(),
                     blue = 0f,
                     alpha = 0.3f
                 )

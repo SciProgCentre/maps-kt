@@ -7,7 +7,8 @@ plugins {
 
 kscience {
     jvm()
-    js()
+    wasm()
+
     useCoroutines()
 }
 
@@ -27,12 +28,12 @@ kotlin {
                 api("io.ktor:ktor-client-cio")
             }
         }
-
-        getByName("jsMain"){
-            dependencies {
-                api("io.ktor:ktor-client-js")
-            }
-        }
+//
+//        getByName("jsMain"){
+//            dependencies {
+//                api("io.ktor:ktor-client-js")
+//            }
+//        }
 
         getByName("jvmTest") {
             dependencies {

@@ -1,6 +1,10 @@
 package space.kscience.trajectory
 
+import space.kscience.containsPoint
 import space.kscience.kmath.geometry.*
+import space.kscience.kmath.geometry.euclidean2d.Circle2D
+import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
+import space.kscience.kmath.structures.Float64
 import space.kscience.trajectory.DubinsPath.Type
 import kotlin.math.*
 
@@ -10,9 +14,9 @@ import kotlin.math.*
  * This method returns a map of segments using [DubinsPath] connection type notation.
  */
 internal fun tangentsBetweenCircles(
-    first: Circle2D,
-    second: Circle2D,
-): Map<Type, StraightTrajectory2D> = with(Euclidean2DSpace) {
+    first: Circle2D<Float64>,
+    second: Circle2D<Float64>,
+): Map<Type, StraightTrajectory2D> = with(Float64Space2D) {
     // Distance between centers
     val distanceBetweenCenters: Double = first.center.distanceTo(second.center)
 

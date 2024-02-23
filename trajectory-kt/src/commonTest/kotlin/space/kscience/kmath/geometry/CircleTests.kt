@@ -5,6 +5,14 @@
 
 package space.kscience.kmath.geometry
 
+import space.kscience.circle
+import space.kscience.intersects
+import space.kscience.intersectsOrInside
+import space.kscience.kmath.geometry.euclidean2d.Circle2D
+import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
+import space.kscience.kmath.geometry.euclidean2d.circumference
+import space.kscience.kmath.structures.Float64
+import space.kscience.segment
 import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.test.Test
@@ -16,7 +24,7 @@ class CircleTests {
 
     @Test
     fun circle() {
-        val center = Euclidean2DSpace.vector(0.0, 0.0)
+        val center = Float64Space2D.vector(0.0, 0.0)
         val radius = 2.0
         val expectedCircumference = 12.56637
         val circle = Circle2D(center, radius)
@@ -24,7 +32,7 @@ class CircleTests {
     }
 
     @Test
-    fun circleIntersection() = with(Euclidean2DSpace) {
+    fun circleIntersection() = with(Float64Space2D) {
         assertTrue {
             intersectsOrInside(
                 circle(0.0, 0.0, 1.0),
@@ -46,7 +54,7 @@ class CircleTests {
     }
 
     @Test
-    fun circleLineIntersection() = with(Euclidean2DSpace) {
+    fun circleLineIntersection() = with(Float64Space2D) {
         assertTrue {
             intersects(circle(0, 0, 1.0), segment(1, 1, -1, 1))
         }
@@ -84,7 +92,7 @@ class CircleTests {
         }
     }
 
-    private fun Euclidean2DSpace.oldIntersect(circle: Circle2D, segment: LineSegment2D): Boolean{
+    private fun Float64Space2D.oldIntersect(circle: Circle2D<Float64>, segment: LineSegment2D): Boolean{
         val begin = segment.begin
         val end = segment.end
         val lengthSquared = (begin.x - end.x).pow(2) + (begin.y - end.y).pow(2)
@@ -111,7 +119,7 @@ class CircleTests {
     }
 
     @Test
-    fun oldCircleLineIntersection() = with(Euclidean2DSpace){
+    fun oldCircleLineIntersection() = with(Float64Space2D){
         assertTrue {
             oldIntersect(circle(0, 0, 1.1), segment(1, 1, -1, 1))
         }

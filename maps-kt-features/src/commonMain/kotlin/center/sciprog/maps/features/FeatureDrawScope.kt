@@ -15,8 +15,8 @@ import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.DpRect
-import center.sciprog.attributes.Attributes
 import io.github.oshai.kotlinlogging.KotlinLogging
+import space.kscience.attributes.Attributes
 
 /**
  * An extension of [DrawScope] to include map-specific features
@@ -52,7 +52,7 @@ public class ComposeFeatureDrawScope<T : Any>(
 ) : FeatureDrawScope<T>(state), DrawScope by drawScope {
     override fun drawText(text: String, position: Offset, attributes: Attributes) {
         try {
-            drawText(textMeasurer?: error("Text measurer not defined"), text, position)
+            drawText(textMeasurer ?: error("Text measurer not defined"), text, position)
         } catch (ex: Exception) {
             logger.error(ex) { "Failed to measure text" }
         }
@@ -61,7 +61,7 @@ public class ComposeFeatureDrawScope<T : Any>(
     override fun painterFor(feature: PainterFeature<T>): Painter =
         painterCache[feature] ?: error("Can't resolve painter for $feature")
 
-    public companion object{
+    public companion object {
         private val logger = KotlinLogging.logger("ComposeFeatureDrawScope")
     }
 }

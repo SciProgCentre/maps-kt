@@ -1,13 +1,21 @@
 package space.kscience.trajectory
 
-import space.kscience.kmath.geometry.*
+import space.kscience.containsPoint
+import space.kscience.intersects
+import space.kscience.intersectsOrInside
+import space.kscience.kmath.geometry.Angle
+import space.kscience.kmath.geometry.Polygon
+import space.kscience.kmath.geometry.Vector2D
+import space.kscience.kmath.geometry.euclidean2d.Circle2D
+import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
+import space.kscience.kmath.structures.Float64
 import kotlin.collections.component1
 import kotlin.collections.component2
 
 /**
  * The same as [intersectsTrajectory], but bypasses same circles or same straights
  */
-private fun Euclidean2DSpace.intersectsOtherTrajectory(a: Trajectory2D, b: Trajectory2D): Boolean = when (a) {
+private fun Float64Space2D.intersectsOtherTrajectory(a: Trajectory2D, b: Trajectory2D): Boolean = when (a) {
     is CircleTrajectory2D -> when (b) {
         is CircleTrajectory2D -> a != b && intersectsOrInside(a.circle, b.circle)
         is StraightTrajectory2D -> intersects(a.circle, b)
@@ -32,7 +40,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
         val direction: Trajectory2D.Direction,
     ) {
         val obstacle: Obstacle get() = obstacles[obstacleIndex]
-        val circle: Circle2D get() = obstacle.arcs[nodeIndex].circle
+        val circle: Circle2D<Float64> get() = obstacle.arcs[nodeIndex].circle
     }
 
     private inner class ObstacleTangent(
@@ -44,7 +52,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
          * If false, this tangent intersects another obstacle
          */
         val isValid by lazy {
-            with(Euclidean2DSpace) {
+            with(Float64Space2D) {
                 obstacles.indices.none {
                     it != from?.obstacleIndex && it != to?.obstacleIndex && obstacles[it].intersectsTrajectory(
                         tangentTrajectory
@@ -64,7 +72,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
     private fun tangentsBetween(
         firstIndex: Int,
         secondIndex: Int,
-    ): Map<DubinsPath.Type, ObstacleTangent> = with(Euclidean2DSpace) {
+    ): Map<DubinsPath.Type, ObstacleTangent> = with(Float64Space2D) {
         val first = obstacles[firstIndex]
         val second = obstacles[secondIndex]
         buildMap {
@@ -99,7 +107,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
     private fun tangentsFromArc(
         arc: CircleTrajectory2D,
         obstacleIndex: Int,
-    ): Map<DubinsPath.Type, ObstacleTangent> = with(Euclidean2DSpace) {
+    ): Map<DubinsPath.Type, ObstacleTangent> = with(Float64Space2D) {
         val obstacle = obstacles[obstacleIndex]
         buildMap {
             for (circleIndex in obstacle.arcs.indices) {
@@ -127,7 +135,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
         obstacleIndex: Int,
         obstacleDirection: Trajectory2D.Direction,
         arc: CircleTrajectory2D,
-    ): ObstacleTangent? = with(Euclidean2DSpace) {
+    ): ObstacleTangent? = with(Float64Space2D) {
         val obstacle = obstacles[obstacleIndex]
         for (circleIndex in obstacle.arcs.indices) {
             val obstacleArc = obstacle.arcs[circleIndex]
@@ -207,7 +215,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
 
     private fun avoiding(
         dubinsPath: CompositeTrajectory2D,
-    ): Collection<Trajectory2D> = with(Euclidean2DSpace) {
+    ): Collection<Trajectory2D> = with(Float64Space2D) {
         //fast return if no obstacles intersect the direct path
         if (obstacles.none { it.intersectsTrajectory(dubinsPath) }) return listOf(dubinsPath)
 
@@ -337,7 +345,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
             start: Pose2D,
             finish: Pose2D,
             radius: Double,
-            vararg polygons: Polygon<Double>,
+            vararg polygons: Polygon<Vector2D<Float64>>,
         ): List<Trajectory2D> {
             val obstacles: List<Obstacle> = polygons.map { polygon ->
                 Obstacle(polygon.points, radius)
@@ -350,7 +358,7 @@ public class Obstacles(public val obstacles: List<Obstacle>) {
             start: Pose2D,
             finish: Pose2D,
             radius: Double,
-            polygons: Collection<Polygon<Double>>,
+            polygons: Collection<Polygon<Vector2D<Float64>>>,
         ): List<Trajectory2D> {
             val obstacles: List<Obstacle> = polygons.map { polygon ->
                 Obstacle(polygon.points, radius)

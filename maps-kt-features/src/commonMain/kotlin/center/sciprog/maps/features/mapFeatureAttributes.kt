@@ -6,10 +6,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
-import center.sciprog.attributes.Attribute
-import center.sciprog.attributes.AttributesBuilder
-import center.sciprog.attributes.SetAttribute
-import center.sciprog.attributes.withAttribute
+import space.kscience.attributes.*
 
 public object ZAttribute : Attribute<Float>
 
@@ -50,21 +47,19 @@ public fun <T : Any, F : Feature<T>> FeatureRef<T, F>.zoomRange(range: FloatRang
 public object AlphaAttribute : Attribute<Float>
 
 public fun <T : Any, F : Feature<T>> FeatureRef<T, F>.modifyAttributes(
-    modification: AttributesBuilder.() -> Unit
+    modification: AttributesBuilder<F>.() -> Unit,
 ): FeatureRef<T, F> {
     @Suppress("UNCHECKED_CAST")
     parent.feature(
         id,
-        resolve().withAttributes {
-            AttributesBuilder(this).apply(modification).build()
-        } as F
+        resolve().withAttributes { modify(modification) } as F
     )
     return this
 }
 
 public fun <T : Any, F : Feature<T>, V> FeatureRef<T, F>.modifyAttribute(
     key: Attribute<V>,
-    value: V?,
+    value: V,
 ): FeatureRef<T, F> {
     @Suppress("UNCHECKED_CAST")
     parent.feature(id, resolve().withAttributes { withAttribute(key, value) } as F)

@@ -5,8 +5,15 @@
 
 package space.kscience.trajectory
 
-import space.kscience.kmath.geometry.*
+import space.kscience.intersectsTrajectory
+import space.kscience.kmath.geometry.Angle
+import space.kscience.kmath.geometry.Polygon
+import space.kscience.kmath.geometry.Vector2D
+import space.kscience.kmath.geometry.euclidean2d.Circle2D
+import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
 import space.kscience.kmath.misc.zipWithNextCircular
+import space.kscience.kmath.structures.Float64
+import space.kscience.polygon
 
 
 public interface Obstacle {
@@ -30,7 +37,7 @@ public interface Obstacle {
     }
 }
 
-private class CircleObstacle(val circle: Circle2D) : Obstacle {
+private class CircleObstacle(val circle: Circle2D<Float64>) : Obstacle {
     override val center: Vector2D<Double> get() = circle.center
 
     override val arcs: List<CircleTrajectory2D>
@@ -41,7 +48,7 @@ private class CircleObstacle(val circle: Circle2D) : Obstacle {
 
 
     override fun intersectsTrajectory(trajectory: Trajectory2D): Boolean =
-        Euclidean2DSpace.intersectsTrajectory(circumvention, trajectory)
+        Float64Space2D.intersectsTrajectory(circumvention, trajectory)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -67,18 +74,18 @@ private class CoreObstacle(override val circumvention: CompositeTrajectory2D) : 
     }
 
     override val center: Vector2D<Double> by lazy {
-        Euclidean2DSpace.vector(
+        Float64Space2D.vector(
             arcs.sumOf { it.center.x } / arcs.size,
             arcs.sumOf { it.center.y } / arcs.size
         )
     }
 
-    val core: Polygon<Double> by lazy {
-        Euclidean2DSpace.polygon(arcs.map { it.circle.center })
+    val core: Polygon<Vector2D<Float64>> by lazy {
+        Float64Space2D.polygon(arcs.map { it.circle.center })
     }
 
     override fun intersectsTrajectory(trajectory: Trajectory2D): Boolean =
-        Euclidean2DSpace.intersectsTrajectory(core, trajectory)
+        Float64Space2D.intersectsTrajectory(core, trajectory)
 
 
     override fun equals(other: Any?): Boolean {
@@ -99,7 +106,7 @@ private class CoreObstacle(override val circumvention: CompositeTrajectory2D) : 
     }
 }
 
-public fun Obstacle(circles: List<Circle2D>): Obstacle = with(Euclidean2DSpace) {
+public fun Obstacle(circles: List<Circle2D<Float64>>): Obstacle = with(Float64Space2D) {
     require(circles.isNotEmpty()) { "Can't create circumvention for an empty obstacle" }
     //Create a single circle obstacle
     if(circles.size == 1) return CircleObstacle(circles.first())
@@ -123,7 +130,7 @@ public fun Obstacle(circles: List<Circle2D>): Obstacle = with(Euclidean2DSpace) 
         (it.center - center).bearing
     }
 
-    val tangents = convex.zipWithNextCircular { a: Circle2D, b: Circle2D ->
+    val tangents = convex.zipWithNextCircular { a: Circle2D<Float64>, b: Circle2D<Float64> ->
         tangentsBetweenCircles(a, b)[DubinsPath.Type.RSR]
             ?: error("Can't find right handed circumvention")
     }
@@ -144,7 +151,7 @@ public fun Obstacle(circles: List<Circle2D>): Obstacle = with(Euclidean2DSpace) 
 }
 
 
-public fun Obstacle(vararg circles: Circle2D): Obstacle = Obstacle(listOf(*circles))
+public fun Obstacle(vararg circles: Circle2D<Float64>): Obstacle = Obstacle(listOf(*circles))
 
 public fun Obstacle(points: List<Vector2D<Double>>, radius: Double): Obstacle =
     Obstacle(points.map { Circle2D(it, radius) })

@@ -1,6 +1,6 @@
 package center.sciprog.maps.features
 
-import center.sciprog.attributes.Attributes
+import space.kscience.attributes.Attributes
 import kotlin.jvm.JvmName
 
 
@@ -18,7 +18,7 @@ public fun <T : Any> FeatureGroup<T>.draggableLine(
                 space,
                 aId.resolve().center,
                 bId.resolve().center,
-                Attributes {
+                Attributes<FeatureGroup<T>> {
                     ZAttribute(-10f)
                     lineId?.attributes?.let { from(it) }
                 }
@@ -51,7 +51,7 @@ public fun <T : Any> FeatureGroup<T>.draggableMultiLine(
             MultiLineFeature(
                 space,
                 points.map { it.resolve().center },
-                Attributes {
+                Attributes<FeatureGroup<T>>{
                     ZAttribute(-10f)
                     polygonId?.attributes?.let { from(it) }
                 }

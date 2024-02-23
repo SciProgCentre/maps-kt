@@ -61,8 +61,8 @@ public class MapCanvasState private constructor(
     override fun computeViewPoint(rectangle: Rectangle<Gmc>): ViewPoint<Gmc> {
         val zoom = log2(
             min(
-                canvasSize.width.value / rectangle.longitudeDelta.radians,
-                canvasSize.height.value / rectangle.latitudeDelta.radians
+                canvasSize.width.value / rectangle.longitudeDelta.toRadians().value,
+                canvasSize.height.value / rectangle.latitudeDelta.toRadians().value
             ) * 2 * PI / mapTileProvider.tileSize
         ).coerceIn(0.0..22.0)
         return space.ViewPoint(rectangle.center, zoom.toFloat())

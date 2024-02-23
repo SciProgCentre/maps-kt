@@ -5,16 +5,15 @@ plugins {
     id("space.kscience.gradle.project")
 }
 
-val kmathVersion: String by extra("0.3.1")
+val kmathVersion: String by extra("0.4.0-RC2")
 
 allprojects {
     group = "center.sciprog"
-    version = "0.3.0-dev-1"
+    version = "0.3.0-dev-2"
 
     repositories {
         mavenLocal()
         maven("https://repo.kotlin.link")
-        maven("https://maven.pkg.jetbrains.space/spc/p/sci/dev")
     }
 }
 

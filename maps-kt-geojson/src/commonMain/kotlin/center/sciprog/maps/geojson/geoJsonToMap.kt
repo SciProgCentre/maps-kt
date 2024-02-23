@@ -1,12 +1,12 @@
 package center.sciprog.maps.geojson
 
 import androidx.compose.ui.graphics.Color
-import center.sciprog.attributes.NameAttribute
 import center.sciprog.maps.coordinates.Gmc
 import center.sciprog.maps.features.*
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonPrimitive
+import space.kscience.NameAttribute
 
 
 /**

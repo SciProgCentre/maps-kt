@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import center.sciprog.maps.coordinates.*
 import center.sciprog.maps.features.*
+import org.jetbrains.skia.Font
 import space.kscience.kmath.geometry.Angle
 import kotlin.math.ceil
 
@@ -139,7 +140,7 @@ public fun FeatureGroup<Gmc>.icon(
 public fun FeatureGroup<Gmc>.text(
     position: Pair<Double, Double>,
     text: String,
-    font: FeatureFont.() -> Unit = { size = 16f },
+    font: Font.() -> Unit = { size = 16f },
     id: String? = null,
 ): FeatureRef<Gmc, TextFeature<Gmc>> = feature(
     id,

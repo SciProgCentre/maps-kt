@@ -4,7 +4,6 @@ import center.sciprog.maps.coordinates.Gmc
 import center.sciprog.maps.coordinates.meters
 import center.sciprog.maps.geojson.GeoJsonGeometry.Companion.COORDINATES_KEY
 import kotlinx.serialization.json.*
-import space.kscience.kmath.geometry.degrees
 import kotlin.jvm.JvmInline
 
 public sealed interface GeoJsonGeometry : GeoJson {
@@ -35,8 +34,8 @@ internal fun JsonElement.toGmc() = jsonArray.run {
 }
 
 internal fun Gmc.toJsonArray(): JsonArray = buildJsonArray {
-    add(longitude.degrees)
-    add(latitude.degrees)
+    add(longitude.toDegrees().value)
+    add(latitude.toDegrees().value)
     elevation?.let {
         add(it.meters)
     }

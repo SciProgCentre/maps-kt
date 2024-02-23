@@ -9,6 +9,8 @@ kscience{
     jvm()
     js()
     native()
+    wasm()
+
     useSerialization()
 
     dependencies{

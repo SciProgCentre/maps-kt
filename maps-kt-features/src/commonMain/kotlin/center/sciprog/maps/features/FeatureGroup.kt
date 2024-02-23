@@ -9,8 +9,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import center.sciprog.attributes.Attribute
-import center.sciprog.attributes.Attributes
+import org.jetbrains.skia.Font
+import space.kscience.attributes.Attribute
+import space.kscience.attributes.Attributes
 import space.kscience.kmath.geometry.Angle
 import space.kscience.kmath.nd.*
 import space.kscience.kmath.structures.Buffer
@@ -285,7 +286,7 @@ public fun <T : Any> FeatureGroup<T>.scalableImage(
 public fun <T : Any> FeatureGroup<T>.text(
     position: T,
     text: String,
-    font: FeatureFont.() -> Unit = { size = 16f },
+    font: Font.() -> Unit = { size = 16f },
     attributes: Attributes = Attributes.EMPTY,
     id: String? = null,
 ): FeatureRef<T, TextFeature<T>> = feature(
@@ -293,14 +294,14 @@ public fun <T : Any> FeatureGroup<T>.text(
     TextFeature(space, position, text, fontConfig = font, attributes = attributes)
 )
 
-public fun <T> StructureND(shape: ShapeND, initializer: (IntArray) -> T): StructureND<T> {
-    val strides = Strides(shape)
-    return BufferND(strides, Buffer.boxing(strides.linearSize) { initializer(strides.index(it)) })
-}
+//public fun <T> StructureND(shape: ShapeND, initializer: (IntArray) -> T): StructureND<T> {
+//    val strides = Strides(shape)
+//    return BufferND(strides, Buffer(strides.linearSize) { initializer(strides.index(it)) })
+//}
 
-public fun <T> Structure2D(rows: Int, columns: Int, initializer: (IntArray) -> T): Structure2D<T> {
+public inline fun <reified T> Structure2D(rows: Int, columns: Int, initializer: (IntArray) -> T): Structure2D<T> {
     val strides = Strides(ShapeND(rows, columns))
-    return BufferND(strides, Buffer.boxing(strides.linearSize) { initializer(strides.index(it)) }).as2D()
+    return BufferND(strides, Buffer(strides.linearSize) { initializer(strides.index(it)) }).as2D()
 }
 
 public fun <T : Any> FeatureGroup<T>.pixelMap(

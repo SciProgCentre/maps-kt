@@ -21,7 +21,7 @@ internal class DistanceTest {
         val distance = curve.distance
 
         assertEquals(632.035426877, distance.kilometers, 0.0001)
-        assertEquals(-0.6947937116552751, curve.forward.bearing.radians, 0.0001)
+        assertEquals(-0.6947937116552751, curve.forward.bearing.toRadians().value, 0.0001)
     }
 
     @Test
@@ -30,7 +30,7 @@ internal class DistanceTest {
             GmcPose(moscow, (-0.6947937116552751).radians), Distance(632.035426877)
         )
 
-        assertEquals(spb.latitude.radians, curve.backward.latitude.radians, 0.0001)
-        assertEquals(spb.longitude.radians, curve.backward.longitude.radians, 0.0001)
+        assertEquals(spb.latitude.toRadians().value, curve.backward.latitude.toRadians().value, 0.0001)
+        assertEquals(spb.longitude.toRadians().value, curve.backward.longitude.toRadians().value, 0.0001)
     }
 }

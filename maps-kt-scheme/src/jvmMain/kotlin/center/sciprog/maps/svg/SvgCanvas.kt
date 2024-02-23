@@ -301,7 +301,7 @@ internal class SvgCanvas(val graphics: SVGGraphics2D) : Canvas {
 }
 
 internal class SvgDrawContext(val graphics: SVGGraphics2D, override var size: Size) : DrawContext {
-    override val canvas: Canvas = SvgCanvas(graphics)
+    override var canvas: Canvas = SvgCanvas(graphics)
 
     override val transform: DrawTransform = asDrawTransform()
 }

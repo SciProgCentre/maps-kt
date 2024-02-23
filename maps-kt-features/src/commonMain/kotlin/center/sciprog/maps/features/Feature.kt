@@ -17,8 +17,9 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import center.sciprog.attributes.Attributes
-import center.sciprog.attributes.NameAttribute
+import org.jetbrains.skia.Font
+import space.kscience.NameAttribute
+import space.kscience.attributes.Attributes
 import space.kscience.kmath.geometry.Angle
 import space.kscience.kmath.nd.Structure2D
 
@@ -331,7 +332,7 @@ public data class TextFeature<T : Any>(
     public val position: T,
     public val text: String,
     override val attributes: Attributes = Attributes.EMPTY,
-    public val fontConfig: FeatureFont.() -> Unit,
+    public val fontConfig: Font.() -> Unit,
 ) : DraggableFeature<T> {
     override fun getBoundingBox(zoom: Float): Rectangle<T> = space.Rectangle(position, position)
 

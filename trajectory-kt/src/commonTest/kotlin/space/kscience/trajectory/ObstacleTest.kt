@@ -6,10 +6,10 @@
 package space.kscience.trajectory
 
 import space.kscience.kmath.geometry.Angle
-import space.kscience.kmath.geometry.Circle2D
 import space.kscience.kmath.geometry.Degrees
-import space.kscience.kmath.geometry.Euclidean2DSpace.vector
 import space.kscience.kmath.geometry.degrees
+import space.kscience.kmath.geometry.euclidean2d.Circle2D
+import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
 import kotlin.math.PI
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -18,7 +18,7 @@ import kotlin.test.assertTrue
 class ObstacleTest {
 
     @Test
-    fun equalObstacles() {
+    fun equalObstacles() = with(Float64Space2D) {
         val circle1 = Circle2D(vector(1.0, 6.5), 0.5)
         val circle2 = Circle2D(vector(1.0, 6.5), 0.5)
         assertEquals(circle1, circle2)
@@ -28,7 +28,7 @@ class ObstacleTest {
     }
 
     @Test
-    fun singePoint() {
+    fun singePoint() = with(Float64Space2D) {
         val outputTangents: List<Trajectory2D> = Obstacles.avoidObstacles(
             Pose2D(-5, -1, Angle.pi / 4),
             Pose2D(20, 4, Angle.pi * 3 / 4),
@@ -41,7 +41,7 @@ class ObstacleTest {
     }
 
     @Test
-    fun twoObstacles() {
+    fun twoObstacles() = with(Float64Space2D) {
         val paths = Obstacles.avoidObstacles(
             Pose2D(-5, -1, Angle.pi / 4),
             Pose2D(20, 4, Angle.pi * 3 / 4),
@@ -64,7 +64,7 @@ class ObstacleTest {
     }
 
     @Test
-    fun circumvention() {
+    fun circumvention() = with(Float64Space2D) {
         val obstacle = Obstacle(
             Circle2D(vector(0.0, 0.0), 1.0),
             Circle2D(vector(0.0, 1.0), 1.0),
@@ -80,7 +80,7 @@ class ObstacleTest {
     }
 
     @Test
-    fun closePoints() {
+    fun closePoints() = with(Float64Space2D) {
         val obstacle = Obstacle(
             Circle2D(vector(0.0, 0.0), 1.0),
             Circle2D(vector(0.0, 1.0), 1.0),
@@ -100,7 +100,7 @@ class ObstacleTest {
     }
 
     @Test
-    fun largeCoordinates() {
+    fun largeCoordinates() = with(Float64Space2D) {
         val startPoints = listOf(
             Pose2D(x = 484149.535516561, y = 2995086.2534208703, bearing = Degrees(3.401475378237137))
         )

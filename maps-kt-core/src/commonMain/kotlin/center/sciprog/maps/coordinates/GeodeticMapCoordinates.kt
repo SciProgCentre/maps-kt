@@ -22,7 +22,6 @@ public class GeodeticMapCoordinates(
             "Longitude $longitude is not in (-PI..PI) range"
         }
     }
-
     override val x: Angle get() = longitude
 
     override val y: Angle get() = latitude
@@ -43,7 +42,7 @@ public class GeodeticMapCoordinates(
     }
 
     override fun toString(): String {
-        return "GMC(latitude=${latitude.degrees} deg, longitude=${longitude.degrees} deg)"
+        return "GMC(latitude=${latitude.toDegrees().value} deg, longitude=${longitude.toDegrees().value} deg)"
     }
 
 

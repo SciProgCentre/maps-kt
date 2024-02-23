@@ -6,14 +6,24 @@ plugins {
 
 val kmathVersion: String by rootProject.extra
 
-kscience{
+kscience {
     jvm()
-    js()
-    useSerialization{
+//    js()
+    wasm{
+        browser {
+            testTask {
+                enabled = false
+            }
+        }
+    }
+
+    useCoroutines()
+
+    useSerialization {
         json()
     }
 
-    useSerialization(sourceSet = space.kscience.gradle.DependencySourceSet.TEST){
+    useSerialization(sourceSet = space.kscience.gradle.DependencySourceSet.TEST) {
         protobuf()
     }
 }
@@ -23,8 +33,11 @@ kotlin {
         commonMain {
             dependencies {
                 api(projects.trajectoryKt)
+                api(compose.runtime)
                 api(compose.foundation)
-                api("io.github.oshai:kotlin-logging:5.1.0")
+                api(compose.material)
+                api(compose.ui)
+                api("io.github.oshai:kotlin-logging:6.0.3")
             }
         }
     }

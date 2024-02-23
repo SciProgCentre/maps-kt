@@ -2,16 +2,21 @@
  * Copyright 2018-2022 KMath contributors.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
-@file:UseSerializers(Euclidean2DSpace.VectorSerializer::class)
+@file:UseSerializers(Float64Space2D.VectorSerializer::class)
 
 package space.kscience.trajectory
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+import space.kscience.intersects
+import space.kscience.intersectsOrInside
 import space.kscience.kmath.geometry.*
-import space.kscience.kmath.geometry.Euclidean2DSpace.distanceTo
-import space.kscience.kmath.geometry.Euclidean2DSpace.minus
+import space.kscience.kmath.geometry.euclidean2d.Circle2D
+import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
+import space.kscience.kmath.geometry.euclidean2d.Float64Space2D.distanceTo
+import space.kscience.kmath.structures.Float64
+import space.kscience.tangent
 import kotlin.math.atan2
 
 @Serializable
@@ -44,7 +49,7 @@ public sealed interface Trajectory2D {
 }
 
 
-public val DoubleVector2D.bearing: Angle get() = (atan2(x, y).radians).normalized()
+public val Vector2D<Float64>.bearing: Angle get() = (atan2(x, y).radians).normalized()
 
 /**
  * Straight path segment. The order of start and end defines the direction
@@ -52,13 +57,13 @@ public val DoubleVector2D.bearing: Angle get() = (atan2(x, y).radians).normalize
 @Serializable
 @SerialName("straight")
 public data class StraightTrajectory2D(
-    override val begin: DoubleVector2D,
-    override val end: DoubleVector2D,
+    override val begin: Vector2D<Float64>,
+    override val end: Vector2D<Float64>,
 ) : Trajectory2D, LineSegment2D {
 
     override val length: Double get() = begin.distanceTo(end)
 
-    public val bearing: Angle get() = (end - begin).bearing
+    public val bearing: Angle get() = with(Float64Space2D) { (end - begin).bearing }
 
     override val beginPose: Pose2D get() = Pose2D(begin, bearing)
     override val endPose: Pose2D get() = Pose2D(end, bearing)
@@ -75,7 +80,7 @@ public fun StraightTrajectory2D(segment: LineSegment2D): StraightTrajectory2D =
 @Serializable
 @SerialName("arc")
 public data class CircleTrajectory2D(
-    public val circle: Circle2D,
+    public val circle: Circle2D<Float64>,
     public val arcStart: Angle,
     public val arcAngle: Angle,
 ) : Trajectory2D {
@@ -86,7 +91,7 @@ public data class CircleTrajectory2D(
     override val endPose: Pose2D get() = circle.tangent(arcEnd, direction)
 
     override val length: Double by lazy {
-        circle.radius * kotlin.math.abs(arcAngle.radians)
+        circle.radius * kotlin.math.abs(arcAngle.toRadians().value)
     }
 
     val center: Vector2D<Double> get() = circle.center
@@ -98,11 +103,11 @@ public data class CircleTrajectory2D(
 }
 
 public fun CircleTrajectory2D(
-    center: DoubleVector2D,
-    start: DoubleVector2D,
-    end: DoubleVector2D,
+    center: Vector2D<Float64>,
+    start: Vector2D<Float64>,
+    end: Vector2D<Float64>,
     direction: Trajectory2D.Direction,
-): CircleTrajectory2D = with(Euclidean2DSpace) {
+): CircleTrajectory2D = with(Float64Space2D) {
     val startVector = start - center
     val endVector = end - center
     val startRadius = norm(startVector)
@@ -131,11 +136,11 @@ public fun CircleTrajectory2D(
 }
 
 public fun CircleTrajectory2D(
-    circle: Circle2D,
-    start: DoubleVector2D,
-    end: DoubleVector2D,
+    circle: Circle2D<Float64>,
+    start: Vector2D<Float64>,
+    end: Vector2D<Float64>,
     direction: Trajectory2D.Direction,
-): CircleTrajectory2D = with(Euclidean2DSpace) {
+): CircleTrajectory2D = with(Float64Space2D) {
     val startVector = start - circle.center
     val endVector = end - circle.center
     val startBearing = startVector.bearing
@@ -161,10 +166,10 @@ public fun CircleTrajectory2D(
 
 @Deprecated("Use angle notation instead")
 public fun CircleTrajectory2D(
-    circle: Circle2D,
+    circle: Circle2D<Float64>,
     beginPose: Pose2D,
     endPose: Pose2D,
-): CircleTrajectory2D = with(Euclidean2DSpace) {
+): CircleTrajectory2D = with(Float64Space2D) {
     val vectorToBegin = beginPose - circle.center
     val vectorToEnd = endPose - circle.center
     //TODO check pose bearing
@@ -185,7 +190,7 @@ public class CompositeTrajectory2D(public val segments: List<Trajectory2D>) : Tr
 public fun CompositeTrajectory2D(vararg segments: Trajectory2D): CompositeTrajectory2D =
     CompositeTrajectory2D(segments.toList())
 
-public fun Euclidean2DSpace.intersectsTrajectory(a: Trajectory2D, b: Trajectory2D): Boolean = when (a) {
+public fun Float64Space2D.intersectsTrajectory(a: Trajectory2D, b: Trajectory2D): Boolean = when (a) {
     is CircleTrajectory2D -> when (b) {
         is CircleTrajectory2D -> intersectsOrInside(a.circle, b.circle)
         is StraightTrajectory2D -> intersects(a.circle, b)

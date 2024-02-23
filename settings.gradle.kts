@@ -61,6 +61,6 @@ include(
     ":demo:scheme",
     ":demo:polygon-editor",
     ":demo:trajectory-playground",
-    ":demo:maps-js"
+    ":demo:maps-wasm"
 )
 

@@ -8,9 +8,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
-import center.sciprog.attributes.plus
+import space.kscience.attributes.plus
 import space.kscience.kmath.PerformancePitfall
-import space.kscience.kmath.geometry.degrees
 
 
 //internal fun Color.toPaint(): Paint = Paint().apply {
@@ -57,8 +56,8 @@ public fun <T : Any> FeatureDrawScope<T>.drawFeature(
 
             drawArc(
                 color = color,
-                startAngle = (feature.startAngle.degrees).toFloat(),
-                sweepAngle = (feature.arcLength.degrees).toFloat(),
+                startAngle = (feature.startAngle.toDegrees().value).toFloat(),
+                sweepAngle = (feature.arcLength.toDegrees().value).toFloat(),
                 useCenter = false,
                 topLeft = dpRect.topLeft,
                 size = size,
@@ -91,7 +90,11 @@ public fun <T : Any> FeatureDrawScope<T>.drawFeature(
 
         is FeatureGroup -> {
             feature.featureMap.values.forEach {
-                drawFeature(it.withAttributes { feature.attributes + this })
+                drawFeature(
+                    it.withAttributes {
+                        feature.attributes + this
+                    }
+                )
             }
         }
 

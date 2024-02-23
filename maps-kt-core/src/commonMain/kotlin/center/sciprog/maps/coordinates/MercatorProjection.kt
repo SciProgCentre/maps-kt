@@ -57,12 +57,12 @@ public open class MercatorProjection(
         return if (ellipsoid === GeoEllipsoid.sphere) {
             GeodeticMapCoordinates.ofRadians(
                 atan(sinh(pc.y / ellipsoid.equatorRadius)),
-                baseLongitude.radians + (pc.x / ellipsoid.equatorRadius),
+                baseLongitude.toRadians().value + (pc.x / ellipsoid.equatorRadius),
             )
         } else {
             GeodeticMapCoordinates.ofRadians(
                 cphi2(exp(-(pc.y / ellipsoid.equatorRadius))),
-                baseLongitude.radians + (pc.x / ellipsoid.equatorRadius)
+                baseLongitude.toRadians().value + (pc.x / ellipsoid.equatorRadius)
             )
         }
     }
@@ -76,13 +76,13 @@ public open class MercatorProjection(
 
         return if (ellipsoid === GeoEllipsoid.sphere) {
             ProjectionCoordinates(
-                x = ellipsoid.equatorRadius * (gmc.longitude - baseLongitude).radians,
+                x = ellipsoid.equatorRadius * (gmc.longitude - baseLongitude).toRadians().value,
                 y = ellipsoid.equatorRadius * ln(tan(Angle.pi / 4 + gmc.latitude / 2))
             )
         } else {
             val sinPhi = sin(gmc.latitude)
             ProjectionCoordinates(
-                x = ellipsoid.equatorRadius * (gmc.longitude - baseLongitude).radians,
+                x = ellipsoid.equatorRadius * (gmc.longitude - baseLongitude).toRadians().value,
                 y = ellipsoid.equatorRadius * ln(
                     tan(Angle.pi / 4 + gmc.latitude / 2) * ((1 - e * sinPhi) / (1 + e * sinPhi)).pow(e / 2)
                 )

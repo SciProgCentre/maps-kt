@@ -79,7 +79,7 @@ public fun GeoEllipsoid.parallelCurve(latitude: Angle, fromLongitude: Angle, toL
     return GmcCurve(
         forward = GmcPose(Gmc.normalized(latitude, fromLongitude), if (right) Angle.piDiv2 else -Angle.piDiv2),
         backward = GmcPose(Gmc.normalized(latitude, toLongitude), if (right) -Angle.piDiv2 else Angle.piDiv2),
-        distance = reducedRadius(latitude) * abs((fromLongitude - toLongitude).radians)
+        distance = reducedRadius(latitude) * abs((fromLongitude - toLongitude).toRadians().value)
     )
 }
 
