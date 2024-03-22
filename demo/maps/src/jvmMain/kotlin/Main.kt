@@ -43,7 +43,6 @@ public fun GeodeticMapCoordinates.toShortString(): String =
 @Preview
 fun App() {
     MaterialTheme {
-
         val scope = rememberCoroutineScope()
 
         val mapTileProvider = remember {
@@ -54,7 +53,6 @@ fun App() {
         }
 
         val centerCoordinates = MutableStateFlow<Gmc?>(null)
-
 
         val pointOne = 55.568548 to 37.568604
         val pointTwo = 55.929444 to 37.518434
@@ -132,8 +130,8 @@ fun App() {
                 0.005.degrees
             ) { gmc ->
                 Color(
-                    red = ((gmc.latitude + Angle.piDiv2).degrees*10 % 1f).toFloat(),
-                    green = ((gmc.longitude + Angle.pi).degrees*10 % 1f).toFloat(),
+                    red = ((gmc.latitude + Angle.piDiv2).degrees * 10 % 1f).toFloat(),
+                    green = ((gmc.longitude + Angle.pi).degrees * 10 % 1f).toFloat(),
                     blue = 0f
                 ).copy(alpha = 0.3f)
             }
@@ -147,7 +145,7 @@ fun App() {
 
             //Add click listeners for all polygons
             forEachWithType<Gmc, PolygonFeature<Gmc>> { ref ->
-                ref.onClick(PointerMatcher.Primary) {
+                ref.onClick(DesktopPointerMatcher(PointerMatcher.Primary)) {
                     println("Click on ${ref.id}")
                     //draw in top-level scope
                     with(this@MapView) {
@@ -163,9 +161,12 @@ fun App() {
     }
 }
 
-
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication, title = "Maps-kt demo", icon = painterResource("SPC-logo.png")) {
+    Window(
+        onCloseRequest = ::exitApplication,
+        title = "Maps-kt demo",
+        icon = painterResource("SPC-logo.png")
+    ) {
         App()
     }
 }

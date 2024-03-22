@@ -4,6 +4,8 @@ import space.kscience.gradle.useSPCTeam
 
 plugins {
     id("space.kscience.gradle.project")
+    id("com.android.library").version("8.0.0").apply(false)
+    id("com.android.application").version("8.0.0").apply(false)
 }
 
 val kmathVersion: String by extra("0.3.1-dev-RC")
@@ -24,6 +26,7 @@ ksciencePublish {
         useApache2Licence()
         useSPCTeam()
     }
+
     github("SciProgCentre", "maps-kt")
     space(
         if (isInDevelopment) {
@@ -46,6 +49,3 @@ subprojects {
 }
 
 readme.readmeTemplate = file("docs/templates/README-TEMPLATE.md")
-
-
-

@@ -1,5 +1,6 @@
 plugins {
     id("space.kscience.gradle.mpp")
+    id("com.android.library")
     `maven-publish`
 }
 
@@ -7,7 +8,17 @@ group = "space.kscience"
 
 val kmathVersion: String by rootProject.extra
 
-kscience{
+kotlin {
+    android {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "11"
+            }
+        }
+    }
+}
+
+kscience {
     jvm()
     js()
     native()
@@ -24,3 +35,18 @@ readme {
     maturity = space.kscience.gradle.Maturity.EXPERIMENTAL
     propertyByTemplate("artifact", rootProject.file("docs/templates/ARTIFACT-TEMPLATE.md"))
 }
+
+android {
+    namespace = "center.sciprog.maps.trajectory"
+    compileSdk = 34
+    compileSdkVersion = "android-34"
+    defaultConfig {
+        minSdk = 19
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+}
+
+

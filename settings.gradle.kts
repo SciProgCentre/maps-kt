@@ -8,16 +8,14 @@ pluginManagement {
 
     repositories {
         mavenLocal()
+        maven("https://repo.kotlin.link")
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         google()
         gradlePluginPortal()
         mavenCentral()
-        maven("https://repo.kotlin.link")
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 
     plugins {
-        id("com.android.application").version(extra["agp.version"] as String)
-        id("com.android.library").version(extra["agp.version"] as String)
         id("org.jetbrains.compose").version(extra["compose.version"] as String)
         id("space.kscience.gradle.project") version toolsVersion
         id("space.kscience.gradle.mpp") version toolsVersion
@@ -57,4 +55,3 @@ include(
     ":demo:polygon-editor",
     ":demo:trajectory-playground"
 )
-

@@ -1,5 +1,7 @@
 package center.sciprog.maps.compose
 
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.readBytes
@@ -14,6 +16,15 @@ import org.jetbrains.skia.Image
 import java.net.URL
 import java.nio.file.Path
 import kotlin.io.path.*
+
+public class DesktopTileImage(
+    private val image: Image,
+) : TileImage {
+    override fun toComposeImageBitmap(): ImageBitmap {
+        return image.toComposeImageBitmap()
+    }
+
+}
 
 /**
  * A [MapTileProvider] based on Open Street Map API. With in-memory and file cache
@@ -80,7 +91,7 @@ public class OpenStreetMapTileProvider(
                 cache.remove(tileId)
             }.getOrThrow()
 
-            MapTile(tileId, image)
+            MapTile(tileId, DesktopTileImage(image))
         }
     }
 
