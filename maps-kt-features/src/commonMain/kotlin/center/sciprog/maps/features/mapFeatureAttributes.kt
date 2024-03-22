@@ -1,7 +1,5 @@
 package center.sciprog.maps.features
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.PointerMatcher
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.input.pointer.PointerEvent
@@ -123,21 +121,15 @@ public fun <T : Any, F : DomainFeature<T>> FeatureRef<T, F>.onClick(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Suppress("UNCHECKED_CAST")
-public fun <T : Any, F : DomainFeature<T>> FeatureRef<T, F>.onClick(
+public interface PointerMatcher {
+    public fun matches(event: PointerEvent): Boolean
+}
+
+public expect fun <T : Any, F : DomainFeature<T>> FeatureRef<T, F>.onClick(
     pointerMatcher: PointerMatcher,
     keyboardModifiers: PointerKeyboardModifiers.() -> Boolean = { true },
     onClick: PointerEvent.(click: ViewPoint<T>) -> Unit,
-): FeatureRef<T, F> = modifyAttributes {
-    ClickListenerAttribute.add(
-        MouseListener { event, point ->
-            if (pointerMatcher.matches(event) && keyboardModifiers(event.keyboardModifiers)) {
-                event.onClick(point as ViewPoint<T>)
-            }
-        }
-    )
-}
+): FeatureRef<T, F>
 
 @Suppress("UNCHECKED_CAST")
 public fun <T : Any, F : DomainFeature<T>> FeatureRef<T, F>.onHover(

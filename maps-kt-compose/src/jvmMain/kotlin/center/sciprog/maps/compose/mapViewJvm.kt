@@ -48,7 +48,7 @@ public actual fun MapView(
     features: FeatureGroup<Gmc>,
     modifier: Modifier,
 ): Unit = with(viewScope) {
-    val mapTiles = remember(mapTileProvider) { mutableStateMapOf<TileId, Image>() }
+    val mapTiles = remember(mapTileProvider) { mutableStateMapOf<TileId, TileImage>() }
 
     // Load tiles asynchronously
     LaunchedEffect(viewPoint, canvasSize) {

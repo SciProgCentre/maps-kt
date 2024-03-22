@@ -1,14 +1,22 @@
 plugins {
     id("space.kscience.gradle.mpp")
     id("org.jetbrains.compose")
+    id("com.android.library")
     `maven-publish`
 }
 
-kscience{
+kscience {
     jvm()
 }
 
 kotlin {
+    android {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "11"
+            }
+        }
+    }
     sourceSets {
         commonMain {
             dependencies {
@@ -25,6 +33,20 @@ kotlin {
         }
     }
 }
+
+android {
+    namespace = "center.sciprog.maps.scheme"
+    compileSdk = 34
+    compileSdkVersion = "android-34"
+    defaultConfig {
+        minSdk = 19
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+}
+
 
 //java {
 //    targetCompatibility = JVM_TARGET

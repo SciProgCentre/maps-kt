@@ -1,14 +1,22 @@
 plugins {
     id("space.kscience.gradle.mpp")
     id("org.jetbrains.compose")
+    id("com.android.library")
     `maven-publish`
 }
 
-kscience{
+kscience {
     jvm()
 }
 
 kotlin {
+    android {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "11"
+            }
+        }
+    }
     sourceSets {
         commonMain {
             dependencies {
@@ -29,6 +37,12 @@ kotlin {
                 implementation(spclibs.logback.classic)
             }
         }
+        val androidMain by getting {
+            dependencies {
+                implementation("io.ktor:ktor-client-cio")
+                implementation("androidx.activity:activity-compose:1.8.2")
+            }
+        }
     }
 }
 
@@ -40,4 +54,17 @@ readme {
     feature(
         id = "osm",
     ) { "OpenStreetMap tile provider." }
+}
+
+android {
+    namespace = "center.sciprog.maps.compose"
+    compileSdk = 34
+    compileSdkVersion = "android-34"
+    defaultConfig {
+        minSdk = 19
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
 }
