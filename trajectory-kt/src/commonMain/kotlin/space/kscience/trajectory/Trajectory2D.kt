@@ -179,6 +179,10 @@ public fun CircleTrajectory2D(
 @Serializable
 @SerialName("composite")
 public class CompositeTrajectory2D(public val segments: List<Trajectory2D>) : Trajectory2D {
+    init {
+        require(segments.isNotEmpty()) { "A composite trajectory cannot consist of an empty list of trajectories" }
+    }
+
     override val length: Double get() = segments.sumOf { it.length }
 
     override val beginPose: Pose2D get() = segments.first().beginPose
