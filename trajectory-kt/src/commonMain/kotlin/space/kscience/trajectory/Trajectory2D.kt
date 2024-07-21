@@ -35,17 +35,11 @@ public sealed interface Trajectory2D {
 
     public sealed interface Direction : Type
 
-    public object R : Direction {
-        override fun toString(): String = "R"
-    }
+    public data object R : Direction
 
-    public object S : Type {
-        override fun toString(): String = "S"
-    }
+    public data object S : Type
 
-    public object L : Direction {
-        override fun toString(): String = "L"
-    }
+    public data object L : Direction
 }
 
 
