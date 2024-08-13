@@ -1,4 +1,4 @@
-package space.kscience
+package space.kscience.trajectory
 
 import space.kscience.kmath.geometry.LineSegment2D
 import space.kscience.kmath.geometry.Polygon
@@ -7,7 +7,6 @@ import space.kscience.kmath.geometry.euclidean2d.Circle2D
 import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
 import space.kscience.kmath.misc.zipWithNextCircular
 import space.kscience.kmath.structures.Float64
-import space.kscience.trajectory.Trajectory2D
 
 public fun Float64Space2D.polygon(points: List<Vector2D<Double>>): Polygon<Vector2D<Float64>> =
     object : Polygon<Vector2D<Float64>> {

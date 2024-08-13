@@ -1,6 +1,5 @@
 package space.kscience.trajectory
 
-import space.kscience.containsPoint
 import space.kscience.kmath.geometry.*
 import space.kscience.kmath.geometry.euclidean2d.Circle2D
 import space.kscience.kmath.geometry.euclidean2d.Float64Space2D

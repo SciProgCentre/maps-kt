@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import org.jetbrains.skia.Font
-import space.kscience.NameAttribute
 import space.kscience.attributes.Attributes
+import space.kscience.attributes.NameAttribute
 import space.kscience.kmath.geometry.Angle
 import space.kscience.kmath.nd.Structure2D
 

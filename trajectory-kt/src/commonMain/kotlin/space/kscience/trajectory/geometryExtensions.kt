@@ -1,10 +1,9 @@
-package space.kscience
+package space.kscience.trajectory
 
 import space.kscience.kmath.geometry.*
 import space.kscience.kmath.geometry.euclidean2d.Circle2D
 import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
 import space.kscience.kmath.structures.Float64
-import space.kscience.trajectory.*
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sign

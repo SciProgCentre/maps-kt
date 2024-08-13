@@ -1,8 +1,5 @@
 package space.kscience.trajectory
 
-import space.kscience.containsPoint
-import space.kscience.intersects
-import space.kscience.intersectsOrInside
 import space.kscience.kmath.geometry.Angle
 import space.kscience.kmath.geometry.Polygon
 import space.kscience.kmath.geometry.Vector2D

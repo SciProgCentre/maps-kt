@@ -5,13 +5,13 @@
 
 package space.kscience.kmath.geometry
 
-import space.kscience.circle
-import space.kscience.containsPoint
 import space.kscience.kmath.geometry.euclidean2d.Circle2D
 import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
 import space.kscience.kmath.geometry.euclidean2d.circumference
 import space.kscience.trajectory.CircleTrajectory2D
 import space.kscience.trajectory.Trajectory2D
+import space.kscience.trajectory.circle
+import space.kscience.trajectory.containsPoint
 import kotlin.math.PI
 import kotlin.test.Test
 import kotlin.test.assertEquals

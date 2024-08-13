@@ -8,10 +8,10 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.contextual
 import kotlinx.serialization.protobuf.ProtoBuf
 import kotlinx.serialization.serializer
-import space.kscience.AttributesSerializer
-import space.kscience.NameAttribute
-import space.kscience.SerializableAttribute
 import space.kscience.attributes.Attributes
+import space.kscience.attributes.AttributesSerializer
+import space.kscience.attributes.NameAttribute
+import space.kscience.attributes.SerializableAttribute
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals

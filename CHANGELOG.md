@@ -14,6 +14,7 @@
 
 ### Fixed
 - Add alpha attribute comprehension for all standard features.
+- Package name for SerializeableAttribute
 
 ### Security
 

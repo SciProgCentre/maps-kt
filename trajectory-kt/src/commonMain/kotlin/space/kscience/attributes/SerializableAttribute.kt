@@ -1,6 +1,6 @@
 @file:Suppress("UNCHECKED_CAST")
 
-package space.kscience
+package space.kscience.attributes
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.serializer
@@ -8,8 +8,6 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
-import space.kscience.attributes.Attribute
-import space.kscience.attributes.Attributes
 
 public class AttributesSerializer(
     private val serializableAttributes: Set<SerializableAttribute<*>>,

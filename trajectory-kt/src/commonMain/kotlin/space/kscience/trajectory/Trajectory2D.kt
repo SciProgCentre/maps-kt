@@ -9,14 +9,11 @@ package space.kscience.trajectory
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import space.kscience.intersects
-import space.kscience.intersectsOrInside
 import space.kscience.kmath.geometry.*
 import space.kscience.kmath.geometry.euclidean2d.Circle2D
 import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
 import space.kscience.kmath.geometry.euclidean2d.Float64Space2D.distanceTo
 import space.kscience.kmath.structures.Float64
-import space.kscience.tangent
 import kotlin.math.atan2
 
 @Serializable

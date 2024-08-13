@@ -5,7 +5,6 @@
 
 package space.kscience.trajectory
 
-import space.kscience.intersectsTrajectory
 import space.kscience.kmath.geometry.Angle
 import space.kscience.kmath.geometry.Polygon
 import space.kscience.kmath.geometry.Vector2D
@@ -13,7 +12,6 @@ import space.kscience.kmath.geometry.euclidean2d.Circle2D
 import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
 import space.kscience.kmath.misc.zipWithNextCircular
 import space.kscience.kmath.structures.Float64
-import space.kscience.polygon
 
 
 public interface Obstacle {
