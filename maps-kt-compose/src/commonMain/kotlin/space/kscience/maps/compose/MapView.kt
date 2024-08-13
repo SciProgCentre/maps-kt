@@ -121,7 +121,7 @@ public fun MapView(
     featureStore: FeatureStore<Gmc>,
     initialViewPoint: ViewPoint<Gmc>? = null,
     initialRectangle: Rectangle<Gmc>? = null,
-    modifier: Modifier,
+    modifier: Modifier = Modifier.fillMaxSize(),
 ) {
     val mapState = MapCanvasState.remember(mapTileProvider, config, initialViewPoint, initialRectangle)
     MapView(mapState, mapTileProvider, featureStore, modifier)
