@@ -1,7 +1,12 @@
 package space.kscience.trajectory
 
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import space.kscience.kmath.geometry.*
 import space.kscience.kmath.geometry.euclidean2d.Circle2D
+import space.kscience.kmath.geometry.euclidean2d.Float64Circle2D
 import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
 import space.kscience.kmath.structures.Float64
 import kotlin.math.abs
@@ -93,5 +98,23 @@ public fun CircleTrajectory2D.containsPoint(point: Vector2D<Float64>): Boolean =
     when {
         arcAngle >= Angle.zero -> offset < arcAngle
         else -> arcAngle < offset - Angle.piTimes2
+    }
+}
+
+internal object Circle2DSerializer : KSerializer<Circle2D<Float64>> {
+    private val serializer = Float64Circle2D.serializer()
+
+    override val descriptor: SerialDescriptor
+        get() = serializer.descriptor
+
+    override fun deserialize(decoder: Decoder): Circle2D<Float64> {
+        return decoder.decodeSerializableValue(serializer)
+    }
+
+    override fun serialize(encoder: Encoder, value: Circle2D<Float64>) {
+        encoder.encodeSerializableValue(
+            serializer,
+            value as? Float64Circle2D ?: Float64Circle2D(value.center, value.radius)
+        )
     }
 }

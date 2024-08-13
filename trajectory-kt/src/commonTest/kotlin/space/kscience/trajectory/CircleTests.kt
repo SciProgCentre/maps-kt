@@ -3,16 +3,13 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package space.kscience.kmath.geometry
+package space.kscience.trajectory
 
+import space.kscience.kmath.geometry.LineSegment2D
 import space.kscience.kmath.geometry.euclidean2d.Circle2D
 import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
 import space.kscience.kmath.geometry.euclidean2d.circumference
 import space.kscience.kmath.structures.Float64
-import space.kscience.trajectory.circle
-import space.kscience.trajectory.intersects
-import space.kscience.trajectory.intersectsOrInside
-import space.kscience.trajectory.segment
 import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.test.Test

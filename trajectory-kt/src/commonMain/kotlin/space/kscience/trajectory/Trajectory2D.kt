@@ -71,7 +71,7 @@ public fun StraightTrajectory2D(segment: LineSegment2D): StraightTrajectory2D =
 @Serializable
 @SerialName("arc")
 public data class CircleTrajectory2D(
-    public val circle: Circle2D<Float64>,
+    @Serializable(Circle2DSerializer::class) public val circle: Circle2D<Float64>,
     public val arcStart: Angle,
     public val arcAngle: Angle,
 ) : Trajectory2D {

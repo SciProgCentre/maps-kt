@@ -3,15 +3,13 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package space.kscience.kmath.geometry
+package space.kscience.trajectory
 
+import space.kscience.kmath.geometry.Angle
 import space.kscience.kmath.geometry.euclidean2d.Circle2D
 import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
 import space.kscience.kmath.geometry.euclidean2d.circumference
-import space.kscience.trajectory.CircleTrajectory2D
-import space.kscience.trajectory.Trajectory2D
-import space.kscience.trajectory.circle
-import space.kscience.trajectory.containsPoint
+import space.kscience.kmath.geometry.radians
 import kotlin.math.PI
 import kotlin.test.Test
 import kotlin.test.assertEquals
