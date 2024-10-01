@@ -17,7 +17,6 @@ import space.kscience.maps.features.ViewConfig
 import space.kscience.maps.features.ViewPoint
 import space.kscience.maps.features.color
 import space.kscience.maps.scheme.*
-import space.kscience.maps.svg.FeatureStateSnapshot
 import space.kscience.maps.svg.exportToSvg
 import space.kscience.maps.svg.snapshot
 import java.awt.Desktop
@@ -58,22 +57,18 @@ fun App() {
 
         var viewPoint: ViewPoint<XY> by remember { mutableStateOf(initialViewPoint) }
 
-        var snapshot: FeatureStateSnapshot<XY>? by remember { mutableStateOf(null) }
-
-        if (snapshot == null) {
-            snapshot = features.snapshot()
+        val snapshot = key(features) {
+            features.snapshot()
         }
 
         ContextMenuArea(
             items = {
                 listOf(
                     ContextMenuItem("Export to SVG") {
-                        snapshot?.let {
-                            val path = Files.createTempFile("scheme-kt-", ".svg")
-                            it.exportToSvg(viewPoint, 800.0, 800.0, path)
-                            println(path.toFile())
-                            Desktop.getDesktop().browse(path.toFile().toURI())
-                        }
+                        val path = Files.createTempFile("scheme-kt-", ".svg")
+                        snapshot.exportToSvg(viewPoint, 800.0, 800.0, path)
+                        println(path.toFile())
+                        Desktop.getDesktop().browse(path.toFile().toURI())
                     },
                 )
             }

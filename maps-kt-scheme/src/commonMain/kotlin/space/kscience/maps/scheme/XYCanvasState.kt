@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 import space.kscience.maps.features.*
 import kotlin.math.min
 
-public class XYCanvasState(
+public class XYCanvasState internal constructor(
     config: ViewConfig<XY>,
 ) : CanvasState<XY>(config) {
     override val space: CoordinateSpace<XY>

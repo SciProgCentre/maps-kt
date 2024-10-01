@@ -5,16 +5,15 @@ plugins {
     `maven-publish`
 }
 
-kscience{
+kscience {
     jvm()
 //    js()
     wasm()
 
-    commonMain{
+    commonMain {
         api(projects.mapsKtFeatures)
     }
-    jvmMain{
-        implementation("org.jfree:org.jfree.svg:5.0.4")
+    jvmMain {
         api(compose.desktop.currentOs)
     }
 }

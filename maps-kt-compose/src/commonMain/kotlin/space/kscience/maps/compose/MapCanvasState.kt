@@ -15,7 +15,7 @@ import space.kscience.maps.features.*
 import kotlin.math.*
 
 
-public class MapCanvasState private constructor(
+public class MapCanvasState internal constructor(
     public val mapTileProvider: MapTileProvider,
     config: ViewConfig<Gmc>,
 ) : CanvasState<Gmc>(config) {

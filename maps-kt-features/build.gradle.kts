@@ -37,4 +37,8 @@ kscience {
         api("io.github.oshai:kotlin-logging:6.0.3")
         api("com.benasher44:uuid:0.8.4")
     }
+
+    jvmMain{
+        api("org.jfree:org.jfree.svg:5.0.4")
+    }
 }

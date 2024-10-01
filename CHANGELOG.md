@@ -7,6 +7,7 @@
 
 ### Changed
 - avoid drawing features with VisibleAttribute false
+- Move SVG export to `features` and make it usable for maps as well
 
 ### Deprecated
 

@@ -14,19 +14,21 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import org.jfree.svg.SVGGraphics2D
 import space.kscience.attributes.Attributes
-import space.kscience.maps.features.*
-import space.kscience.maps.scheme.XY
+import space.kscience.maps.features.CanvasState
+import space.kscience.maps.features.ColorAttribute
+import space.kscience.maps.features.FeatureDrawScope
+import space.kscience.maps.features.PainterFeature
 import java.awt.BasicStroke
 import java.awt.geom.*
 import java.awt.image.AffineTransformOp
 import java.awt.Color as AWTColor
 
-public class SvgDrawScope(
-    state: CanvasState<XY>,
+public class SvgDrawScope<T: Any>(
+    state: CanvasState<T>,
     private val graphics: SVGGraphics2D,
-    private val painterCache: Map<PainterFeature<XY>, Painter>,
+    private val painterCache: Map<PainterFeature<T>, Painter>,
     private val defaultStrokeWidth: Float = 1f,
-) : FeatureDrawScope<XY>(state) {
+) : FeatureDrawScope<T>(state) {
 
     override val layoutDirection: LayoutDirection
         get() = LayoutDirection.Ltr
@@ -466,14 +468,14 @@ public class SvgDrawScope(
         }
     }
 
-    public fun renderText(
-        textFeature: TextFeature<XY>,
-    ) {
-        textFeature.color?.let { setupColor(it) }
-        graphics.drawString(textFeature.text, textFeature.position.x, textFeature.position.y)
-    }
+//    public fun renderText(
+//        textFeature: TextFeature<T>,
+//    ) {
+//        textFeature.color?.let { setupColor(it) }
+//        graphics.drawString(textFeature.text, textFeature.position.x, textFeature.position.y)
+//    }
 
-    override fun painterFor(feature: PainterFeature<XY>): Painter {
+    override fun painterFor(feature: PainterFeature<T>): Painter {
         return painterCache[feature]!!
     }
 
