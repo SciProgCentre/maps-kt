@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -75,6 +76,11 @@ public class ComposeFeatureDrawScope<T : Any>(
     }
 }
 
+@Composable
+public fun <T: Any> FeatureSet<T>.pointerCache(): Map<PainterFeature<T>, Painter> = key(features) {
+    features.values.filterIsInstance<PainterFeature<T>>().associateWith { it.getPainter() }
+}
+
 
 /**
  * Create a canvas with extended functionality (e.g., drawing text)
@@ -90,7 +96,7 @@ public fun <T : Any> FeatureCanvas(
 ) {
     val textMeasurer = rememberTextMeasurer(0)
 
-    val features by featureFlow.sample(sampleDuration).collectAsState(featureFlow.value)
+    val features: Map<String, Feature<T>> by featureFlow.sample(sampleDuration).collectAsState(featureFlow.value)
 
     val painterCache = features.values
         .filterIsInstance<PainterFeature<T>>()

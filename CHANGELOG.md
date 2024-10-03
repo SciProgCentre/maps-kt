@@ -4,6 +4,7 @@
 
 ### Added
 - `alpha` extension for feature attribute builder
+- PNG export
 
 ### Changed
 - avoid drawing features with VisibleAttribute false

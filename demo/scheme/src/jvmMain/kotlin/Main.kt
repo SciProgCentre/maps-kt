@@ -4,21 +4,20 @@ import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import space.kscience.kmath.geometry.Angle
-import space.kscience.maps.features.FeatureStore
-import space.kscience.maps.features.ViewConfig
-import space.kscience.maps.features.ViewPoint
-import space.kscience.maps.features.color
+import space.kscience.maps.features.*
 import space.kscience.maps.scheme.*
+import space.kscience.maps.svg.exportToPng
 import space.kscience.maps.svg.exportToSvg
-import space.kscience.maps.svg.snapshot
 import java.awt.Desktop
 import java.nio.file.Files
 
@@ -57,19 +56,31 @@ fun App() {
 
         var viewPoint: ViewPoint<XY> by remember { mutableStateOf(initialViewPoint) }
 
-        val snapshot = key(features) {
-            features.snapshot()
-        }
+        val painterCache = features.pointerCache()
+
+        val textMeasurer = rememberTextMeasurer()
 
         ContextMenuArea(
             items = {
                 listOf(
                     ContextMenuItem("Export to SVG") {
                         val path = Files.createTempFile("scheme-kt-", ".svg")
-                        snapshot.exportToSvg(viewPoint, 800.0, 800.0, path)
+                        features.exportToSvg(viewPoint, painterCache, Size(800f, 800f), path)
                         println(path.toFile())
                         Desktop.getDesktop().browse(path.toFile().toURI())
                     },
+                    ContextMenuItem("Export to PNG") {
+                        val path = Files.createTempFile("scheme-kt-", ".png")
+                        features.exportToPng(
+                            viewPoint,
+                            painterCache,
+                            textMeasurer,
+                            Size(800f, 800f),
+                            path
+                        )
+                        println(path.toFile())
+                        Desktop.getDesktop().browse(path.toFile().toURI())
+                    }
                 )
             }
         ) {
