@@ -9,7 +9,7 @@ plugins {
 val ktorVersion: String by rootProject.extra
 
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(17)
     jvm()
     sourceSets {
         val jvmMain by getting {

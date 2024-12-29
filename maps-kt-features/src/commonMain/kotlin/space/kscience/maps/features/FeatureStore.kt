@@ -162,9 +162,9 @@ public class FeatureStore<T : Any>(
 /**
  * A group of other features
  */
-public data class FeatureGroup<T : Any> internal constructor(
-    val store: FeatureStore<T>,
-    val groupId: String,
+public class FeatureGroup<T : Any> internal constructor(
+    public val store: FeatureStore<T>,
+    public val groupId: String,
     override val attributes: Attributes,
 ) : CoordinateSpace<T> by store.space, Feature<T>, FeatureBuilder<T>, FeatureSet<T> {
 
