@@ -11,9 +11,12 @@ kscience{
     jvm()
     js()
     native()
+    wasm()
 
     useContextReceivers()
-    useSerialization()
+    useSerialization{
+        json()
+    }
     dependencies {
         api("space.kscience:kmath-geometry:$kmathVersion")
     }

@@ -16,13 +16,11 @@ pluginManagement {
     }
 
     plugins {
-        id("com.android.application").version(extra["agp.version"] as String)
-        id("com.android.library").version(extra["agp.version"] as String)
-        id("org.jetbrains.compose").version(extra["compose.version"] as String)
+//        id("com.android.application").version(extra["agp.version"] as String)
+//        id("com.android.library").version(extra["agp.version"] as String)
         id("space.kscience.gradle.project") version toolsVersion
         id("space.kscience.gradle.mpp") version toolsVersion
         id("space.kscience.gradle.jvm") version toolsVersion
-        id("space.kscience.gradle.js") version toolsVersion
     }
 }
 
@@ -52,9 +50,11 @@ include(
     ":maps-kt-features",
     ":maps-kt-compose",
     ":maps-kt-scheme",
+//    ":maps-kt-leaflet",
     ":demo:maps",
     ":demo:scheme",
     ":demo:polygon-editor",
-    ":demo:trajectory-playground"
+    ":demo:trajectory-playground",
+    ":demo:maps-wasm"
 )
 

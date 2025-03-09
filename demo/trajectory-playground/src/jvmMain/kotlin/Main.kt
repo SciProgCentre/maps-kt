@@ -8,21 +8,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import center.sciprog.maps.features.*
-import center.sciprog.maps.scheme.SchemeView
-import center.sciprog.maps.scheme.XY
 import space.kscience.kmath.geometry.Angle
-import space.kscience.kmath.geometry.Circle2D
-import space.kscience.kmath.geometry.DoubleVector2D
-import space.kscience.kmath.geometry.Euclidean2DSpace
+import space.kscience.kmath.geometry.Vector2D
+import space.kscience.kmath.geometry.euclidean2d.Circle2D
+import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
+import space.kscience.maps.features.*
+import space.kscience.maps.scheme.SchemeView
+import space.kscience.maps.scheme.XY
 import space.kscience.trajectory.*
 import kotlin.random.Random
 
-private fun DoubleVector2D.toXY() = XY(x.toFloat(), y.toFloat())
+private fun Vector2D<out Number>.toXY() = XY(x.toFloat(), y.toFloat())
 
 private val random = Random(123)
 
-fun FeatureGroup<XY>.trajectory(
+fun FeatureBuilder<XY>.trajectory(
     trajectory: Trajectory2D,
     colorPicker: (Trajectory2D) -> Color = { Color.Blue },
 ): FeatureRef<XY, FeatureGroup<XY>> = group {
@@ -32,7 +32,7 @@ fun FeatureGroup<XY>.trajectory(
             bCoordinates = trajectory.end.toXY(),
         ).color(colorPicker(trajectory))
 
-        is CircleTrajectory2D -> with(Euclidean2DSpace) {
+        is CircleTrajectory2D -> with(Float64Space2D) {
             val topLeft = trajectory.circle.center + vector(-trajectory.circle.radius, trajectory.circle.radius)
             val bottomRight = trajectory.circle.center + vector(trajectory.circle.radius, -trajectory.circle.radius)
 
@@ -54,25 +54,25 @@ fun FeatureGroup<XY>.trajectory(
     }
 }
 
-fun FeatureGroup<XY>.obstacle(obstacle: Obstacle, colorPicker: (Trajectory2D) -> Color = { Color.Red }) {
+fun FeatureBuilder<XY>.obstacle(obstacle: Obstacle, colorPicker: (Trajectory2D) -> Color = { Color.Red }) {
     trajectory(obstacle.circumvention, colorPicker)
     polygon(obstacle.arcs.map { it.center.toXY() }).color(Color.Gray)
 }
 
-fun FeatureGroup<XY>.pose(pose2D: Pose2D) = with(Euclidean2DSpace) {
+fun FeatureBuilder<XY>.pose(pose2D: Pose2D) = with(Float64Space2D) {
     line(pose2D.toXY(), (pose2D + Pose2D.bearingToVector(pose2D.bearing)).toXY())
 }
 
 @Composable
 @Preview
-fun closePoints() {
+fun closePoints()  = with(Float64Space2D){
     SchemeView {
 
         val obstacle = Obstacle(
-            Circle2D(Euclidean2DSpace.vector(0.0, 0.0), 1.0),
-            Circle2D(Euclidean2DSpace.vector(0.0, 1.0), 1.0),
-            Circle2D(Euclidean2DSpace.vector(1.0, 1.0), 1.0),
-            Circle2D(Euclidean2DSpace.vector(1.0, 0.0), 1.0)
+            Circle2D(vector(0.0, 0.0), 1.0),
+            Circle2D(vector(0.0, 1.0), 1.0),
+            Circle2D(vector(1.0, 1.0), 1.0),
+            Circle2D(vector(1.0, 0.0), 1.0)
         )
         val enter = Pose2D(-0.8, -0.8, Angle.pi)
         val exit = Pose2D(-0.8, -0.8, Angle.piDiv2)
@@ -101,7 +101,7 @@ fun closePoints() {
 @Preview
 fun singleObstacle() {
     SchemeView {
-        val obstacle = Obstacle(Circle2D(Euclidean2DSpace.vector(7.0, 1.0), 5.0))
+        val obstacle = Obstacle(Circle2D(Float64Space2D.vector(7.0, 1.0), 5.0))
         val enter = Pose2D(-5, -1, Angle.pi / 4)
         val exit = Pose2D(20, 4, Angle.pi * 3 / 4)
 
@@ -123,19 +123,19 @@ fun singleObstacle() {
 
 @Composable
 @Preview
-fun doubleObstacle() {
+fun doubleObstacle() = with(Float64Space2D){
     SchemeView {
         val obstacles = arrayOf(
             Obstacle(
-                Circle2D(Euclidean2DSpace.vector(1.0, 6.5), 0.5),
-                Circle2D(Euclidean2DSpace.vector(2.0, 1.0), 0.5),
-                Circle2D(Euclidean2DSpace.vector(6.0, 0.0), 0.5),
-                Circle2D(Euclidean2DSpace.vector(5.0, 5.0), 0.5)
+                Circle2D(vector(1.0, 6.5), 0.5),
+                Circle2D(vector(2.0, 1.0), 0.5),
+                Circle2D(vector(6.0, 0.0), 0.5),
+                Circle2D(vector(5.0, 5.0), 0.5)
             ), Obstacle(
-                Circle2D(Euclidean2DSpace.vector(10.0, 1.0), 0.5),
-                Circle2D(Euclidean2DSpace.vector(16.0, 0.0), 0.5),
-                Circle2D(Euclidean2DSpace.vector(14.0, 6.0), 0.5),
-                Circle2D(Euclidean2DSpace.vector(9.0, 4.0), 0.5)
+                Circle2D(vector(10.0, 1.0), 0.5),
+                Circle2D(vector(16.0, 0.0), 0.5),
+                Circle2D(vector(14.0, 6.0), 0.5),
+                Circle2D(vector(9.0, 4.0), 0.5)
             )
         )
 
@@ -157,6 +157,14 @@ fun doubleObstacle() {
     }
 }
 
+@Composable
+@Preview
+fun singleElement() {
+    SchemeView {
+        points(listOf(XY(1f,1f)))
+    }
+}
+
 
 @Composable
 @Preview
@@ -165,6 +173,7 @@ fun playground() {
         "Close starting points",
         "Single obstacle",
         "Two obstacles",
+        "Single element"
     )
 
     var currentExample by remember { mutableStateOf(examples.first()) }
@@ -182,6 +191,7 @@ fun playground() {
             examples[0] -> closePoints()
             examples[1] -> singleObstacle()
             examples[2] -> doubleObstacle()
+            examples[3] -> singleElement()
         }
     }
 }

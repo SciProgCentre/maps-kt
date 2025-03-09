@@ -5,61 +5,70 @@
 
 package space.kscience.trajectory
 
-import space.kscience.kmath.geometry.*
-import space.kscience.kmath.geometry.Euclidean2DSpace.distanceTo
+import space.kscience.kmath.geometry.cos
+import space.kscience.kmath.geometry.euclidean2d.Circle2D
+import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
+import space.kscience.kmath.geometry.euclidean2d.Float64Space2D.distanceTo
+import space.kscience.kmath.geometry.normalized
+import space.kscience.kmath.geometry.radians
+import space.kscience.kmath.geometry.sin
+import space.kscience.kmath.structures.Float64
 import space.kscience.trajectory.Trajectory2D.*
 import kotlin.math.acos
 
-internal fun Pose2D.getLeftCircle(radius: Double): Circle2D = getTangentCircles(radius).first
+internal fun Pose2D.getLeftCircle(radius: Double): Circle2D<Float64> = getTangentCircles(radius).first
 
-internal fun Pose2D.getRightCircle(radius: Double): Circle2D = getTangentCircles(radius).second
+internal fun Pose2D.getRightCircle(radius: Double): Circle2D<Float64> = getTangentCircles(radius).second
 
-internal fun Pose2D.getTangentCircles(radius: Double): Pair<Circle2D, Circle2D> = with(Euclidean2DSpace) {
-    val dX = radius * cos(bearing)
-    val dY = radius * sin(bearing)
-    return Circle2D(vector(x - dX, y + dY), radius) to Circle2D(vector(x + dX, y - dY), radius)
-}
+internal fun Pose2D.getTangentCircles(radius: Double): Pair<Circle2D<Float64>, Circle2D<Float64>> =
+    with(Float64Space2D) {
+        val dX = radius * cos(bearing)
+        val dY = radius * sin(bearing)
+        return Circle2D(vector(x - dX, y + dY), radius) to Circle2D(vector(x + dX, y - dY), radius)
+    }
 
-private fun outerTangent(from: Circle2D, to: Circle2D, direction: Direction): StraightTrajectory2D =
-    with(Euclidean2DSpace) {
-        val centers = StraightTrajectory2D(from.center, to.center)
-        val p1 = when (direction) {
-            L -> vector(
-                from.center.x - from.radius * cos(centers.bearing),
-                from.center.y + from.radius * sin(centers.bearing)
-            )
+private fun Float64Space2D.outerTangent(
+    from: Circle2D<Float64>,
+    to: Circle2D<Float64>,
+    direction: Direction,
+): StraightTrajectory2D {
+    val centers = StraightTrajectory2D(from.center, to.center)
+    val p1 = when (direction) {
+        L -> vector(
+            from.center.x - from.radius * cos(centers.bearing),
+            from.center.y + from.radius * sin(centers.bearing)
+        )
 
-            R -> vector(
-                from.center.x + from.radius * cos(centers.bearing),
-                from.center.y - from.radius * sin(centers.bearing)
-            )
-        }
-        return StraightTrajectory2D(
-            p1,
-            vector(p1.x + (centers.end.x - centers.begin.x), p1.y + (centers.end.y - centers.begin.y))
+        R -> vector(
+            from.center.x + from.radius * cos(centers.bearing),
+            from.center.y - from.radius * sin(centers.bearing)
         )
     }
+    return StraightTrajectory2D(
+        p1,
+        vector(p1.x + (centers.end.x - centers.begin.x), p1.y + (centers.end.y - centers.begin.y))
+    )
+}
 
 
-private fun innerTangent(
-    from: Circle2D,
-    to: Circle2D,
+private fun Float64Space2D.innerTangent(
+    from: Circle2D<Float64>,
+    to: Circle2D<Float64>,
     direction: Direction,
-): StraightTrajectory2D? =
-    with(Euclidean2DSpace) {
-        val centers = StraightTrajectory2D(from.center, to.center)
-        if (centers.length < from.radius * 2) return null
-        val angle = when (direction) {
-            L -> centers.bearing + acos(from.radius * 2 / centers.length).radians
-            R -> centers.bearing - acos(from.radius * 2 / centers.length).radians
-        }.normalized()
+): StraightTrajectory2D? {
+    val centers = StraightTrajectory2D(from.center, to.center)
+    if (centers.length < from.radius * 2) return null
+    val angle = when (direction) {
+        L -> centers.bearing + acos(from.radius * 2 / centers.length).radians
+        R -> centers.bearing - acos(from.radius * 2 / centers.length).radians
+    }.normalized()
 
-        val dX = from.radius * sin(angle)
-        val dY = from.radius * cos(angle)
-        val p1 = vector(from.center.x + dX, from.center.y + dY)
-        val p2 = vector(to.center.x - dX, to.center.y - dY)
-        return StraightTrajectory2D(p1, p2)
-    }
+    val dX = from.radius * sin(angle)
+    val dY = from.radius * cos(angle)
+    val p1 = vector(from.center.x + dX, from.center.y + dY)
+    val p2 = vector(to.center.x - dX, to.center.y - dY)
+    return StraightTrajectory2D(p1, p2)
+}
 
 
 @Suppress("DuplicatedCode")
@@ -118,7 +127,7 @@ public object DubinsPath {
         all(start, end, turningRadius).minBy { it.length }
 
     public fun rlr(start: Pose2D, end: Pose2D, turningRadius: Double): CompositeTrajectory2D? =
-        with(Euclidean2DSpace) {
+        with(Float64Space2D) {
             val c1 = start.getRightCircle(turningRadius)
             val c2 = end.getRightCircle(turningRadius)
             val centers = StraightTrajectory2D(c1.center, c2.center)
@@ -162,7 +171,7 @@ public object DubinsPath {
         }
 
     public fun lrl(start: Pose2D, end: Pose2D, turningRadius: Double): CompositeTrajectory2D? =
-        with(Euclidean2DSpace) {
+        with(Float64Space2D) {
             val c1 = start.getLeftCircle(turningRadius)
             val c2 = end.getLeftCircle(turningRadius)
             val centers = StraightTrajectory2D(c1.center, c2.center)
@@ -208,7 +217,7 @@ public object DubinsPath {
     public fun rsr(start: Pose2D, end: Pose2D, turningRadius: Double): CompositeTrajectory2D {
         val c1 = start.getRightCircle(turningRadius)
         val c2 = end.getRightCircle(turningRadius)
-        val s = outerTangent(c1, c2, L)
+        val s = Float64Space2D.outerTangent(c1, c2, L)
         val a1 = CircleTrajectory2D(c1.center, start, s.begin, R)
         val a3 = CircleTrajectory2D(c2.center, s.end, end, R)
         return CompositeTrajectory2D(a1, s, a3)
@@ -217,7 +226,7 @@ public object DubinsPath {
     public fun lsl(start: Pose2D, end: Pose2D, turningRadius: Double): CompositeTrajectory2D {
         val c1 = start.getLeftCircle(turningRadius)
         val c2 = end.getLeftCircle(turningRadius)
-        val s = outerTangent(c1, c2, R)
+        val s = Float64Space2D.outerTangent(c1, c2, R)
         val a1 = CircleTrajectory2D(c1.center, start, s.begin, L)
         val a3 = CircleTrajectory2D(c2.center, s.end, end, L)
         return CompositeTrajectory2D(a1, s, a3)
@@ -226,7 +235,7 @@ public object DubinsPath {
     public fun rsl(start: Pose2D, end: Pose2D, turningRadius: Double): CompositeTrajectory2D? {
         val c1 = start.getRightCircle(turningRadius)
         val c2 = end.getLeftCircle(turningRadius)
-        val s = innerTangent(c1, c2, R)
+        val s = Float64Space2D.innerTangent(c1, c2, R)
         if (s == null || c1.center.distanceTo(c2.center) < turningRadius * 2) return null
 
         val a1 = CircleTrajectory2D(c1.center, start, s.begin, R)
@@ -237,7 +246,7 @@ public object DubinsPath {
     public fun lsr(start: Pose2D, end: Pose2D, turningRadius: Double): CompositeTrajectory2D? {
         val c1 = start.getLeftCircle(turningRadius)
         val c2 = end.getRightCircle(turningRadius)
-        val s = innerTangent(c1, c2, L)
+        val s = Float64Space2D.innerTangent(c1, c2, L)
         if (s == null || c1.center.distanceTo(c2.center) < turningRadius * 2) return null
 
         val a1 = CircleTrajectory2D(c1.center, start, s.begin, L)

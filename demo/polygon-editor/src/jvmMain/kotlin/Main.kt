@@ -9,11 +9,11 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import center.sciprog.maps.features.*
-import center.sciprog.maps.scheme.SchemeView
-import center.sciprog.maps.scheme.XY
-import center.sciprog.maps.scheme.XYCoordinateSpace
-import center.sciprog.maps.scheme.XYViewScope
+import space.kscience.maps.features.*
+import space.kscience.maps.scheme.SchemeView
+import space.kscience.maps.scheme.XY
+import space.kscience.maps.scheme.XYCanvasState
+import space.kscience.maps.scheme.XYCoordinateSpace
 
 @Composable
 @Preview
@@ -24,14 +24,14 @@ fun App() {
 
         val myPolygon: SnapshotStateList<XY> = remember { mutableStateListOf<XY>() }
 
-        val featureState: FeatureGroup<XY> = FeatureGroup.remember(XYCoordinateSpace) {
+        val featureState = FeatureStore.remember(XYCoordinateSpace) {
             multiLine(
                 listOf(XY(0f, 0f), XY(0f, 1f), XY(1f, 1f), XY(1f, 0f), XY(0f, 0f)),
                 id = "frame"
             )
         }
 
-        val mapState: XYViewScope = XYViewScope.remember(
+        val mapState: XYCanvasState = XYCanvasState.remember(
             config = ViewConfig<XY>(
                 onClick = { event, point ->
                     if (event.buttons.isSecondaryPressed) {
@@ -55,6 +55,7 @@ fun App() {
                             }
                             draggableMultiLine(
                                 pointRefs + pointRefs.first(),
+                                "line"
                             )
                         }
                     }

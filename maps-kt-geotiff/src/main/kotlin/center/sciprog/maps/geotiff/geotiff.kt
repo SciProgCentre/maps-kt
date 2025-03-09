@@ -1,9 +1,9 @@
 package center.sciprog.maps.geotiff
 
-import center.sciprog.maps.coordinates.Gmc
-import center.sciprog.maps.features.Feature
-import center.sciprog.maps.features.FeatureGroup
-import center.sciprog.maps.features.FeatureRef
+import space.kscience.maps.coordinates.Gmc
+import space.kscience.maps.features.Feature
+import space.kscience.maps.features.FeatureGroup
+import space.kscience.maps.features.FeatureRef
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import org.geotools.gce.geotiff.GeoTiffReader

@@ -5,18 +5,17 @@
 
 package space.kscience.trajectory
 
-import space.kscience.kmath.geometry.Circle2D
-import space.kscience.kmath.geometry.Euclidean2DSpace
-import space.kscience.kmath.geometry.Euclidean2DSpace.vector
 import space.kscience.kmath.geometry.LineSegment
 import space.kscience.kmath.geometry.equalsLine
+import space.kscience.kmath.geometry.euclidean2d.Circle2D
+import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class TangentTest {
     @Test
-    fun tangents() {
+    fun tangents() = with(Float64Space2D) {
         val c1 = Circle2D(vector(0.0, 0.0), 1.0)
         val c2 = Circle2D(vector(4.0, 0.0), 1.0)
         val routes = listOf(
@@ -50,12 +49,12 @@ class TangentTest {
 
         assertEquals(routes, tangentMapKeys)
         for (i in segments.indices) {
-            assertTrue(segments[i].equalsLine(Euclidean2DSpace, tangentMapValues[i]))
+            assertTrue(segments[i].equalsLine(Float64Space2D, tangentMapValues[i]))
         }
     }
 
     @Test
-    fun concentric(){
+    fun concentric() = with(Float64Space2D) {
         val c1 = Circle2D(vector(0.0, 0.0), 10.0)
         val c2 = Circle2D(vector(0.0, 0.0), 1.0)
         assertEquals(emptyMap(), tangentsBetweenCircles(c1, c2))

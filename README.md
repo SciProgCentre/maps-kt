@@ -8,7 +8,6 @@ This repository is a work-in-progress implementation of Map-with-markers compone
 
 
 ### [demo](demo)
-> 
 >
 > **Maturity**: EXPERIMENTAL
 
@@ -33,17 +32,14 @@ This repository is a work-in-progress implementation of Map-with-markers compone
 
 
 ### [maps-kt-features](maps-kt-features)
-> 
 >
 > **Maturity**: EXPERIMENTAL
 
 ### [maps-kt-geojson](maps-kt-geojson)
-> 
 >
 > **Maturity**: EXPERIMENTAL
 
 ### [maps-kt-scheme](maps-kt-scheme)
-> 
 >
 > **Maturity**: EXPERIMENTAL
 
@@ -53,21 +49,21 @@ This repository is a work-in-progress implementation of Map-with-markers compone
 > **Maturity**: EXPERIMENTAL
 
 ### [demo/maps](demo/maps)
-> 
+>
+> **Maturity**: EXPERIMENTAL
+
+### [demo/maps-wasm](demo/maps-wasm)
 >
 > **Maturity**: EXPERIMENTAL
 
 ### [demo/polygon-editor](demo/polygon-editor)
-> 
 >
 > **Maturity**: EXPERIMENTAL
 
 ### [demo/scheme](demo/scheme)
-> 
 >
 > **Maturity**: EXPERIMENTAL
 
 ### [demo/trajectory-playground](demo/trajectory-playground)
-> 
 >
 > **Maturity**: EXPERIMENTAL

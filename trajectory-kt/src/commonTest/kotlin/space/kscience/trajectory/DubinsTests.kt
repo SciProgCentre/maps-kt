@@ -5,7 +5,7 @@
 
 package space.kscience.trajectory
 
-import space.kscience.kmath.geometry.Euclidean2DSpace
+import space.kscience.kmath.geometry.euclidean2d.Float64Space2D
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -14,7 +14,7 @@ import kotlin.test.assertNotNull
 class DubinsTests {
 
     @Test
-    fun dubinsTest() = with(Euclidean2DSpace) {
+    fun dubinsTest() = with(Float64Space2D) {
         val straight = StraightTrajectory2D(vector(0.0, 0.0), vector(100.0, 100.0))
         val lineP1 = straight.shift(1, 10.0).inverse()
 
@@ -53,7 +53,7 @@ class DubinsTests {
                 assertEquals(c.beginPose, b.endPose, 1e-4)
             } else if (b is StraightTrajectory2D) {
                 assertEquals(a.endPose, Pose2D(b.begin, b.bearing), 1e-4)
-                assertEquals(c.beginPose, Pose2D(b.end, b.bearing),1e-4)
+                assertEquals(c.beginPose, Pose2D(b.end, b.bearing), 1e-4)
             }
         }
     }

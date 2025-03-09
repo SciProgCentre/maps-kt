@@ -1,34 +1,32 @@
 plugins {
     id("space.kscience.gradle.mpp")
-    id("org.jetbrains.compose")
+    alias(spclibs.plugins.compose.compiler)
+    alias(spclibs.plugins.compose.jb)
+//    id("com.android.library")
     `maven-publish`
 }
 
-kscience{
+kscience {
     jvm()
-}
+    wasm()
 
-kotlin {
-    sourceSets {
-        commonMain {
-            dependencies {
-                api(projects.mapsKtCore)
-                api(projects.mapsKtFeatures)
-                api(compose.foundation)
-                api(project.dependencies.platform(spclibs.ktor.bom))
-                api("io.ktor:ktor-client-core")
-                api("io.github.microutils:kotlin-logging:2.1.23")
-            }
-        }
-        val jvmTest by getting {
-            dependencies {
-                implementation("io.ktor:ktor-client-cio")
-                implementation(compose.desktop.currentOs)
-                implementation(spclibs.kotlinx.coroutines.test)
+    useCoroutines()
 
-                implementation(spclibs.logback.classic)
-            }
-        }
+    commonMain{
+        api(projects.mapsKtCore)
+        api(projects.mapsKtFeatures)
+        api(compose.foundation)
+        api(project.dependencies.platform(spclibs.ktor.bom))
+    }
+    jvmMain{
+        api("io.ktor:ktor-client-cio")
+    }
+    jvmTest{
+        implementation("io.ktor:ktor-client-cio")
+        implementation(compose.desktop.currentOs)
+        implementation(spclibs.kotlinx.coroutines.test)
+
+        implementation(spclibs.logback.classic)
     }
 }
 
@@ -41,3 +39,7 @@ readme {
         id = "osm",
     ) { "OpenStreetMap tile provider." }
 }
+
+//tasks.getByName<Copy>("downloadWix"){
+//    duplicatesStrategy = DuplicatesStrategy.WARN
+//}

@@ -9,17 +9,17 @@ job("Publish") {
         gitPush { enabled = false }
     }
     container("spc.registry.jetbrains.space/p/sci/containers/kotlin-ci:1.0.3") {
-        env["SPACE_USER"] = Secrets("space_user")
-        env["SPACE_TOKEN"] = Secrets("space_token")
+        env["SPACE_USER"] = "{{ project:space_user }}"
+        env["SPACE_TOKEN"] = "{{ project:space_token }}"
         kotlinScript { api ->
 
             val spaceUser = System.getenv("SPACE_USER")
             val spaceToken = System.getenv("SPACE_TOKEN")
 
-            // write version to the build directory
+            // write the version to the build directory
             api.gradlew("version")
 
-            //read version from build file
+            //read the version from build file
             val version = java.nio.file.Path.of("build/project-version.txt").readText()
 
             val revisionSuffix = if (version.endsWith("SNAPSHOT")) {
@@ -32,7 +32,7 @@ job("Publish") {
                 project = api.projectIdentifier(),
                 targetIdentifier = TargetIdentifier.Key("maps-kt"),
                 version = version+revisionSuffix,
-                // automatically update deployment status based on a status of a job
+                // automatically update deployment status based on the status of a job
                 syncWithAutomationJob = true
             )
             api.gradlew(

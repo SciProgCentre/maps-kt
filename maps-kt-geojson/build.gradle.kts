@@ -6,7 +6,9 @@ plugins {
 
 kscience{
     jvm()
-    js()
+//    js()
+    wasm()
+
     useSerialization {
         json()
     }

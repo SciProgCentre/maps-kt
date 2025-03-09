@@ -6,19 +6,8 @@
 
 ## Artifact:
 
-The Maven coordinates of this project are `center.sciprog:maps-kt-geojson:0.2.2`.
+The Maven coordinates of this project are `space.kscience:maps-kt-geojson:0.3.0`.
 
-**Gradle Groovy:**
-```groovy
-repositories {
-    maven { url 'https://repo.kotlin.link' }
-    mavenCentral()
-}
-
-dependencies {
-    implementation 'center.sciprog:maps-kt-geojson:0.2.2'
-}
-```
 **Gradle Kotlin DSL:**
 ```kotlin
 repositories {
@@ -27,6 +16,6 @@ repositories {
 }
 
 dependencies {
-    implementation("center.sciprog:maps-kt-geojson:0.2.2")
+    implementation("space.kscience:maps-kt-geojson:0.3.0")
 }
 ```
