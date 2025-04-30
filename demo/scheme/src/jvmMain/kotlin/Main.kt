@@ -6,18 +6,20 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
 import space.kscience.kmath.geometry.Angle
 import space.kscience.maps.features.*
 import space.kscience.maps.scheme.*
 import space.kscience.maps.svg.exportToPng
 import space.kscience.maps.svg.exportToSvg
+import space.kscience.scheme.generated.resources.Res
+import space.kscience.scheme.generated.resources.middle_earth
 import java.awt.Desktop
 import java.nio.file.Files
 
@@ -28,7 +30,7 @@ fun App() {
         val scope = rememberCoroutineScope()
 
         val features = FeatureStore.remember(XYCoordinateSpace) {
-            background(1600f, 1200f) { painterResource("middle-earth.jpg") }
+            background(1600f, 1200f) { painterResource(Res.drawable.middle_earth) }
             circle(410.52737 to 868.7676).color(Color.Blue)
             text(410.52737 to 868.7676, "Shire").color(Color.Blue)
             circle(1132.0881 to 394.99127).color(Color.Red)

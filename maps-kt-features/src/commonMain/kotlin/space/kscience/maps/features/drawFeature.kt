@@ -23,6 +23,7 @@ public fun <T : Any> FeatureDrawScope<T>.drawFeature(
     feature: Feature<T>,
     baseAttributes: Attributes,
 ): Unit {
+
     val attributes = baseAttributes + feature.attributes
     val color = attributes[ColorAttribute] ?: Color.Red
     val alpha = attributes[AlphaAttribute] ?: 1f
@@ -185,8 +186,9 @@ public fun <T : Any> FeatureDrawScope<T>.drawFeature(
             }
         }
 
-        else -> {
-            //logger.error { "Unrecognized feature type: ${feature::class}" }
+        is CustomFeature<*> -> {
+            //do nothing
         }
     }
+
 }

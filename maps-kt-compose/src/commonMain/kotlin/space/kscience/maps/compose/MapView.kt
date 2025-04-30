@@ -1,10 +1,8 @@
 package space.kscience.maps.compose
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.toComposeImageBitmap
@@ -13,38 +11,57 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import org.jetbrains.skia.Image
+import space.kscience.attributes.Attributes
 import space.kscience.maps.coordinates.Gmc
 import space.kscience.maps.features.*
 import kotlin.math.ceil
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.pow
+import kotlin.uuid.ExperimentalUuidApi
 
 
-private fun IntRange.intersect(other: IntRange) = kotlin.math.max(first, other.first)..kotlin.math.min(last, other.last)
+private fun IntRange.intersect(other: IntRange) = max(first, other.first)..min(last, other.last)
 
 private val logger = KotlinLogging.logger("MapView")
+
+//private fun FeatureDrawScope<Gmc>.drawTiles(
+//    tileProvider: MapTileProvider
+//) {
+//
+//}
+
 
 /**
  * A component that renders map and provides basic map manipulation capabilities
  */
+@OptIn(ExperimentalUuidApi::class)
 @Composable
 public fun MapView(
     mapState: MapCanvasState,
-    mapTileProvider: MapTileProvider,
     featureStore: FeatureStore<Gmc>,
     modifier: Modifier,
-) {
-    val mapTiles = remember(mapTileProvider) {
-        mutableStateMapOf<TileId, Image>()
+): Unit = with(mapState) {
+
+
+    val tileFeatures by featureStore.featureFlow
+        .map { it.values.filterIsInstance<TileFeature>() }
+        .collectAsState(emptyList())
+
+    val allTiles: Map<TileFeature, SnapshotStateMap<TileId, Image>> = remember(tileFeatures) {
+        tileFeatures.associateWith {
+            mutableStateMapOf()
+        }
     }
 
-    with(mapState) {
-
-        // Load tiles asynchronously
-        LaunchedEffect(viewPoint, canvasSize) {
-            with(mapTileProvider) {
+    LaunchedEffect(viewPoint, canvasSize, tileFeatures) {
+        allTiles.forEach { (tileFeature, tiles) ->
+            // Load tiles asynchronously
+            with(tileFeature.tileProvider) {
                 val indexRange = 0 until 2.0.pow(intZoom).toInt()
 
                 val left = centerCoordinates.x - canvasSize.width.value / 2 / tileScale
@@ -66,7 +83,7 @@ public fun MapView(
                             launch {
                                 try {
                                     val tile = deferred.await()
-                                    mapTiles[tile.id] = tile.image
+                                    tiles[tile.id] = tile.image
                                 } catch (ex: Exception) {
                                     //displaying the error is maps responsibility
                                     if (ex !is CancellationException) {
@@ -75,40 +92,56 @@ public fun MapView(
                                 }
                             }
                         }
-                        mapTiles.keys.filter {
+                        tiles.keys.filter {
                             it.zoom != intZoom || it.j !in verticalIndices || it.i !in horizontalIndices
                         }.forEach {
-                            mapTiles.remove(it)
+                            tiles.remove(it)
                         }
                     }
                 }
             }
         }
+
     }
 
 
     FeatureCanvas(mapState, featureStore.featureFlow, modifier = modifier.canvasControls(mapState, featureStore)) {
         val tileScale = mapState.tileScale
 
-        clipRect {
-            val tileSize = IntSize(
-                ceil((mapTileProvider.tileSize.dp * tileScale).toPx()).toInt(),
-                ceil((mapTileProvider.tileSize.dp * tileScale).toPx()).toInt()
-            )
-            mapTiles.forEach { (id, image) ->
-                //converting back from tile index to screen offset
-                val offset = IntOffset(
-                    (mapState.canvasSize.width / 2 + (mapTileProvider.toCoordinate(id.i).dp - mapState.centerCoordinates.x.dp) * tileScale).roundToPx(),
-                    (mapState.canvasSize.height / 2 + (mapTileProvider.toCoordinate(id.j).dp - mapState.centerCoordinates.y.dp) * tileScale).roundToPx()
+        allTiles.forEach { (feature, tiles) ->
+            val tileProvider = feature.tileProvider
+            clipRect {
+                val tileSize = IntSize(
+                    ceil((tileProvider.tileSize.dp * tileScale).toPx()).toInt(),
+                    ceil((tileProvider.tileSize.dp * tileScale).toPx()).toInt()
                 )
-                drawImage(
-                    image = image.toComposeImageBitmap(),
-                    dstOffset = offset,
-                    dstSize = tileSize
-                )
+                tiles.forEach { (id, image) ->
+                    //converting back from tile index to screen offset
+                    val offset = IntOffset(
+                        (mapState.canvasSize.width / 2 + (tileProvider.toCoordinate(id.i).dp - mapState.centerCoordinates.x.dp) * tileScale).roundToPx(),
+                        (mapState.canvasSize.height / 2 + (tileProvider.toCoordinate(id.j).dp - mapState.centerCoordinates.y.dp) * tileScale).roundToPx()
+                    )
+                    drawImage(
+                        image = image.toComposeImageBitmap(),
+                        dstOffset = offset,
+                        dstSize = tileSize
+                    )
+                }
             }
         }
     }
+}
+
+@Composable
+public fun MapView(
+    mapState: MapCanvasState,
+    mapTileProvider: MapTileProvider,
+    featureStore: FeatureStore<Gmc>,
+    modifier: Modifier,
+) {
+    //FIXME this function modifies arguments
+    featureStore.feature("map", TileFeature(mapState.space, mapTileProvider, Attributes.EMPTY))
+    MapView(mapState, featureStore, modifier)
 }
 
 /**
@@ -123,7 +156,7 @@ public fun MapView(
     initialRectangle: Rectangle<Gmc>? = null,
     modifier: Modifier = Modifier.fillMaxSize(),
 ) {
-    val mapState = MapCanvasState.remember(mapTileProvider, config, initialViewPoint, initialRectangle)
+    val mapState = MapCanvasState.remember(config, initialViewPoint, initialRectangle)
     MapView(mapState, mapTileProvider, featureStore, modifier)
 }
 

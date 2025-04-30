@@ -6,24 +6,27 @@ plugins {
     alias(spclibs.plugins.compose.jb)
 }
 
-val ktorVersion: String by rootProject.extra
-
 kotlin {
     jvm()
     jvmToolchain(17)
     sourceSets {
-        val jvmMain by getting {
+        commonMain {
             dependencies {
-                implementation(projects.mapsKtScheme)
                 implementation(compose.desktop.currentOs)
-                implementation("ch.qos.logback:logback-classic:1.2.11")
+                implementation(compose.components.resources)
             }
         }
-        val jvmTest by getting
+
+        jvmMain{
+            dependencies {
+                implementation(projects.mapsKtScheme)
+                implementation(spclibs.logback.classic)
+            }
+        }
     }
 }
 
-compose{
+compose {
     desktop {
         application {
             mainClass = "MainKt"
@@ -34,5 +37,9 @@ compose{
                 packageVersion = "1.0.0"
             }
         }
+    }
+
+    resources {
+        generateResClass = always
     }
 }

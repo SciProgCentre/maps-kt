@@ -19,13 +19,12 @@ import java.nio.file.Path
 import kotlin.io.path.writeBytes
 
 public fun FeatureSet<Gmc>.exportToSvg(
-    mapTileProvider: MapTileProvider,
     viewPoint: ViewPoint<Gmc>,
     painterCache: Map<PainterFeature<Gmc>, Painter>,
     size: Size,
     path: Path,
 ) {
-    val mapCanvasState: MapCanvasState = MapCanvasState(mapTileProvider, ViewConfig()).apply {
+    val mapCanvasState: MapCanvasState = MapCanvasState(ViewConfig()).apply {
         this.viewPoint = viewPoint
         this.canvasSize = DpSize(size.width.dp, size.height.dp)
     }
@@ -42,7 +41,7 @@ public fun FeatureSet<Gmc>.exportToPng(
     size: Size,
     path: Path,
 ) {
-    val mapCanvasState: MapCanvasState = MapCanvasState(mapTileProvider, ViewConfig()).apply {
+    val mapCanvasState: MapCanvasState = MapCanvasState(ViewConfig()).apply {
         this.viewPoint = viewPoint
         this.canvasSize = DpSize(size.width.dp, size.height.dp)
     }

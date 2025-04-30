@@ -15,18 +15,18 @@ kscience {
     commonMain{
         api(projects.mapsKtCore)
         api(projects.mapsKtFeatures)
+        api(dependencies.platform(spclibs.ktor.bom))
         api(compose.foundation)
-        api(project.dependencies.platform(spclibs.ktor.bom))
     }
     jvmMain{
         api("io.ktor:ktor-client-cio")
     }
     jvmTest{
-        implementation("io.ktor:ktor-client-cio")
-        implementation(compose.desktop.currentOs)
         implementation(spclibs.kotlinx.coroutines.test)
 
         implementation(spclibs.logback.classic)
+
+        implementation(compose.desktop.currentOs)
     }
 }
 
@@ -39,7 +39,3 @@ readme {
         id = "osm",
     ) { "OpenStreetMap tile provider." }
 }
-
-//tasks.getByName<Copy>("downloadWix"){
-//    duplicatesStrategy = DuplicatesStrategy.WARN
-//}

@@ -3,9 +3,11 @@ package space.kscience.maps.compose
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
-import io.ktor.client.statement.readBytes
+import io.ktor.client.statement.readRawBytes
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 import org.jetbrains.skia.Image
 import java.net.URL
@@ -22,12 +24,14 @@ public class OpenStreetMapTileProvider(
     cacheCapacity: Int = 200,
     private val osmBaseUrl: String = "https://tile.openstreetmap.org",
 ) : MapTileProvider {
+
+    private val cacheMutex = Mutex()
     private val semaphore = Semaphore(parallelism)
     private val cache = LruCache<TileId, Deferred<Image>>(cacheCapacity)
 
     private fun TileId.osmUrl() = URL("$osmBaseUrl/${zoom}/${i}/${j}.png")
 
-    private fun TileId.cacheFilePath() = cacheDirectory.resolve("${zoom}/${i}/${j}.png")
+    private fun TileId.cacheFilePath() = cacheDirectory.resolve("${zoom}/${i}/${j}.png").takeIf { it.exists() }
 
     /**
      * Download and cache the tile image
@@ -48,7 +52,7 @@ public class OpenStreetMapTileProvider(
         //semaphore works only for actual download
         semaphore.withPermit {
             val url = id.osmUrl()
-            val byteArray = client.get(url).readBytes()
+            val byteArray = client.get(url).readRawBytes()
             logger.debug { "Finished downloading map tile with id $id from $url" }
             id.cacheFilePath()?.let { path ->
                 logger.debug { "Caching map tile $id to $path" }
@@ -65,18 +69,22 @@ public class OpenStreetMapTileProvider(
         tileId: TileId,
     ): Deferred<MapTile> {
 
-        //start image download
-        val imageDeferred: Deferred<Image> = cache.getOrPut(tileId) {
-            downloadImageAsync(tileId)
-        }
-
         //collect the result asynchronously
         return async {
+            //start image download
+            val imageDeferred: Deferred<Image> = cacheMutex.withLock {
+                cache.getOrPut(tileId) {
+                    downloadImageAsync(tileId)
+                }
+            }
+
             val image: Image = runCatching { imageDeferred.await() }.onFailure {
-                if(it !is CancellationException) {
+                if (it !is CancellationException) {
                     logger.error(it) { "Failed to load tile image with id=$tileId" }
                 }
-                cache.remove(tileId)
+                cacheMutex.withLock {
+                    cache.remove(tileId)
+                }
             }.getOrThrow()
 
             MapTile(tileId, image)

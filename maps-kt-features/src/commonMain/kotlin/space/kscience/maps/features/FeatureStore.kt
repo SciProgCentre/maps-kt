@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package space.kscience.maps.features
 
 import androidx.compose.runtime.Composable
@@ -9,8 +11,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuid4
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.skia.Font
@@ -20,6 +20,8 @@ import space.kscience.kmath.geometry.Angle
 import space.kscience.kmath.nd.*
 import space.kscience.kmath.structures.Buffer
 import space.kscience.maps.features.FeatureStore.Companion.generateFeatureId
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 //@JvmInline
 //public value class FeatureId<out F : Feature<*>>(public val id: String)
@@ -39,8 +41,6 @@ public fun <T : Any, F : Feature<T>> FeatureRef<T, F>.resolve(): F =
     store.features[id]?.let { it as F } ?: error("Feature with ref $this not found")
 
 public val <T : Any, F : Feature<T>> FeatureRef<T, F>.attributes: Attributes get() = resolve().attributes
-
-public fun Uuid.toIndex(): String = leastSignificantBits.toString(16)
 
 public interface FeatureBuilder<T : Any> {
     public val space: CoordinateSpace<T>
@@ -76,6 +76,15 @@ public interface FeatureSet<T : Any> {
 }
 
 
+/**
+ * A class representing a store for managing spatial features with the ability to add, update,
+ * remove, and group features within a specific coordinate space.
+ * It also provides reactive flow support to observe changes in the feature set.
+ *
+ * @param T The type parameter representing the coordinate points handled by the store.
+ * @property space The coordinate space associated with this feature store, enabling operations
+ * on map coordinates.
+ */
 public class FeatureStore<T : Any>(
     override val space: CoordinateSpace<T>,
 ) : CoordinateSpace<T> by space, FeatureBuilder<T>, FeatureSet<T> {
@@ -130,7 +139,7 @@ public class FeatureStore<T : Any>(
     public companion object {
 
         internal fun generateFeatureId(prefix: String): String =
-            "$prefix[${uuid4().toIndex()}]"
+            "$prefix[${Uuid.random().toHexString()}]"
 
         internal fun generateFeatureId(feature: Feature<*>): String =
             generateFeatureId(feature::class.simpleName ?: "undefined")

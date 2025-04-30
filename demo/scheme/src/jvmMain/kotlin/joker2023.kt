@@ -2,16 +2,23 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import org.jetbrains.compose.resources.painterResource
 import space.kscience.maps.features.*
 import space.kscience.maps.scheme.*
 import space.kscience.maps.scheme.XYCoordinateSpace.Rectangle
+import space.kscience.scheme.generated.resources.Res
+import space.kscience.scheme.generated.resources.SPC_logo
+import space.kscience.scheme.generated.resources.joker2023
 
 
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication, title = "Joker2023 demo", icon = painterResource("SPC-logo.png")) {
+    Window(
+        onCloseRequest = ::exitApplication,
+        title = "Joker2023 demo",
+        icon = painterResource(Res.drawable.SPC_logo)
+    ) {
         MaterialTheme {
 
             SchemeView(
@@ -22,7 +29,7 @@ fun main() = application {
                     }
                 )
             ) {
-                background(1734f, 724f, id = "background") { painterResource("joker2023.png") }
+                background(1734f, 724f, id = "background") { painterResource(Res.drawable.joker2023) }
                 group(id = "hall_1") {
                     polygon(
                         listOf(
@@ -66,9 +73,9 @@ fun main() = application {
                     icon(XY(815.60535, 342.71313), Icons.Default.Face).color(Color.Red)
                     icon(XY(743.751, 381.09064), Icons.Default.Face).color(Color.Red)
                     icon(XY(1349.6648, 417.36014), Icons.Default.Face).color(Color.Red)
-                    icon(XY (1362.4658, 287.21667), Icons.Default.Face).color(Color.Red)
+                    icon(XY(1362.4658, 287.21667), Icons.Default.Face).color(Color.Red)
                     icon(XY(208.24274, 317.08566), Icons.Default.Face).color(Color.Red)
-                    icon(XY (293.5827, 319.21915), Icons.Default.Face).color(Color.Red)
+                    icon(XY(293.5827, 319.21915), Icons.Default.Face).color(Color.Red)
                 }
             }
         }

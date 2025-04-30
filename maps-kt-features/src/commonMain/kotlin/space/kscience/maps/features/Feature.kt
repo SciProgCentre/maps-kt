@@ -25,7 +25,7 @@ import space.kscience.kmath.nd.Structure2D
 
 public typealias FloatRange = ClosedFloatingPointRange<Float>
 
-public interface Feature<T : Any> {
+public sealed interface Feature<T : Any> {
 
     public val space: CoordinateSpace<T>
 
@@ -36,6 +36,11 @@ public interface Feature<T : Any> {
     public fun withAttributes(modify: Attributes.() -> Attributes): Feature<T>
 }
 
+/**
+ * A feature that is not processed by default
+ */
+public interface CustomFeature<T : Any> : Feature<T>
+
 public val Feature<*>.color: Color? get() = attributes[ColorAttribute]
 
 public val Feature<*>.zoomRange: FloatRange
@@ -44,25 +49,25 @@ public val Feature<*>.zoomRange: FloatRange
 public val Feature<*>.name: String?
     get() = attributes[NameAttribute]
 
-public interface PainterFeature<T : Any> : Feature<T> {
+public sealed interface PainterFeature<T : Any> : Feature<T> {
     @Composable
     public fun getPainter(): Painter
 }
 
-public interface DomainFeature<T : Any> : Feature<T> {
+public sealed interface DomainFeature<T : Any> : Feature<T> {
     public operator fun contains(viewPoint: ViewPoint<T>): Boolean = getBoundingBox(viewPoint.zoom)?.let {
         viewPoint.focus in it
     } ?: false
 }
 
-public interface DraggableFeature<T : Any> : DomainFeature<T> {
+public sealed interface DraggableFeature<T : Any> : DomainFeature<T> {
     public fun withCoordinates(newCoordinates: T): Feature<T>
 }
 
 /**
  * A draggable marker feature. Other features could be bound to this one.
  */
-public interface MarkerFeature<T : Any> : DraggableFeature<T> {
+public sealed interface MarkerFeature<T : Any> : DraggableFeature<T> {
     public val center: T
 }
 
@@ -129,7 +134,7 @@ public data class PointsFeature<T : Any>(
 }
 
 
-public interface LineSegmentFeature<T : Any> : Feature<T>
+public sealed interface LineSegmentFeature<T : Any> : Feature<T>
 
 @Stable
 public data class LineFeature<T : Any>(

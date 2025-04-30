@@ -1,4 +1,6 @@
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+@file:OptIn(ExperimentalWasmDsl::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     kotlin("multiplatform")
@@ -9,7 +11,6 @@ plugins {
 //val ktorVersion: String by rootProject.extra
 
 kotlin {
-    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
         binaries.executable()

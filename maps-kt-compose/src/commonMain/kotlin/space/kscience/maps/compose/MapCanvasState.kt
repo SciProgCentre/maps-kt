@@ -16,8 +16,8 @@ import kotlin.math.*
 
 
 public class MapCanvasState internal constructor(
-    public val mapTileProvider: MapTileProvider,
     config: ViewConfig<Gmc>,
+    public val tileSize: Int = MapTileProvider.DEFAULT_TILE_SIZE
 ) : CanvasState<Gmc>(config) {
     override val space: CoordinateSpace<Gmc> get() = WebMercatorSpace
 
@@ -63,7 +63,7 @@ public class MapCanvasState internal constructor(
             min(
                 canvasSize.width.value / rectangle.longitudeDelta.toRadians().value,
                 canvasSize.height.value / rectangle.latitudeDelta.toRadians().value
-            ) * 2 * PI / mapTileProvider.tileSize
+            ) * 2 * PI / tileSize
         ).coerceIn(0.0..22.0)
         return space.ViewPoint(rectangle.center, zoom.toFloat())
     }
@@ -84,12 +84,12 @@ public class MapCanvasState internal constructor(
     public companion object {
         @Composable
         public fun remember(
-            mapTileProvider: MapTileProvider,
             config: ViewConfig<Gmc> = ViewConfig(),
             initialViewPoint: ViewPoint<Gmc>? = null,
             initialRectangle: Rectangle<Gmc>? = null,
+            tileSize: Int = MapTileProvider.DEFAULT_TILE_SIZE,
         ): MapCanvasState = remember {
-            MapCanvasState(mapTileProvider, config).apply {
+            MapCanvasState(config, tileSize).apply {
                 if (initialViewPoint != null) {
                     viewPoint = initialViewPoint
                 } else if (initialRectangle != null) {

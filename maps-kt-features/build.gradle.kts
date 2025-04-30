@@ -35,7 +35,6 @@ kscience {
         api(compose.material)
         api(compose.ui)
         api("io.github.oshai:kotlin-logging:6.0.3")
-        api("com.benasher44:uuid:0.8.4")
     }
 
     jvmMain{

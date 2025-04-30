@@ -18,6 +18,7 @@ import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.DpRect
+import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.StateFlow
@@ -47,6 +48,10 @@ public abstract class FeatureDrawScope<T : Any>(
     public abstract fun painterFor(feature: PainterFeature<T>): Painter
 
     public abstract fun drawText(text: String, position: Offset, attributes: Attributes)
+
+    public companion object{
+        public val logger: KLogger =  KotlinLogging.logger("FeatureDrawScope")
+    }
 }
 
 /**
@@ -84,6 +89,8 @@ public fun <T: Any> FeatureSet<T>.pointerCache(): Map<PainterFeature<T>, Painter
 
 /**
  * Create a canvas with extended functionality (e.g., drawing text)
+ *
+ * @param draw additional custom content drawn underneath features
  */
 @OptIn(FlowPreview::class)
 @Composable
