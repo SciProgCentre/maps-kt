@@ -2,10 +2,7 @@ package space.kscience.maps.compose
 
 import space.kscience.attributes.Attributes
 import space.kscience.maps.coordinates.Gmc
-import space.kscience.maps.features.CoordinateSpace
-import space.kscience.maps.features.CustomFeature
-import space.kscience.maps.features.Feature
-import space.kscience.maps.features.Rectangle
+import space.kscience.maps.features.*
 
 /**
  * Represents a custom feature associated with a specific map tile provider.
@@ -28,5 +25,25 @@ public data class TileFeature(
 ) : CustomFeature<Gmc> {
     override fun getBoundingBox(zoom: Float): Rectangle<Gmc>? = null
 
-    override fun withAttributes(modify: Attributes.() -> Attributes): Feature<Gmc> = copy(attributes = modify(attributes))
+    override fun withAttributes(modify: Attributes.() -> Attributes): Feature<Gmc> =
+        copy(attributes = modify(attributes))
 }
+
+/**
+ * Adds a tile-based feature to the builder using the specified tile provider and optional identifier.
+ *
+ * @param tileProvider The provider responsible for asynchronous loading and management of map tiles.
+ * @param id An optional string identifier for the feature. If null, a unique ID will be generated.
+ * @return A reference to the created tile-based feature.
+ */
+public fun FeatureBuilder<Gmc>.tiles(
+    tileProvider: MapTileProvider,
+    id: String? = null,
+): FeatureRef<Gmc, TileFeature> = feature(
+    id,
+    TileFeature(
+        space,
+        tileProvider,
+        Attributes.EMPTY
+    )
+)
