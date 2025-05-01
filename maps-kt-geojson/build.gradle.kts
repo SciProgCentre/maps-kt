@@ -3,6 +3,7 @@ plugins {
     `maven-publish`
 }
 
+description = "GeoJson format support"
 
 kscience{
     jvm()
@@ -17,4 +18,8 @@ kscience{
         api(projects.mapsKtFeatures)
         api(spclibs.kotlinx.serialization.json)
     }
+}
+
+readme {
+    maturity = space.kscience.gradle.Maturity.DEVELOPMENT
 }

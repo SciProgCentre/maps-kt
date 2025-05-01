@@ -10,8 +10,19 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
+/**
+ * A data class representing a 2D vector in a coordinate space with `Float` precision.
+ *
+ * @property x The x-coordinate of the vector.
+ * @property y The y-coordinate of the vector.
+ */
 public data class XY(override val x: Float, override val y: Float) : Vector2D<Float>
 
+/**
+ * Creates an instance of the `XY` data class representing a two-dimensional vector with `x` and `y` coordinates
+ * converted to `Float` values.
+ *
+ * @param x The*/
 public fun XY(x: Number, y: Number): XY = XY(x.toFloat(), y.toFloat())
 
 internal data class XYRectangle(
@@ -45,11 +56,34 @@ public val Rectangle<XY>.rightBottom: XY get() = XY(right, bottom)
 
 internal val defaultCanvasSize = DpSize(512.dp, 512.dp)
 
+/**
+ * A data class representing a viewpoint in a 2D coordinate space, defined by a focus point and
+ * a zoom level.
+ *
+ * This class implements the [ViewPoint] interface using the [XY] coordinate system to define
+ * spatial locations within a 2D space. The viewpoint is commonly used in visual representations
+ * like maps or canvases to determine the focal area and zoom level.
+ *
+ * @property focus The central [XY] coordinate of the viewpoint.
+ * @property zoom The magnification level of the viewpoint, where higher values indicate greater zoom-in.
+ */
 public data class XYViewPoint(
     override val focus: XY,
     override val zoom: Float = 1f,
 ) : ViewPoint<XY>
 
+/**
+ * Constructs a rectangle in the coordinate space defined by the center point,
+ * width, and height.
+ * The rectangle is created by determining two diagonal corners
+ * based on the given dimensions and center.
+ *
+ * @param center The center point of the rectangle in the coordinate space.
+ * @param height The height of the rectangle.
+ * @param width The width of the rectangle.
+ * @return A rectangle defined in the coordinate space with the specified parameters.
+ */
+@Suppress("UnusedReceiverParameter")
 public fun CoordinateSpace<XY>.Rectangle(
     center: XY,
     height: Float,

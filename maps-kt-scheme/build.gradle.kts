@@ -19,6 +19,10 @@ kscience {
 }
 
 
+readme{
+    maturity = space.kscience.gradle.Maturity.DEVELOPMENT
+}
+
 //java {
 //    targetCompatibility = JVM_TARGET
 //}

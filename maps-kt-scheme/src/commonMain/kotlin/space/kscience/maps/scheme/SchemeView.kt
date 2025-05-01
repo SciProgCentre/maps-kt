@@ -12,6 +12,17 @@ import kotlin.math.min
 
 private val logger = KotlinLogging.logger("SchemeView")
 
+/**
+ * A composable function that renders a view for visualizing and interacting with spatial features
+ * within a two-dimensional coordinate system using a canvas.
+ *
+ * @param state The state object that manages the overall configuration and state of the canvas,
+ * including zoom, focus, and coordinate transformations.
+ * @param featureStore The store containing spatial features to be rendered on the canvas. It also
+ * provides reactive updates for changes in the feature set.
+ * @param modifier The Modifier applied to the composable. Defaults to filling the available space.
+ * @return Unit
+ */
 @Composable
 public fun SchemeView(
     state: XYCanvasState,
@@ -21,7 +32,17 @@ public fun SchemeView(
     FeatureCanvas(state, featureStore.featureFlow, modifier = modifier.canvasControls(state, featureStore))
 }
 
-
+/**
+ * Computes a view point for the canvas based on the current rectangle dimensions
+ * and the specified canvas size.
+ * The view point includes a calculated zoom value
+ * to fit the rectangle within the canvas and its center as the focal point.
+ *
+ * @param canvasSize the size of the canvas on which the rectangle will be displayed.
+ *        Defaults to the internal `defaultCanvasSize` value if not provided.
+ * @return a [ViewPoint] object with the rectangle's center as the focal point and
+ *         the computed zoom level required to fit the rectangle within the given canvas size.
+ */
 public fun Rectangle<XY>.computeViewPoint(
     canvasSize: DpSize = defaultCanvasSize,
 ): ViewPoint<XY> {

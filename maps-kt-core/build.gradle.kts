@@ -3,8 +3,6 @@ plugins {
     `maven-publish`
 }
 
-val kmathVersion: String by rootProject.extra
-
 kscience{
     jvm()
     js()
