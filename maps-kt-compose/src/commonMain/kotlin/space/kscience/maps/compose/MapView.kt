@@ -99,6 +99,7 @@ public fun MapView(
 
 
     FeatureCanvas(mapState, featureStore.featureFlow, modifier = modifier.canvasControls(mapState, featureStore)) {
+        // draw custom features
         val tileScale = mapState.tileScale
 
         allTiles.forEach { (feature, tiles) ->

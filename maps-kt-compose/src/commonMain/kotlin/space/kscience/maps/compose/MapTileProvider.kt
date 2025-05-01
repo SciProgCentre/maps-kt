@@ -16,6 +16,12 @@ public data class MapTile(
     val image: Image,
 )
 
+/**
+ * Interface representing a provider for map tiles.
+ *
+ * This interface defines the contract for asynchronous loading of map tiles and
+ * utilities for mapping between tile indices and coordinates.
+ */
 public interface MapTileProvider {
     public fun CoroutineScope.loadTileAsync(tileId: TileId): Deferred<MapTile>
 

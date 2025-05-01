@@ -7,6 +7,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import space.kscience.kmath.geometry.radians
+import space.kscience.maps.compose.MapCanvasState.Companion.remember
 import space.kscience.maps.coordinates.Gmc
 import space.kscience.maps.coordinates.MercatorProjection
 import space.kscience.maps.coordinates.WebMercatorCoordinates
@@ -15,6 +16,25 @@ import space.kscience.maps.features.*
 import kotlin.math.*
 
 
+/**
+ * Represents the state of a map canvas, extending the functionality of [CanvasState] to handle
+ * map-specific operations.
+ *
+ * This class utilizes the Web Mercator projection for map rendering and provides utilities
+ * to manage zoom levels, convert coordinates, and track view states.
+ * It operates with
+ * geodetic map coordinates (GMC) and simplifies interaction with the map's coordinate space.
+ *
+ * The class is internal to prevent direct instantiation; use the [remember] function to
+ * create or get a [MapCanvasState] instance within a composable.
+ *
+ * @constructor
+ * Creates an instance of [MapCanvasState] with the given configuration and default tile size
+ * (used only for scale computation).
+ *
+ * @param config The configuration for view-related behaviors such as zoom, clicks, and canvas size changes.
+ * @param tileSize The tile size used to compute scale, defaulting to [MapTileProvider.DEFAULT_TILE_SIZE].
+ */
 public class MapCanvasState internal constructor(
     config: ViewConfig<Gmc>,
     public val tileSize: Int = MapTileProvider.DEFAULT_TILE_SIZE

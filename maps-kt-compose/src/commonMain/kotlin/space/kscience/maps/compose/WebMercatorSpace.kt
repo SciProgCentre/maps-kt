@@ -13,6 +13,13 @@ import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.pow
 
+/**
+ * An implementation of the `CoordinateSpace` interface for the Web Mercator Projection.
+ *
+ * This object provides functionality for manipulating geodetic map coordinates (Gmc),
+ * which includes operations like creating rectangles, computing offset and distance,
+ * moving viewpoints, zooming, and polygon containment checks.
+ */
 public object WebMercatorSpace : CoordinateSpace<Gmc> {
 
     private fun intZoom(zoom: Float): Int = floor(zoom).toInt()
@@ -126,6 +133,7 @@ public fun CoordinateSpace<Gmc>.Rectangle(
 /**
  * A quasi-square section.
  */
+@Suppress("UnusedReceiverParameter")
 public fun CoordinateSpace<Gmc>.Rectangle(
     center: GeodeticMapCoordinates,
     height: Angle,
