@@ -13,7 +13,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
 import org.jetbrains.skia.Image
 import space.kscience.attributes.Attributes
 import space.kscience.maps.coordinates.Gmc
@@ -75,20 +74,14 @@ public fun MapView(
                 for (j in verticalIndices) {
                     for (i in horizontalIndices) {
                         val id = TileId(intZoom, i, j)
-                        //ensure that failed tiles do not fail the application
-                        supervisorScope {
-                            //start all
-                            val deferred = loadTileAsync(id)
-                            //wait asynchronously for it to finish
-                            launch {
-                                try {
-                                    val tile = deferred.await()
-                                    tiles[tile.id] = tile.image
-                                } catch (ex: Exception) {
-                                    //displaying the error is maps responsibility
-                                    if (ex !is CancellationException) {
-                                        logger.error(ex) { "Failed to load tile with id=$id" }
-                                    }
+                        launch {
+                            try {
+                                val tile = loadTileAsync(id).await()
+                                tiles[tile.id] = tile.image
+                            } catch (ex: Exception) {
+                                //displaying the error is maps responsibility
+                                if (ex !is CancellationException) {
+                                    logger.error(ex) { "Failed to load tile with id=$id" }
                                 }
                             }
                         }

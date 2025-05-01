@@ -49,8 +49,8 @@ public abstract class FeatureDrawScope<T : Any>(
 
     public abstract fun drawText(text: String, position: Offset, attributes: Attributes)
 
-    public companion object{
-        public val logger: KLogger =  KotlinLogging.logger("FeatureDrawScope")
+    public companion object {
+        public val logger: KLogger = KotlinLogging.logger("FeatureDrawScope")
     }
 }
 
@@ -64,12 +64,14 @@ public class ComposeFeatureDrawScope<T : Any>(
     private val painterCache: Map<PainterFeature<T>, Painter>,
     private val textMeasurer: TextMeasurer?,
 ) : FeatureDrawScope<T>(state), DrawScope by drawScope {
+
     override fun drawText(text: String, position: Offset, attributes: Attributes) {
-        try {
-            //TODO don't draw text that is not on screen
-            drawText(textMeasurer ?: error("Text measurer not defined"), text, position)
-        } catch (ex: Exception) {
-            logger.error(ex) { "Failed to measure text" }
+        if (position.x in 0f..size.width && position.y in 0f..size.height) {
+            try {
+                drawText(textMeasurer ?: error("Text measurer not defined"), text, position)
+            } catch (ex: Exception) {
+                logger.error(ex) { "Failed to measure text" }
+            }
         }
     }
 
@@ -82,7 +84,7 @@ public class ComposeFeatureDrawScope<T : Any>(
 }
 
 @Composable
-public fun <T: Any> FeatureSet<T>.pointerCache(): Map<PainterFeature<T>, Painter> = key(features) {
+public fun <T : Any> FeatureSet<T>.pointerCache(): Map<PainterFeature<T>, Painter> = key(features) {
     features.values.filterIsInstance<PainterFeature<T>>().associateWith { it.getPainter() }
 }
 
