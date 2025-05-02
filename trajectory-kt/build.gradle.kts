@@ -18,7 +18,7 @@ kscience{
         json()
     }
     dependencies {
-        api("space.kscience:kmath-geometry:$kmathVersion")
+        api(libs.kmath.geometry)
     }
 }
 

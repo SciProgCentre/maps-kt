@@ -4,7 +4,7 @@ import space.kscience.kmath.geometry.*
 import kotlin.math.*
 
 /**
- * A directed straight (geodetic) segment on a spheroid with given start, direction, end point and distance.
+ * A directed straight (geodetic) segment on a spheroid with the given start, direction, end point and distance.
  * @param forward coordinate of a start point with the forward direction
  * @param backward coordinate of an end point with the backward direction
  */

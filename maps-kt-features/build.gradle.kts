@@ -34,10 +34,12 @@ kscience {
         api(compose.foundation)
         api(compose.material)
         api(compose.ui)
-        api("io.github.oshai:kotlin-logging:6.0.3")
+
+        api(libs.attributes.serialization)
+        api("io.github.oshai:kotlin-logging:7.0.7")
     }
 
     jvmMain{
-        api("org.jfree:org.jfree.svg:5.0.4")
+        api("org.jfree:org.jfree.svg:5.0.6")
     }
 }

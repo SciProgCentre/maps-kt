@@ -1,0 +1,13 @@
+[versions]
+
+kmath = "0.4.2"
+geotools = "32.2"
+attributes = "0.3.0"
+
+[libraries]
+
+kmath-geometry = { module = "space.kscience:kmath-geometry", version.ref = "kmath" }
+gt-geotiff = { module = "org.geotools:gt-geotiff", version.ref = "geotools" }
+gt-shapefile = { module = "org.geotools:gt-shapefile", version.ref = "geotools" }
+gt-epsg-hsql = { module = "org.geotools:gt-epsg-hsql", version.ref = "geotools" }
+attributes-serialization = { module = "space.kscience:attributes-kt-serialization", version.ref = "attributes" }

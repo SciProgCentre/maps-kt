@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import org.jetbrains.skia.Font
 import space.kscience.attributes.Attributes
-import space.kscience.attributes.NameAttribute
 import space.kscience.kmath.geometry.Angle
 import space.kscience.kmath.nd.Structure2D
 
@@ -315,7 +314,7 @@ public data class VectorIconFeature<T : Any>(
 /**
  * An image that is bound to coordinates and is scaled (and possibly warped) together with them
  *
- * @param rectangle the size of background in scheme size units. The screen units to scheme units ratio equals scale.
+ * @param rectangle the size of the image in scheme size units. The screen units to scheme units ratio equals scale.
  */
 public data class ScalableImageFeature<T : Any>(
     override val space: CoordinateSpace<T>,

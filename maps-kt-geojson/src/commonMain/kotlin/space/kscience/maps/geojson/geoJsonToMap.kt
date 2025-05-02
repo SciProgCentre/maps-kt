@@ -4,7 +4,6 @@ import androidx.compose.ui.graphics.Color
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonPrimitive
-import space.kscience.attributes.NameAttribute
 import space.kscience.maps.coordinates.Gmc
 import space.kscience.maps.features.*
 

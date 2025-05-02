@@ -18,6 +18,15 @@ import space.kscience.maps.svg.generateSvg
 import java.nio.file.Path
 import kotlin.io.path.writeBytes
 
+/**
+ * Exports the features of a [FeatureSet] to an SVG file.
+ *
+ * @param viewPoint The `ViewPoint` providing the spatial context (focus and zoom level) for rendering the SVG.
+ * @param painterCache A map associating `PainterFeature` instances with their respective `Painter` objects,
+ * used for rendering the features in the SVG.
+ * @param size The dimensions (`Size`) of the SVG file to generate.
+ * @param path The file path where the generated SVG will be saved.
+ */
 public fun FeatureSet<Gmc>.exportToSvg(
     viewPoint: ViewPoint<Gmc>,
     painterCache: Map<PainterFeature<Gmc>, Painter>,
@@ -34,7 +43,6 @@ public fun FeatureSet<Gmc>.exportToSvg(
 }
 
 public fun FeatureSet<Gmc>.exportToPng(
-    mapTileProvider: MapTileProvider,
     viewPoint: ViewPoint<Gmc>,
     painterCache: Map<PainterFeature<Gmc>, Painter>,
     textMeasurer: TextMeasurer,

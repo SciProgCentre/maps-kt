@@ -6,7 +6,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
+import kotlinx.serialization.builtins.serializer
 import space.kscience.attributes.*
+import space.kscience.attributes.serialization.SerializableAttribute
+
+public object NameAttribute : SerializableAttribute<String>("name", String.serializer())
 
 public object ZAttribute : Attribute<Float>
 

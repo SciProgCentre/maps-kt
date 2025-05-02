@@ -9,9 +9,10 @@ import kotlinx.serialization.modules.contextual
 import kotlinx.serialization.protobuf.ProtoBuf
 import kotlinx.serialization.serializer
 import space.kscience.attributes.Attributes
-import space.kscience.attributes.AttributesSerializer
-import space.kscience.attributes.NameAttribute
-import space.kscience.attributes.SerializableAttribute
+import space.kscience.attributes.serialization.AttributesSerializer
+import space.kscience.attributes.serialization.SerializableAttribute
+import space.kscience.maps.features.NameAttribute
+
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
