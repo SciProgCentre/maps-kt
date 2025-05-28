@@ -9,7 +9,7 @@ The core interfaces of KMath.
 
 ## Artifact:
 
-The Maven coordinates of this project are `space.kscience:maps-kt-core:0.3.0`.
+The Maven coordinates of this project are `space.kscience:maps-kt-core:0.4.0-dev-7`.
 
 **Gradle Kotlin DSL:**
 ```kotlin
@@ -19,6 +19,6 @@ repositories {
 }
 
 dependencies {
-    implementation("space.kscience:maps-kt-core:0.3.0")
+    implementation("space.kscience:maps-kt-core:0.4.0-dev-7")
 }
 ```

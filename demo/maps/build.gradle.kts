@@ -6,7 +6,17 @@ plugins {
     alias(spclibs.plugins.compose.jb)
 }
 
-val ktorVersion: String by rootProject.extra
+repositories {
+    maven("https://repo.osgeo.org/repository/release/")
+    exclusiveContent {
+        forRepository {
+            maven("https://repo.osgeo.org/repository/release/")
+        }
+        filter {
+            includeGroup("javax.media")
+        }
+    }
+}
 
 kotlin {
     jvmToolchain(17)
@@ -16,7 +26,9 @@ kotlin {
             dependencies {
                 implementation(projects.mapsKtCompose)
                 implementation(projects.mapsKtGeojson)
+                implementation(projects.mapsKtGeotools)
                 implementation(compose.desktop.currentOs)
+
                 implementation("io.ktor:ktor-client-cio")
                 implementation(spclibs.logback.classic)
             }

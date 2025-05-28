@@ -25,5 +25,4 @@ kscience{
 readme {
     description = "Path and trajectory optimization"
     maturity = space.kscience.gradle.Maturity.EXPERIMENTAL
-    propertyByTemplate("artifact", rootProject.file("docs/templates/ARTIFACT-TEMPLATE.md"))
 }

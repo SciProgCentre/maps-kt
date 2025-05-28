@@ -6,7 +6,7 @@
 
 ## Artifact:
 
-The Maven coordinates of this project are `space.kscience:maps-kt-features:0.3.0`.
+The Maven coordinates of this project are `space.kscience:maps-kt-features:0.4.0-dev-7`.
 
 **Gradle Kotlin DSL:**
 ```kotlin
@@ -16,6 +16,6 @@ repositories {
 }
 
 dependencies {
-    implementation("space.kscience:maps-kt-features:0.3.0")
+    implementation("space.kscience:maps-kt-features:0.4.0-dev-7")
 }
 ```

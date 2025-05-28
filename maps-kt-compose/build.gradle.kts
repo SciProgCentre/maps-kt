@@ -33,7 +33,6 @@ kscience {
 readme {
     description = "Compose-multiplaform implementation for web-mercator tiled maps"
     maturity = space.kscience.gradle.Maturity.DEVELOPMENT
-    propertyByTemplate("artifact", rootProject.file("docs/templates/ARTIFACT-TEMPLATE.md"))
 
     feature(
         id = "osm",

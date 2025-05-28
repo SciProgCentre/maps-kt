@@ -19,7 +19,6 @@ kscience{
 readme {
     description = "Core cartography, UI-agnostic"
     maturity = space.kscience.gradle.Maturity.DEVELOPMENT
-    propertyByTemplate("artifact", rootProject.file("docs/templates/ARTIFACT-TEMPLATE.md"))
 
     feature(
         id = "angles and distances",
