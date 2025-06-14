@@ -52,7 +52,7 @@ public class GeoToolsMapProjection(
 
     public companion object {
 
-        private val crsEPSG4326 by lazy { CRS.decode("EPSG:4326") }
+        internal val crsEPSG4326 by lazy { CRS.decode("EPSG:4326") }
 
         public val EPSG4326: GeoToolsMapProjection = GeoToolsMapProjection(crsEPSG4326)
 

@@ -9,56 +9,63 @@ import org.geotools.util.factory.Hints
 import space.kscience.kmath.geometry.degrees
 import space.kscience.maps.coordinates.Gmc
 import space.kscience.maps.features.*
+import java.awt.geom.AffineTransform
 import java.awt.image.BufferedImage
 import java.awt.image.RenderedImage
+import java.io.InputStream
 import java.lang.Boolean
-import java.net.URL
+import javax.media.jai.PlanarImage
 import kotlin.String
 
 
-private fun RenderedImage.toImageBitmap(): ImageBitmap {
-    // Convert RenderedImage to BufferedImage if needed
-    val bufferedImage = if (this is BufferedImage) {
-        this
-    } else {
-        val bi = BufferedImage(
-            this.width,
-            this.height,
-            BufferedImage.TYPE_INT_ARGB
-        )
-        val graphics = bi.createGraphics()
-        graphics.drawRenderedImage(this, null)
-        graphics.dispose()
-        bi
+private fun RenderedImage.toImageBitmap(transform: AffineTransform = AffineTransform()): ImageBitmap {
+    val bufferedImage = when (this) {
+        is BufferedImage -> this
+
+        is PlanarImage -> this.asBufferedImage
+
+        else -> {
+            val bufferedImage = BufferedImage(
+                this.width,
+                this.height,
+                BufferedImage.TYPE_INT_ARGB
+            )
+            val graphics = bufferedImage.createGraphics()
+            graphics.drawRenderedImage(this, transform)
+            graphics.dispose()
+            bufferedImage
+        }
     }
 
     // Convert BufferedImage to Compose ImageBitmap
     return bufferedImage.toComposeImageBitmap()
 }
 
-private fun Position.toGmc(): Gmc {
-    return Gmc(getOrdinate(0).degrees, getOrdinate(1).degrees)
-}
+/**
+ * Transform position to geodetic coordinates assuming the position already uses geodetic cooridnates
+ */
+private fun Position.toGmc(): Gmc = Gmc(getOrdinate(0).degrees, getOrdinate(1).degrees)
 
-public fun FeatureGroup<Gmc>.geoTiff(
-    geoTiffUrl: URL,
+public fun FeatureBuilder<Gmc>.geoTiff(
+    geoTiffStream: () -> InputStream,
     hints: Hints = Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE),
     id: String? = null,
 ): FeatureRef<Gmc, Feature<Gmc>> {
-    val reader = GeoTiffReader(geoTiffUrl, hints)
-    val coverage = reader.read(null)
-    val crs = coverage.coordinateReferenceSystem
+    geoTiffStream().use { stream ->
+        val reader = GeoTiffReader(stream, hints)
+        val coverage = reader.read(null)
 
+        val image = coverage.renderedImage.toImageBitmap()
+        val envelope = coverage.envelope2D.transform(GeoToolsMapProjection.crsEPSG4326, true)
 
-    val image = coverage.renderedImage.toImageBitmap()
-    val envelope = coverage.envelope2D
-    val rectangle: Rectangle<Gmc> = Rectangle(envelope.lowerCorner.toGmc(), envelope.upperCorner.toGmc())
+        val rectangle: Rectangle<Gmc> = space.Rectangle(envelope.lowerCorner.toGmc(), envelope.upperCorner.toGmc())
 
-    return feature(
-        id,
-        ScalableImageFeature<Gmc>(space, rectangle) {
-            BitmapPainter(image)
-        }
-    )
+        return feature(
+            id,
+            ScalableImageFeature<Gmc>(space, rectangle) {
+                BitmapPainter(image)
+            }
+        )
+    }
 }
 

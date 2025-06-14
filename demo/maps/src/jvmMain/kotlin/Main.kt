@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import center.sciprog.maps.geotools.geoTiff
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import kotlinx.coroutines.delay
@@ -74,6 +75,10 @@ fun App() {
             geoJson(javaClass.getResource("/moscow.geo.json")!!)
                 .color(Color.Blue)
                 .alpha(0.4f)
+
+
+            geoTiff(geoTiffStream = { javaClass.getResourceAsStream("/wind_direction.tif")!! })
+                .alpha(0.2f)
 
             icon(pointOne, Icons.Filled.Home)
 
@@ -157,6 +162,7 @@ fun App() {
                     alpha = 0.3f
                 )
             }
+
 
             centerCoordinates.filterNotNull().onEach {
                 group(id = "center") {
