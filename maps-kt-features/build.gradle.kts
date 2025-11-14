@@ -10,7 +10,7 @@ val kmathVersion: String by rootProject.extra
 kscience {
     jvm()
 //    js()
-    wasm{
+    wasmJs{
         browser {
             testTask {
                 enabled = false

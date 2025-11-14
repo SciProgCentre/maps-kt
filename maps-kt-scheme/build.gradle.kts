@@ -8,7 +8,7 @@ plugins {
 kscience {
     jvm()
 //    js()
-    wasm()
+    wasmJs()
 
     commonMain {
         api(projects.mapsKtFeatures)

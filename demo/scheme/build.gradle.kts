@@ -14,6 +14,7 @@ kotlin {
             dependencies {
                 implementation(compose.desktop.currentOs)
                 implementation(compose.components.resources)
+                implementation(compose.materialIconsExtended)
             }
         }
 

@@ -28,6 +28,7 @@ kotlin {
                 implementation(projects.mapsKtGeojson)
                 implementation(projects.mapsKtGeotools)
                 implementation(compose.desktop.currentOs)
+                implementation(compose.materialIconsExtended)
 
                 implementation("io.ktor:ktor-client-cio")
                 implementation(spclibs.logback.classic)

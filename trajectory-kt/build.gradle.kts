@@ -11,9 +11,9 @@ kscience{
     jvm()
     js()
     native()
-    wasm()
+    wasmJs()
 
-    useContextReceivers()
+    useContextParameters()
     useSerialization{
         json()
     }

@@ -8,7 +8,7 @@ description = "GeoJson format support"
 kscience{
     jvm()
 //    js()
-    wasm()
+    wasmJs()
 
     useSerialization {
         json()

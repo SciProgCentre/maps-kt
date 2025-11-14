@@ -8,7 +8,7 @@ plugins {
 
 kscience {
     jvm()
-    wasm()
+    wasmJs()
 
     useCoroutines()
 
