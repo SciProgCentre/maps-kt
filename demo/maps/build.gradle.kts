@@ -19,7 +19,6 @@ repositories {
 }
 
 kotlin {
-    jvmToolchain(17)
     jvm()
     sourceSets {
         val jvmMain by getting {

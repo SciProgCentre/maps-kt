@@ -3,7 +3,7 @@ plugins {
     `maven-publish`
 }
 
-kscience{
+kscience {
     jvm()
     js()
     native()
@@ -11,7 +11,7 @@ kscience{
 
     useSerialization()
 
-    dependencies{
+    dependencies {
         api(projects.trajectoryKt)
     }
 }

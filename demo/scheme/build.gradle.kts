@@ -8,7 +8,6 @@ plugins {
 
 kotlin {
     jvm()
-    jvmToolchain(17)
     sourceSets {
         commonMain {
             dependencies {

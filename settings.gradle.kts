@@ -30,8 +30,8 @@ dependencyResolutionManagement {
     repositories {
         mavenLocal()
         maven("https://repo.kotlin.link")
+        google()
         mavenCentral()
-        gradlePluginPortal()
     }
 
     versionCatalogs {
@@ -41,6 +41,9 @@ dependencyResolutionManagement {
     }
 }
 
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
 
 include(
     ":trajectory-kt",
