@@ -95,8 +95,9 @@ public data class ChartRange(
 
     /** Pads both ends; [absolutePadding] is used when the range has zero span. */
     public fun expand(relativePadding: Double = 0.05, absolutePadding: Double = 1.0): ChartRange {
-        require(relativePadding >= 0.0) { "Relative padding must be non-negative" }
-        require(absolutePadding > 0.0) { "Absolute padding must be positive" }
+        require(relativePadding.isFinite() && relativePadding >= 0.0) { "Relative padding must be finite and non-negative" }
+        require(absolutePadding.isFinite() && absolutePadding > 0.0) { "Absolute padding must be finite and positive" }
+        if (relativePadding == 0.0 && span != 0.0) return this
         val padding = if (span == 0.0) absolutePadding else span * relativePadding
         return ChartRange(min - padding, max + padding)
     }
@@ -106,21 +107,32 @@ public data class ChartRange(
         require(maxTickCount >= 2) { "At least two ticks are required" }
         if (span == 0.0) return listOf(min)
 
-        val step = niceStep(span / (maxTickCount - 1))
-        val start = ceil(min / step) * step
+        val divisions = (maxTickCount - 1).toDouble()
+        val rawStep = if (span.isFinite()) span / divisions else max / divisions - min / divisions
+        if (!rawStep.isFinite() || rawStep <= 0.0) return listOf(min, max)
+        val step = niceStep(rawStep)
+        val tolerance = step * 1e-9
+        val start = (floor(min / step) * step).takeIf { it.isFinite() } ?: (ceil(min / step) * step)
         val ticks = mutableListOf<Double>()
         var value = start
-        while (value <= max + step * 1e-9 && ticks.size <= maxTickCount + 1) {
-            ticks += normalizeTick(value, step)
-            value += step
+        while (value.isFinite() && value <= max + tolerance && ticks.size.toLong() <= maxTickCount.toLong() + 1) {
+            val tick = normalizeTick(value, step)
+            if (tick >= min - tolerance && tick <= max + tolerance) {
+                val bounded = tick.coerceIn(min, max)
+                if (ticks.isEmpty() || bounded > ticks.last()) ticks += bounded
+            }
+            val next = value + step
+            if (next <= value) return listOf(min, max)
+            value = next
         }
-        return ticks
+        return ticks.ifEmpty { listOf(min, max) }
     }
 
     public companion object {
         private fun niceStep(rawStep: Double): Double {
             val exponent = floor(log10(rawStep))
             val base = 10.0.pow(exponent)
+            if (base == 0.0) return rawStep
             val fraction = rawStep / base
             val niceFraction = when {
                 fraction <= 1.0 -> 1.0
@@ -128,7 +140,7 @@ public data class ChartRange(
                 fraction <= 5.0 -> 5.0
                 else -> 10.0
             }
-            return niceFraction * base
+            return (niceFraction * base).takeIf { it.isFinite() } ?: rawStep
         }
 
         private fun normalizeTick(value: Double, step: Double): Double =

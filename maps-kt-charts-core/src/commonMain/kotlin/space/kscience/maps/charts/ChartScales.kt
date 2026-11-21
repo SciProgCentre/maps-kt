@@ -1,15 +1,18 @@
 package space.kscience.maps.charts
 
 import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.plus
-import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
+import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.log
+import kotlin.math.log10
 import kotlin.math.pow
+import kotlin.math.round
 import kotlin.time.Instant
 
 /** A tick position in the data domain and its display label. */
@@ -32,7 +35,7 @@ public sealed interface ChartScale {
         override fun inverse(value: Double): Double = value
         override fun contains(value: Double): Boolean = value.isFinite()
         override fun ticks(range: ChartRange, maxTickCount: Int): List<ChartTick> =
-            range.niceTicks(maxTickCount).map { ChartTick(it, it.formatChartNumber()) }
+            numericTicks(range.niceTicks(maxTickCount))
 
         override fun expand(range: ChartRange, relativePadding: Double): ChartRange = range.expand(relativePadding)
     }
@@ -57,17 +60,13 @@ public sealed interface ChartScale {
             val firstPower = ceil(log(range.min, base) - 1e-12)
             val lastPower = floor(log(range.max, base) + 1e-12)
             if (firstPower > lastPower) {
-                return listOf(range.min, range.max).distinct().map { ChartTick(it, it.formatChartNumber()) }
+                return numericTicks(listOf(range.min, range.max).distinct())
             }
             val powerCount = lastPower - firstPower + 1
             val stride = ceil(powerCount / maxTickCount).coerceAtLeast(1.0)
             val count = ceil(powerCount / stride).toInt().coerceAtMost(maxTickCount)
-            return List(count) { index ->
-                val value = base.pow(firstPower + index * stride)
-                ChartTick(value, value.formatChartNumber())
-            }.filter { it.value in range }.ifEmpty {
-                listOf(range.min, range.max).distinct().map { ChartTick(it, it.formatChartNumber()) }
-            }
+            val values = List(count) { index -> base.pow(firstPower + index * stride) }.filter { it in range }
+            return numericTicks(values.ifEmpty { listOf(range.min, range.max).distinct() })
         }
 
         override fun expand(range: ChartRange, relativePadding: Double): ChartRange {
@@ -78,20 +77,25 @@ public sealed interface ChartScale {
         }
     }
 
-    /** Epoch-millisecond coordinates with calendar-aware ticks and labels in [timeZone]. */
+    /** Epoch-millisecond coordinates in the Long range, with calendar ticks and millisecond-precision labels. */
     public data class Time(public val timeZone: TimeZone = TimeZone.UTC) : ChartScale {
         override fun transform(value: Double): Double = value
         override fun inverse(value: Double): Double = value
-        override fun contains(value: Double): Boolean = value.isFinite()
+        override fun contains(value: Double): Boolean =
+            value.isFinite() && value >= Long.MIN_VALUE.toDouble() && value <= Long.MAX_VALUE.toDouble()
         override fun expand(range: ChartRange, relativePadding: Double): ChartRange =
             range.expand(relativePadding, 1_000.0)
 
         override fun ticks(range: ChartRange, maxTickCount: Int): List<ChartTick> {
             require(maxTickCount >= 2) { "At least two ticks are required" }
+            require(contains(range.min) && contains(range.max)) { "Time range must fit epoch milliseconds in Long" }
             val step = chooseTimeStep(range.span, maxTickCount)
-            return when (step.unit) {
+            val ticks = when (step.unit) {
                 null -> fixedTimeTicks(range, step.amount, maxTickCount, timeZone)
                 else -> calendarTimeTicks(range, step.amount.toInt(), step.unit, maxTickCount, timeZone)
+            }
+            return ticks.ifEmpty {
+                listOf(range.min, range.max).distinct().map { ChartTick(it, formatTime(it.toLong(), range.span, timeZone)) }
             }
         }
     }
@@ -139,11 +143,22 @@ private fun fixedTimeTicks(
     maxTickCount: Int,
     timeZone: TimeZone,
 ): List<ChartTick> {
-    var value = floor(range.min / stepMillis).toLong() * stepMillis
-    if (value < range.min) value += stepMillis
+    var value = range.min.toLong()
+    val remainder = value % stepMillis
+    val delta = if (remainder <= 0L) -remainder else stepMillis - remainder
+    if (value > Long.MAX_VALUE - delta) return emptyList()
+    value += delta
+    if (value < range.min) {
+        if (value > Long.MAX_VALUE - stepMillis) return emptyList()
+        value += stepMillis
+    }
     val ticks = mutableListOf<ChartTick>()
-    while (value <= range.max && ticks.size <= maxTickCount + 1) {
-        ticks += ChartTick(value.toDouble(), formatTime(value, stepMillis.toDouble(), timeZone))
+    while (value <= range.max && ticks.size.toLong() <= maxTickCount.toLong() + 1) {
+        val coordinate = value.toDouble()
+        if (ticks.isEmpty() || coordinate > ticks.last().value) {
+            ticks += ChartTick(coordinate, formatTime(value, stepMillis.toDouble(), timeZone))
+        }
+        if (value > Long.MAX_VALUE - stepMillis) break
         value += stepMillis
     }
     return ticks
@@ -157,35 +172,65 @@ private fun calendarTimeTicks(
     timeZone: TimeZone,
 ): List<ChartTick> {
     val local = Instant.fromEpochMilliseconds(range.min.toLong()).toLocalDateTime(timeZone)
-    val aligned = when (unit) {
-        DateTimeUnit.DAY -> LocalDateTime(local.year, local.month.ordinal + 1, local.day, 0, 0)
-        DateTimeUnit.MONTH -> LocalDateTime(local.year, local.month.ordinal + 1, 1, 0, 0)
-        DateTimeUnit.YEAR -> LocalDateTime(local.year, 1, 1, 0, 0)
+    var date = when (unit) {
+        DateTimeUnit.DAY -> local.date
+        DateTimeUnit.MONTH -> LocalDate(local.year, local.month, 1)
+        DateTimeUnit.YEAR -> LocalDate(local.year, 1, 1)
         else -> error("Unsupported calendar unit")
     }
-    var instant = aligned.toInstant(timeZone)
+    var instant = date.atStartOfDayIn(timeZone)
     while (instant.toEpochMilliseconds() < range.min) {
-        instant = instant.plus(amount, unit, timeZone)
+        date = date.plus(amount, unit)
+        instant = date.atStartOfDayIn(timeZone)
     }
     val ticks = mutableListOf<ChartTick>()
-    while (instant.toEpochMilliseconds() <= range.max && ticks.size <= maxTickCount + 1) {
+    val end = Instant.fromEpochMilliseconds(range.max.toLong())
+    while (instant <= end && ticks.size.toLong() <= maxTickCount.toLong() + 1) {
         val millis = instant.toEpochMilliseconds()
-        ticks += ChartTick(millis.toDouble(), formatTime(millis, range.span, timeZone))
-        instant = instant.plus(amount, unit, timeZone)
+        if (ticks.isEmpty() || millis.toDouble() > ticks.last().value) {
+            ticks += ChartTick(millis.toDouble(), formatTime(millis, range.span, timeZone))
+        }
+        date = date.plus(amount, unit)
+        instant = date.atStartOfDayIn(timeZone)
     }
     return ticks
 }
 
 /** Formats a coordinate using the visible span to choose numeric or time precision. */
-public fun ChartScale.format(value: Double, visibleRange: ChartRange): String = when (this) {
-    ChartScale.Linear -> value.formatChartNumber()
-    is ChartScale.Log -> value.formatChartNumber()
-    is ChartScale.Time -> formatTime(value.toLong(), visibleRange.span, timeZone)
+public fun ChartScale.format(value: Double, visibleRange: ChartRange): String {
+    require(contains(value)) { "Coordinate is outside the scale domain" }
+    require(contains(visibleRange.min) && contains(visibleRange.max)) { "Visible range is outside the scale domain" }
+    return when (this) {
+        ChartScale.Linear, is ChartScale.Log -> formatNumeric(value, visibleRange.span / 5.0)
+        is ChartScale.Time -> formatTime(value.toLong(), visibleRange.span, timeZone)
+    }
+}
+
+private fun numericTicks(values: List<Double>): List<ChartTick> {
+    var step = Double.POSITIVE_INFINITY
+    for (index in 1 until values.size) step = minOf(step, values[index] - values[index - 1])
+    val ticks = values.map { ChartTick(it, formatNumeric(it, step)) }
+    for (index in 1 until ticks.size) {
+        if (ticks[index].label == ticks[index - 1].label) {
+            return values.map { ChartTick(it, it.toString().removeSuffix(".0")) }
+        }
+    }
+    return ticks
+}
+
+private fun formatNumeric(value: Double, step: Double): String {
+    if (value == 0.0) return "0"
+    if (!step.isFinite() || step <= 0.0 || abs(value) >= 1_000_000.0 || abs(value) < 0.001) {
+        return value.toString().removeSuffix(".0")
+    }
+    val decimals = (-floor(log10(step))).coerceIn(0.0, 15.0).toInt()
+    val factor = 10.0.pow(decimals)
+    return (round(value * factor) / factor).toString().removeSuffix(".0")
 }
 
 private fun formatTime(epochMillis: Long, spanMillis: Double, timeZone: TimeZone): String {
     val value = Instant.fromEpochMilliseconds(epochMillis).toLocalDateTime(timeZone)
-    val date = "${value.year.toString().padStart(4, '0')}-${(value.month.ordinal + 1).twoDigits()}-${value.day.twoDigits()}"
+    val date = value.date.toString()
     val time = "${value.hour.twoDigits()}:${value.minute.twoDigits()}:${value.second.twoDigits()}"
     return when {
         spanMillis < 60_000.0 -> "$time.${value.nanosecond.div(1_000_000).toString().padStart(3, '0')}"

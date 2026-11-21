@@ -160,4 +160,63 @@ class ChartScalesTest {
         assertTrue(ticks.all { it.value.isFinite() && it.value in range })
         assertTrue(ticks.zipWithNext().all { (left, right) -> left.value < right.value })
     }
+
+    @Test
+    fun numericLabelsDistinguishTicksOnNarrowRanges() {
+        val ticks = ChartScale.Linear.ticks(ChartRange(1_000.0, 1_000.5), 6)
+
+        assertEquals(listOf("1000", "1000.1", "1000.2", "1000.3", "1000.4", "1000.5"), ticks.map { it.label })
+        assertEquals("1000.3", ChartScale.Linear.format(1_000.3, ChartRange(1_000.0, 1_000.5)))
+    }
+
+    @Test
+    fun timeTicksCoverUnalignedCalendarRanges() {
+        val first = Instant.parse("2024-01-02T12:00:00Z").toChartValue()
+        val last = Instant.parse("2024-01-05T00:00:00Z").toChartValue()
+        val ticks = ChartScale.Time().ticks(ChartRange(first, last), 2)
+
+        assertEquals(listOf(first, last), ticks.map { it.value })
+    }
+
+    @Test
+    fun timeScaleRejectsUnrepresentableEpochMilliseconds() {
+        val scale = ChartScale.Time()
+
+        assertFalse(scale.contains(Double.MAX_VALUE))
+        assertFalse(scale.contains(-Double.MAX_VALUE))
+        assertFailsWith<IllegalArgumentException> {
+            scale.ticks(ChartRange(Double.MAX_VALUE, Double.MAX_VALUE), 6)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            scale.format(Double.NaN, ChartRange(0.0, 1_000.0))
+        }
+    }
+
+    @Test
+    fun timeLabelsPreserveIsoNegativeYears() {
+        val first = Instant.parse("-0001-01-01T00:00:00Z").toChartValue()
+        val last = Instant.parse("0001-01-01T00:00:00Z").toChartValue()
+
+        assertEquals("-0001-01-01", ChartScale.Time().format(first, ChartRange(first, last)))
+    }
+
+    @Test
+    fun fixedTimeTicksAlignBeforeEpochAndAcceptLargeTargetCount() {
+        val scale = ChartScale.Time()
+
+        assertEquals(
+            listOf(-2.0, -1.0, 0.0, 1.0, 2.0),
+            scale.ticks(ChartRange(-2.5, 2.5), Int.MAX_VALUE).map { it.value },
+        )
+    }
+
+    @Test
+    fun timeTicksHandleEpochMillisecondLimits() {
+        val range = ChartRange(Long.MIN_VALUE.toDouble(), Long.MAX_VALUE.toDouble())
+        val ticks = ChartScale.Time().ticks(range, 6)
+
+        assertTrue(ticks.isNotEmpty())
+        assertTrue(ticks.all { it.value in range })
+        assertTrue(ticks.zipWithNext().all { (left, right) -> left.value < right.value })
+    }
 }
