@@ -48,6 +48,7 @@ plugins {
 include(
     ":trajectory-kt",
     ":maps-kt-core",
+    ":maps-kt-charts-core",
     ":maps-kt-geojson",
     ":maps-kt-geotools",
     ":maps-kt-features",
